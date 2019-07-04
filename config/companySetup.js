@@ -25,32 +25,43 @@ async function copyCompanySetUp() {
         message: 'Pick a company to SetUp',
         choices: [
             { title: 'Ever Bilena', value: 'EverBilena' },
-            { title: 'Barapido', value: 'Barapido', disabled: true },
+            { title: 'Barapido', value: 'Barapido' },
             { title: 'Mary Kay', value: 'MaryKay', disabled: true },
             { title: 'My Natural', value: 'MyNatural', disabled: true }
         ],
         initial: 0
     }
     );
-    let imgSource = `company_setup/${answer.value}/src/assets/img`;
-    let imgDestination = 'src/assets/img'
-    fs.copy(imgSource, imgDestination)
-        .then(() => console.log('img update success!'))
-        .catch(err => console.error(err))
 
-    let resSource = `company_setup/${answer.value}/res`;
-    let resDestination = 'res'
+    try {
+        let imgSource = `company_setup/${answer.value}/src/assets/img`;
+        let imgDestination = 'src/assets/img'
+        await fs.copy(imgSource, imgDestination)
+        console.log('img update success!')
 
-    fs.copy(resSource, resDestination)
-        .then(() => console.log('res update success!'))
-        .catch(err => console.error(err))
+        let resSource = `company_setup/${answer.value}/res`;
+        let resDestination = 'res'
+        await fs.copy(resSource, resDestination)
+        console.log('res update success!')
 
-    let configSource = `company_setup/${answer.value}/environmentConfig`;
-    let configDestination = 'config'
+        let configSource = `company_setup/${answer.value}/environmentConfig`;
+        let configDestination = 'config'
+        await fs.copy(configSource, configDestination)
+        console.log('config update success!')
 
-    fs.copy(configSource, configDestination)
-        .then(() => console.log('config update success!'))
-        .catch(err => console.error(err))
+        let pageSource = `company_setup/${answer.value}/src/pages`;
+        let pageDestination = 'src/pages'
+        await fs.copy(pageSource, pageDestination)
+        console.log('Pages update success!')
+
+    }
+    catch (err) {
+        console.error(err)
+    }
+
+
+
+
 
     return true;
 };
