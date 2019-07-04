@@ -7,8 +7,8 @@ module.exports = {
   storageBucket: '"ever-bilena.appspot.com"',
   messagingSenderId: '"291939986733"',
   appId: '"1:291939986733:web:82beda3f7ba891db"',
-  storageCode: "ever-bilena",
-  webAdminId: "admin",
-  companyName: "Ever Bilena",
-  version: "0.6.5"
+  storageCode: '"ever-bilena"',
+  webAdminId: '"admin"',
+  companyName: '"Ever Bilena"',
+  version: '"0.6.5"'
 }

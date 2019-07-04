@@ -10,8 +10,8 @@ module.exports = merge(devEnv, {
   storageBucket: '"ever-bilena-dev.appspot.com"',
   messagingSenderId: '"127418362624"',
   appId: '"1:127418362624:web:fe8dafbb3c63c6d9"',
-  storageCode: "ever-bilena",
-  webAdminId: "admin",
-  companyName: "Ever Bilena",
-  version: "0.6.5"
+  storageCode: '"ever-bilena"',
+  webAdminId: '"admin"',
+  companyName: '"Ever Bilena"',
+  version: '"0.6.5"'
 })
