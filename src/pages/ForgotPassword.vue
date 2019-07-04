@@ -1,7 +1,7 @@
 <template>
   <v-container fluid>
     <div class="text-xs-center mt-5">
-      <v-img :src="require('@/assets/img/everbilena_header_logo.jpg')" contain></v-img>
+      <v-img :src="require('@/assets/img/header_logo.jpg')" contain></v-img>
     </div>
     <v-form v-model="valid" ref="form" lazy-validation @submit.prevent="submit">
       <v-layout column class="mt-4">
