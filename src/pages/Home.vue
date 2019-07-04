@@ -39,7 +39,6 @@
       </div>
     </v-layout>
     <TrialMessage ref="trial" />
-    <Modal ref="modal" />
   </v-container>
 </template>
 

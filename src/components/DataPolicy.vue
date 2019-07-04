@@ -394,7 +394,7 @@ normal;background:white"
                     <span
                       style='font-size:12.0pt;font-family:"Tahoma",sans-serif;
 mso-fareast-font-family:"Times New Roman";color:black'
-                      ><o:p>&nbsp;</o:p></span
+                      >&nbsp;</span
                     >
                   </p>
 
@@ -407,8 +407,7 @@ normal;background:white"
                       ><span
                         style='font-size:12.0pt;font-family:"Tahoma",sans-serif;mso-fareast-font-family:
 "Times New Roman";color:black'
-                        >EVER BILENA RESELLER APP – PRIVACY POLICY<o:p
-                        ></o:p></span
+                        >EVER BILENA RESELLER APP – PRIVACY POLICY</span
                     ></b>
                   </p>
 
@@ -426,8 +425,7 @@ mso-fareast-font-family:"Times New Roman";color:black'
                       may collect process and retain any personal and/or
                       privileged information pertaining to you, the user, and
                       that any information provided by you is provided
-                      voluntarily.<o:p></o:p
-                    ></span>
+                      voluntarily.</span>
                   </p>
 
                   <p
@@ -439,8 +437,7 @@ normal;background:white"
                       style='font-size:12.0pt;font-family:"Tahoma",sans-serif;
 mso-fareast-font-family:"Times New Roman";color:black'
                       >Hen Mei Lee Inc. is committed to protecting your
-                      privacy.<o:p></o:p
-                    ></span>
+                      privacy.</span>
                   </p>
 
                   <p
@@ -452,8 +449,7 @@ normal;background:white"
                       style='font-size:12.0pt;font-family:"Tahoma",sans-serif;
 mso-fareast-font-family:"Times New Roman";color:black'
                       >In compliance with the Data Privacy Act of 2012, please
-                      read the following Privacy Notice.<o:p></o:p
-                    ></span>
+                      read the following Privacy Notice.</span>
                   </p>
 
                   <p
@@ -480,7 +476,7 @@ mso-fareast-font-family:Tahoma;color:black'
                       ><span
                         style='font-size:12.0pt;font-family:"Tahoma",sans-serif;mso-fareast-font-family:
 "Times New Roman";color:black'
-                        >DATA COLLECTION AND INTENDED USE<o:p></o:p></span
+                        >DATA COLLECTION AND INTENDED USE</span
                     ></b>
                   </p>
 
@@ -496,8 +492,7 @@ margin-left:18.0pt;text-align:justify;line-height:normal"
                       process personal and/or privileged information pertaining
                       to its users. This involves the recording, processing and
                       transmission of such information both inside and outside
-                      the Philippines<o:p></o:p
-                    ></span>
+                      the Philippines</span>
                   </p>
 
                   <p
@@ -509,8 +504,7 @@ margin-left:18.0pt;text-align:justify;line-height:normal"
                       style='font-size:12.0pt;font-family:"Tahoma",sans-serif;mso-fareast-font-family:
 "Times New Roman";color:black'
                       >In particular, this application collects two (2) types of
-                      information from its users:<o:p></o:p
-                    ></span>
+                      information from its users:</span>
                   </p>
 
                   <p
@@ -539,8 +533,7 @@ mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol;color:black"
 color:black'
                       >(such as name, mail address, e-mail address, password,
                       etc.) when voluntarily submitted by application visitors
-                      for registration, contests, etc.;<o:p></o:p
-                    ></span>
+                      for registration, contests, etc.;</span>
                   </p>
 
                   <p
@@ -568,8 +561,7 @@ mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol;color:black"
 12.0pt;font-family:"Tahoma",sans-serif;mso-fareast-font-family:"Times New Roman";
 color:black'
                       >(such as browser type, IP address, page reference,
-                      etc.)<o:p></o:p
-                    ></span>
+                      etc.)</span>
                   </p>
 
                   <p
@@ -581,8 +573,7 @@ margin-left:18.0pt;text-align:justify;line-height:normal"
                       style='font-size:12.0pt;font-family:"Tahoma",sans-serif;mso-fareast-font-family:
 "Times New Roman";color:black'
                       >The personal information we collect from the user/s of
-                      the application include/s the following:<o:p></o:p
-                    ></span>
+                      the application include/s the following:</span>
                   </p>
 
                   <p
@@ -602,8 +593,7 @@ mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol;color:black"
                     ><span
                       style='font-size:12.0pt;font-family:"Tahoma",sans-serif;
 mso-fareast-font-family:"Times New Roman";color:black'
-                      >Full Name<o:p></o:p
-                    ></span>
+                      >Full Name</span>
                   </p>
 
                   <p
@@ -623,8 +613,7 @@ mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol;color:black"
                     ><span
                       style='font-size:12.0pt;font-family:"Tahoma",sans-serif;
 mso-fareast-font-family:"Times New Roman";color:black'
-                      >Gender<o:p></o:p
-                    ></span>
+                      >Gender</span>
                   </p>
 
                   <p
@@ -644,8 +633,7 @@ mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol;color:black"
                     ><span
                       style='font-size:12.0pt;font-family:"Tahoma",sans-serif;
 mso-fareast-font-family:"Times New Roman";color:black'
-                      >Delivery Address<o:p></o:p
-                    ></span>
+                      >Delivery Address</span>
                   </p>
 
                   <p
@@ -665,8 +653,7 @@ mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol;color:black"
                     ><span
                       style='font-size:12.0pt;font-family:"Tahoma",sans-serif;
 mso-fareast-font-family:"Times New Roman";color:black'
-                      >Email<o:p></o:p
-                    ></span>
+                      >Email</span>
                   </p>
 
                   <p
@@ -686,8 +673,7 @@ mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol;color:black"
                     ><span
                       style='font-size:12.0pt;font-family:"Tahoma",sans-serif;
 mso-fareast-font-family:"Times New Roman";color:black'
-                      >Contact Number<o:p></o:p
-                    ></span>
+                      >Contact Number</span>
                   </p>
 
                   <p
@@ -707,8 +693,7 @@ mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol;color:black"
                     ><span
                       style='font-size:12.0pt;font-family:"Tahoma",sans-serif;
 mso-fareast-font-family:"Times New Roman";color:black'
-                      >Birthday<o:p></o:p
-                    ></span>
+                      >Birthday</span>
                   </p>
 
                   <p
@@ -728,8 +713,7 @@ mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol;color:black"
                     ><span
                       style='font-size:12.0pt;font-family:"Tahoma",sans-serif;
 mso-fareast-font-family:"Times New Roman";color:black'
-                      >Proof of ID<o:p></o:p
-                    ></span>
+                      >Proof of ID</span>
                   </p>
 
                   <p
@@ -749,8 +733,7 @@ mso-fareast-font-family:Symbol;mso-bidi-font-family:Symbol;color:black"
                     ><span
                       style='font-size:12.0pt;font-family:"Tahoma",sans-serif;
 mso-fareast-font-family:"Times New Roman";color:black'
-                      >Social media account<o:p></o:p
-                    ></span>
+                      >Social media account</span>
                   </p>
 
                   <p
@@ -763,8 +746,7 @@ margin-left:18.0pt;text-align:justify;line-height:normal"
 "Times New Roman";color:black'
                       >The personal information provided by
                       <span class="GramE">you,</span> the user will be used for
-                      the following purposes only:<o:p></o:p
-                    ></span>
+                      the following purposes only:</span>
                   </p>
 
                   <p
@@ -793,8 +775,7 @@ mso-fareast-font-family:"Times New Roman";color:black'
                       style='font-size:12.0pt;
 font-family:"Tahoma",sans-serif;mso-fareast-font-family:"Times New Roman";
 color:black'
-                      ><o:p></o:p
-                    ></span>
+                      ></span>
                   </p>
 
                   <p
@@ -815,8 +796,7 @@ Symbol;color:black"
                     ><span
                       style='font-size:12.0pt;font-family:"Tahoma",sans-serif;
 mso-fareast-font-family:"Times New Roman";color:black'
-                      >Processing orders<o:p></o:p
-                    ></span>
+                      >Processing orders</span>
                   </p>
 
                   <p
@@ -838,8 +818,7 @@ Symbol;color:black"
                       style='font-size:12.0pt;font-family:"Tahoma",sans-serif;
 mso-fareast-font-family:"Times New Roman";color:black'
                       >Personalizing marketing communication content and offers
-                      delivered to the user.<o:p></o:p
-                    ></span>
+                      delivered to the user.</span>
                   </p>
 
                   <p
@@ -853,9 +832,7 @@ margin-left:18.0pt;text-align:justify;line-height:normal"
                       >The personal information submitted or to be submitted by
                       the user via the application shall be used by Hen Mei Lee
                       Inc. only for business purposes which may include
-                      communications with its affiliates and subsidiaries.<o:p
-                      ></o:p
-                    ></span>
+                      communications with its affiliates and subsidiaries.</span>
                   </p>
 
                   <p
@@ -868,8 +845,8 @@ margin-left:18.0pt;text-align:justify;line-height:normal"
 "Times New Roman";color:black'
                       >Hen Mei Lee Inc. does not share any information or data
                       collected from the application with third parties, except
-                      for the limited instances set out below:<o:p></o:p
-                    ></span>
+                      for the limited instances set out below:
+                     </span>
                   </p>
 
                   <p
@@ -891,8 +868,7 @@ Symbol;color:black"
                       style='font-size:12.0pt;font-family:"Tahoma",sans-serif;
 mso-fareast-font-family:"Times New Roman";color:black'
                       >For purposes of maintaining this application and any
-                      associated information databases.<o:p></o:p
-                    ></span>
+                      associated information databases.</span>
                   </p>
 
                   <p
@@ -919,8 +895,7 @@ mso-fareast-font-family:"Times New Roman";color:black'
                       information collected through the application for direct
                       marketing or unsolicited follow-up unless you expressly
                       give your permission for the use of your personal
-                      information for such purpose.<o:p></o:p
-                    ></span>
+                      information for such purpose.</span>
                   </p>
 
                   <p
@@ -943,9 +918,7 @@ Symbol;color:black"
 mso-fareast-font-family:"Times New Roman";color:black'
                       >For purposes of providing the
                       <span class="GramE">third party</span> courier with the
-                      information necessary to deliver your order to you.<o:p
-                      ></o:p
-                    ></span>
+                      information necessary to deliver your order to you.</span>
                   </p>
 
                   <p
@@ -966,9 +939,7 @@ Symbol;color:black"
                     ><span
                       style='font-size:12.0pt;font-family:"Tahoma",sans-serif;
 mso-fareast-font-family:"Times New Roman";color:black'
-                      >For purposes of improving our product and services.<o:p
-                      ></o:p
-                    ></span>
+                      >For purposes of improving our product and services.</span>
                   </p>
 
                   <p
@@ -980,8 +951,7 @@ margin-left:18.0pt;text-align:justify;line-height:normal"
                       style='font-size:12.0pt;font-family:"Tahoma",sans-serif;mso-fareast-font-family:
 "Times New Roman";color:black'
                       >All these third parties are contractually bound to keep
-                      your data private and secure.<o:p></o:p
-                    ></span>
+                      your data private and secure.</span>
                   </p>
 
                   <p
@@ -993,9 +963,7 @@ margin-left:18.0pt;text-align:justify;line-height:normal"
                       style='font-size:12.0pt;font-family:"Tahoma",sans-serif;mso-fareast-font-family:
 "Times New Roman";color:black'
                       >You hereby acknowledge that Hen Mei Lee Inc. may disclose
-                      your personal information in the following instances:<o:p
-                      ></o:p
-                    ></span>
+                      your personal information in the following instances:</span>
                   </p>
 
                   <p
@@ -1020,8 +988,7 @@ mso-fareast-font-family:"Times New Roman";color:black'
                       order of a court or if such action is reasonably necessary
                       to comply with legal processes, to respond to any claims,
                       or to protect the rights of Hen Mei Lee Inc., its
-                      customers and the public; or<o:p></o:p
-                    ></span>
+                      customers and the public; or</span>
                   </p>
 
                   <p
@@ -1032,7 +999,7 @@ auto;mso-add-space:auto;text-align:justify;line-height:normal"
                     <span
                       style='font-size:12.0pt;font-family:"Tahoma",sans-serif;mso-fareast-font-family:
 "Times New Roman";color:black'
-                      ><o:p>&nbsp;</o:p></span
+                      >&nbsp;</span
                     >
                   </p>
 
@@ -1060,8 +1027,7 @@ mso-fareast-font-family:"Times New Roman";color:black'
                       business, which could include personal data, subject to
                       applicable law. Similarly, data may be transferred as part
                       of reorganization (business merging) or insolvency
-                      proceedings.<o:p></o:p
-                    ></span>
+                      proceedings.</span>
                   </p>
 
                   <p
@@ -1083,7 +1049,7 @@ color:black'
                       ></b
                     ><b style="mso-bidi-font-weight:normal"
                       ><span style='font-family:"Tahoma",sans-serif;color:black'
-                        >TRACKING TECHNOLOGY<o:p></o:p></span
+                        >TRACKING TECHNOLOGY</span
                     ></b>
                   </p>
 
@@ -1100,8 +1066,7 @@ text-align:justify"
                       ><a href="https://www.kfc.com.ph/"></a
                       ><span style="color:black"
                         >&nbsp;through sending customized communications to
-                        users via Ever Bilena ads shown across the internet.<o:p
-                        ></o:p></span
+                        users via Ever Bilena ads shown across the internet.</span
                     ></span>
                   </p>
 
@@ -1110,7 +1075,7 @@ text-align:justify"
 text-align:justify"
                   >
                     <span style='font-family:"Tahoma",sans-serif;color:black'
-                      ><o:p>&nbsp;</o:p></span
+                      >&nbsp;</span
                     >
                   </p>
 
@@ -1133,7 +1098,7 @@ mso-text-indent-alt:-18.0pt;mso-list:l13 level1 lfo11"
                       ><span
                         style='font-size:12.0pt;line-height:107%;font-family:"Tahoma",sans-serif;
 color:black;background:white'
-                        >SERVER<o:p></o:p></span
+                        >SERVER</span
                     ></b>
                   </p>
 
@@ -1146,15 +1111,14 @@ line-height:107%;font-family:"Tahoma",sans-serif;color:black;background:white'
                       application. Hen Mei Lee Inc. shall only process and use
                       personal data in accordance with this Privacy Notice and
                       the provisions of the Data Privacy Law of the
-                      Philippines.<o:p></o:p
-                    ></span>
+                      Philippines.</span>
                   </p>
 
                   <p class="MsoNormal" style="text-align:justify">
                     <span
                       style='font-size:12.0pt;
 line-height:107%;font-family:"Tahoma",sans-serif;color:black;background:white'
-                      ><o:p>&nbsp;</o:p></span
+                      >&nbsp;</span
                     >
                   </p>
 
@@ -1186,7 +1150,7 @@ color:black;background:white'
 normal"
                       ><span
                         style='font-size:12.0pt;line-height:107%;font-family:"Tahoma",sans-serif'
-                        ><o:p></o:p></span
+                        ></span
                     ></b>
                   </p>
 
@@ -1198,8 +1162,7 @@ text-align:justify"
                       >Processing of personal data (such as user-ID, password,
                       etc.) may be mandatory for the purposes of consultation,
                       modification or deletion of your personal data and/or of
-                      the online services offered by this application.<o:p></o:p
-                    ></span>
+                      the online services offered by this application.</span>
                   </p>
 
                   <p
@@ -1207,7 +1170,7 @@ text-align:justify"
 text-align:justify"
                   >
                     <span style='font-family:"Tahoma",sans-serif;color:black'
-                      ><o:p>&nbsp;</o:p></span
+                      >&nbsp;</span
                     >
                   </p>
 
@@ -1230,7 +1193,7 @@ color:black'
                       ></b
                     ><b style="mso-bidi-font-weight:normal"
                       ><span style='font-family:"Tahoma",sans-serif;color:black'
-                        >CONTROL OF YOUR PERSONAL INFORMATION<o:p></o:p></span
+                        >CONTROL OF YOUR PERSONAL INFORMATION</span
                     ></b>
                   </p>
 
@@ -1245,8 +1208,7 @@ text-align:justify"
                       listed above. Registration also allows the user of this
                       application to choose the manner by which he or she
                       communicates with Hen Mei Lee Inc.
-                      <span style="mso-spacerun:yes"> </span><o:p></o:p
-                    ></span>
+                      <span style="mso-spacerun:yes"> </span></span>
                   </p>
 
                   <p
@@ -1256,8 +1218,7 @@ text-align:justify"
                     <span style='font-family:"Tahoma",sans-serif;color:black'
                       >Email messages shall also be sent to the user upon order
                       confirmation, password reset, and technical service or
-                      security issues.<o:p></o:p
-                    ></span>
+                      security issues.</span>
                   </p>
 
                   <p
@@ -1265,7 +1226,7 @@ text-align:justify"
 text-align:justify"
                   >
                     <span style='font-family:"Tahoma",sans-serif;color:black'
-                      ><o:p>&nbsp;</o:p></span
+                      >&nbsp;</span
                     >
                   </p>
 
@@ -1288,7 +1249,7 @@ color:black'
                       ></b
                     ><b style="mso-bidi-font-weight:normal"
                       ><span style='font-family:"Tahoma",sans-serif;color:black'
-                        >ACCESS TO YOUR PERSONAL INFORMATION<o:p></o:p></span
+                        >ACCESS TO YOUR PERSONAL INFORMATION</span
                     ></b>
                   </p>
 
@@ -1306,7 +1267,7 @@ text-align:justify"
                         to the app and visiting the ‘My Account’ page.
                         Registered users of&nbsp;the Ever Bilena Reseller App
                         may delete their account by email request to DirectApp
-                        at info.appsell@gmail.com<o:p></o:p></span
+                        at info.appsell@gmail.com</span
                     ></span>
                   </p>
 
@@ -1315,7 +1276,7 @@ text-align:justify"
 text-align:justify"
                   >
                     <span style='font-family:"Tahoma",sans-serif;color:black'
-                      ><o:p>&nbsp;</o:p></span
+                      >&nbsp;</span
                     >
                   </p>
 
@@ -1336,8 +1297,7 @@ color:black'
                       ></b
                     ><b style="mso-bidi-font-weight:normal"
                       ><span style='font-family:"Tahoma",sans-serif;color:black'
-                        >ANNOUNCEMENTS AND MARKETING COMMUNICATIONS<o:p
-                        ></o:p></span
+                        >ANNOUNCEMENTS AND MARKETING </span
                     ></b>
                   </p>
 
@@ -1353,8 +1313,7 @@ mso-fareast-font-family:"Times New Roman";color:black'
                       announcements and marketing communications via email and
                       SMS from time to time. Customers are given the option to
                       opt out of the mailing list by clicking Unsubscribe in the
-                      email and SMS sent by Hen Mei Lee Inc. <o:p></o:p
-                    ></span>
+                      email and SMS sent by Hen Mei Lee Inc. </span>
                   </p>
 
                   <p
@@ -1370,9 +1329,7 @@ mso-fareast-font-family:"Times New Roman";color:black'
                       containing advertisement or marketing related materials
                       without the prior consent of the recipient. If for some
                       reason you believe you have received SPAM email from Hen
-                      Mei Lee, you may unsubscribe from our mailing list.<o:p
-                      ></o:p
-                    ></span>
+                      Mei Lee, you may unsubscribe from our mailing list.</span>
                   </p>
 
                   <p
@@ -1396,7 +1353,7 @@ normal;mso-list:l13 level1 lfo11"
                       ><span
                         style='font-size:12.0pt;font-family:"Tahoma",sans-serif;mso-fareast-font-family:
 "Times New Roman";color:black'
-                        >DATA RETENTION<o:p></o:p></span
+                        >DATA RETENTION</span
                     ></b>
                   </p>
 
@@ -1411,8 +1368,7 @@ text-align:justify"
                       at least 1 month before their account expires to request
                       consent to retain their information for another 3 years.
                       Customer data will be deleted unless consent is provided
-                      by the customer.<o:p></o:p
-                    ></span>
+                      by the customer.</span>
                   </p>
 
                   <p
@@ -1440,8 +1396,7 @@ color:black'
                         ></span
                       ></b
                     ><span style='font-family:"Tahoma",sans-serif;color:black'
-                      ><o:p></o:p
-                    ></span>
+                      ></span>
                   </p>
 
                   <p
@@ -1451,8 +1406,7 @@ text-align:justify"
                     <span style='font-family:"Tahoma",sans-serif;color:black'
                       >Users of this application under eighteen (18) years of
                       age should consult a parent or guardian BEFORE giving out
-                      personal information via this application. <o:p></o:p
-                    ></span>
+                      personal information via this application. </span>
                   </p>
 
                   <p
@@ -1467,7 +1421,7 @@ text-align:justify"
                         ></span
                       ></b
                     ><span style='font-family:"Tahoma",sans-serif;color:black'
-                      ><o:p></o:p
+                      
                     ></span>
                   </p>
 
@@ -1481,8 +1435,7 @@ text-align:justify"
                       activities. Please be sure that your child has obtained
                       your consent BEFORE they provide any personal and/or
                       privileged information online through this
-                      application.<o:p></o:p
-                    ></span>
+                      application.</span>
                   </p>
 
                   <p
@@ -1504,7 +1457,7 @@ color:black'
                       ></b
                     ><b style="mso-bidi-font-weight:normal"
                       ><span style='font-family:"Tahoma",sans-serif;color:black'
-                        >PRIVACY NOTICE UPDATES<o:p></o:p></span
+                        >PRIVACY NOTICE UPDATES</span
                     ></b>
                   </p>
 
@@ -1517,8 +1470,7 @@ text-align:justify"
                       and corrections to this Privacy Notice. It is the
                       responsibility of the user/s of this application to refer
                       to this page from time to time to review any subsequent
-                      amendments.<o:p></o:p
-                    ></span>
+                      amendments.</span>
                   </p>
 
                   <p
@@ -1540,7 +1492,7 @@ color:black'
                       ></b
                     ><b style="mso-bidi-font-weight:normal"
                       ><span style='font-family:"Tahoma",sans-serif;color:black'
-                        >GOVERNING LAW<o:p></o:p></span
+                        >GOVERNING LAW</span
                     ></b>
                   </p>
 
@@ -1561,8 +1513,7 @@ color:black'
                     ><span
                       style='font-size:12.0pt;font-family:"Tahoma",sans-serif;mso-fareast-font-family:
 "Times New Roman";color:black'
-                      ><o:p></o:p
-                    ></span>
+                      ></span>
                   </p>
                 </div>
               </v-card-text>

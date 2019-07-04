@@ -23,8 +23,8 @@ text-align:center;line-height:normal;mso-outline-level:1"
             <b
               style="mso-bidi-font-weight:
 normal"
-              >TERMS AND CONDITIONS<o:p></o:p
-            ></b>
+              >TERMS AND CONDITIONS</b
+            >
           </p>
 
           <p
@@ -36,8 +36,8 @@ text-align:center;line-height:normal;mso-outline-level:1"
             <b
               style="mso-bidi-font-weight:
 normal"
-              >EVER BILENA RESELLER MOBILE APP<o:p></o:p
-            ></b>
+              >EVER BILENA RESELLER MOBILE APP</b
+            >
           </p>
 
           <p
@@ -46,7 +46,7 @@ normal"
 justify;line-height:normal"
           >
             <b style="mso-bidi-font-weight:normal"
-              ><i style="mso-bidi-font-style:normal"><o:p>&nbsp;</o:p></i></b
+              ><i style="mso-bidi-font-style:normal">&nbsp;</i></b
             >
           </p>
 
@@ -69,7 +69,7 @@ normal"
             style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:
 justify;line-height:normal;mso-outline-level:1"
           >
-            <o:p>&nbsp;</o:p>
+            &nbsp;
           </p>
 
           <p
@@ -93,7 +93,7 @@ justify;text-indent:35.45pt;line-height:normal;mso-outline-level:1"
             style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:
 justify;line-height:normal;mso-outline-level:1"
           >
-            <o:p>&nbsp;</o:p>
+            &nbsp;
           </p>
 
           <p
@@ -116,7 +116,7 @@ justify;text-indent:35.45pt;line-height:normal;mso-outline-level:1"
             style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:
 justify;line-height:normal;mso-outline-level:1"
           >
-            <o:p>&nbsp;</o:p>
+            &nbsp;
           </p>
 
           <p
@@ -136,7 +136,7 @@ normal"
             style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:
 justify;line-height:normal;mso-outline-level:1"
           >
-            <o:p>&nbsp;</o:p>
+            &nbsp;
           </p>
 
           <p
@@ -162,7 +162,7 @@ justify;line-height:normal;mso-outline-level:1"
             style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:
 justify;line-height:normal;mso-outline-level:1"
           >
-            <o:p>&nbsp;</o:p>
+            &nbsp;
           </p>
 
           <p
@@ -182,7 +182,7 @@ normal"
             style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:
 justify;line-height:normal;mso-outline-level:1"
           >
-            <o:p>&nbsp;</o:p>
+            &nbsp;
           </p>
 
           <p
@@ -207,7 +207,7 @@ justify;line-height:normal;mso-outline-level:1"
             style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:
 justify;line-height:normal;mso-outline-level:1"
           >
-            <o:p>&nbsp;</o:p>
+            &nbsp;
           </p>
 
           <p
@@ -226,7 +226,7 @@ justify;line-height:normal"
             style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:
 justify;line-height:normal"
           >
-            <o:p>&nbsp;</o:p>
+            &nbsp;
           </p>
 
           <p
@@ -244,7 +244,7 @@ justify;line-height:normal"
             style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:
 justify;line-height:normal"
           >
-            <o:p>&nbsp;</o:p>
+            &nbsp;
           </p>
 
           <p
@@ -262,7 +262,7 @@ justify;line-height:normal"
             style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:
 justify;line-height:normal"
           >
-            <o:p>&nbsp;</o:p>
+            &nbsp;
           </p>
 
           <p
@@ -299,7 +299,7 @@ justify;line-height:normal"
             style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:
 justify;line-height:normal"
           >
-            <o:p>&nbsp;</o:p>
+            &nbsp;
           </p>
 
           <p
@@ -324,7 +324,7 @@ justify;line-height:normal"
             style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:
 justify;line-height:normal"
           >
-            <o:p>&nbsp;</o:p>
+            &nbsp;
           </p>
 
           <p
@@ -344,7 +344,7 @@ normal"
             style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:
 justify;line-height:normal"
           >
-            <span style="mso-bidi-font-weight:bold"><o:p>&nbsp;</o:p></span>
+            <span style="mso-bidi-font-weight:bold">&nbsp;</span>
           </p>
 
           <p
@@ -389,9 +389,7 @@ justify;line-height:normal;mso-outline-level:1"
             <b
               style="mso-bidi-font-weight:
 normal"
-              ><u
-                ><o:p><span style="text-decoration:none">&nbsp;</span></o:p></u
-              ></b
+              ><u><span style="text-decoration:none">&nbsp;</span></u></b
             >
           </p>
 
@@ -415,7 +413,7 @@ normal"
             style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:
 justify;line-height:normal"
           >
-            <o:p>&nbsp;</o:p>
+            &nbsp;
           </p>
 
           <p
@@ -434,7 +432,7 @@ justify;line-height:normal"
             style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:
 justify;line-height:normal"
           >
-            <o:p>&nbsp;</o:p>
+            &nbsp;
           </p>
 
           <p
@@ -460,7 +458,7 @@ justify;line-height:normal"
             style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:
 justify;line-height:normal"
           >
-            <o:p>&nbsp;</o:p>
+            &nbsp;
           </p>
 
           <p
@@ -484,7 +482,7 @@ justify;line-height:normal"
             style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:
 justify;line-height:normal"
           >
-            <o:p>&nbsp;</o:p>
+            &nbsp;
           </p>
 
           <p
@@ -509,7 +507,7 @@ normal"
             style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:
 justify;line-height:normal"
           >
-            <o:p>&nbsp;</o:p>
+            &nbsp;
           </p>
 
           <p
@@ -531,7 +529,7 @@ justify;line-height:normal"
             style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:
 justify;line-height:normal"
           >
-            <o:p>&nbsp;</o:p>
+            &nbsp;
           </p>
 
           <p
@@ -551,7 +549,7 @@ justify;line-height:normal;mso-outline-level:1"
             style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:
 justify;line-height:normal"
           >
-            <o:p>&nbsp;</o:p>
+            &nbsp;
           </p>
 
           <p
@@ -573,7 +571,7 @@ justify;line-height:normal"
             style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:
 justify;line-height:normal"
           >
-            <o:p>&nbsp;</o:p>
+            &nbsp;
           </p>
 
           <p
@@ -599,7 +597,7 @@ justify;line-height:normal"
             style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:
 justify;line-height:normal"
           >
-            <o:p>&nbsp;</o:p>
+            &nbsp;
           </p>
 
           <p
@@ -619,7 +617,7 @@ justify;line-height:normal;mso-outline-level:1"
             style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:
 justify;line-height:normal"
           >
-            <o:p>&nbsp;</o:p>
+            &nbsp;
           </p>
 
           <p
@@ -647,7 +645,7 @@ justify;line-height:normal"
             style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:
 justify;line-height:normal"
           >
-            <o:p>&nbsp;</o:p>
+            &nbsp;
           </p>
 
           <p
@@ -670,7 +668,7 @@ justify;line-height:normal;mso-outline-level:1"
             <b
               style="mso-bidi-font-weight:
 normal"
-              ><o:p>&nbsp;</o:p></b
+              >&nbsp;</b
             >
           </p>
 
@@ -682,8 +680,8 @@ justify;line-height:normal;mso-outline-level:1"
             <b
               style="mso-bidi-font-weight:
 normal"
-              >Resellers<o:p></o:p
-            ></b>
+              >Resellers</b
+            >
           </p>
 
           <p
@@ -691,7 +689,7 @@ normal"
             style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:
 justify;line-height:normal;mso-outline-level:1"
           >
-            <o:p>&nbsp;</o:p>
+            &nbsp;
           </p>
 
           <p
@@ -721,7 +719,7 @@ justify;line-height:normal;mso-outline-level:1"
             style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:
 justify;line-height:normal;mso-outline-level:1"
           >
-            <o:p>&nbsp;</o:p>
+            &nbsp;
           </p>
 
           <p
@@ -729,7 +727,7 @@ justify;line-height:normal;mso-outline-level:1"
             style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:
 justify;line-height:normal;mso-outline-level:1"
           >
-            <o:p>&nbsp;</o:p>
+            &nbsp;
           </p>
 
           <p
@@ -740,8 +738,8 @@ justify;line-height:normal;mso-outline-level:1"
             <b
               style="mso-bidi-font-weight:
 normal"
-              >Customers/Purchasers<o:p></o:p
-            ></b>
+              >Customers/Purchasers</b
+            >
           </p>
 
           <p
@@ -749,7 +747,7 @@ normal"
             style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:
 justify;line-height:normal;mso-outline-level:1"
           >
-            <o:p>&nbsp;</o:p>
+            &nbsp;
           </p>
 
           <p
@@ -772,8 +770,8 @@ color:#222222'
               responsible for the representations made by Direct Selling
               Companies or Resellers. Customers also understand that all product
               information made available in the App is the responsibility of
-              Resellers or Direct Selling Companies.<o:p></o:p
-            ></span>
+              Resellers or Direct Selling Companies.</span
+            >
           </p>
 
           <p
@@ -781,7 +779,7 @@ color:#222222'
             style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:
 justify;line-height:normal;mso-outline-level:1"
           >
-            <o:p>&nbsp;</o:p>
+            &nbsp;
           </p>
 
           <p
@@ -801,7 +799,7 @@ normal"
             style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:
 justify;line-height:normal"
           >
-            <o:p>&nbsp;</o:p>
+            &nbsp;
           </p>
 
           <p
@@ -843,9 +841,7 @@ justify;line-height:normal"
               ><span
                 style="mso-bidi-font-family:Helvetica;
 background:whitesmoke"
-                ><o:p
-                  ><span style="text-decoration:none">&nbsp;</span></o:p
-                ></span
+                ><span style="text-decoration:none">&nbsp;</span></span
               ></u
             >
           </p>
@@ -865,10 +861,9 @@ normal;background:white"
             ><span
               style='mso-fareast-font-family:"Times New Roman";
 mso-bidi-font-family:Helvetica'
-              ><br style="mso-special-character:line-break"/>
-              <br style="mso-special-character:line-break"/>
-              <o:p></o:p
-            ></span>
+              ><br style="mso-special-character:line-break" />
+              <br style="mso-special-character:line-break" />
+            </span>
           </p>
 
           <p
@@ -892,8 +887,8 @@ justify;line-height:normal;background:white"
               such information will not be shared in any case with third parties
               or Partners for their marketing purposes. Your usage of this App
               means your consent to allow us to share your data or information
-              pursuant to these Terms.<o:p></o:p
-            ></span>
+              pursuant to these Terms.</span
+            >
           </p>
 
           <p
@@ -906,12 +901,10 @@ justify;line-height:normal;mso-outline-level:1;background:white"
                 ><span
                   style='mso-fareast-font-family:
 "Times New Roman";mso-bidi-font-family:Helvetica'
-                  ><o:p
-                    ><span
-                      style="text-decoration:
+                  ><span
+                    style="text-decoration:
  none"
-                      >&nbsp;</span
-                    ></o:p
+                    >&nbsp;</span
                   ></span
                 ></u
               ></b
@@ -943,12 +936,10 @@ justify;line-height:normal;background:white"
               ><span
                 style='mso-fareast-font-family:
 "Times New Roman";mso-bidi-font-family:Helvetica'
-                ><o:p
-                  ><span
-                    style="text-decoration:
+                ><span
+                  style="text-decoration:
  none"
-                    >&nbsp;</span
-                  ></o:p
+                  >&nbsp;</span
                 ></span
               ></u
             >
@@ -981,9 +972,8 @@ justify;line-height:normal;background:white"
               of third parties used on or in connection with the App or Services
               are used for identification purposes only and may be the property
               of their respective owners. As a User, you understand and agree
-              that you are bound by these Terms on Intellectual Property.<o:p
-              ></o:p
-            ></span>
+              that you are bound by these Terms on Intellectual Property.</span
+            >
           </p>
 
           <p
@@ -995,12 +985,10 @@ justify;line-height:normal;background:white"
               ><span
                 style='mso-fareast-font-family:
 "Times New Roman";mso-bidi-font-family:Helvetica'
-                ><o:p
-                  ><span
-                    style="text-decoration:
+                ><span
+                  style="text-decoration:
  none"
-                    >&nbsp;</span
-                  ></o:p
+                  >&nbsp;</span
                 ></span
               ></u
             >
@@ -1023,7 +1011,7 @@ normal"
             style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:
 justify;line-height:normal"
           >
-            <o:p>&nbsp;</o:p>
+            &nbsp;
           </p>
 
           <p
@@ -1057,9 +1045,7 @@ normal"
             style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:
 justify;line-height:normal"
           >
-            <u
-              ><o:p><span style="text-decoration:none">&nbsp;</span></o:p></u
-            >
+            <u><span style="text-decoration:none">&nbsp;</span></u>
           </p>
 
           <p
@@ -1079,7 +1065,7 @@ normal"
             style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:
 justify;line-height:normal"
           >
-            <o:p>&nbsp;</o:p>
+            &nbsp;
           </p>
 
           <p
@@ -1104,7 +1090,7 @@ justify;line-height:normal"
             style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:
 justify;line-height:normal"
           >
-            <o:p>&nbsp;</o:p>
+            &nbsp;
           </p>
 
           <p
@@ -1124,7 +1110,7 @@ normal"
             style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:
 justify;line-height:normal"
           >
-            <o:p>&nbsp;</o:p>
+            &nbsp;
           </p>
 
           <p
@@ -1154,7 +1140,7 @@ justify;line-height:normal"
             style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:
 justify;line-height:normal"
           >
-            <o:p>&nbsp;</o:p>
+            &nbsp;
           </p>
 
           <p
@@ -1174,7 +1160,7 @@ normal"
             style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:
 justify;line-height:normal"
           >
-            <o:p>&nbsp;</o:p>
+            &nbsp;
           </p>
 
           <p
@@ -1209,8 +1195,8 @@ justify;line-height:normal"
             >
             </span
             >We explicitly disclaim all liability for any act or omission of any
-            guest or other third party.<b style="mso-bidi-font-weight:normal"
-              ><o:p></o:p
+            guest or other third party.<b
+              style="mso-bidi-font-weight:normal"
             ></b>
           </p>
 
@@ -1219,7 +1205,7 @@ justify;line-height:normal"
             style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:
 justify;line-height:normal"
           >
-            <o:p>&nbsp;</o:p>
+            &nbsp;
           </p>
 
           <p
@@ -1248,7 +1234,7 @@ justify;line-height:normal"
             style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:
 justify;line-height:normal"
           >
-            <o:p>&nbsp;</o:p>
+            &nbsp;
           </p>
 
           <p
@@ -1274,7 +1260,7 @@ justify;line-height:normal"
             style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:
 justify;line-height:normal"
           >
-            <o:p>&nbsp;</o:p>
+            &nbsp;
           </p>
 
           <p
@@ -1294,7 +1280,7 @@ normal"
             style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:
 justify;line-height:normal"
           >
-            <o:p>&nbsp;</o:p>
+            &nbsp;
           </p>
 
           <p
@@ -1325,9 +1311,7 @@ justify;line-height:normal"
 justify;line-height:normal"
           >
             <b style="mso-bidi-font-weight:normal"
-              ><u
-                ><o:p><span style="text-decoration:none">&nbsp;</span></o:p></u
-              ></b
+              ><u><span style="text-decoration:none">&nbsp;</span></u></b
             >
           </p>
 
@@ -1348,7 +1332,7 @@ normal"
             style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:
 justify;line-height:normal"
           >
-            <o:p>&nbsp;</o:p>
+            &nbsp;
           </p>
 
           <p
@@ -1368,7 +1352,7 @@ justify;line-height:normal"
             style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:
 justify;line-height:normal"
           >
-            <o:p>&nbsp;</o:p>
+            &nbsp;
           </p>
 
           <p
@@ -1381,9 +1365,7 @@ justify;line-height:normal"
             courts of Makati, to the exclusion of all other fora or venues,
             regardless of where any Customer users or Reseller users resides,
             does business, or transacts, or, where any transaction or part
-            thereof took place.<b style="mso-bidi-font-weight:normal"
-              ><o:p></o:p
-            ></b>
+            thereof took place.<b style="mso-bidi-font-weight:normal"></b>
           </p>
 
           <p
@@ -1391,7 +1373,7 @@ justify;line-height:normal"
             style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:
 justify;line-height:normal"
           >
-            <o:p>&nbsp;</o:p>
+            &nbsp;
           </p>
 
           <p
@@ -1411,7 +1393,7 @@ normal"
             style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:
 normal"
           >
-            <o:p>&nbsp;</o:p>
+            &nbsp;
           </p>
 
           <p
@@ -1435,7 +1417,7 @@ normal"
             style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:
 normal"
           >
-            <o:p>&nbsp;</o:p>
+            &nbsp;
           </p>
         </v-card-text>
       </v-card>
