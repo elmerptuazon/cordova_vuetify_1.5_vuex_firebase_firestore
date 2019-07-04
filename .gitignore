@@ -9,6 +9,7 @@ yarn-debug.log*
 yarn-error.log*
 test/unit/coverage
 config/*.env.js
+src/assets/img/
 
 # Editor directories and files
 .idea/
