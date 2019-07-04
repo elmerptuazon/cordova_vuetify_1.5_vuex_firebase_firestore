@@ -25,7 +25,7 @@ function executeCommand(cmd) {
 	try {
 		console.log('Setting up the company')
 		const value = await companySetup.copyCompanySetUp();
-		console.log(value);
+		//console.log(value);
 		console.log('Building app. Please wait...');
 		await executeCommand('npm run build');
 		console.log('Build done.');
@@ -42,7 +42,7 @@ function executeCommand(cmd) {
 			console.log('Building apk. Please wait...');
 			await executeCommand('cordova build android');
 			console.log('APK generated.');
-			await executeCommand(String.raw`start platforms\android\app\build\outputs\apk\debug`);
+			//await executeCommand(String.raw`start platforms\android\app\build\outputs\apk\debug`);
 		}
 	} catch (err) {
 		console.error(err);
