@@ -1,4 +1,4 @@
-# EVER Bilena Application
+# AppSell Mobile Application
 
 > AppSell
 
@@ -35,6 +35,12 @@ npm run android
 
 # build for production and serve the app on an android device (will serve on a virtual device or physical device - prefers virtual)
 npm run android-vm
+
+# create unsigned apk in live connection - Select company you wish to generate
+npm run generate
+
+# create unsigned apk in dev connection - Select company you wish to generate
+npm rungenerate-dev
 
 # create the released files
 cordova build android --release
