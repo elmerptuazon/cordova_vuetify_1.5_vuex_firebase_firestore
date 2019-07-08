@@ -443,6 +443,7 @@ export default {
 				const orderIndex = orders.findIndex(o => o.unique === unique);
 				if (orderIndex >= 0) {
 					orders[orderIndex].orders += item.attribute.qty;
+					orders[orderIndex].net  = (orders[orderIndex].inventory - orders[orderIndex].orders);
 				} else {
 					// generate unique value based on product id and attributes
 					const itemAttributesCopy = JSON.parse(JSON.stringify(item.attribute));

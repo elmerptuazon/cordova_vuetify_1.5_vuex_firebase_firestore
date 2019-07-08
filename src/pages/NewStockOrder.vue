@@ -196,321 +196,342 @@
 
 
 <script>
-import { mapGetters} from 'vuex';
-import { mixins } from '@/mixins';
-import BottomNav from '@/components/BottomNav';
-import BasketBadge from '@/components/BasketBadge';
-import ConfirmationModal from '@/components/ConfirmationModal';
+import { mapGetters } from "vuex";
+import { mixins } from "@/mixins";
+import BottomNav from "@/components/BottomNav";
+import BasketBadge from "@/components/BasketBadge";
+import ConfirmationModal from "@/components/ConfirmationModal";
 
 export default {
-	mixins: [mixins],
-	data: () => ({
-		items: [],
-		search: null,
-		loading: false,
-		loader: false,
-		loaderDialog: false,
-		stockOrder: {
-			id: null,
-			items: [],
-			userId: null,
-			createdAt: null
-		},
-		loaderDialogMessage: null,
-		editItemDialog: false,
-		selectedProduct: {
-			qty: 0
-		},
-		saveProductButton: false,
-		snackbar: false,
-		snackbarMessage: null
-	}),
-	created () {
-		this.cordovaBackButton(this.goBack);
+  mixins: [mixins],
+  data: () => ({
+    items: [],
+    search: null,
+    loading: false,
+    loader: false,
+    loaderDialog: false,
+    stockOrder: {
+      id: null,
+      items: [],
+      userId: null,
+      createdAt: null
+    },
+    loaderDialogMessage: null,
+    editItemDialog: false,
+    selectedProduct: {
+      qty: 0
+    },
+    saveProductButton: false,
+    snackbar: false,
+    snackbarMessage: null
+  }),
+  created() {
+    this.cordovaBackButton(this.goBack);
 
-		this.loader = true;
-		this.loaderDialogMessage = 'Getting current stock orders'
-		this.$store.dispatch('stock_orders/GET')
-		.then((res) => {
-			console.log(res.data);
-			if (res.success) {
-				this.stockOrder = Object.assign({}, res.data);
-			}
-		})
-		.catch((error) => {
-			console.log(error);
-		})
-		.finally(() => {
-			this.loaderDialogMessage = null;
-			this.loader = false;
-		});
-	},
-	methods: {
-		goBack () {
-			this.$router.go(-1);
-		},
+    this.loader = true;
+    this.loaderDialogMessage = "Getting current stock orders";
+    this.$store
+      .dispatch("stock_orders/GET")
+      .then(res => {
+        console.log(res.data);
+        if (res.success) {
+          this.stockOrder = Object.assign({}, res.data);
+        }
+      })
+      .catch(error => {
+        console.log(error);
+      })
+      .finally(() => {
+        this.loaderDialogMessage = null;
+        this.loader = false;
+      });
+  },
+  methods: {
+    goBack() {
+      this.$router.go(-1);
+    },
 
-		confirmGenerate () {
-			this.$refs.ConfirmationModal.show('Confirm', 'Refreshing this page will remove items you have manually added to this shopping cart, Do you wish to continue?');
-		},
+    confirmGenerate() {
+      this.$refs.ConfirmationModal.show(
+        "Confirm",
+        "Refreshing this page will remove items you have manually added to this shopping cart, Do you wish to continue?"
+      );
+    },
 
-		generateStockOrder () {
-			this.$refs.ConfirmationModal.close();
-			this.loaderDialog = true;
-			this.loaderDialogMessage = 'Generating stock order';
-			const includeSelfOrders = false;
-			this.$store.dispatch('orders/GET_RESELLER_ORDERS', includeSelfOrders)
-			.then((data) => {
+    generateStockOrder() {
+      this.$refs.ConfirmationModal.close();
+      this.loaderDialog = true;
+      this.loaderDialogMessage = "Generating stock order";
+      const includeSelfOrders = false;
+      this.$store
+        .dispatch("orders/GET_RESELLER_ORDERS", includeSelfOrders)
+        .then(data => {
+          const items = data.map(order => {
+            let placedOrders = order.orders.filter(
+              item => item.status !== "delivered"
+            );
+            return placedOrders.map(item => item.basket);
+          });
 
-				const items = data.map((order) => {
-					let placedOrders = order.orders.filter(item => item.status !== 'delivered');
-					return placedOrders.map(item => item.basket);
-				});
+          let flattened_items = [].concat.apply([], items);
+          flattened_items = [].concat.apply([], flattened_items);
 
-				let flattened_items = [].concat.apply([], items);
-				flattened_items = [].concat.apply([], flattened_items);
+          const orders = [];
 
-				const orders = [];
+          flattened_items.forEach(item => {
+            // generate unique value based on product id and attributes
+            const itemAttributesCopy = JSON.parse(
+              JSON.stringify(item.attribute)
+            );
+            delete itemAttributesCopy.qty;
+            const attributes = Object.values(itemAttributesCopy).sort();
+            const unique = item.product.id + "_" + attributes.join("-");
+            // generate end
+            const orderIndex = orders.findIndex(o => o.unique === unique);
+            if (orderIndex >= 0) {
+              orders[orderIndex].orders += item.attribute.qty;
+              orders[orderIndex].net =
+                orders[orderIndex].inventory - orders[orderIndex].orders;
+            } else {
+              // generate unique value based on product id and attributes
+              const itemAttributesCopy = JSON.parse(
+                JSON.stringify(item.attribute)
+              );
+              delete itemAttributesCopy.qty;
+              const attributes = Object.values(itemAttributesCopy).sort();
+              const unique = item.product.id + "_" + attributes.join("-");
+              // generate end
+              orders.push({
+                id: item.product.id,
+                imageObj: item.product.imageObj,
+                name: item.product.name,
+                orders: item.attribute.qty,
+                unique,
+                attributes: item.attribute,
+                inventory: 0,
+                net: 0 - item.attribute.qty
+              });
+            }
+          });
 
-				flattened_items.forEach((item) => {
-				// generate unique value based on product id and attributes
-				const itemAttributesCopy = JSON.parse(JSON.stringify(item.attribute));
-				delete itemAttributesCopy.qty;
-				const attributes = Object.values(itemAttributesCopy).sort();
-				const unique = item.product.id + '_' + attributes.join('-');
-				// generate end
-				const orderIndex = orders.findIndex(o => o.unique === unique);
-				if (orderIndex >= 0) {
-					orders[orderIndex].orders += item.attribute.qty;
-				} else {
-					// generate unique value based on product id and attributes
-					const itemAttributesCopy = JSON.parse(JSON.stringify(item.attribute));
-					delete itemAttributesCopy.qty;
-					const attributes = Object.values(itemAttributesCopy).sort();
-					const unique = item.product.id + '_' + attributes.join('-');
-					// generate end
-					orders.push({
-						id: item.product.id,
-						imageObj: item.product.imageObj,
-						name: item.product.name,
-						orders: item.attribute.qty,
-						unique,
-						attributes: item.attribute,
-						inventory: 0,
-						net: 0 - item.attribute.qty
-					});
-				}
-			});
+          this.$store.dispatch("inventory/GET_INVENTORY").then(res => {
+            const addedItemsFromCatalogue = [];
+            res.forEach(inv => {
+              const productIndex = orders.findIndex(
+                order => order.unique === inv.unique
+              );
+              if (productIndex >= 0) {
+                orders[productIndex].inventory = inv.inventory;
+                orders[productIndex].net =
+                  inv.inventory - orders[productIndex].orders;
+                orders[productIndex].inventory_id = inv.id;
+              } else {
+                addedItemsFromCatalogue.push(
+                  this.$store
+                    .dispatch("products/GET_PRODUCT", inv.productId)
+                    .then(data => {
+                      data.newItem = inv;
+                      return data;
+                    })
+                );
+              }
+            });
 
-				this.$store.dispatch('inventory/GET_INVENTORY')
-				.then((res) => {
-					const addedItemsFromCatalogue = [];
-					res.forEach((inv) => {
-						const productIndex = orders.findIndex(order => order.unique === inv.unique);
-						if (productIndex >= 0) {
-							orders[productIndex].inventory = inv.inventory;
-							orders[productIndex].net = inv.inventory - orders[productIndex].orders;
-							orders[productIndex].inventory_id = inv.id;
-						} else {
-							addedItemsFromCatalogue.push(
-								this.$store.dispatch('products/GET_PRODUCT', inv.productId)
-								.then((data) => {
-									data.newItem = inv;
-									return data;
-								})
-								);
-						}
-					});
+            Promise.all(addedItemsFromCatalogue).then(newItems => {
+              newItems.forEach(item => {
+                const inv = JSON.parse(JSON.stringify(item.newItem));
+                if (item.imageObj) {
+                  inv.imageObj = item.imageObj;
+                } else {
+                  inv.downloadURL = item.downloadURL;
+                }
+                // inv.id = item.id;
+                inv.name = item.name;
+                inv.orders = 0;
+                inv.inventory_id = inv.id;
+                orders.push(inv);
+              });
 
-					Promise.all(addedItemsFromCatalogue)
-					.then((newItems) => {
+              this.loading = false;
 
-						newItems.forEach((item) => {
-							const inv = JSON.parse(JSON.stringify(item.newItem));
-							if (item.imageObj) {
-								inv.imageObj = item.imageObj;
-							} else {
-								inv.downloadURL = item.downloadURL;
-							}
-						// inv.id = item.id;
-						inv.name = item.name;
-						inv.orders = 0;
-						inv.inventory_id = inv.id;
-						orders.push(inv);
+              const negativeItems = orders
+                .filter(order => order.net < 0)
+                .map(order => {
+                  return {
+                    productId: order.id,
+                    qty: Math.abs(order.net),
+                    attributes: order.attributes
+                  };
+                });
 
-					});
+              const obj = {
+                items: negativeItems,
+                createdAt: Date.now(),
+                active: true
+              };
 
-						this.loading = false;
+              this.$store
+                .dispatch("stock_orders/SAVE", obj)
+                .then(res => {
+                  if (res.status == "created") {
+                    obj.id = res.id;
+                    this.stockOrder.items = res.data.items;
+                  } else if (res.status == "updated") {
+                    console.log(res);
 
-						const negativeItems = orders.filter(order => order.net < 0).map((order) => {
+                    this.stockOrder.items = res.items;
+                  }
+                })
+                .catch(error => {
+                  console.log(error);
+                })
+                .finally(() => {
+                  this.loaderDialog = false;
+                });
+            });
+          });
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    },
 
-							return {
-								productId: order.id,
-								qty: Math.abs(order.net),
-								attributes: order.attributes,
-							}
+    editItem(product) {
+      console.log(product);
+      this.selectedProduct = Object.assign({}, product);
+      this.editItemDialog = true;
 
-						});
+      console.log(this.selectedProduct);
+    },
 
-						const obj = {
-							items: negativeItems,
-							createdAt: Date.now(),
-							active: true
-						}
+    saveProduct() {
+      this.saveProductButton = true;
+      this.$store
+        .dispatch("stock_orders/UPDATE_ITEM", this.selectedProduct)
+        .then(res => {
+          if (res.success) {
+            this.editItemDialog = false;
+            this.snackbarMessage = res.message;
+            this.snackbar = true;
 
-						this.$store.dispatch('stock_orders/SAVE', obj)
-						.then((res) => {
+            const index = this.stockOrder.items.findIndex(
+              item => item.unique === this.selectedProduct.unique
+            );
 
-							if (res.status == 'created') {
+            if (index !== -1) {
+              this.stockOrder.items[index].qty = this.selectedProduct.qty;
+            }
+          }
+        })
+        .finally(() => {
+          this.saveProductButton = false;
+        });
+    },
 
-								obj.id = res.id;
-								this.stockOrder.items = res.data.items;
+    deleteProduct() {
+      console.log(1);
+      this.$store
+        .dispatch("stock_orders/DELETE_ITEM", this.selectedProduct.unique)
+        .then(res => {
+          console.log(res);
+          if (res.success) {
+            this.editItemDialog = false;
+            this.snackbarMessage = res.message;
+            this.snackbar = true;
 
-							} else if (res.status == 'updated') {
+            const index = this.stockOrder.items.findIndex(
+              item => item.unique === this.selectedProduct.unique
+            );
 
-								console.log(res)
+            if (index !== -1) {
+              this.stockOrder.items.splice(index, 1);
+            }
+          }
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    },
 
-								this.stockOrder.items = res.items;
+    submitStockOrder() {
+      this.$refs.finalizeOrder.show(
+        "Confirm",
+        "Are you sure you want to submit these orders to " +
+          this.$store.getters["GET_COMPANY"] +
+          "?"
+      );
+    },
+    finalizeOrder() {
+      this.loaderDialog = true;
+      this.loaderDialogMessage = "Submitting orders";
 
-							}
-						})
-						.catch((error) => {
-							console.log(error);
-						})
-						.finally(() => {
-							this.loaderDialog = false;
-						});
+      this.$store
+        .dispatch("stock_orders/SUBMIT", this.stockOrder)
+        .then(res => {
+          this.$router.push({
+            name: "StockOrderCheckoutSuccess",
+            params: {
+              stockOrder: this.stockOrder,
+              submittedAt: res.submittedAt
+            }
+          });
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    }
+  },
+  computed: {
+    subTotal() {
+      return this.stockOrder.items.reduce((a, b) => a + b.price * b.qty, 0);
+    },
 
-					});
-				})
-			})
-			.catch(error => {
-				console.log(error);
-			});
-		},
+    discount() {
+      let discount;
+      if (this.subTotal >= 1500 && this.subTotal <= 2999) {
+        discount = 10;
+      } else if (this.subTotal >= 3000 && this.subTotal <= 4999) {
+        discount = 15;
+      } else if (this.subTotal >= 5000 && this.subTotal <= 9999) {
+        discount = 18;
+      } else if (this.subTotal >= 10000 && this.subTotal <= 24999) {
+        discount = 20;
+      } else {
+        discount = null;
+      }
+      return discount;
+    },
 
-		editItem (product) {
-			console.log(product)
-			this.selectedProduct = Object.assign({}, product);
-			this.editItemDialog = true;
+    total() {
+      if (this.discount) {
+        return this.subTotal - (this.discount / 100) * this.subTotal;
+      } else {
+        return this.subTotal;
+      }
+    }
+  },
+  filters: {
+    joinAttributes(val) {
+      const attributes = JSON.parse(JSON.stringify(val));
+      delete attributes.qty;
+      delete attributes.quantity;
 
-			console.log(this.selectedProduct)
-		},
+      const keys = Object.keys(attributes);
 
-		saveProduct () {
-			this.saveProductButton = true;
-			this.$store.dispatch('stock_orders/UPDATE_ITEM', this.selectedProduct)
-			.then((res) => {
-				if (res.success) {
-					this.editItemDialog = false;
-					this.snackbarMessage = res.message;
-					this.snackbar = true;
+      let str = "";
 
-					const index = this.stockOrder.items.findIndex(item => item.unique === this.selectedProduct.unique);
+      keys.forEach(key => {
+        str += `${key}:${attributes[key]}`;
+      });
 
-					if (index !== -1) {
-						this.stockOrder.items[index].qty = this.selectedProduct.qty;
-					}
-				}
-			})
-			.finally(() => {
-				this.saveProductButton = false;
-			})
-		},
-
-		deleteProduct() {
-			console.log(1)
-			this.$store.dispatch('stock_orders/DELETE_ITEM', this.selectedProduct.unique)
-			.then((res) => {
-				console.log(res)
-				if (res.success) {
-					this.editItemDialog = false;
-					this.snackbarMessage = res.message;
-					this.snackbar = true;
-
-					const index = this.stockOrder.items.findIndex(item => item.unique === this.selectedProduct.unique);
-
-					if (index !== -1) {
-						this.stockOrder.items.splice(index, 1);
-					}
-				}
-			})
-			.catch((error) => {
-				console.log(error);
-			});
-		},
-
-		submitStockOrder () {
-			this.$refs.finalizeOrder.show('Confirm', 'Are you sure you want to submit these orders to '+this.$store.getters['GET_COMPANY']+'?' );
-		},
-		finalizeOrder(){
-			this.loaderDialog = true;
-			this.loaderDialogMessage = 'Submitting orders';
-
-			this.$store.dispatch('stock_orders/SUBMIT', this.stockOrder)
-			.then((res) => {
-				this.$router.push({name: 'StockOrderCheckoutSuccess', params: {
-					stockOrder: this.stockOrder,
-					submittedAt: res.submittedAt
-				}});
-			})
-			.catch((error) => {
-				console.log(error);
-			});
-		}
-	},
-	computed: {
-		subTotal () {
-			return this.stockOrder.items.reduce((a, b) => a + (b.price * b.qty), 0);
-		},
-
-		discount () {
-			let discount;
-			if (this.subTotal >= 1500 && this.subTotal <= 2999) {
-				discount = 10;
-			} else if (this.subTotal >= 3000 && this.subTotal <= 4999) {
-				discount = 15;
-			} else if (this.subTotal >= 5000 && this.subTotal <= 9999) {
-				discount = 18;
-			} else if (this.subTotal >= 10000 && this.subTotal <= 24999) {
-				discount = 20;
-			} else {
-				discount = null;
-			}
-			return discount;
-		},
-
-		total () {
-			if (this.discount) {
-				return this.subTotal - ((this.discount / 100) * this.subTotal);
-			} else {
-				return this.subTotal;
-			}
-		}
-	},
-	filters: {
-		joinAttributes (val) {
-			const attributes = JSON.parse(JSON.stringify(val));
-			delete attributes.qty;
-			delete attributes.quantity;
-
-			const keys = Object.keys(attributes);
-
-			let str = '';
-
-			keys.forEach((key) => {
-				str += `${key}:${attributes[key]}`;
-			});
-
-			return str;
-		}
-	},
-	components: {
-		BasketBadge,
-		ConfirmationModal
-	}
-}
-
+      return str;
+    }
+  },
+  components: {
+    BasketBadge,
+    ConfirmationModal
+  }
+};
 </script>
 
 <style scoped>
