@@ -13,5 +13,6 @@ module.exports = merge(devEnv, {
   storageCode: '"barapido"',
   webAdminId: '"admin"',
   companyName: '"Barapido"',
-  version: '"0.6.5"'
+  version: '"0.6.5"',
+  primaryColor: '"#00FFFF"',
 })

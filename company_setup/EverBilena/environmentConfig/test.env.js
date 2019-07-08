@@ -13,5 +13,6 @@ module.exports = merge(devEnv, {
   storageCode: '"ever-bilena"',
   webAdminId: '"admin"',
   companyName: '"Ever Bilena"',
-  version: '"0.6.5"'
+  version: '"0.6.5"',
+  primaryColor: '"##D80072"',
 })

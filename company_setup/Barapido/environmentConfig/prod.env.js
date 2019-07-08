@@ -10,5 +10,6 @@ module.exports = {
   storageCode: '"ever-bilena"',
   webAdminId: '"admin"',
   companyName: '"Ever Bilena"',
-  version: '"0.6.5"'
+  version: '"0.6.5"',
+  primaryColor: '"#00FFFF"',
 }
