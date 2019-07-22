@@ -45,7 +45,7 @@ import { AUTH } from './config/firebaseInit';
 // }
 Vue.use(Vuetify, {
 	theme: {
-		primary: '#D80072',
+		primary: process.env.primaryColor,
 		secondary: '#424242',
 		accent: '#82B1FF',
 		error: '#FF5252',

@@ -16,7 +16,7 @@ import stock_orders from './modules/stock-orders';
 import support from './modules/support';
 import conversations from './modules/conversations';
 
-import logo from '@/assets/img/everbilena_header_logo.jpg';
+import logo from '@/assets/img/header_logo.jpg';
 
 Vue.use(Vuex);
 
@@ -29,12 +29,12 @@ export default new Vuex.Store({
         currenCatalogue: null,
         showToolbarTitles: false,
         rightAlignToolbarIcons: false,
-        companyId: 'p0JywuLBg5zQUnXnQOxc',
-        storageCode: 'ever-bilena',
+        //companyId: 'p0JywuLBg5zQUnXnQOxc',
+        storageCode: process.env.storageCode,
         companyLogo: logo,
-        webAdminId: 'admin',
-        companyName: 'Ever Bilena',
-        version: '0.6.5',
+        webAdminId: process.env.webAdminId,
+        companyName: process.env.companyName,
+        version: process.env.version,
     },
     getters: {
         GET_TOOLBAR_TITLE: state => {

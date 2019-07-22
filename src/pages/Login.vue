@@ -2,7 +2,7 @@
   <v-container fluid>
     <div class="text-xs-center" style="margin:0 auto; width:250px;">
       <v-img
-        :src="require('@/assets/img/everbilena_header_logo.jpg')"
+        :src="require('@/assets/img/header_logo.jpg')"
         contain
       ></v-img>
     </div>

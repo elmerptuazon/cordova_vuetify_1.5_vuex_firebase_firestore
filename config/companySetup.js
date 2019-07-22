@@ -25,32 +25,59 @@ async function copyCompanySetUp() {
         message: 'Pick a company to SetUp',
         choices: [
             { title: 'Ever Bilena', value: 'EverBilena' },
-            { title: 'Barapido', value: 'Barapido', disabled: true },
+            { title: 'Barapido', value: 'Barapido' },
             { title: 'Mary Kay', value: 'MaryKay', disabled: true },
             { title: 'My Natural', value: 'MyNatural', disabled: true }
         ],
         initial: 0
     }
     );
-    let imgSource = `company_setup/${answer.value}/src/assets/img`;
-    let imgDestination = 'src/assets/img'
-    fs.copy(imgSource, imgDestination)
-        .then(() => console.log('img update success!'))
-        .catch(err => console.error(err))
 
-    let resSource = `company_setup/${answer.value}/res`;
-    let resDestination = 'res'
+    try {
+        let imgSource = `company_setup/${answer.value}/src/assets/img`;
+        let imgDestination = 'src/assets/img'
+        await fs.copy(imgSource, imgDestination)
+        console.log('Img assets update success!')
 
-    fs.copy(resSource, resDestination)
-        .then(() => console.log('res update success!'))
-        .catch(err => console.error(err))
+        let resSource = `company_setup/${answer.value}/res`;
+        let resDestination = 'res'
+        await fs.copy(resSource, resDestination)
+        console.log('Res update success!')
 
-    let configSource = `company_setup/${answer.value}/environmentConfig`;
-    let configDestination = 'config'
+        let configSource = `company_setup/${answer.value}/environmentConfig`;
+        let configDestination = 'config'
+        await fs.copy(configSource, configDestination)
+        console.log('Environment Config update success!')
 
-    fs.copy(configSource, configDestination)
-        .then(() => console.log('config update success!'))
-        .catch(err => console.error(err))
+        let pageSource = `company_setup/${answer.value}/src/pages`;
+        let pageDestination = 'src/pages'
+        await fs.copy(pageSource, pageDestination)
+        console.log('Pages update success!')
+
+        let componentSource = `company_setup/${answer.value}/src/components`;
+        let componentDestination = 'src/components'
+        await fs.copy(componentSource, componentDestination)
+        console.log('Components update success!')
+
+
+        let moduleSource = `company_setup/${answer.value}/src/store/modules`;
+        let moduleDestination = 'src/store/modules'
+        await fs.copy(moduleSource, moduleDestination)
+        console.log('Store Modules update success!')
+
+        let configxmlSource = `company_setup/${answer.value}/configxml/config.xml`;
+        let configxmlgDestination = 'config.xml'
+        await fs.copy(configxmlSource, configxmlgDestination)
+        console.log('config.xml update success!')
+
+    }
+    catch (err) {
+        console.error(err)
+    }
+
+
+
+
 
     return true;
 };
