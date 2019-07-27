@@ -418,6 +418,9 @@ const accounts = {
 					dispatch('orders/LISTEN_TO_ORDERS', { id: userData.uid }, { root: true });
 
 					dispatch('stock_orders/LISTEN_TO_STOCK_ORDERS', null, { root: true });
+					if (userData.status === 'approved') {
+						dispatch('conversations/LISTEN_TO_MESSAGES', null, { root: true })
+					}
 				}
 
 				if (userData.status && !state.approvalSubscriber && userData.status === 'pending') {
@@ -753,6 +756,8 @@ const accounts = {
 				if (!state.settings.newOrders) {
 					dispatch('orders/UNSUBSCRIBE_FROM_ORDERS', true, { root: true });
 				}
+
+				dispatch('conversations/LISTEN_TO_MESSAGES', null, { root: true })
 			}
 
 			if (state.settings.deliverySchedules && !rootState.orders.proposed_subscriber) {
