@@ -14,6 +14,6 @@ module.exports = merge(prodEnv, {
   webAdminId: '"admin"',
   companyName: '"Barapido"',
   version: '"0.6.5"',
-  primaryColor: '"#00FFFF"',
+  primaryColor: '"#16A2AF"',
 
 })
