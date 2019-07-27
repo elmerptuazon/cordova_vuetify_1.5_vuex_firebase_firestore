@@ -103,7 +103,7 @@
           color="primary"
           dark
           block
-          >Order from Ever Bilena
+          >Order from {{ $store.getters["GET_COMPANY"] }}
         </v-btn>
         <div class="my-2"></div>
         <v-btn
@@ -518,9 +518,7 @@ export default {
           JSON.stringify(offlineContacts)
         );
         this.addBasketToContactDialog = false;
-        const text = `Item added to ${offlineContacts[i].firstName} ${
-          offlineContacts[i].lastName
-        }'s Shopping Cart!`;
+        const text = `Item added to ${offlineContacts[i].firstName} ${offlineContacts[i].lastName}'s Shopping Cart!`;
         this.openBasketConfirmationDialog(text);
       }
     },
@@ -534,9 +532,7 @@ export default {
     },
     copyText() {
       // const message = `${this.product.name}\n${this.product.price}\n\n${this.product.description}\nhttp://appsell.com/product?id=${this.product.id}`;
-      const message = `${this.product.name}\n${this.product.price}\n\n${
-        this.product.description
-      }`;
+      const message = `${this.product.name}\n${this.product.price}\n\n${this.product.description}`;
       cordova.plugins.clipboard.copy(message);
       this.snackbarMessage = "Content copied to clipboard";
       this.snackbar = true;
@@ -545,9 +541,7 @@ export default {
       // this.noticeDialog = false;
 
       // const message = `${this.product.name}\n${this.product.price}\n\n${this.product.description}\nhttp://appsell.com/product?id=${this.product.id}`;
-      const message = `${this.product.name}\n${this.product.price}\n\n${
-        this.product.description
-      }`;
+      const message = `${this.product.name}\n${this.product.price}\n\n${this.product.description}`;
       const options = {
         message,
         subject: `From AppSel: Product ${this.product.name}`,
