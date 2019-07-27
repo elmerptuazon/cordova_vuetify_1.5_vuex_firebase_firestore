@@ -61,7 +61,7 @@
 				</div>
 
 				<div class="text-xs-center mt-3 px-5 mt-4">
-					<v-btn block @click="goToOrder" depressed large color="grey" dark>View My Ever Bilena Order</v-btn>
+					<v-btn block @click="goToOrder" depressed large color="grey" dark>View My {{ $store.getters["GET_COMPANY"] }} Order</v-btn>
 					<v-btn block @click="backToCatalogue" depressed large color="primary" dark>Back to Products list</v-btn>
 				</div>
 

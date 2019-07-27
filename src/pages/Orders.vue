@@ -27,7 +27,7 @@
 		@change="change"
 		>
 			<v-tab :class="[tab !== 'tab1' ? 'grey lighten-2' : '']" :transition="false" href="#tab1">My Customer <br/> Orders</v-tab>
-			<v-tab :class="[tab !== 'tab2' ? 'grey lighten-2' : '']" :transition="false" href="#tab2">My Orders to <br /> Ever Bilena</v-tab>
+			<v-tab :class="[tab !== 'tab2' ? 'grey lighten-2' : '']" :transition="false" href="#tab2">My Orders to <br /> {{ $store.getters["GET_COMPANY"] }}</v-tab>
 		</v-tabs>
 
 		<div v-if="tab === 'tab1'" class="tab-content white" :style="{ height: height + 'px' }">

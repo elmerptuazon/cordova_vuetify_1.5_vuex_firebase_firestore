@@ -77,17 +77,11 @@ justify;line-height:normal;mso-outline-level:1"
             style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:
 justify;text-indent:35.45pt;line-height:normal;mso-outline-level:1"
           >
-            Whereas, Hen Mei Lee Inc. is a corporation organized and doing
-            business under the laws of the Republic of the Philippines, with
-            principal place of business at 246-A
-            <span class="SpellE">Reparo</span> Road,
-            <span class="SpellE">Brgy</span>. <span class="SpellE">Baesa</span>,
-            Caloocan City, 7033, is engaged in the principal line of business
-            known as cosmetics retail. Hen Mei Lee, Inc. likewise operates the
-            cosmetics brand of {{ $store.getters["GET_COMPANY"] }};<span
-              style="mso-tab-count:1"
-            >
-            </span>
+            Whereas, Barapido Inc. is a corporation organized and doing business
+            under the laws of the Republic of the Philippines, with principal
+            place of business at Inoza Tower, 40th Street, Taguig, Metro Manila,
+            is engaged in the principal line of business known as direct
+            selling;
           </p>
 
           <p

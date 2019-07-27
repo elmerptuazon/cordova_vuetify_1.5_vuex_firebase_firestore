@@ -412,7 +412,7 @@ export default {
 		},
 
 		confirmGenerate () {
-			this.$refs.GenerateStockOrderConfirmation.show('Confirm', 'You are about to add products with a negative value in the NET column to your shopping cart. You still need to review your shopping cart and submit your order to Ever Bilena.');
+			this.$refs.GenerateStockOrderConfirmation.show('Confirm', `You are about to add products with a negative value in the NET column to your shopping cart. You still need to review your shopping cart and submit your order to ${this.$store.getters['GET_COMPANY']}.`);
 		},
 
 		generateStockOrder () {

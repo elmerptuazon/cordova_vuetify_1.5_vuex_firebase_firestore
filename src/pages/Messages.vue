@@ -55,7 +55,7 @@
             <v-list-tile-content v-if="i.user.isAdmin">
               <v-list-tile-title
                 :class="[!i.opened[userId] ? 'blue--text strong-text' : '']"
-                >Ever Bilena</v-list-tile-title
+                >{{ $store.getters["GET_COMPANY"] }} Admin</v-list-tile-title
               >
             </v-list-tile-content>
 
