@@ -178,7 +178,42 @@ const messages = {
 			} catch (error) {
 				throw error;
 			}
-		}
+		},
+		LISTEN_TO_MESSAGES({ state, commit, dispatch }) {
+			const uid = AUTH.currentUser.uid;
+			console.log('Listening to new messages')
+
+			COLLECTION.conversations.where("users", "array-contains", uid).onSnapshot((snapShot) => {
+
+				snapShot.docChanges().forEach((change) => {
+					let notif = {};
+					if (change.type === "added") {
+						let conversationData = change.doc.data();
+						if (conversationData.opened[uid] === false) {
+							notif.title = 'New Message!';
+							notif.text = 'New Message has been recieved, open the app to see the message!';
+							dispatch('accounts/SEND_PUSH_NOTIFICATION', notif, { root: true });
+						}
+					}
+					else if (change.type === "modified") {
+						let conversationData = change.doc.data();
+						if (conversationData.opened[uid] === false) {
+							notif.title = 'New Message!';
+							notif.text = 'New Message has been recieved, open the app to see the message!';
+							//console.log("disapatching push notif");
+							dispatch('accounts/SEND_PUSH_NOTIFICATION', notif, { root: true });
+						}
+					}
+				})
+
+				//console.log('messages listener:');
+				//console.log(title, text);
+
+
+
+			});
+		},
+
 	}
 }
 
