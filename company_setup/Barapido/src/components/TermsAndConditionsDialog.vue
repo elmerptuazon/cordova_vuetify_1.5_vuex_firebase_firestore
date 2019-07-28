@@ -103,8 +103,8 @@ justify;text-indent:35.45pt;line-height:normal;mso-outline-level:1"
             <span style='mso-fareast-font-family:"Times New Roman"'
               >Level 10-1, 25th Street &amp; 5th Avenue, Bonifacio Global City,
               Taguig, 1632, Philippines</span
-            >. APPSELL is the mobile application service provider of Hen Mei Lee
-            Inc.
+            >. APPSELL is the mobile application service provider of Barapido
+            Inc..
           </p>
 
           <p
@@ -286,8 +286,8 @@ justify;line-height:normal"
             any logos, images, photos, sounds, music, videos, interactive
             features, product descriptions, product information, documents and
             the like, that were originally created by or provided to AppSell by
-            Hen Mei Lee <span class="GramE">Inc. .</span> Company Content is the
-            sole property of Hen Mei Lee <span class="GramE">Inc. .</span>
+            Barapido Inc.. Company Content is the sole property of Barapido
+            Inc..
           </p>
 
           <p
