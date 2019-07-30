@@ -57,7 +57,7 @@
           </td>
           <td class="caption text-xs-right border-bottom">{{ item.qty }}</td>
           <td class="caption text-xs-right border-bottom">
-            {{ (item.qty * item.price) | currency("P") }}
+            {{ (item.qty * item.resellerPrice) | currency("P") }}
             <br />
             <a @click="editItem(item)">
               <v-icon class="caption blue--text">border_color</v-icon> Edit</a
@@ -483,7 +483,11 @@ export default {
   },
   computed: {
     subTotal() {
-      return this.stockOrder.items.reduce((a, b) => a + b.price * b.qty, 0);
+      console.log(this.stockOrder);
+      return this.stockOrder.items.reduce(
+        (a, b) => a + b.resellerPrice * b.qty,
+        0
+      );
     },
 
     discount() {

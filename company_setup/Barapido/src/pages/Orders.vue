@@ -139,7 +139,7 @@ export default {
         this.showLoading("OrdersToEverBilena");
         const response = await this.$store.dispatch("stock_orders/FIND_ALL");
         this.items = response.data.map(data => {
-          data.total = data.items.reduce((a, b) => a + b.total, 0);
+          data.total = data.items.reduce((a, b) => a + b.resellerTotal, 0);
           data.discountedTotal = this.applyDiscount(data.total);
           return data;
         });

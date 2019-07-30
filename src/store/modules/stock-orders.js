@@ -48,7 +48,7 @@ export default {
 									unique += `_${key}:${product.attributes[key]}`;
 								}
 							});
-
+							product.resellerPrice = productData.resellerPrice;
 							product.price = productData.price;
 							product.image = productData.downloadURL;
 							product.name = productData.name;
@@ -459,6 +459,7 @@ export default {
 				data.forEach((d) => {
 					d.items.forEach((item) => {
 						item.total = item.price * item.qty;
+						item.resellerTotal = item.resellerPrice * item.qty;
 					});
 				});
 
