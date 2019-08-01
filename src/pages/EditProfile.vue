@@ -30,7 +30,7 @@
 								<v-list-tile avatar ripple>
 									<v-list-tile-avatar>
 										<v-avatar>
-											<img v-lazy="userData.resellerData.imageObj" class="flipped"/>
+											 <v-img :src="userData.resellerData.downloadURL"></v-img>
 										</v-avatar>
 									</v-list-tile-avatar>
 									<v-list-tile-content>
@@ -184,7 +184,7 @@ import {mixins} from '@/mixins';
 import {mapGetters} from 'vuex';
 import provinces from '@/assets/provinces.json';
 import Modal from '@/components/Modal';
-
+import MaleDefaultImage from "@/assets/img/male-default.jpg";
 export default {
 	data: () => ({
 		userData: {
@@ -235,6 +235,10 @@ export default {
 			this.placeHolderEmail = this.userData.email;
 		}
 
+		if(!this.userData.resellerData.hasPicture){
+			this.userData.resellerData.downloadURL = MaleDefaultImage;
+		}
+		console.log(this.userData);
 		// this.reAuthDialog = true;
 	},
 	methods: {

@@ -34,11 +34,7 @@
                 ></v-img>
               </v-avatar>
               <v-avatar v-else width="50px">
-                <v-img
-                  :src="user.resellerData.placeholder"
-                  width="50"
-                  contain
-                ></v-img>
+                <v-img :src="MaleDefaultImage" width="50" contain></v-img>
               </v-avatar>
             </v-list-tile-avatar>
             <v-list-tile-content>
@@ -179,6 +175,7 @@ import BasketBadge from "@/components/BasketBadge";
 import Modal from "@/components/Modal";
 import TermsAndConditionsDialog from "@/components/TermsAndConditionsDialog";
 import DataPolicy from "@/components/DataPolicy";
+import MaleDefaultImage from "@/assets/img/male-default.jpg";
 
 export default {
   data: () => ({
@@ -215,7 +212,8 @@ export default {
       }
     ],
     viewResellerData: false,
-    loading: false
+    loading: false,
+    MaleDefaultImage: MaleDefaultImage
   }),
   methods: {
     option(name) {
