@@ -101,7 +101,7 @@
       class="px-3"
       v-if="user.type === 'Reseller' && user.status === 'pending'"
     >
-      <v-alert type="info" :value="true">
+      <v-alert border="right" outline type="info" value="true" elevation="2">
         Your application is under review - please check this page regularly to
         see if it has been approved.
       </v-alert>
@@ -111,10 +111,8 @@
       class="px-3"
       v-else-if="user.type === 'Reseller' && user.status === 'denied'"
     >
-      <v-alert type="error" :value="true">
-        Application Denied. <br />
-        <br />
-        {{ user.remarks }}
+      <v-alert border="right" outline type="error" value="true" elevation="2">
+        Application was denied due to: {{ user.remarks }}
       </v-alert>
     </div>
 
@@ -125,7 +123,7 @@
       <v-btn
         depressed
         class="primary white--text"
-        @click="resubmitApplication"
+        @click="ResubmitApplication"
         :loading="loading"
         :disabled="loading"
       >
@@ -252,14 +250,15 @@ export default {
       this.$router.push({ name: "MySellingAssistant" });
     },
 
-    async resubmitApplication() {
-      this.loading = true;
-      try {
-        await this.$store.dispatch("accounts/RESUBMIT_STATUS");
-      } catch (error) {
-        console.log(error);
-      }
-      this.loading = false;
+    async ResubmitApplication() {
+      // this.loading = true;
+      // try {
+      //   await this.$store.dispatch("accounts/RESUBMIT_STATUS");
+      // } catch (error) {
+      //   console.log(error);
+      // }
+      // this.loading = false;
+      this.$router.push({ name: "EditProfile" });
     }
   },
   computed: {

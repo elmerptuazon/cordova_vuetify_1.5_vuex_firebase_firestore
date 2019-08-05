@@ -74,6 +74,12 @@ const accounts = {
 			}
 			state.user = Object.assign(state.user, payload)
 		},
+		UPDATE_PROOF_OF_ID(state, payload) {
+
+			state.user.proofOfId = payload.proofOfId;
+
+		},
+
 		UPDATE_USER_KEY(state, { key, value }) {
 			state.user[key] = value;
 		}
@@ -533,7 +539,21 @@ const accounts = {
 				throw e;
 			}
 		},
-
+		async UPDATE_PROOF_OF_ID({ commit }, dataUrl) {
+			try {
+				console.log('dataUrl', dataUrl)
+				const user = AUTH.currentUser;
+				const proofOfIdSnapshot = await profPicStorageRef.child(`proof_${user.uid}`).putString(dataUrl, 'data_url');
+				const downloadURL = await proofOfIdSnapshot.ref.getDownloadURL();
+				const payload = {
+					proofOfId: downloadURL
+				}
+				const response = await COLLECTION.accounts.doc(user.uid).update(payload);
+				commit('UPDATE_PROOF_OF_ID', payload);
+			} catch (e) {
+				throw e;
+			}
+		},
 		async RE_AUTHENTICATE_USER({ }, password) {
 			try {
 				const user = await AUTH.currentUser;
