@@ -177,7 +177,7 @@ const inventory = {
 						const t = await dispatch('UPDATE_INVENTORY_ITEM', {
 							inventory_id: data.id,
 							product_id: item.productId,
-							quantity: item.qty += data.inventory,
+							quantity: (parseInt(item.qty) + parseInt(data.inventory)),
 							unique: data.unique
 						});
 					}

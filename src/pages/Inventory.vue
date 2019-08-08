@@ -355,7 +355,7 @@ export default {
 			this.$store.dispatch('inventory/ADD_TO_INVENTORY', {
 			
 			attributes: this.attributes,
-			inventory: this.attributes['quantity'],
+			inventory: parseInt(this.attributes['quantity']),
 			net: 0,
 			productId: this.selectedProduct.id,
 
@@ -372,7 +372,7 @@ export default {
 						this.selectedProduct.id = res.data.productId;
 						this.$store.dispatch('inventory/UPDATE_INVENTORY_ITEM', {
 						inventory_id: this.selectedProduct.inventory_id || null,
-						quantity: this.selectedProduct.inventory,
+						quantity:  parseInt(this.selectedProduct.inventory),
 						product_id: this.selectedProduct.id,
 						unique: this.selectedProduct.unique,
 						attributes: this.attributes
