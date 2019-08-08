@@ -10,7 +10,7 @@
         @click="updateUser"
         :loading="updateButtonLoading"
         :disabled="updateButtonLoading"
-        v-if="userData.status === 'approved'"
+        v-if="userData.status === 'approved' || userData.type === 'Customer'"
       >
         <v-icon>save</v-icon>
       </v-btn>
@@ -268,7 +268,12 @@
 					<v-flex xs12>
 						<v-text-field label="Twitter URL/Username" v-model="userData.social.twitter"></v-text-field>
 					</v-flex> -->
-          <v-flex xs6 v-if="userData.status === 'approved'">
+          <v-flex
+            xs6
+            v-if="
+              userData.status === 'approved' || userData.type === 'Customer'
+            "
+          >
             <v-btn
               block
               depressed
@@ -278,7 +283,12 @@
               >Update Password</v-btn
             >
           </v-flex>
-          <v-flex xs6 v-if="userData.status === 'approved'">
+          <v-flex
+            xs6
+            v-if="
+              userData.status === 'approved' || userData.type === 'Customer'
+            "
+          >
             <v-btn
               block
               color="white"
@@ -291,7 +301,7 @@
               Save Changes
             </v-btn>
           </v-flex>
-          <v-flex xs12 v-if="userData.status != 'approved'">
+          <v-flex xs12 v-if="userData.status === 'denied'">
             <v-btn
               depressed
               class="primary white--text"
