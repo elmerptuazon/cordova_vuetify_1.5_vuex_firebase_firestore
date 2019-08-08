@@ -11,5 +11,5 @@ module.exports = {
   webAdminId: '"admin"',
   companyName: '"Ever Bilena"',
   version: '"0.6.5"',
-  primaryColor: '"##D80072"',
+  primaryColor: '"#D80072"',
 }
