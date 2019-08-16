@@ -1,5 +1,10 @@
 import { DB, AUTH, STORAGE, COLLECTION } from '@/config/firebaseInit';
 
+function GenerateStockOrderNumber(resellerID) {
+	var refNumber = `SO-${BigInt(resellerID).toString(36).toUpperCase()}${BigInt(Date.now()).toString(36).toUpperCase()}`;
+	return refNumber;
+}
+
 export default {
 	namespaced: true,
 	state: {
@@ -211,11 +216,11 @@ export default {
 				throw error;
 			}
 		},
-		async SAVE_ITEM_FROM_INVENTORY({ commit }, payload) {
+		async SAVE_ITEM_FROM_INVENTORY({ commit, rootGetters }, payload) {
 			try {
 
 				const userId = AUTH.currentUser.uid;
-
+				const userDetails = rootGetters['accounts/user'];
 				const querySnapshot = await COLLECTION
 					.stock_orders
 					.where('userId', '==', userId)
@@ -279,7 +284,8 @@ export default {
 						active: true,
 						items: [],
 						userId: userId,
-						createdAt: Date.now()
+						createdAt: Date.now(),
+						stockOrderReference: GenerateStockOrderNumber(userDetails.agentId)
 					}
 
 					obj.items.push({
