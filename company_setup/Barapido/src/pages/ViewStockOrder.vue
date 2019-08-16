@@ -9,6 +9,37 @@
       <Logo />
     </v-toolbar>
 
+    <v-container>
+      <v-card class="mx-auto">
+        <v-card-title>
+          <span class="subheading font-weight-medium">Stock Order Details</span>
+        </v-card-title>
+        <v-divider></v-divider>
+        <v-card-text class="body-2 font-weight-regular">
+          <div>
+            <div>
+              <span
+                >Reference Number: {{ stockOrder.stockOrderReference }}</span
+              >
+            </div>
+            <div>
+              Date Ordered:
+              {{ stockOrder.submittedAt | momentify("DD-MMM-YYYY") }}
+            </div>
+            <div>
+              Status:
+              <v-chip
+                :class="[stockOrder.status != 'pending' ? 'green' : 'red darken-2']"
+                text-color="white"
+              >
+                {{ stockOrder.status }}
+              </v-chip>
+            </div>
+          </div>
+        </v-card-text>
+      </v-card>
+    </v-container>
+    <br />
     <table class="basket-table">
       <thead>
         <tr>
@@ -122,12 +153,13 @@
 <script>
 import { mapGetters } from "vuex";
 import { mixins } from "@/mixins";
+import { date } from "@/mixins/date";
 import BottomNav from "@/components/BottomNav";
 import BasketBadge from "@/components/BasketBadge";
 import Modal from "@/components/Modal";
 
 export default {
-  mixins: [mixins],
+  mixins: [date, mixins],
   data: () => ({
     search: null,
     loading: false,
