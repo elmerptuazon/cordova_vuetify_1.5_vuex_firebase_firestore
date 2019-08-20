@@ -113,6 +113,14 @@
         <v-flex xs12>
           <v-text-field
             :rules="basicRules"
+            v-if="registerData.address.citymun"
+            label="Barangay*"
+            v-model="registerData.address.barangay"
+          ></v-text-field>
+        </v-flex>
+        <v-flex xs12>
+          <v-text-field
+            :rules="basicRules"
             required
             label="Zip Code*"
             v-model="registerData.address.zipCode"
