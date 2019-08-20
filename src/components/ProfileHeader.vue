@@ -13,7 +13,7 @@
 				{{user.firstName}} {{user.middleInitial}} {{user.lastName}}
 			</div>
 			<div class="grey--text" v-if="$store.getters['accounts/isApproved']">Member since {{user.createdAt | memberSince}}</div>
-			<div class="grey--text">Member ID Number: {{ user.agentId }}</div>
+			<div class="grey--text" v-if="$store.getters['accounts/isApproved']">Member ID Number: {{ user.agentId }}</div>
 			<div v-if="hasViewProfile">
 				<a style="text-decoration: none;" @click="viewProfile">View Profile</a>
 			</div>
