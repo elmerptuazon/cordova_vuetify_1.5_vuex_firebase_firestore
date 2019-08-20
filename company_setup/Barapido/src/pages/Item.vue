@@ -2,14 +2,14 @@
   <div>
     <v-toolbar app color="primary" dark>
       <v-btn icon @click="goBack">
-        <v-icon color="grey darken-2">arrow_back</v-icon>
+        <v-icon>arrow_back</v-icon>
       </v-btn>
       <v-toolbar-title v-if="$store.state.showToolbarTitles">{{
         GET_CURRENT_CATALOGUE
       }}</v-toolbar-title>
       <BasketBadge tabName="categories" />
       <v-btn icon @click="shareProduct">
-        <v-icon color="grey darken-2">share</v-icon>
+        <v-icon>share</v-icon>
       </v-btn>
       <v-spacer></v-spacer>
       <Logo />
@@ -213,7 +213,7 @@
       <v-card>
         <v-card-title class="pa-0">
           <v-btn icon @click="cancelEdit" class="primary--text">
-            <v-icon color="grey darken-2">arrow_back</v-icon>
+            <v-icon>arrow_back</v-icon>
           </v-btn>
         </v-card-title>
         <v-card-text class="pa-0">
@@ -322,7 +322,7 @@
                   block
                   depressed
                   color="primary"
-                  class="black--text"
+                  class="white--text"
                   @click="addToBasket"
                 >
                   <v-icon left>add_shopping_cart</v-icon> Add to Cart
@@ -332,7 +332,7 @@
                   block
                   depressed
                   color="primary"
-                  class="black--text"
+                  class="white--text"
                   @click="showBasketDialog"
                 >
                   <v-icon left>add</v-icon> Add to Customer Cart
@@ -346,7 +346,7 @@
               <div v-else-if="selectedButton === 'Stock Order'">
                 <v-btn
                   depressed
-                  class="primary black--text"
+                  class="primary white--text"
                   block
                   @click="addToStockOrder"
                   :disabled="addToStockOrderLoading"
