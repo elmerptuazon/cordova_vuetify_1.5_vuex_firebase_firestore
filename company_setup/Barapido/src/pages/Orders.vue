@@ -15,11 +15,11 @@
       <v-btn icon @click="goToBasket" v-if="user.type === 'Customer'">
         <v-badge right color="red" overlap v-model="showBadge">
           <span slot="badge">{{ GET_ITEMS_LENGTH }}</span>
-          <v-icon color="grey darken-2">shopping_cart</v-icon>
+          <v-icon>shopping_cart</v-icon>
         </v-badge>
       </v-btn>
       <v-btn icon @click="extended = !extended">
-        <v-icon v-if="!extended" color="grey darken-2">search</v-icon>
+        <v-icon v-if="!extended">search</v-icon>
         <v-icon v-else>close</v-icon>
       </v-btn>
       <BasketBadge v-if="user.type === 'Reseller'" />

@@ -2,7 +2,7 @@
   <div>
     <v-toolbar app color="primary" dark :extended="extended">
       <v-btn icon @click="backToMore">
-        <v-icon color="grey darken-2">arrow_back</v-icon>
+        <v-icon>arrow_back</v-icon>
       </v-btn>
       <v-text-field
         label="Search contact..."
@@ -16,7 +16,7 @@
         prepend-icon="search"
       ></v-text-field>
       <v-btn icon @click="extended = !extended">
-        <v-icon v-if="!extended" color="grey darken-2">search</v-icon>
+        <v-icon v-if="!extended">search</v-icon>
         <v-icon v-else>close</v-icon>
       </v-btn>
       <v-btn
@@ -24,7 +24,7 @@
         icon
         @click="$router.push({ name: 'AddOfflineContact' })"
       >
-        <v-icon color="grey darken-2">person_add</v-icon>
+        <v-icon>person_add</v-icon>
       </v-btn>
       <v-spacer></v-spacer>
       <Logo />
@@ -96,7 +96,7 @@
       <div class="mt-2" v-else-if="contactType === 'Offline'">
         <v-list two-line class="transparent">
           <template
-            v-for="(c, i) in filterBy(
+            v-for="(c) in filterBy(
               offlineContacts,
               search,
               'firstName',
