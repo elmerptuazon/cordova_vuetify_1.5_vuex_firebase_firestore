@@ -6,10 +6,23 @@
     <v-form v-model="valid" ref="form" lazy-validation @submit.prevent="submit">
       <v-layout column class="mt-4">
         <v-flex xs12>
-          <v-text-field clearable required :rules="emailRules" label="Email address" v-model="email"></v-text-field>
+          <v-text-field 
+            dark
+            color="white"
+            clearable 
+            required 
+            :rules="basicRules" 
+            label="Email address" 
+            v-model="email"
+          ></v-text-field>
         </v-flex>
         <div class="px-4">
-          <v-btn depressed color="primary" block large type="submit">Send Reset Password Link</v-btn>
+          <v-btn 
+            depressed 
+            color="primary" 
+            block 
+            large
+            type="submit">Send Reset Password Link</v-btn>
         </div>
       </v-layout>
     </v-form>
@@ -38,8 +51,9 @@
             })
             .catch((error) => {
               this.Indicator().close()
-              this.email = null
-              this.$events.$emit('SET_DIALOG', {status: true, title: 'Sorry', message: error.message})
+              this.email = null;
+              let errmessage = "The email does not exist, or the email has been typed incorrectly. Please try again.";
+              this.$events.$emit('SET_DIALOG', {status: true, title: 'Sorry', message: errmessage})
               console.error(error)
             })
           }
