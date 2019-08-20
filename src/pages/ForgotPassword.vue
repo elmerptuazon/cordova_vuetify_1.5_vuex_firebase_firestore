@@ -6,7 +6,14 @@
     <v-form v-model="valid" ref="form" lazy-validation @submit.prevent="submit">
       <v-layout column class="mt-4">
         <v-flex xs12>
-          <v-text-field clearable required :rules="emailRules" label="Email address" v-model="email"></v-text-field>
+          <v-text-field 
+            color="white"
+            clearable 
+            required 
+            :rules="basicRules" 
+            label="Email address" 
+            v-model="email"
+          ></v-text-field>
         </v-flex>
         <div class="px-4">
           <v-btn depressed color="primary" block large type="submit">Send Reset Password Link</v-btn>
