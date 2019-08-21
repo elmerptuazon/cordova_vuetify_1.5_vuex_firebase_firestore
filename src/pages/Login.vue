@@ -36,7 +36,7 @@
             large
             type="submit"
             :loading="loginBtnLoading"
-            :disabled="loginBtnLoading"
+            :disabled="loginBtnLoading || (email === '' || password === '')"
             >Login</v-btn
           >
         </div>
@@ -61,8 +61,8 @@ import Modal from "@/components/Modal";
 
 export default {
   data: () => ({
-    email: null, //'ben.appsell@gmail.com',
-    password: null, //'testreseller',
+    email: '', //'ben.appsell@gmail.com',
+    password: '', //'testreseller',
     valid: true,
     e1: true,
     loginBtnLoading: false
