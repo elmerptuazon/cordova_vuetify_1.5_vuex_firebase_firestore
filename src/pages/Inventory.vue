@@ -75,7 +75,7 @@
 					</template>
 				</v-data-table>
 				<div class="px-2 mt-4">
-					<v-btn @click="confirmGenerate" large color="primary" class="white--text" block>
+					<v-btn :disabled="disableOrderingButton" @click="confirmGenerate" large color="primary" class="white--text" block>
 						<span class="body-2">Order items you need from {{ $store.getters['GET_COMPANY'] }}</span>
 					</v-btn>
 				</div>
@@ -565,6 +565,10 @@ export default {
 				}
 			});
 			return data.join(', ');
+		},
+		disableOrderingButton() {
+			//some() returns a boolean true when an element matches the callback function condition
+			return !(this.items.some((item) => item.net <= -1));
 		}
 	},
 	filters: {
