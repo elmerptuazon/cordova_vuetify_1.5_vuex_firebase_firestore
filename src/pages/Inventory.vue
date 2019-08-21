@@ -412,7 +412,11 @@ export default {
 		},
 
 		confirmGenerate () {
-			this.$refs.GenerateStockOrderConfirmation.show('Confirm', `You are about to add products with a negative value in the NET column to your shopping cart. You still need to review your shopping cart and submit your order to ${this.$store.getters['GET_COMPANY']}.`);
+			this.$refs.GenerateStockOrderConfirmation.show(
+				'Confirm', 
+				`You are about to order inventory that you currently lack. 
+				You would still need to review your shopping cart and submit your order to ${this.$store.getters['GET_COMPANY']}.`
+			);
 		},
 
 		generateStockOrder () {
@@ -567,7 +571,7 @@ export default {
 			return data.join(', ');
 		},
 		disableOrderingButton() {
-			//some() returns a boolean true when an element matches the callback function condition
+			//some() returns true when an element matches the callback function condition
 			return !(this.items.some((item) => item.net <= -1));
 		}
 	},
