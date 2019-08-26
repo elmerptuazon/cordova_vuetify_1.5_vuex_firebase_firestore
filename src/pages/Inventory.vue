@@ -75,7 +75,7 @@
 					</template>
 				</v-data-table>
 				<div class="px-2 mt-4">
-					<v-btn @click="confirmGenerate" large color="primary" class="white--text" block>
+					<v-btn :disabled="disableOrderingButton" @click="confirmGenerate" large color="primary" class="white--text" block>
 						<span class="body-2">Order items you need from {{ $store.getters['GET_COMPANY'] }}</span>
 					</v-btn>
 				</div>
@@ -412,7 +412,11 @@ export default {
 		},
 
 		confirmGenerate () {
-			this.$refs.GenerateStockOrderConfirmation.show('Confirm', `You are about to add products with a negative value in the NET column to your shopping cart. You still need to review your shopping cart and submit your order to ${this.$store.getters['GET_COMPANY']}.`);
+			this.$refs.GenerateStockOrderConfirmation.show(
+				'Confirm', 
+				`You are about to order inventory that you currently lack. 
+				You would still need to review your shopping cart and submit your order to ${this.$store.getters['GET_COMPANY']}.`
+			);
 		},
 
 		generateStockOrder () {
@@ -565,6 +569,10 @@ export default {
 				}
 			});
 			return data.join(', ');
+		},
+		disableOrderingButton() {
+			//some() returns true when an element matches the callback function condition
+			return !(this.items.some((item) => item.net <= -1));
 		}
 	},
 	filters: {
