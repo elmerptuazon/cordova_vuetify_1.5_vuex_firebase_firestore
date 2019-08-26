@@ -61,8 +61,8 @@ import Modal from "@/components/Modal";
 
 export default {
   data: () => ({
-    email: null, //'ben.appsell@gmail.com',
-    password: null, //'testreseller',
+    email: '', //'ben.appsell@gmail.com',
+    password: '', //'testreseller',
     valid: true,
     e1: true,
     loginBtnLoading: false
@@ -71,7 +71,7 @@ export default {
   methods: {
     submit() {
       // this.$refs.form.validate()
-
+      
       if (this.email && this.password) {
         this.loginBtnLoading = true;
 
@@ -117,8 +117,24 @@ export default {
 
             console.error(error);
           });
-      } else {
-        this.$refs.modal.show("Sorry", "Email and password are required");
+      } else if(this.email === "" && this.password == "") {
+        this.$events.$emit("SET_DIALOG", {
+              status: true,
+              title: "Sorry",
+              message: "Email/Contact Number and Password is required! Please try again."
+        });
+      } else if(this.email === "") {
+        this.$events.$emit("SET_DIALOG", {
+              status: true,
+              title: "Sorry",
+              message: "Email or Contact Number is required! Please try again."
+        });
+      } else if(this.password === "") {
+        this.$events.$emit("SET_DIALOG", {
+              status: true,
+              title: "Sorry",
+              message: "Password is required! Please try again."
+        });
       }
     },
     forgotPassword() {
