@@ -60,8 +60,8 @@ async function copyCompanySetUp() {
         console.log('Components update success!')
 
 
-        let moduleSource = `company_setup/${answer.value}/src/store/modules`;
-        let moduleDestination = 'src/store/modules'
+        let moduleSource = `company_setup/${answer.value}/src/store`;
+        let moduleDestination = 'src/store'
         await fs.copy(moduleSource, moduleDestination)
         console.log('Store Modules update success!')
 

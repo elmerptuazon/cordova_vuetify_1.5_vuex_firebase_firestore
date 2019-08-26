@@ -29,7 +29,9 @@
             <div>
               Status:
               <v-chip
-                :class="[stockOrder.status != 'pending' ? 'green' : 'red darken-2']"
+                :class="[
+                  stockOrder.status != 'pending' ? 'green' : 'red darken-2'
+                ]"
                 text-color="white"
               >
                 {{ stockOrder.status }}
@@ -117,7 +119,14 @@
       </tbody>
     </table>
 
-    <div class="text-xs-center mt-3 mb-3" v-if="!stockOrder.addedToInventory">
+    <v-card>
+      <v-card-title class="subheading font-weight-medium"
+        >Shipments to Receive</v-card-title
+      >
+      <ShipmentDetails :stockOrderId="$route.params.id" />
+    </v-card>
+
+    <!-- <div class="text-xs-center mt-3 mb-3" v-if="!stockOrder.addedToInventory">
       <v-btn
         :loading="loading"
         :disabled="loading"
@@ -131,7 +140,7 @@
       >
         <v-icon left>check_circle</v-icon> Add Stock to Inventory
       </v-btn>
-    </div>
+    </div> -->
 
     <v-dialog v-model="loaderDialog" hide-overlay persistent width="300">
       <v-card color="primary" dark>
@@ -156,6 +165,7 @@ import { mixins } from "@/mixins";
 import { date } from "@/mixins/date";
 import BottomNav from "@/components/BottomNav";
 import BasketBadge from "@/components/BasketBadge";
+import ShipmentDetails from "@/components/ShipmentDetails";
 import Modal from "@/components/Modal";
 
 export default {
@@ -212,36 +222,6 @@ export default {
           tab: "tab2"
         }
       });
-    },
-
-    async addToInventory() {
-      this.loading = true;
-      try {
-        const items = JSON.parse(JSON.stringify(this.stockOrder.items));
-        const res = await this.$store.dispatch(
-          "inventory/ADD_ITEMS_FROM_STOCK_ORDER",
-          items
-        );
-        if (res.success) {
-          await this.$store.dispatch(
-            "stock_orders/MARKED_AS_ADDED_TO_INVENTORY",
-            this.$route.params.id
-          );
-          this.stockOrder.addedToInventory = true;
-          this.$refs.modal.show(
-            "Success",
-            "All items added to inventory.",
-            () => {
-              this.$router.go(-1);
-            }
-          );
-        }
-      } catch (error) {
-        this.$refs.modal.show("Error", "An error occurred.", () => {
-          this.$router.go(-1);
-        });
-      }
-      this.loading = false;
     }
   },
   computed: {
@@ -295,7 +275,8 @@ export default {
   },
   components: {
     BasketBadge,
-    Modal
+    Modal,
+    ShipmentDetails
   }
 };
 </script>

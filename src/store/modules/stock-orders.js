@@ -80,7 +80,7 @@ export default {
 				throw error;
 			}
 		},
-		async SAVE({ commit }, payload) {
+		async SAVE({ commit, rootGetters }, payload) {
 			try {
 
 				const userId = AUTH.currentUser.uid;
@@ -162,8 +162,10 @@ export default {
 
 					// remove dependency
 					const payloadCopy = Object.assign({}, payload);
+					const userDetails = rootGetters['accounts/user'];
+					console.log(payload);
 					payload.userId = AUTH.currentUser.uid;
-
+					payload.stockOrderReference = GenerateStockOrderNumber(userDetails.agentId);
 					payload.items.forEach((item) => {
 
 						// add unique identifier
