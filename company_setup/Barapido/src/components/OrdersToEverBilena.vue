@@ -27,12 +27,7 @@
       </tr>
     </template>
     <template slot="items" slot-scope="props">
-      <tr
-        @click="viewOrder(props.item)"
-        :class="[
-          !props.item.addedToInventory ? 'red darken-2 white--text' : ''
-        ]"
-      >
+      <tr @click="viewOrder(props.item)">
         <!-- <td class="text-xs-center">
                     <v-badge color="red" left overlap>
                         <span slot="badge" v-if="!props.item.addedToInventory" v-html="props.item.items.length"></span>
@@ -41,9 +36,9 @@
                 </td> -->
         <td class="text-xs-center">{{ props.item.stockOrderReference }}</td>
         <td class="text-xs-center">{{ props.item.status | uppercase }}</td>
-        <td class="text-xs-center">
+        <!-- <td class="text-xs-center">
           {{ props.item.discountedTotal | currency("P") }}
-        </td>
+        </td> -->
       </tr>
     </template>
   </v-data-table>
@@ -80,12 +75,12 @@ export default {
         text: "Status",
         value: "status",
         align: "center"
-      },
-      {
-        text: "Cost",
-        value: "total",
-        align: "center"
       }
+      // {
+      //   text: "Cost",
+      //   value: "total",
+      //   align: "center"
+      // }
     ]
   }),
 
