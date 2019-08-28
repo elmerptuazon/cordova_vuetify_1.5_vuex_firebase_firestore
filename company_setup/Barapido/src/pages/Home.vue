@@ -25,8 +25,21 @@
           large
           class="mt-3"
           @click="login"
-          >Login</v-btn
+          ><v-icon left>email</v-icon>
+          <div>Login with Email</div>
+        </v-btn>
+        <v-btn
+          depressed
+          color="white primary--text"
+          block
+          large
+          class="mt-3"
+          @click="login"
         >
+          <v-icon left>phone</v-icon>
+          Login with Phone Number
+        </v-btn>
+
         <v-btn
           depressed
           color="white primary--text"
@@ -60,7 +73,7 @@ export default {
   },
   methods: {
     login(userType) {
-      this.$store.commit("SET_TOOLBAR_TITLE", "Login");
+      this.$store.commit("SET_TOOLBAR_TITLE", "Login with Email");
       this.$router.push({ name: "Login" });
     },
     register() {
