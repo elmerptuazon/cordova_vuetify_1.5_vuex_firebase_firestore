@@ -163,9 +163,9 @@
     <div>
       <v-dialog v-model="logoutDialog" persistent>
         <v-card>
-          <v-card-title class="font-weight-bold primary white--text">LOGOUT</v-card-title>
+          <v-card-title class="subheading font-weight-bold primary white--text">CONFIRMATION</v-card-title>
           <v-divider/>
-          <v-card-text>Are you sure you want to Log out?</v-card-text>
+          <v-card-text>Are you sure you want to log out?</v-card-text>
           <v-card-actions>
             <v-spacer/>
             <v-btn @click="logoutDialog = false">CANCEL</v-btn>
