@@ -159,6 +159,22 @@
 
     <BottomNav currentTab="more" />
     <Modal ref="modal" />
+
+    <div>
+      <v-dialog v-model="logoutDialog" persistent>
+        <v-card>
+          <v-card-title class="primary white--text">LOGOUT</v-card-title>
+          <v-divider/>
+          <v-card-text>Are you sure you want to Log out?</v-card-text>
+          <v-card-actions>
+            <v-spacer/>
+            <v-btn color="primary" @click="logoutUser">LOG-OUT</v-btn>
+            <v-btn @click="logoutDialog = false">CANCEL</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+    </div>
+
   </div>
 </template>
 
@@ -211,7 +227,8 @@ export default {
     ],
     viewResellerData: false,
     loading: false,
-    MaleDefaultImage: MaleDefaultImage
+    MaleDefaultImage: MaleDefaultImage,
+    logoutDialog: false,
   }),
   methods: {
     option(name) {
