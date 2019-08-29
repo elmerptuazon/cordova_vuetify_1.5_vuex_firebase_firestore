@@ -231,6 +231,13 @@ export default {
     logoutDialog: false,
   }),
   methods: {
+    logoutUser() {
+      this.Indicator().open();
+      this.$store.dispatch("accounts/LOG_OUT").then(() => {
+        this.Indicator().close();
+        this.$router.push({ name: "Home" });
+      });
+    },
     option(name) {
       if (name !== "Log out" && this.user.status === "pending") {
         this.$refs.modal.show(
@@ -241,11 +248,7 @@ export default {
       }
 
       if (name === "Log out") {
-        this.Indicator().open();
-        this.$store.dispatch("accounts/LOG_OUT").then(() => {
-          this.Indicator().close();
-          this.$router.push({ name: "Home" });
-        });
+        this.logoutDialog = true;
       } else if (name === "Settings") {
         this.$router.push({ name: "Settings" });
       } else if (name === "Contacts") {
