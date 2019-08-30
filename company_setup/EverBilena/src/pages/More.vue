@@ -159,6 +159,21 @@
 
     <BottomNav currentTab="more" />
     <Modal ref="modal" />
+
+    <div>
+      <v-dialog v-model="logoutDialog" persistent>
+        <v-card>
+          <v-card-title class="subheading font-weight-bold primary white--text">CONFIRMATION</v-card-title>
+          <v-divider/>
+          <v-card-text>Are you sure you want to log out?</v-card-text>
+          <v-card-actions>
+            <v-spacer/>
+            <v-btn @click="logoutDialog = false">CANCEL</v-btn>
+            <v-btn color="primary" @click="logoutUser">LOG-OUT</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+    </div>
   </div>
 </template>
 
@@ -211,9 +226,17 @@ export default {
     ],
     viewResellerData: false,
     loading: false,
-    MaleDefaultImage: MaleDefaultImage
+    MaleDefaultImage: MaleDefaultImage,
+    logoutDialog: false,
   }),
   methods: {
+    logoutUser() {
+      this.Indicator().open();
+      this.$store.dispatch("accounts/LOG_OUT").then(() => {
+        this.Indicator().close();
+        this.$router.push({ name: "Home" });
+      });
+    },
     option(name) {
       if (name !== "Log out" && this.user.status === "pending") {
         this.$refs.modal.show(
@@ -224,11 +247,7 @@ export default {
       }
 
       if (name === "Log out") {
-        this.Indicator().open();
-        this.$store.dispatch("accounts/LOG_OUT").then(() => {
-          this.Indicator().close();
-          this.$router.push({ name: "Home" });
-        });
+        this.logoutDialog = true;
       } else if (name === "Settings") {
         this.$router.push({ name: "Settings" });
       } else if (name === "Contacts") {
