@@ -191,7 +191,7 @@ const messages = {
 						let conversationData = change.doc.data();
 						if (conversationData.opened[uid] === false) {
 							notif.title = 'New Message!';
-							notif.text = 'New Message has been recieved, open the app to see the message!';
+							notif.text = 'New Message has been received, open the app to see the message!';
 							dispatch('accounts/SEND_PUSH_NOTIFICATION', notif, { root: true });
 						}
 					}
@@ -199,7 +199,7 @@ const messages = {
 						let conversationData = change.doc.data();
 						if (conversationData.opened[uid] === false) {
 							notif.title = 'New Message!';
-							notif.text = 'New Message has been recieved, open the app to see the message!';
+							notif.text = 'New Message has been received, open the app to see the message!';
 							//console.log("disapatching push notif");
 							dispatch('accounts/SEND_PUSH_NOTIFICATION', notif, { root: true });
 						}

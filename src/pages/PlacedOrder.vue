@@ -356,13 +356,13 @@
 		<v-card>
 			<v-card-text>
 				<div class="headline text-xs-center blue--text text--darken-2" v-if="order.offlineContact">
-					Order No. {{order.id}} has been recieved by customer 
+					Order No. {{order.id}} has been received by customer 
 					{{order.offlineContact.firstName}} {{order.offlineContact.middleInitial || ''}} {{order.offlineContact.lastName || ''}}.
 					Your inventory has been adjusted accordingly. 
 
 				</div>
 				<div class="headline text-xs-center blue--text text--darken-2" v-else>
-					Order No. {{order.id}} has been recieved by customer 
+					Order No. {{order.id}} has been received by customer 
 					{{order.accountData.firstName}} {{order.accountData.middleInitial || ''}} {{order.accountData.lastName}}.
 					Your inventory has been adjusted accordingly.
 				</div>
