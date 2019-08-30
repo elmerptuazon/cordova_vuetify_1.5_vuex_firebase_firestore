@@ -61,17 +61,19 @@
         </v-flex>
         <v-flex xs12>
           <v-text-field
+            :rules="emailRules"
             append-icon="email"
-            label="Email address"
+            label="Email address*"
             v-model="registerData.email"
           ></v-text-field>
         </v-flex>
         <v-flex xs12>
           <v-text-field
+            :rules="mobileRules"
             type="number"
             append-icon="contact_phone"
             required
-            label="Mobile number"
+            label="Mobile number*"
             v-model="registerData.contact"
           ></v-text-field>
         </v-flex>

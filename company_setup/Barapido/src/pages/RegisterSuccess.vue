@@ -53,7 +53,7 @@
           :clearable="resellerFound"
           :rules="basicRules"
           required
-          label="Email address or Mobile number"
+          label="Email address or Membership ID"
           v-model="resellerSearch"
         ></v-text-field>
         <p class="grey--text text--darken-2 mt-4 subheading text-xs-center">
