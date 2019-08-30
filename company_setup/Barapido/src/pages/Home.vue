@@ -25,21 +25,9 @@
           large
           class="mt-3"
           @click="login"
-          ><v-icon left>email</v-icon>
-          <div>Login with Email</div>
-        </v-btn>
-        <v-btn
-          depressed
-          color="white primary--text"
-          block
-          large
-          class="mt-3"
-          @click="login"
         >
-          <v-icon left>phone</v-icon>
-          Login with Phone Number
+          <div>Login</div>
         </v-btn>
-
         <v-btn
           depressed
           color="white primary--text"
