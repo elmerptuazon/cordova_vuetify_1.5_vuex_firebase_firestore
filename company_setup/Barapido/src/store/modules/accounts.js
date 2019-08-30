@@ -167,11 +167,11 @@ const accounts = {
 
 		async FIND_RESELLER({ commit }, payload) {
 			try {
-				const type = validateEmail(payload.data) ? 'email' : 'contact';
+				const type = validateEmail(payload.data) ? 'email' : 'agentId';
 
-				if (type === 'email') {
-					payload.data = payload.data.toLowerCase();
-				}
+				// if (type === 'email') {
+				// 	payload.data = payload.data.toLowerCase();
+				// }
 
 				const querySnapshot = await COLLECTION.accounts.where(type, '==', payload.data).limit(1).get();
 
