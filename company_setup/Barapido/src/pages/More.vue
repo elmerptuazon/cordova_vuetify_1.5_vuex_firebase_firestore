@@ -102,9 +102,11 @@
       v-if="user.type === 'Reseller' && user.status === 'pending'"
     >
       <v-alert border="right" outline type="info" value="true" elevation="2">
-        Your application will be approved once you ordered and paid for your starter kit.<br><br>
-        To order your starter kit, please order at {}, or you can contact the Barapido Team at {}.<br><br>
-        Always check this page to see if your application has been approved. 
+        Your application will be approved once you ordered and paid for your
+        starter kit.<br /><br />
+        To order your starter kit, please order by emailing orders@barapido.com,
+        or you can contact the Barapido Team thru Viber at 09284787508.<br /><br />
+        Always check this page to see if your application has been approved.
       </v-alert>
     </div>
 
@@ -164,18 +166,19 @@
     <div>
       <v-dialog v-model="logoutDialog" persistent>
         <v-card>
-          <v-card-title class="subheading font-weight-bold primary white--text">CONFIRMATION</v-card-title>
-          <v-divider/>
+          <v-card-title class="subheading font-weight-bold primary white--text"
+            >CONFIRMATION</v-card-title
+          >
+          <v-divider />
           <v-card-text>Are you sure you want to log out?</v-card-text>
           <v-card-actions>
-            <v-spacer/>
+            <v-spacer />
             <v-btn @click="logoutDialog = false">CANCEL</v-btn>
             <v-btn color="primary" @click="logoutUser">LOG-OUT</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
     </div>
-
   </div>
 </template>
 
@@ -229,7 +232,7 @@ export default {
     viewResellerData: false,
     loading: false,
     MaleDefaultImage: MaleDefaultImage,
-    logoutDialog: false,
+    logoutDialog: false
   }),
   methods: {
     logoutUser() {
