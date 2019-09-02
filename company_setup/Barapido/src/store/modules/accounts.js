@@ -99,6 +99,7 @@ const accounts = {
 
 				const response = await AUTH.createUserWithEmailAndPassword(payload.email, payload.password);
 				delete payload.password;
+				delete payload.confirmPassword;
 
 				const user = AUTH.currentUser;
 
