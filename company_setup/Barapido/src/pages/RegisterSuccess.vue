@@ -5,12 +5,12 @@
       class="mt-5 text-xs-center"
       v-if="userType === 'Reseller'"
     >
-      <p class="headline blue--text text--darken-2">
+      <p class="title blue--text text--darken-2">
         Your application has been submitted!
       </p>
       <p class="subheading blue--text text--darken-2">
         please verify your email address by clicking the link on the email we
-        have sent.
+        have sent to the email you provided.
       </p>
       <v-avatar
         :tile="true"
@@ -38,11 +38,13 @@
       v-else-if="userType === 'Customer'"
     >
       <div class="text-xs-center">
-        <p class="headline blue--text text--darken-2">
-          Your Registration is almost complete!
+        <p class="title blue--text text--darken-2">
+          Your registration is almost complete!
+        </p>
+        <p class="subheading blue--text text--darken-2">
+          Now it's time to find your Reseller!
         </p>
       </div>
-
       <v-form
         v-model="resellerValid"
         ref="resellerForm"
@@ -53,7 +55,7 @@
           :clearable="resellerFound"
           :rules="basicRules"
           required
-          label="Email address or Membership ID"
+          label="Enter your Reseller's email address or Membership ID"
           v-model="resellerSearch"
         ></v-text-field>
         <p class="grey--text text--darken-2 mt-4 subheading text-xs-center">
@@ -201,7 +203,7 @@ export default {
           console.log("reseller added");
           this.$refs.modal.show(
             "Success",
-            "You registration is complete, please login again.",
+            "You registration is complete, please verify your email by clicking the link on the mail we have sent to you, you can login once you have verified your email.",
             () => {
               this.$store.dispatch("accounts/LOG_OUT").then(() => {
                 this.Indicator().close();
@@ -231,7 +233,7 @@ export default {
       // }
       this.$refs.modal.show(
         "Success",
-        "You registration is complete, please login again.",
+        "You registration is complete, please verify your email by clicking the link on the mail we have sent to you, you can login once you have verified your email.",
         () => {
           this.$store.dispatch("accounts/LOG_OUT").then(() => {
             this.Indicator().close();
