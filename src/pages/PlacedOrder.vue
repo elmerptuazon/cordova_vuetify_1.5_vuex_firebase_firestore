@@ -26,16 +26,16 @@
 						<v-flex xs6>
 							<div class="text-xs-left" style="font-size: 11px;">
 								<v-avatar size="20px" v-if="!order.isOffline">
-									<v-img :src="malePlaceholder" contain v-if="!order.accountData.downloadURL && order.accountData.gender === 'Male'"></v-img>
-									<v-img :src="femalePlaceholder" contain v-else-if="!order.accountData.downloadURL && order.accountData.gender === 'Female'"></v-img>
-									<v-img :src="order.accountData.downloadURL" contain v-else-if="order.accountData.downloadURL"></v-img>
+									<v-img :src="malePlaceholder" contain v-if="!order.offlineContact.downloadURL && order.offlineContact.gender === 'Male'"></v-img>
+									<v-img :src="femalePlaceholder" contain v-else-if="!order.offlineContact.downloadURL && order.offlineContact.gender === 'Female'"></v-img>
+									<v-img :src="order.offlineContact.downloadURL" contain v-else-if="order.offlineContact.downloadURL"></v-img>
 								</v-avatar>
 								<v-avatar size="20px" v-else>
 									<img v-lazy="order.offlineContact.imageObj">
 								</v-avatar>
 								&nbsp;
 								<span v-if="!order.isOffline">
-									{{order.accountData.firstName}} {{order.accountData.middleInitial || ''}} {{order.accountData.lastName}}
+									{{order.offlineContact.firstName}} {{order.offlineContact.middleInitial || ''}} {{order.offlineContact.lastName}}
 								</span>
 								<span v-else>
 									{{order.offlineContact.firstName}} {{order.offlineContact.middleInitial || ''}} {{order.offlineContact.lastName}}
@@ -363,7 +363,7 @@
 				</div>
 				<div class="headline text-xs-center blue--text text--darken-2" v-else>
 					Order No. {{order.id}} has been received by customer 
-					{{order.accountData.firstName}} {{order.accountData.middleInitial || ''}} {{order.accountData.lastName}}.
+					{{order.offlineContact.firstName}} {{order.offlineContact.middleInitial || ''}} {{order.offlineContact.lastName}}.
 					Your inventory has been adjusted accordingly.
 				</div>
 				<CheckMark />
