@@ -25,7 +25,7 @@
 					<v-layout row wrap>
 						<v-flex xs6>
 							<div class="text-xs-left" style="font-size: 11px;">
-								<v-avatar size="20px" v-if="!order.offlineContact">
+								<v-avatar size="20px" v-if="!order.isOffline">
 									<v-img :src="malePlaceholder" contain v-if="!order.accountData.downloadURL && order.accountData.gender === 'Male'"></v-img>
 									<v-img :src="femalePlaceholder" contain v-else-if="!order.accountData.downloadURL && order.accountData.gender === 'Female'"></v-img>
 									<v-img :src="order.accountData.downloadURL" contain v-else-if="order.accountData.downloadURL"></v-img>
@@ -34,7 +34,7 @@
 									<img v-lazy="order.offlineContact.imageObj">
 								</v-avatar>
 								&nbsp;
-								<span v-if="!order.offlineContact">
+								<span v-if="!order.isOffline">
 									{{order.accountData.firstName}} {{order.accountData.middleInitial || ''}} {{order.accountData.lastName}}
 								</span>
 								<span v-else>
@@ -208,7 +208,7 @@
 							<span
 							v-if="order.delivery_schedule_status && order.delivery_schedule_status === 'accepted'"
 							class="green--text text--darken-3">- 
-								<strong v-if="order.offlineContact">Saved</strong>
+								<strong v-if="order.isOffline">Saved</strong>
 								<strong v-else>Accepted</strong>
 							</span>
 							<span v-else-if="order.delivery_schedule_status && order.delivery_schedule_status === 'declined'" class="red--text">- <strong>Declined</strong>
@@ -332,7 +332,7 @@
 					<v-card-text class="py-0">
 						<div class="mb-3" v-if="order.delivery_schedule_status">
 							<v-chip color="green" text-color="white" v-if="order.delivery_schedule_status === 'accepted'">
-								<span v-if="order.offlineContact">Saved</span>
+								<span v-if="order.isOffline">Saved</span>
 								<span v-else>Accepted</span>
 							</v-chip>
 							<v-chip color="red" text-color="white" v-else>Declined</v-chip>
@@ -342,7 +342,7 @@
 						<v-text-field label="Location" v-model="schedule_delivery.location"></v-text-field>
 						<v-text-field label="Remarks" v-model="schedule_delivery.remarks"></v-text-field>
 						<div class="pa-2">
-							<v-btn v-if="order.offlineContact" block class="primary white--text" @click.native="saveToCalendar">Save to Calendar</v-btn>
+							<v-btn v-if="order.isOffline" block class="primary white--text" @click.native="saveToCalendar">Save to Calendar</v-btn>
 							<v-btn v-else block class="primary white--text" @click.native="proposeDeliverySchedule">Verify Delivery Date with Customer</v-btn>
 						</div>
 					</v-card-text>
@@ -355,7 +355,7 @@
 	<v-dialog v-model="deliveredDialog" width="250">
 		<v-card>
 			<v-card-text>
-				<div class="headline text-xs-center blue--text text--darken-2" v-if="order.offlineContact">
+				<div class="headline text-xs-center blue--text text--darken-2" v-if="order.isOffline">
 					Order No. {{order.id}} has been received by customer 
 					{{order.offlineContact.firstName}} {{order.offlineContact.middleInitial || ''}} {{order.offlineContact.lastName || ''}}.
 					Your inventory has been adjusted accordingly. 
