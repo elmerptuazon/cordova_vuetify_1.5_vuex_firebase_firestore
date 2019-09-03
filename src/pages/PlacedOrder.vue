@@ -343,7 +343,7 @@
 						<v-text-field label="Remarks" v-model="schedule_delivery.remarks"></v-text-field>
 						<div class="pa-2">
 							<v-btn v-if="order.isOffline" block class="primary white--text" @click.native="saveToCalendar">Save to Calendar</v-btn>
-							<v-btn v-else block class="primary white--text" @click.native="proposeDeliverySchedule">Verify Delivery Date with Customer</v-btn>
+							<v-btn v-else block class="primary white--text" @click.native="proposeDeliverySchedule">Send Proposed Delivery Date</v-btn>
 						</div>
 					</v-card-text>
 				</v-card>
