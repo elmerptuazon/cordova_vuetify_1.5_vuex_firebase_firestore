@@ -288,7 +288,7 @@
               color="primary"
               class="white--text"
               @click.stop="changePasswordDialog = true"
-              >Update Password</v-btn
+              >Change Password</v-btn
             >
           </v-flex>
           <v-flex
@@ -326,7 +326,7 @@
         </v-layout>
       </v-form>
     </v-container>
-
+    
     <v-dialog v-model="reAuthDialog">
       <v-card>
         <v-card-title class="py-2">
@@ -356,12 +356,12 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-
+    
     <v-dialog v-model="changePasswordDialog">
       <v-card>
         <v-card-title>
           <div class="headline mx-auto grey--text text--darken-3">
-            Update Password
+            Change Password
           </div>
         </v-card-title>
         <v-card-text>
