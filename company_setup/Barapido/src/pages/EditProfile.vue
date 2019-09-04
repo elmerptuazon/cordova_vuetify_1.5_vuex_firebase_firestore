@@ -653,33 +653,59 @@ export default {
       if (this.newPassword.password !== this.newPassword.confirm) {
         this.snackbarMessage = "Passwords did not match.";
         this.snackbar = true;
-      } else if (!this.newPassword.password || !this.newPassword.confirm) {
+      } else if (!this.newPassword.password || !this.newPassword.confirm || !this.newPassword.old) {
         this.snackbarMessage = "All fields are required.";
         this.snackbar = true;
       } else {
         this.updatePasswordButtonLoading = true;
         this.$store
-          .dispatch("accounts/UPDATE_PASSWORD", this.newPassword)
+          .dispatch("accounts/RE_AUTHENTICATE_USER", this.newPassword.old)
           .then(() => {
+            console.log("RE-AUTHENTICATION SUCCESS!");
+            //update password action
+            this.$store
+              .dispatch("accounts/UPDATE_PASSWORD", this.newPassword.password)
+              .then(() => {
+                this.newPassword = {
+                  old: null,
+                  password: null,
+                  confirm: null
+                };
+                this.updatePasswordButtonLoading = false;
+                this.changePasswordDialog = false;
+                this.$events.$emit("SET_DIALOG", {
+                  status: true,
+                  title: "Success",
+                  message: "You password has been updated."
+                });
+              })
+              //catch block for UPDATE_PASSWORD action
+              .catch(e => {
+                this.updatePasswordButtonLoading = false;
+                this.$events.$emit("SET_DIALOG", {
+                  status: true,
+                  title: "Sorry",
+                  message: e.message
+                });
+              });
+          })
+          //catch block for RE-AUTH action 
+          .catch(e => {
+            this.updatePasswordButtonLoading = false;
             this.newPassword = {
               old: null,
               password: null,
               confirm: null
             };
-            this.updatePasswordButtonLoading = false;
-            this.changePasswordDialog = false;
-            this.$events.$emit("SET_DIALOG", {
-              status: true,
-              title: "Success",
-              message: "You password has been updated."
-            });
-          })
-          .catch(e => {
-            this.updatePasswordButtonLoading = false;
+
+            let errMessage;
+            if(e.code === "auth/wrong-password") errMessage = '"Old Password" is incorrect, please try again...';
+            else errMessage = e.message;
+
             this.$events.$emit("SET_DIALOG", {
               status: true,
               title: "Sorry",
-              message: e.message
+              message: errMessage
             });
           });
       }

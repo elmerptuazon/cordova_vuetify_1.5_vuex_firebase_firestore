@@ -555,10 +555,8 @@ const accounts = {
 
 		async UPDATE_PASSWORD({ commit, dispatch }, newPassword) {
 			try {
-				//newPassword is now an object containing the "old", "password", "confirm" properties
-				const user = AUTH.currentUser;
-				dispatch('RE_AUTHENTICATE_USER', newPassword.old);
-				await user.updatePassword(newPassword.password);
+				const user = AUTH.currentUser
+				await user.updatePassword(newPassword);
 			} catch (e) {
 				throw e;
 			}
