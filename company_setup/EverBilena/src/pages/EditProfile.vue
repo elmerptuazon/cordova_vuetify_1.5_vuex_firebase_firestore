@@ -684,12 +684,7 @@ export default {
           //catch block for RE-AUTH action 
           .catch(e => {
             this.updatePasswordButtonLoading = false;
-            this.newPassword = {
-              old: null,
-              password: null,
-              confirm: null
-            };
-
+            
             let errMessage;
             if(e.code === "auth/wrong-password") errMessage = '"Old Password" is incorrect, please try again...';
             else errMessage = e.message;
