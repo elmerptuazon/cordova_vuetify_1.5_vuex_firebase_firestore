@@ -34,7 +34,12 @@
 				<div class="text-xs-center" v-show="onlineContactLoader">
 					<v-progress-circular indeterminate color="primary"></v-progress-circular>
 				</div>
-				<v-list two-line class="transparent">
+				<v-layout row v-if="!GET_ONLINE_LIST.length" align-center justify-center mt-3>
+					<v-flex xs5>
+						<span class="title grey--text lighten-2">No Customers</span>
+					</v-flex>
+				</v-layout>
+				<v-list v-else two-line class="transparent">
 					<template v-for="(c, i) in filterBy(GET_ONLINE_LIST, search, 'firstName', 'lastName', 'header')">
 						<v-subheader class="title grey lighten-2 grey--text text--darken-3" v-if="c.header" :key="i">{{ c.header }}</v-subheader>
 						<v-divider inset v-else-if="c.divider" :key="i"></v-divider>
@@ -54,7 +59,12 @@
 				</v-list>
 			</div>
 			<div class="mt-2" v-else-if="contactType === 'Offline'">
-				<v-list two-line class="transparent">
+				<v-layout row v-if="!offlineContacts.length" align-center justify-center mt-3>
+					<v-flex xs5>
+						<span class="title grey--text lighten-2">No Customers</span>
+					</v-flex>
+				</v-layout>
+				<v-list v-else two-line class="transparent">
 					<template v-for="(c, i) in filterBy(offlineContacts, search, 'firstName', 'lastName', 'header')">
 						<v-subheader class="title grey lighten-2 grey--text text--darken-3" v-if="c.header" :key="c.i">{{ c.header }}</v-subheader>
 						<v-list-tile avatar v-else :key="c.id" @click="viewContact(c)">
