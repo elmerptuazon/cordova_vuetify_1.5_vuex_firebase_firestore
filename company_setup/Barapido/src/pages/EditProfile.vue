@@ -365,6 +365,12 @@
           </div>
         </v-card-title>
         <v-card-text>
+           <v-text-field
+            label="Old Password"
+            type="password"
+            append-icon="lock"
+            v-model="newPassword.old"
+          ></v-text-field>
           <v-text-field
             label="Password"
             type="password"
@@ -467,6 +473,7 @@ export default {
     updatePasswordButtonLoading: false,
     changePasswordDialog: false,
     newPassword: {
+      old: null,
       password: null,
       confirm: null
     },
@@ -652,9 +659,10 @@ export default {
       } else {
         this.updatePasswordButtonLoading = true;
         this.$store
-          .dispatch("accounts/UPDATE_PASSWORD", this.newPassword.password)
+          .dispatch("accounts/UPDATE_PASSWORD", this.newPassword)
           .then(() => {
             this.newPassword = {
+              old: null,
               password: null,
               confirm: null
             };
@@ -668,15 +676,11 @@ export default {
           })
           .catch(e => {
             this.updatePasswordButtonLoading = false;
-            if (e.code === "auth/requires-recent-login") {
-              this.reAuthDialog = true;
-            } else {
-              this.$events.$emit("SET_DIALOG", {
-                status: true,
-                title: "Sorry",
-                message: e.message
-              });
-            }
+            this.$events.$emit("SET_DIALOG", {
+              status: true,
+              title: "Sorry",
+              message: e.message
+            });
           });
       }
     },
