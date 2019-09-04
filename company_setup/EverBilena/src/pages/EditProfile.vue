@@ -651,7 +651,27 @@ export default {
       } else {
         this.updatePasswordButtonLoading = true;
         this.$store
-          .dispatch("accounts/UPDATE_PASSWORD", this.newPassword)
+          .dispatch("accounts/RE_AUTHENTICATE_USER", this.newPassword.old)
+          .then(() => {
+            console.log("RE-AUTHENTICATION SUCCESS!");
+          })
+          .catch(e => {
+            this.updatePasswordButtonLoading = false;
+            this.changePasswordDialog = false;
+            this.newPassword = {
+              old: null,
+              password: null,
+              confirm: null
+            };
+            this.$events.$emit("SET_DIALOG", {
+              status: true,
+              title: "Sorry",
+              message: e.message + " Please Try Again..."
+            });
+            return;
+          });
+        this.$store
+          .dispatch("accounts/UPDATE_PASSWORD", this.newPassword.password)
           .then(() => {
             this.newPassword = {
               old: null,
