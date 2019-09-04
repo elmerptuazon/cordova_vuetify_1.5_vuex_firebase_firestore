@@ -326,7 +326,7 @@
         </v-layout>
       </v-form>
     </v-container>
-    
+    <!--
     <v-dialog v-model="reAuthDialog">
       <v-card>
         <v-card-title class="py-2">
@@ -356,7 +356,7 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    
+    -->
     <v-dialog v-model="changePasswordDialog">
       <v-card>
         <v-card-title>
