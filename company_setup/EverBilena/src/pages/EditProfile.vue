@@ -280,7 +280,7 @@
               color="primary"
               class="white--text"
               @click.stop="changePasswordDialog = true"
-              >Update Password</v-btn
+              >Change Password</v-btn
             >
           </v-flex>
           <v-flex
@@ -318,7 +318,7 @@
         </v-layout>
       </v-form>
     </v-container>
-
+    <!--
     <v-dialog v-model="reAuthDialog">
       <v-card>
         <v-card-title class="py-2">
@@ -348,15 +348,21 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-
+    -->
     <v-dialog v-model="changePasswordDialog">
       <v-card>
         <v-card-title>
           <div class="headline mx-auto grey--text text--darken-3">
-            Update Password
+            Change Password
           </div>
         </v-card-title>
         <v-card-text>
+          <v-text-field
+            label="Old Password"
+            type="password"
+            append-icon="lock"
+            v-model="newPassword.old"
+          ></v-text-field>
           <v-text-field
             label="Password"
             type="password"
@@ -459,6 +465,7 @@ export default {
     updatePasswordButtonLoading: false,
     changePasswordDialog: false,
     newPassword: {
+      old: null,
       password: null,
       confirm: null
     },
@@ -644,9 +651,10 @@ export default {
       } else {
         this.updatePasswordButtonLoading = true;
         this.$store
-          .dispatch("accounts/UPDATE_PASSWORD", this.newPassword.password)
+          .dispatch("accounts/UPDATE_PASSWORD", this.newPassword)
           .then(() => {
             this.newPassword = {
+              old: null,
               password: null,
               confirm: null
             };
@@ -660,15 +668,11 @@ export default {
           })
           .catch(e => {
             this.updatePasswordButtonLoading = false;
-            if (e.code === "auth/requires-recent-login") {
-              this.reAuthDialog = true;
-            } else {
-              this.$events.$emit("SET_DIALOG", {
-                status: true,
-                title: "Sorry",
-                message: e.message
-              });
-            }
+            this.$events.$emit("SET_DIALOG", {
+              status: true,
+              title: "Sorry",
+              message: e.message
+            });
           });
       }
     },
