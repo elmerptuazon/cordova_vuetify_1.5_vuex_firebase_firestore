@@ -564,7 +564,7 @@ const accounts = {
 			}
 		},
 
-		async UPDATE_PASSWORD({ commit }, newPassword) {
+		async UPDATE_PASSWORD({ commit, dispatch }, newPassword) {
 			try {
 				const user = AUTH.currentUser;
 				await user.updatePassword(newPassword);

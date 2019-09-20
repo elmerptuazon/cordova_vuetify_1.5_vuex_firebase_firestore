@@ -288,7 +288,7 @@
               color="primary"
               class="white--text"
               @click.stop="changePasswordDialog = true"
-              >Update Password</v-btn
+              >Change Password</v-btn
             >
           </v-flex>
           <v-flex
@@ -326,7 +326,7 @@
         </v-layout>
       </v-form>
     </v-container>
-
+    <!--
     <v-dialog v-model="reAuthDialog">
       <v-card>
         <v-card-title class="py-2">
@@ -356,26 +356,32 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-
+    -->
     <v-dialog v-model="changePasswordDialog">
       <v-card>
         <v-card-title>
           <div class="headline mx-auto grey--text text--darken-3">
-            Update Password
+            Change Password
           </div>
         </v-card-title>
         <v-card-text>
           <v-text-field
+            label="Old Password"
+            type="password"
+            append-icon="lock"
+            v-model="passwords.old"
+          ></v-text-field>
+          <v-text-field
             label="Password"
             type="password"
             append-icon="lock"
-            v-model="newPassword.password"
+            v-model="passwords.password"
           ></v-text-field>
           <v-text-field
             label="Confirm Password"
             type="password"
             append-icon="lock"
-            v-model="newPassword.confirm"
+            v-model="passwords.confirm"
           ></v-text-field>
         </v-card-text>
         <v-card-actions>
@@ -466,7 +472,8 @@ export default {
     valid: true,
     updatePasswordButtonLoading: false,
     changePasswordDialog: false,
-    newPassword: {
+    passwords: {
+      old: null,
       password: null,
       confirm: null
     },
@@ -643,18 +650,30 @@ export default {
     },
 
     updatePassword() {
-      if (this.newPassword.password !== this.newPassword.confirm) {
+      if (this.passwords.password !== this.passwords.confirm) {
         this.snackbarMessage = "Passwords did not match.";
         this.snackbar = true;
-      } else if (!this.newPassword.password || !this.newPassword.confirm) {
+      } else if (
+        !this.passwords.password ||
+        !this.passwords.confirm ||
+        !this.passwords.old
+      ) {
         this.snackbarMessage = "All fields are required.";
         this.snackbar = true;
       } else {
         this.updatePasswordButtonLoading = true;
         this.$store
-          .dispatch("accounts/UPDATE_PASSWORD", this.newPassword.password)
+          .dispatch("accounts/RE_AUTHENTICATE_USER", this.passwords.old)
           .then(() => {
-            this.newPassword = {
+            console.log("RE-AUTHENTICATION SUCCESS!");
+            return this.$store.dispatch(
+              "accounts/UPDATE_PASSWORD",
+              this.passwords.password
+            );
+          })
+          .then(() => {
+            this.passwords = {
+              old: null,
               password: null,
               confirm: null
             };
@@ -666,17 +685,20 @@ export default {
               message: "You password has been updated."
             });
           })
+          //catch block for RE-AUTH action
           .catch(e => {
             this.updatePasswordButtonLoading = false;
-            if (e.code === "auth/requires-recent-login") {
-              this.reAuthDialog = true;
-            } else {
-              this.$events.$emit("SET_DIALOG", {
-                status: true,
-                title: "Sorry",
-                message: e.message
-              });
-            }
+
+            let errMessage;
+            if (e.code === "auth/wrong-password")
+              errMessage = '"Old Password" is incorrect, please try again...';
+            else errMessage = e.message;
+
+            this.$events.$emit("SET_DIALOG", {
+              status: true,
+              title: "Sorry",
+              message: errMessage
+            });
           });
       }
     },
