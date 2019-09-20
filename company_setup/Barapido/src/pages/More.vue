@@ -101,12 +101,18 @@
       class="px-3"
       v-if="user.type === 'Reseller' && user.status === 'pending'"
     >
-      <v-alert border="right" outline type="info" value="true" elevation="2">
-        Your application will be approved once you ordered and paid for your
-        starter kit.<br /><br />
-        To order your starter kit, please order by emailing orders@barapido.com,
-        or you can contact the Barapido Team thru Viber at 09284787508.<br /><br />
-        Always check this page to see if your application has been approved.
+      <v-alert border="right" outline color="info" value="true" elevation="2">
+        Hello! Your Reseller application will only be approved once you have
+        ordered and paid for your starter kit. Purchasing your starter kit also
+        entitles you to one month free subscription to the Barapido Reseller app
+        - standard price of 99 php per month.
+        <br /><br />
+        If you have not already ordered your starter kit, you can do so
+        <a href="https://www.barapido.com/?product=barapido-reseller-kit"
+          >here</a
+        >.<br /><br />
+        Check back to this page to see if your application has been approved, or
+        you can contact the Barapido Team on Viber at 09284787508.
       </v-alert>
     </div>
 
