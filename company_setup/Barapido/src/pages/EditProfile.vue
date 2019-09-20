@@ -365,23 +365,23 @@
           </div>
         </v-card-title>
         <v-card-text>
-           <v-text-field
+          <v-text-field
             label="Old Password"
             type="password"
             append-icon="lock"
-            v-model="newPassword.old"
+            v-model="passwords.old"
           ></v-text-field>
           <v-text-field
             label="Password"
             type="password"
             append-icon="lock"
-            v-model="newPassword.password"
+            v-model="passwords.password"
           ></v-text-field>
           <v-text-field
             label="Confirm Password"
             type="password"
             append-icon="lock"
-            v-model="newPassword.confirm"
+            v-model="passwords.confirm"
           ></v-text-field>
         </v-card-text>
         <v-card-actions>
@@ -472,7 +472,7 @@ export default {
     valid: true,
     updatePasswordButtonLoading: false,
     changePasswordDialog: false,
-    newPassword: {
+    passwords: {
       old: null,
       password: null,
       confirm: null
@@ -650,51 +650,48 @@ export default {
     },
 
     updatePassword() {
-      if (this.newPassword.password !== this.newPassword.confirm) {
+      if (this.passwords.password !== this.passwords.confirm) {
         this.snackbarMessage = "Passwords did not match.";
         this.snackbar = true;
-      } else if (!this.newPassword.password || !this.newPassword.confirm || !this.newPassword.old) {
+      } else if (
+        !this.passwords.password ||
+        !this.passwords.confirm ||
+        !this.passwords.old
+      ) {
         this.snackbarMessage = "All fields are required.";
         this.snackbar = true;
       } else {
         this.updatePasswordButtonLoading = true;
         this.$store
-          .dispatch("accounts/RE_AUTHENTICATE_USER", this.newPassword.old)
+          .dispatch("accounts/RE_AUTHENTICATE_USER", this.passwords.old)
           .then(() => {
             console.log("RE-AUTHENTICATION SUCCESS!");
-            //update password action
-            this.$store
-              .dispatch("accounts/UPDATE_PASSWORD", this.newPassword.password)
-              .then(() => {
-                this.newPassword = {
-                  old: null,
-                  password: null,
-                  confirm: null
-                };
-                this.updatePasswordButtonLoading = false;
-                this.changePasswordDialog = false;
-                this.$events.$emit("SET_DIALOG", {
-                  status: true,
-                  title: "Success",
-                  message: "You password has been updated."
-                });
-              })
-              //catch block for UPDATE_PASSWORD action
-              .catch(e => {
-                this.updatePasswordButtonLoading = false;
-                this.$events.$emit("SET_DIALOG", {
-                  status: true,
-                  title: "Sorry",
-                  message: e.message
-                });
-              });
+            return this.$store.dispatch(
+              "accounts/UPDATE_PASSWORD",
+              this.passwords.password
+            );
           })
-          //catch block for RE-AUTH action 
+          .then(() => {
+            this.passwords = {
+              old: null,
+              password: null,
+              confirm: null
+            };
+            this.updatePasswordButtonLoading = false;
+            this.changePasswordDialog = false;
+            this.$events.$emit("SET_DIALOG", {
+              status: true,
+              title: "Success",
+              message: "You password has been updated."
+            });
+          })
+          //catch block for RE-AUTH action
           .catch(e => {
             this.updatePasswordButtonLoading = false;
-            
+
             let errMessage;
-            if(e.code === "auth/wrong-password") errMessage = '"Old Password" is incorrect, please try again...';
+            if (e.code === "auth/wrong-password")
+              errMessage = '"Old Password" is incorrect, please try again...';
             else errMessage = e.message;
 
             this.$events.$emit("SET_DIALOG", {
