@@ -50,7 +50,13 @@
             color="primary"
           ></v-progress-circular>
         </div>
-        <v-list two-line class="transparent">
+        <v-layout row v-if="!GET_ONLINE_LIST.length" align-center justify-center mt-3>
+          <v-flex xs5>
+            <span class="title grey--text lighten-2">No Customers</span>
+          </v-flex>
+        </v-layout>
+
+        <v-list v-else two-line class="transparent">
           <template
             v-for="(c, i) in filterBy(
               GET_ONLINE_LIST,
@@ -94,7 +100,13 @@
         </v-list>
       </div>
       <div class="mt-2" v-else-if="contactType === 'Offline'">
-        <v-list two-line class="transparent">
+        <v-layout row v-if="!offlineContacts.length" align-center justify-center mt-3>
+          <v-flex xs5>
+            <span class="title grey--text lighten-2">No Customers</span>
+          </v-flex>
+        </v-layout>
+
+        <v-list v-else two-line class="transparent">
           <template
             v-for="(c) in filterBy(
               offlineContacts,

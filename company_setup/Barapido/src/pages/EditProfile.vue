@@ -59,7 +59,7 @@
             <br />
           </v-card>
         </v-flex>
-        <v-flex xs6>
+        <v-flex xs6 v-if="userData.type === 'Reseller'">
           <v-card tiles>
             <v-card-title>
               <div>
