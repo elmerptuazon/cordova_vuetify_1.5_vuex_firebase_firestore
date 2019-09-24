@@ -186,7 +186,7 @@
 									></v-img>
 								</v-avatar>
 							</v-flex>
-							<v-flex xs10 ml-3>
+							<v-flex xs10 ml-4>
 								<v-layout row>
 									<v-flex xs12>
 										<div>
