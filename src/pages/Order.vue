@@ -171,6 +171,43 @@
         </table>
       </div>
       <div class="pa-4">
+				<v-card>
+					<v-card-title>
+						Reseller's Details
+					</v-card-title>
+					<v-divider/>
+					<v-card-text>
+						<v-layout row align-center justify-start>
+							<v-flex xs2>
+								<v-avatar size="55">
+									<v-img
+										:src="resellerData.downloadURL"
+										alt="avatar"
+									></v-img>
+								</v-avatar>
+							</v-flex>
+							<v-flex xs10 ml-3>
+								<v-layout row>
+									<v-flex xs12>
+										<div>
+											Name:  
+											<span class="font-weight-bold">
+												{{ resellerData.firstName }} {{ resellerData.middleInitial }} {{ resellerData.lastName }}
+											</span>
+										</div>
+									</v-flex>
+								</v-layout>
+								<v-layout row>
+									<div>
+										Agent ID: <span class="font-weight-bold">  {{ resellerData.agentId }}</span>
+									</div>
+								</v-layout>
+							</v-flex>
+						</v-layout>
+					</v-card-text>
+				</v-card>
+			</div>
+      <div class="pa-4">
         <v-card v-if="GET_ORDER.proposed_delivery_schedule">
           <v-card-title class="title">Proposed delivery schedule</v-card-title>
           <v-card-text>
