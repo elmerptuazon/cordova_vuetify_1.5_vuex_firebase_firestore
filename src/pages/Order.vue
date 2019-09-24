@@ -170,7 +170,7 @@
           </tbody>
         </table>
       </div>
-      <div class="pa-2">
+      <div class="pa-4">
         <v-card v-if="GET_ORDER.proposed_delivery_schedule">
           <v-card-title class="title">Proposed delivery schedule</v-card-title>
           <v-card-text>
@@ -201,7 +201,7 @@
           <v-expansion-panel-content>
             <div slot="header" class="title">Payments</div>
             <v-card>
-              <v-card-text class="pa-1">
+              <v-card-text class="pa-4">
                 <Payments
                   :items="GET_ORDER.payments"
                   :hasAction="false"
@@ -297,9 +297,13 @@ export default {
     search: null,
     unsubscribeToOrders: null,
     deliveryScheduleSheet: false,
-    disableButton: false
+    disableButton: false,
+    resellerData: {}
   }),
-  created() {
+  async created() {
+    this.resellerData = await this.$store.dispatch("accounts/GET_USER", this.GET_ORDER.resellerId);
+    console.log("RESELLER DATA: ", this.resellerData);
+    
     this.unsubscribeToOrders = COLLECTION.orders
       .doc(this.GET_ORDER.orderNo)
       .onSnapshot(doc => {
