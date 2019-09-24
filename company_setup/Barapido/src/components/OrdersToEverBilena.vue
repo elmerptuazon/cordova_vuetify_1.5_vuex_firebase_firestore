@@ -36,6 +36,7 @@
                 </td> -->
         <td class="text-xs-center">{{ props.item.stockOrderReference }}</td>
         <td class="text-xs-center">{{ props.item.status | uppercase }}</td>
+        <td class="text-xs-center">{{ props.item.submittedAt | momentify("DD-MMM-YYYY") }}</td>
         <!-- <td class="text-xs-center">
           {{ props.item.discountedTotal | currency("P") }}
         </td> -->
@@ -75,12 +76,17 @@ export default {
         text: "Status",
         value: "status",
         align: "center"
-      }
+      },
       // {
       //   text: "Cost",
       //   value: "total",
       //   align: "center"
       // }
+      {
+        text: "Date Submitted",
+        value: "submittedAt",
+        align: "center"
+      }
     ]
   }),
 
