@@ -27,7 +27,10 @@
       </tr>
     </template>
     <template slot="items" slot-scope="props">
-      <tr @click="viewOrder(props.item)">
+      <tr 
+        @click="viewOrder(props.item)"
+        :class="[props.item.status === 'shipped' ? 'green lighten-4' : '']"
+      >
         <!-- <td class="text-xs-center">
                     <v-badge color="red" left overlap>
                         <span slot="badge" v-if="!props.item.addedToInventory" v-html="props.item.items.length"></span>
