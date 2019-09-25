@@ -29,14 +29,18 @@
     <template slot="items" slot-scope="props">
       <tr 
         @click="viewOrder(props.item)"
-        :class="[props.item.status === 'shipped' ? 'green lighten-4' : '']"
+        :class="[(props.item.status === 'shipped' || props.item.status === 'partially shipped') ? 'green lighten-4' : '']"
       >
-        <!-- <td class="text-xs-center">
-                    <v-badge color="red" left overlap>
-                        <span slot="badge" v-if="!props.item.addedToInventory" v-html="props.item.items.length"></span>
-                        <v-icon color="grey lighten-1">shopping_cart</v-icon>
-                    </v-badge>
-                </td> -->
+        <td class="text-xs-center">
+            <v-badge color="red" left overlap>
+                <span slot="badge" 
+                  v-if="!props.item.addedToInventory && (props.item.status == 'shipped' || props.item.status == 'partially shipped')" 
+                >
+                  {{ NumberOfRecievedItems(props.item.items) }}
+                </span>
+                <v-icon color="grey lighten-1">shopping_cart</v-icon>
+            </v-badge>
+        </td>
         <td class="text-xs-center">{{ props.item.stockOrderReference }}</td>
         <td class="text-xs-center">{{ props.item.status | uppercase }}</td>
         <td class="text-xs-center">{{ props.item.submittedAt | momentify("DD-MMM-YYYY") }}</td>
@@ -64,12 +68,12 @@ export default {
     },
     loading: false,
     headers: [
-      //   {
-      //     text: "",
-      //     value: "id",
-      //     sortable: false,
-      //     align: "center"
-      //   },
+      {
+        text: "Recievable Prodiucts",
+        value: "",
+        sortable: false,          
+        align: "center"
+      },
       {
         text: "Reference No.",
         value: "stockOrderReference",
@@ -110,10 +114,22 @@ export default {
         this.pagination.sortBy = column;
         this.pagination.descending = false;
       }
-    }
+    },
+
+    NumberOfRecievedItems(items) {
+      let totalItems = 0;
+      
+      items.forEach((item) => {
+        if(item.shippedQty) totalItems += 1;
+      });
+
+      return totalItems;
+    },
   },
 
-  computed: {}
+  computed: {
+    
+  }
 };
 </script>
 
