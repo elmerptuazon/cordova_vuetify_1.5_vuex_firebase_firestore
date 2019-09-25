@@ -11,6 +11,7 @@ const shipment = {
         shipmentList: []
     },
     getters: {
+        GET_SHIPMENT_LIST: state => state.shipmentList,
     },
     mutations: {
         AddShipment(state, payload) {
