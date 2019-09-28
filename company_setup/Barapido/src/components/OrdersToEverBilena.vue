@@ -29,14 +29,14 @@
     <template slot="items" slot-scope="props">
       <tr 
         @click="viewOrder(props.item)"
-        :class="[NumberOfRecievableItems(props.item.shipment) > 0 ? 'green lighten-4' : '']"
+        :class="[NumberOfReceivableItems(props.item.shipment) > 0 ? 'green lighten-4' : '']"
       >
         <td class="text-xs-center">
             <v-badge color="red" left overlap>
                 <span slot="badge" 
-                  v-if="NumberOfRecievableItems(props.item.shipment) > 0" 
+                  v-if="NumberOfReceivableItems(props.item.shipment) > 0" 
                 >
-                  {{ NumberOfRecievableItems(props.item.shipment) }}
+                  {{ NumberOfReceivableItems(props.item.shipment) }}
                 </span>
                 <v-icon color="grey lighten-1">shopping_cart</v-icon>
             </v-badge>
@@ -73,7 +73,7 @@ export default {
     loading: false,
     headers: [
       {
-        text: "Recievable Shipments",
+        text: "Receivable Shipments",
         value: "",
         sortable: false,          
         align: "center"
@@ -120,7 +120,7 @@ export default {
       }
     },
 
-    NumberOfRecievableItems(shipmentList) {
+    NumberOfReceivableItems(shipmentList) {
       if(!shipmentList) return 0;
 
       let totalItems = 0;
