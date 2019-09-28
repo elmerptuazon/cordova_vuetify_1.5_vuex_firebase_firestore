@@ -29,14 +29,14 @@
     <template slot="items" slot-scope="props">
       <tr 
         @click="viewOrder(props.item)"
-        :class="[(props.item.status === 'shipped' || props.item.status === 'partially shipped') ? 'green lighten-4' : '']"
+        :class="[NumberOfRecievableItems(props.item.shipment) > 0 ? 'green lighten-4' : '']"
       >
         <td class="text-xs-center">
             <v-badge color="red" left overlap>
                 <span slot="badge" 
-                  v-if="!props.item.addedToInventory && (props.item.status == 'shipped' || props.item.status == 'partially shipped')" 
+                  v-if="NumberOfRecievableItems(props.item.shipment) > 0" 
                 >
-                  {{ NumberOfRecievedItems(props.item.items) }}
+                  {{ NumberOfRecievableItems(props.item.shipment) }}
                 </span>
                 <v-icon color="grey lighten-1">shopping_cart</v-icon>
             </v-badge>
@@ -60,6 +60,10 @@ export default {
 
   props: ["items", "search"],
 
+  mounted() {
+    this.loading = true;
+  },
+
   data: () => ({
     pagination: {
       sortBy: "status",
@@ -69,7 +73,7 @@ export default {
     loading: false,
     headers: [
       {
-        text: "Recievable Prodiucts",
+        text: "Recievable Shipments",
         value: "",
         sortable: false,          
         align: "center"
@@ -116,11 +120,13 @@ export default {
       }
     },
 
-    NumberOfRecievedItems(items) {
+    NumberOfRecievableItems(shipmentList) {
+      if(!shipmentList) return 0;
+
       let totalItems = 0;
       
-      items.forEach((item) => {
-        if(item.shippedQty) totalItems += 1;
+      shipmentList.forEach((shipment) => {
+        if(shipment.status !== 'Received') totalItems++;
       });
 
       return totalItems;
