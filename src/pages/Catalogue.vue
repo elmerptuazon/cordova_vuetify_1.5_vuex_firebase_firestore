@@ -3,9 +3,9 @@
 
 		<v-toolbar app color="primary" dark :extended="extended">
 			<v-text-field label="Search products..." clearable v-model="search" v-if="extended" slot="extension" class="mx-3" flat solo-inverted
-			prepend-icon="arrow_back" @keyup.enter="searchProduct"></v-text-field>
+			append-outer-icon="search" @click:append-outer="searchProduct" @keyup.enter="searchProduct"></v-text-field>
 			<BasketBadge/>
-			<v-btn icon @click="extended = !extended; search = '';">
+			<v-btn icon @click="showSearch">
 				<v-icon v-if="!extended">search</v-icon>
 				<v-icon v-else>close</v-icon>
 			</v-btn>
@@ -20,24 +20,31 @@
 			</div>
 
 			<v-layout row wrap v-if="search">
-				<v-flex grow xs6 v-for="product in filterBy(products, search)" :key="product.id" @click="goToSearchedProduct(product)">
+				<v-flex v-if="!searchedProducts"> 
+					<div class= "title grey--text lighten-2 text-center">
+						No results...
+					</div>
+				</v-flex>
+				<v-flex v-else grow xs6 v-for="product in searchedProducts" :key="product.id" @click="goToSearchedProduct(product)">
 					<v-card class="mb-1">
-						<v-img contain :src="product.downloadURL" :lazy-src="require('@/assets/placeholder.png')">
-							<v-layout slot="placeholder" fill-height align-center justify-center ma-0>
-								<v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular>
-							</v-layout>
-						</v-img>
-						<div class="card-title pa-2 grey--text text--darken-2">
-							{{product.name}}
+						<v-layout row>
+							<v-img contain :src="product.downloadURL" :lazy-src="require('@/assets/placeholder.png')">
+								<v-layout slot="placeholder" fill-height align-center justify-center ma-0>
+									<v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular>
+								</v-layout>
+							</v-img>
+						</v-layout>
+						<v-layout row>
+							<div class="card-title pa-2 grey--text darken-2">{{product.name}}</div>
 							<br>
 							<div style="font-weight: bold;">{{product.price | currency('P')}}</div>
-						</div>
+						</v-layout>
 					</v-card>
 				</v-flex>
 			</v-layout>
 
-			<masonry :cols="1" :gutter="8">
-				<v-card class="mb-2" v-for="c in filterBy(GET_LIST, search)" :key="c.id" @click="goToProducts(c)">
+			<masonry v-else :cols="1" :gutter="8">
+				<v-card class="mb-2" v-for="c in GET_LIST" :key="c.id" @click="goToProducts(c)">
 					<v-img contain :src="c.downloadURL" :lazy-src="require('@/assets/placeholder.png')">
 						<v-layout slot="placeholder" fill-height align-center justify-center ma-0>
 							<v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular>
@@ -59,10 +66,9 @@
 </template>
 
 
-
-
 <script>
 import {mapGetters} from 'vuex';
+import {mapState} from 'vuex';
 import { Spinner } from 'mint-ui';
 import BasketBadge from '@/components/BasketBadge';
 import {mixins} from '@/mixins';
@@ -76,9 +82,18 @@ export default {
 		isLoading: false,
 		snackbar: false,
 		message: null,
-		loading: false
+		loading: false,
+		//searchedProducts: [],
 	}),
 	created () {
+		this.search = this.$store.getters['products/GET_PRODUCT_QUERY'];
+		if(this.search) {
+			this.extended = true;
+		} else {
+			this.extended = false;
+			this.$store.commit('products/CLEAR_SEARCHED_PRODUCTS');
+		} 
+
 		this.$store.dispatch('basket/GET_ITEMS');
 
 		if (this.GET_LIST.length === 0) {
@@ -108,13 +123,8 @@ export default {
 			this.loading = true;
 			let search = this.search;
 
-			const response = await this.$store.dispatch("products/SEARCH_PRODUCTS", search);
-			if(response.success) {
-				this.products = response.data;
-			}
-			else {
-				this.products = [];
-			}
+			await this.$store.dispatch("products/SEARCH_PRODUCTS", search);
+		
 			this.loading = false;
 		},
 		goToProducts(catalogue) {
@@ -126,6 +136,15 @@ export default {
 			console.log(product);
 			//this.$store.commit('SET_CURRENT_CATALOGUE', product.category);
 			this.$router.push({name: 'Item', params: {id: product.id, product, category: product.category}});
+		},
+		showSearch() {
+			this.extended = !(this.extended);
+
+			if(this.extended === false) {
+				this.search = '';
+				this.$store.commit('products/SET_PRODUCT_QUERY', this.search);
+				this.$store.commit('products/CLEAR_SEARCHED_PRODUCTS')
+			}
 		},
 		lsTest () {
 			this.$store.dispatch('basket/ADD_ITEM', {
@@ -139,6 +158,10 @@ export default {
 		...mapGetters({
 			'GET_LIST': 'catalogues/GET_LIST',
 			'GET_ITEMS': 'basket/GET_ITEMS'
+		}),
+
+		...mapState("products", {
+			searchedProducts: state => state.searchedProducts 
 		})
 	},
 	components: {
