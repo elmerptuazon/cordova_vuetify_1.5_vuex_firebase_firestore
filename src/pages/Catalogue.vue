@@ -104,6 +104,19 @@ export default {
 				this.snackbar = true;
 			});
 		},
+		async searchProduct() {
+			this.loading = true;
+			let search = this.search;
+
+			const response = await this.$store.dispatch("products/SEARCH_PRODUCTS", search);
+			if(response.success) {
+				this.products = response.data;
+			}
+			else {
+				this.products = [];
+			}
+			this.loading = false;
+		},
 		goToProducts(catalogue) {
 			// this.$store.dispatch('products/GET_PRODUCTS', catalogue.id);
 			this.$store.commit('SET_CURRENT_CATALOGUE', catalogue.name);
