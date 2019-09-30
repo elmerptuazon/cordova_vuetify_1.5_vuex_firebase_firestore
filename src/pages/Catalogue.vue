@@ -3,11 +3,14 @@
 
 		<v-toolbar app color="primary" dark :extended="extended">
 			<v-text-field label="Search products..." clearable v-model="search" v-if="extended" slot="extension" class="mx-3" flat solo-inverted
-			append-outer-icon="search" @click:append-outer="searchProduct" @keyup.enter="searchProduct"></v-text-field>
+			 @keyup.enter="searchProduct"></v-text-field>
 			<BasketBadge/>
-			<v-btn icon @click="showSearch">
+			<v-btn icon @click="showSearchBar">
 				<v-icon v-if="!extended">search</v-icon>
 				<v-icon v-else>close</v-icon>
+			</v-btn>
+			<v-btn icon v-if="extended" @click="searchProduct">
+				<v-icon>search</v-icon>
 			</v-btn>
 			<v-spacer></v-spacer>
 			<Logo />
@@ -20,13 +23,11 @@
 			</div>
 
 			<v-layout row wrap v-if="search">
-				<v-flex v-if="!searchedProducts"> 
-					<div class= "title grey--text lighten-2 text-center">
-						No results...
-					</div>
-				</v-flex>
-				<v-flex v-else grow xs6 v-for="product in searchedProducts" :key="product.id" @click="goToSearchedProduct(product)">
-					<v-card class="mb-1">
+				<div v-if="!searchedProducts.length" class="title grey--text lighten-2 text-xs-center">
+					No results...
+				</div>
+				<masonry v-else :cols="2" :gutter="8">
+					<v-card class="mb-1" v-for="product in searchedProducts" :key="product.id" @click="goToSearchedProduct(product)">
 						<v-layout row>
 							<v-img contain :src="product.downloadURL" :lazy-src="require('@/assets/placeholder.png')">
 								<v-layout slot="placeholder" fill-height align-center justify-center ma-0>
@@ -34,13 +35,17 @@
 								</v-layout>
 							</v-img>
 						</v-layout>
-						<v-layout row>
-							<div class="card-title pa-2 grey--text darken-2">{{product.name}}</div>
-							<br>
-							<div style="font-weight: bold;">{{product.price | currency('P')}}</div>
+						<v-layout row wrap pa-2>
+							<v-flex xs12>
+								<div class=" grey--text darken-2">{{product.name}}</div>
+							</v-flex>
+							
+							<v-flex xs12>
+								<div style="font-weight: bold;">{{product.price | currency('P')}}</div>
+							</v-flex>
 						</v-layout>
 					</v-card>
-				</v-flex>
+				</masonry>		
 			</v-layout>
 
 			<masonry v-else :cols="1" :gutter="8">
@@ -123,8 +128,10 @@ export default {
 			this.loading = true;
 			let search = this.search;
 
-			await this.$store.dispatch("products/SEARCH_PRODUCTS", search);
-		
+			if(search) {
+				await this.$store.dispatch("products/SEARCH_PRODUCTS", search);	
+			}
+
 			this.loading = false;
 		},
 		goToProducts(catalogue) {
@@ -137,7 +144,7 @@ export default {
 			//this.$store.commit('SET_CURRENT_CATALOGUE', product.category);
 			this.$router.push({name: 'Item', params: {id: product.id, product, category: product.category}});
 		},
-		showSearch() {
+		showSearchBar() {
 			this.extended = !(this.extended);
 
 			if(this.extended === false) {
