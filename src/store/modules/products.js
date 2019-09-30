@@ -125,6 +125,33 @@ const products = {
 				})
 				.catch(error => reject(error));
 			});
+		},
+
+		async SEARCH_PRODUCTS({}, payload) {
+			let allProduct = [];
+			let response = {};
+			console.log(payload);
+			const productSnapshot = await COLLECTION.products.where('name', '>=', payload).get();
+			if(!productSnapshot.empty) {
+				allProduct = productSnapshot.docs.map((doc) => {
+					const data = doc.data();
+					data.id = doc.id;
+					return data;
+				});
+				
+				response = {
+					data: allProduct,
+					success: true
+				}
+			}
+			else {
+				response = {
+					data: null,
+					success: false
+				}
+			}
+
+			return response;
 		}
 	}
 }
