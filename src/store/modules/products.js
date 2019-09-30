@@ -8,7 +8,8 @@ const products = {
 	state: {
 		products: [],
 		catalogue: {},
-		productQuery: ''
+		productQuery: '',
+		searchedProducts: [],
 	},
 	getters: {
 		GET_PRODUCTS: state => state.products,
@@ -22,7 +23,13 @@ const products = {
 			state.products.length = []
 		},
 		SET_PRODUCT_QUERY (state, payload) {
-			state.productQuery = payload;
+			state.productQuery = payload;	
+		},
+		SET_SEARCHED_PRODUCTS (state, payload) {
+			state.searchedProducts = payload
+		},
+		CLEAR_SEARCHED_PRODUCTS (state) {
+			state.searchedProducts = []
 		},
 	},
 	actions: {
@@ -133,31 +140,22 @@ const products = {
 		},
 
 		async SEARCH_PRODUCTS({ commit }, payload) {
-			let allProduct = [];
-			let response = {};
+			let allProducts = [];
 
 			commit('SET_PRODUCT_QUERY', payload);
 			const productSnapshot = await COLLECTION.products.where('name', '>=', payload).get();
 			if(!productSnapshot.empty) {
-				allProduct = productSnapshot.docs.map((doc) => {
+				allProducts = productSnapshot.docs.map((doc) => {
 					const data = doc.data();
 					data.id = doc.id;
 					return data;
 				});
-				
-				response = {
-					data: allProduct,
-					success: true
-				}
 			}
 			else {
-				response = {
-					data: null,
-					success: false
-				}
+				allProducts = [];
 			}
 
-			return response;
+			commit('SET_SEARCHED_PRODUCTS', allProducts);
 		}
 	}
 }
