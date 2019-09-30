@@ -122,6 +122,11 @@ export default {
 			this.$store.commit('SET_CURRENT_CATALOGUE', catalogue.name);
 			this.$router.push({name: 'Products', params: { id: catalogue.id } });
 		},
+		goToSearchedProduct(product) {
+			console.log(product);
+			//this.$store.commit('SET_CURRENT_CATALOGUE', product.category);
+			this.$router.push({name: 'Item', params: {id: product.id, product, category: product.category}});
+		},
 		lsTest () {
 			this.$store.dispatch('basket/ADD_ITEM', {
 				name: 'Shampoo',
