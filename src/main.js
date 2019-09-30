@@ -28,8 +28,8 @@ import '../static/css/content-placeholder.css';
 import VueMasonry from 'vue-masonry-css';
 // import 'vue-smooth-picker/dist/css/style.css';
 // import SmoothPicker from 'vue-smooth-picker';
+import VueCardFormat from 'vue-credit-card-validation';
 import VueCarousel from 'vue-carousel';
-
 import moment from 'moment';
 moment.suppressDeprecationWarnings = true;
 Vue.prototype.$moment = moment;
@@ -59,6 +59,7 @@ Vue.use(VueCordova)
 Vue.use(VueHead)
 Vue.use(VueExtendLayout)
 Vue.use(VueEvents)
+Vue.use(VueCardFormat);
 // const vuegOptions={
 // 	firstEntryDisable: false,
 // 	forwardAnim: 'fadeIn',
