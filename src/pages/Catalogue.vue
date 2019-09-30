@@ -2,13 +2,13 @@
 	<div>
 
 		<v-toolbar app color="primary" dark :extended="extended">
-			<v-text-field label="Search category..." clearable v-model="search" v-if="extended" slot="extension" class="mx-3" flat solo-inverted
-			prepend-icon="arrow_back"></v-text-field>
+			<v-text-field label="Search products..." clearable v-model="search" v-if="extended" slot="extension" class="mx-3" flat solo-inverted
+			prepend-icon="arrow_back" @keyup.enter="searchProduct"></v-text-field>
 			<BasketBadge/>
-			<!-- <v-btn icon @click="extended = !extended">
+			<v-btn icon @click="extended = !extended; search = '';">
 				<v-icon v-if="!extended">search</v-icon>
 				<v-icon v-else>close</v-icon>
-			</v-btn> -->
+			</v-btn>
 			<v-spacer></v-spacer>
 			<Logo />
 		</v-toolbar>
