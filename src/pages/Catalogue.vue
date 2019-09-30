@@ -19,17 +19,22 @@
 				<v-progress-circular :size="100" :width="5" color="primary" indeterminate></v-progress-circular>
 			</div>
 
-			<!-- <v-layout row wrap>
-				<v-flex grow xs6 v-for="c in filterBy(GET_LIST, search)" :key="c.id" @click="goToProducts(c)">
+			<v-layout row wrap v-if="search">
+				<v-flex grow xs6 v-for="product in filterBy(products, search)" :key="product.id" @click="goToSearchedProduct(product)">
 					<v-card class="mb-1">
-						<v-img contain :src="c.downloadURL" :lazy-src="require('@/assets/placeholder.png')">
+						<v-img contain :src="product.downloadURL" :lazy-src="require('@/assets/placeholder.png')">
 							<v-layout slot="placeholder" fill-height align-center justify-center ma-0>
 								<v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular>
 							</v-layout>
 						</v-img>
+						<div class="card-title pa-2 grey--text text--darken-2">
+							{{product.name}}
+							<br>
+							<div style="font-weight: bold;">{{product.price | currency('P')}}</div>
+						</div>
 					</v-card>
 				</v-flex>
-			</v-layout> -->
+			</v-layout>
 
 			<masonry :cols="1" :gutter="8">
 				<v-card class="mb-2" v-for="c in filterBy(GET_LIST, search)" :key="c.id" @click="goToProducts(c)">
