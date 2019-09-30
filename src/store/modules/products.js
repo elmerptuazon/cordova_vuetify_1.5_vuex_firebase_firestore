@@ -7,10 +7,12 @@ const products = {
 	namespaced: true,
 	state: {
 		products: [],
-		catalogue: {}
+		catalogue: {},
+		searchProduct: ''
 	},
 	getters: {
-		GET_PRODUCTS: state => state.products
+		GET_PRODUCTS: state => state.products,
+		GET_SEARCH_PRODUCT: state => state.searchProduct,
 	},
 	mutations: {
 		SET_PRODUCTS (state, payload) {
@@ -18,7 +20,10 @@ const products = {
 		},
 		CLEAR_PRODUCTS (state) {
 			state.products.length = []
-		}
+		},
+		SET_SEARCH_PRODUCT (state, payload) {
+			state.searchProduct = payload;
+		},
 	},
 	actions: {
 		async GET_PRODUCTS ({commit}, payload) {
@@ -127,10 +132,11 @@ const products = {
 			});
 		},
 
-		async SEARCH_PRODUCTS({}, payload) {
+		async SEARCH_PRODUCTS({ commit }, payload) {
 			let allProduct = [];
 			let response = {};
-			console.log(payload);
+
+			commit('SET_SEARCH_PRODUCT', payload);
 			const productSnapshot = await COLLECTION.products.where('name', '>=', payload).get();
 			if(!productSnapshot.empty) {
 				allProduct = productSnapshot.docs.map((doc) => {
