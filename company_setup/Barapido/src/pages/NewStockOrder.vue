@@ -101,7 +101,6 @@
         </tr>
       </tbody>
     </table>
-
     <div class="text-xs-center mt-5" v-show="loader">
       <v-progress-circular
         :size="100"
@@ -114,14 +113,14 @@
     <div class="text-xs-center mt-3 mb-3" v-show="!loader">
       <div v-if="stockOrder.items.length > 0">
         <v-btn
-          @click="submitStockOrder"
+          @click="ProceedToCheckout"
           depressed
           large
           color="primary"
           class="white--text"
           :disabled="stockOrder.items.length < 1"
         >
-          <span>Submit Orders to {{ $store.getters["GET_COMPANY"] }} </span>
+          <span>Proceed to Checkout </span>
         </v-btn>
       </div>
       <!-- <div v-else>
@@ -188,7 +187,6 @@
       confirmText="Continue"
       @confirmClicked="generateStockOrder"
     />
-    <ConfirmationModal ref="finalizeOrder" @confirmClicked="finalizeOrder" />
   </div>
 </template>
 
@@ -201,7 +199,6 @@ import { mixins } from "@/mixins";
 import BottomNav from "@/components/BottomNav";
 import BasketBadge from "@/components/BasketBadge";
 import ConfirmationModal from "@/components/ConfirmationModal";
-
 export default {
   mixins: [mixins],
   data: () => ({
@@ -452,33 +449,10 @@ export default {
           console.log(error);
         });
     },
-
-    submitStockOrder() {
-      this.$refs.finalizeOrder.show(
-        "Confirm",
-        "Are you sure you want to submit these orders to " +
-          this.$store.getters["GET_COMPANY"] +
-          "?"
-      );
-    },
-    finalizeOrder() {
-      this.loaderDialog = true;
-      this.loaderDialogMessage = "Submitting orders";
-
-      this.$store
-        .dispatch("stock_orders/SUBMIT", this.stockOrder)
-        .then(res => {
-          this.$router.push({
-            name: "StockOrderCheckoutSuccess",
-            params: {
-              stockOrder: this.stockOrder,
-              submittedAt: res.submittedAt
-            }
-          });
-        })
-        .catch(error => {
-          console.log(error);
-        });
+    ProceedToCheckout() {
+      this.$router.push({
+        name: "StockOrderCheckout"
+      });
     }
   },
   computed: {

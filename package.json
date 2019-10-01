@@ -53,6 +53,7 @@
     "vue": "^2.6.6",
     "vue-carousel": "^0.18.0-alpha",
     "vue-cordova": "^0.1.2",
+    "vue-credit-card-validation": "^0.1.6",
     "vue-events": "^3.1.0",
     "vue-extend-layout": "^1.1.3",
     "vue-head": "^2.0.12",

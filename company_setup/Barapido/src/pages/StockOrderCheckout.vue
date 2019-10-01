@@ -94,6 +94,22 @@
       </tbody>
     </table>
 
+    <v-card>
+      <v-card-title>
+        <span class="title">Select Payment Option</span>
+      </v-card-title>
+      <v-divider></v-divider>
+      <v-container>
+        <v-radio-group v-model="payment.paymentType" row>
+          <v-radio label="COD" value="COD"></v-radio>
+          <v-radio label="Credit Card" value="CC"></v-radio>
+          <creditCardForm
+            v-if="payment.paymentType === 'CC'"
+            @cardDetails="SetCardDetails"
+          />
+        </v-radio-group>
+      </v-container>
+    </v-card>
     <div class="text-xs-center mt-3 mb-3">
       <v-btn
         @click="submitStockOrder"
@@ -103,8 +119,13 @@
         class="white--text"
         :disabled="stockOrder.items.length < 1"
       >
-        <v-icon left>check_circle</v-icon> Submit Order to
-        {{ $store.getters["GET_COMPANY"] }}
+        <v-icon left>check_circle</v-icon>
+        <span v-if="payment.paymentType === 'COD'">
+          Submit Order to {{ $store.getters["GET_COMPANY"] }}
+        </span>
+        <span v-else>
+          Pay and Submit Order to {{ $store.getters["GET_COMPANY"] }}
+        </span>
       </v-btn>
     </div>
 
@@ -120,6 +141,7 @@
         </v-card-text>
       </v-card>
     </v-dialog>
+    <ConfirmationModal ref="finalizeOrder" @confirmClicked="finalizeOrder" />
   </div>
 </template>
 
@@ -131,6 +153,8 @@ import { mapGetters } from "vuex";
 import { mixins } from "@/mixins";
 import BottomNav from "@/components/BottomNav";
 import BasketBadge from "@/components/BasketBadge";
+import ConfirmationModal from "@/components/ConfirmationModal";
+import creditCardForm from "@/components/creditCardForm";
 export default {
   mixins: [mixins],
   data: () => ({
@@ -143,6 +167,11 @@ export default {
       items: [],
       userId: null,
       createdAt: null
+    },
+    payment: {
+      paymentType: "COD",
+      amount: null,
+      cardDetails: null
     },
     loaderDialogMessage: null
   }),
@@ -172,24 +201,81 @@ export default {
       this.$router.go(-1);
     },
     submitStockOrder() {
+      this.$refs.finalizeOrder.show(
+        "Confirm",
+        "Are you sure you want to submit these orders to " +
+          this.$store.getters["GET_COMPANY"] +
+          "?"
+      );
+    },
+    async finalizeOrder() {
       this.loaderDialog = true;
       this.loaderDialogMessage = "Submitting orders";
 
-      this.$store
-        .dispatch("stock_orders/SUBMIT", this.stockOrder)
-        .then(res => {
-          this.$router.push({
-            name: "StockOrderCheckoutSuccess",
-            params: {
-              stockOrder: this.stockOrder,
-              submittedAt: res.submittedAt
-            }
-          });
-        })
-        .catch(error => {
-          console.log(error);
+      console.log(this.payment);
+      try {
+        //process payment
+        this.payment.amount = this.total;
+        let paymentResult = await this.$store.dispatch(
+          "payment/PayOrder",
+          this.payment
+        );
+        this.stockOrder.paymentDetails = paymentResult;
+        console.log(this.stockOrder);
+        //submit the stockorder if successful.
+        let result = await this.$store.dispatch(
+          "stock_orders/SUBMIT",
+          this.stockOrder
+        );
+        this.$router.push({
+          name: "StockOrderCheckoutSuccess",
+          params: {
+            stockOrder: this.stockOrder,
+            submittedAt: result.submittedAt
+          }
         });
+      } catch (e) {
+        //add catch for incorrect payment/credit cards.
+        console.log(e);
+        this.loaderDialog = false;
+      }
+      // this.$store
+      //   .dispatch("stock_orders/SUBMIT", this.stockOrder)
+      //   .then(res => {
+      //     this.$router.push({
+      //       name: "StockOrderCheckoutSuccess",
+      //       params: {
+      //         stockOrder: this.stockOrder,
+      //         submittedAt: res.submittedAt
+      //       }
+      //     });
+      //   })
+      //   .catch(error => {
+      //     console.log(error);
+      //   });
+    },
+    SetCardDetails(card) {
+      this.payment.cardDetails = card;
     }
+    // submitStockOrder() {
+    //   this.loaderDialog = true;
+    //   this.loaderDialogMessage = "Submitting orders";
+
+    //   this.$store
+    //     .dispatch("stock_orders/SUBMIT", this.stockOrder)
+    //     .then(res => {
+    //       this.$router.push({
+    //         name: "StockOrderCheckoutSuccess",
+    //         params: {
+    //           stockOrder: this.stockOrder,
+    //           submittedAt: res.submittedAt
+    //         }
+    //       });
+    //     })
+    //     .catch(error => {
+    //       console.log(error);
+    //     });
+    // }
   },
   computed: {
     subTotal() {
@@ -241,7 +327,9 @@ export default {
     }
   },
   components: {
-    BasketBadge
+    BasketBadge,
+    ConfirmationModal,
+    creditCardForm
   }
 };
 </script>

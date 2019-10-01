@@ -17,6 +17,7 @@ import support from './modules/support';
 import conversations from './modules/conversations';
 import shipment from './modules/shipment';
 import logo from '@/assets/img/header_logo.jpg';
+import payment from './modules/payment';
 
 Vue.use(Vuex);
 
@@ -85,6 +86,7 @@ export default new Vuex.Store({
         stock_orders,
         support,
         conversations,
-        shipment
+        shipment,
+        payment
     }
 })

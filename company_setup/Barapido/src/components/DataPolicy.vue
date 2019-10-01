@@ -381,7 +381,7 @@ export default {
   }
 };
 </script>
-<style lang="scss" scoped>
+<style  scoped>
 p.p1 {
   margin: 0px 0px 0px 0px;
   text-align: center;
