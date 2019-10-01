@@ -27,15 +27,23 @@
       </tr>
     </template>
     <template slot="items" slot-scope="props">
-      <tr @click="viewOrder(props.item)">
-        <!-- <td class="text-xs-center">
-                    <v-badge color="red" left overlap>
-                        <span slot="badge" v-if="!props.item.addedToInventory" v-html="props.item.items.length"></span>
-                        <v-icon color="grey lighten-1">shopping_cart</v-icon>
-                    </v-badge>
-                </td> -->
+      <tr 
+        @click="viewOrder(props.item)"
+        :class="[props.item.shipmentCount > 0 ? 'green lighten-4' : '']"
+      >
+        <td class="text-xs-center">
+            <v-badge color="red" left overlap>
+                <span slot="badge" 
+                  v-if="props.item.shipmentCount > 0" 
+                >
+                  {{ props.item.shipmentCount }}
+                </span>
+                <v-icon color="grey lighten-1">shopping_cart</v-icon>
+            </v-badge>
+        </td>
         <td class="text-xs-center">{{ props.item.stockOrderReference }}</td>
         <td class="text-xs-center">{{ props.item.status | uppercase }}</td>
+        <td class="text-xs-center">{{ props.item.submittedAt | momentify("DD-MMM-YYYY") }}</td>
         <!-- <td class="text-xs-center">
           {{ props.item.discountedTotal | currency("P") }}
         </td> -->
@@ -52,6 +60,10 @@ export default {
 
   props: ["items", "search"],
 
+  mounted() {
+    this.loading = true;
+  },
+
   data: () => ({
     pagination: {
       sortBy: "status",
@@ -60,12 +72,12 @@ export default {
     },
     loading: false,
     headers: [
-      //   {
-      //     text: "",
-      //     value: "id",
-      //     sortable: false,
-      //     align: "center"
-      //   },
+      {
+        text: "Receivable Shipments",
+        value: "",
+        sortable: false,          
+        align: "center"
+      },
       {
         text: "Reference No.",
         value: "stockOrderReference",
@@ -75,12 +87,17 @@ export default {
         text: "Status",
         value: "status",
         align: "center"
-      }
+      },
       // {
       //   text: "Cost",
       //   value: "total",
       //   align: "center"
       // }
+      {
+        text: "Date Submitted",
+        value: "submittedAt",
+        align: "center"
+      }
     ]
   }),
 
@@ -101,10 +118,12 @@ export default {
         this.pagination.sortBy = column;
         this.pagination.descending = false;
       }
-    }
+    },
   },
 
-  computed: {}
+  computed: {
+    
+  }
 };
 </script>
 

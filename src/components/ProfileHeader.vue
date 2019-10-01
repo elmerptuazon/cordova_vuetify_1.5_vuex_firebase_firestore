@@ -3,7 +3,7 @@
     <v-flex xs3>
       <v-img
         :src="user.downloadURL"
-        class="mt-2 elevation-1 flipped"
+        class="mt-2 elevation-1"
         v-if="user.downloadURL"
       >
         <v-layout
@@ -90,8 +90,8 @@ export default {
 </script>
 
 <style scoped>
-.flipped {
+/* .flipped {
   -webkit-transform: scaleX(-1);
   transform: scaleX(-1);
-}
+} */
 </style>

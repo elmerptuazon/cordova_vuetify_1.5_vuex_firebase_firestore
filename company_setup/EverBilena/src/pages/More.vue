@@ -28,7 +28,6 @@
               <v-avatar v-if="user.resellerData.downloadURL" width="50px">
                 <v-img
                   :src="user.resellerData.downloadURL"
-                  class="flipped"
                   width="50"
                   contain
                 ></v-img>

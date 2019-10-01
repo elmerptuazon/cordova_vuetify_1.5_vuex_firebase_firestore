@@ -96,7 +96,7 @@ export default {
     loader: false,
     tab: "tab1",
     items: [],
-    height: null
+    height: null,
   }),
   created() {
     if (this.$route.query.hasOwnProperty("tab")) {
@@ -143,6 +143,13 @@ export default {
           data.discountedTotal = this.applyDiscount(data.total);
           return data;
         });
+
+        for(let i = 0; i < this.items.length; i++) {
+          let item = this.items[i];
+          await this.$store.dispatch("shipment/GetShipments", item.id);
+          this.items[i].shipmentCount = this.$store.getters["shipment/GET_RECEIVABLE_SHIPMENT_COUNT"];
+        }
+        
         console.log(this.items);
         this.$refs.OrdersToEverBilena.loading = false;
       }
