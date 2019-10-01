@@ -18,11 +18,11 @@
           <v-icon>shopping_cart</v-icon>
         </v-badge>
       </v-btn>
+      <BasketBadge v-if="user.type === 'Reseller'" />
       <v-btn icon @click="extended = !extended">
         <v-icon v-if="!extended">search</v-icon>
         <v-icon v-else>close</v-icon>
       </v-btn>
-      <BasketBadge v-if="user.type === 'Reseller'" />
       <v-spacer></v-spacer>
       <Logo />
     </v-toolbar>
@@ -96,7 +96,7 @@ export default {
     loader: false,
     tab: "tab1",
     items: [],
-    height: null,
+    height: null
   }),
   created() {
     if (this.$route.query.hasOwnProperty("tab")) {
@@ -144,12 +144,14 @@ export default {
           return data;
         });
 
-        for(let i = 0; i < this.items.length; i++) {
+        for (let i = 0; i < this.items.length; i++) {
           let item = this.items[i];
           await this.$store.dispatch("shipment/GetShipments", item.id);
-          this.items[i].shipmentCount = this.$store.getters["shipment/GET_RECEIVABLE_SHIPMENT_COUNT"];
+          this.items[i].shipmentCount = this.$store.getters[
+            "shipment/GET_RECEIVABLE_SHIPMENT_COUNT"
+          ];
         }
-        
+
         console.log(this.items);
         this.$refs.OrdersToEverBilena.loading = false;
       }
