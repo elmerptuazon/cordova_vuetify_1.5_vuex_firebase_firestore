@@ -3,7 +3,7 @@
 
 		<v-toolbar app color="primary" dark :extended="extended">
 			<v-text-field label="Search products..." clearable v-model="search" v-if="extended" slot="extension" class="mx-3" flat solo-inverted
-			 @keyup.enter="searchProduct"></v-text-field>
+			 @keyup.enter="searchProduct" @click:clear="clearProductQuery"></v-text-field>
 			<BasketBadge/>
 			<v-btn icon @click="showSearchBar">
 				<v-icon v-if="!extended">search</v-icon>
@@ -152,6 +152,9 @@ export default {
 				this.$store.commit('products/SET_PRODUCT_QUERY', this.search);
 				this.$store.commit('products/CLEAR_SEARCHED_PRODUCTS')
 			}
+		},
+		clearProductQuery() {
+			this.$store.commit('products/SET_PRODUCT_QUERY', '');
 		},
 		lsTest () {
 			this.$store.dispatch('basket/ADD_ITEM', {
