@@ -39,6 +39,36 @@
             </div>
           </div>
         </v-card-text>
+        <v-divider></v-divider>
+        <v-card-title>
+          <span class="subheading font-weight-medium">Payment Details</span>
+        </v-card-title>
+        <v-divider></v-divider>
+        <v-card-text>
+          <div>
+            <span v-if="stockOrder.paymentDetails.paymentType === 'CC'"
+              >Type: Credit Card</span
+            >
+            <span v-else>Type: Cash on Delivery</span>
+          </div>
+          <div>
+            Amount Paid:
+            {{ stockOrder.paymentDetails.amount }}
+          </div>
+          <div>
+            Status:
+            <v-chip
+              :class="[
+                stockOrder.paymentDetails.paymentStatus != 'Pending'
+                  ? 'green'
+                  : 'red darken-2'
+              ]"
+              text-color="white"
+            >
+              {{ stockOrder.paymentDetails.paymentStatus }}
+            </v-chip>
+          </div>
+        </v-card-text>
       </v-card>
     </v-container>
     <br />
@@ -178,11 +208,16 @@ export default {
       id: null,
       items: [],
       userId: null,
-      createdAt: null
+      createdAt: null,
+      paymentDetails: {
+        amount: null,
+        paymentStatus: null,
+        paymentType: null
+      }
     },
     loaderDialogMessage: null
   }),
-  created() {
+  mounted() {
     this.cordovaBackButton(this.goBack);
 
     this.loaderDialog = true;
@@ -191,6 +226,8 @@ export default {
       .dispatch("stock_orders/FIND", this.$route.params.id)
       .then(res => {
         if (res.success) {
+          console.log(res);
+          console.log(this.stockOrder);
           this.stockOrder = Object.assign({}, this.stockOrder, res.data);
           console.log(this.stockOrder);
           if (
