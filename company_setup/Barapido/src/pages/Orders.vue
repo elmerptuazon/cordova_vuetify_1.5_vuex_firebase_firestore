@@ -147,14 +147,7 @@ export default {
         for(let i = 0; i < this.items.length; i++) {
           let item = this.items[i];
           await this.$store.dispatch("shipment/GetShipments", item.id);
-          const shipments = this.$store.getters["shipment/GET_SHIPMENT_LIST"];
-          
-          let totalItems = 0;
-          shipments.forEach((shipment) => {
-            if(shipment.status !== 'Received') totalItems++;
-          });
-
-          this.items[i].shipmentCount = totalItems;
+          this.items[i].shipmentCount = this.$store.getters["shipment/GET_RECEIVABLE_SHIPMENT_COUNT"];
         }
         
         console.log(this.items);
