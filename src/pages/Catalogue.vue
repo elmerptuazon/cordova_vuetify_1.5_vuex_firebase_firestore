@@ -91,7 +91,7 @@ export default {
 		//searchedProducts: [],
 	}),
 	created () {
-		this.search = this.$store.getters['products/GET_PRODUCT_QUERY'];
+		this.search = this.GET_PRODUCT_QUERY;
 		if(this.search) {
 			this.extended = true;
 		} else {
@@ -164,7 +164,8 @@ export default {
 	computed: {
 		...mapGetters({
 			'GET_LIST': 'catalogues/GET_LIST',
-			'GET_ITEMS': 'basket/GET_ITEMS'
+			'GET_ITEMS': 'basket/GET_ITEMS',
+			'GET_PRODUCT_QUERY': 'products/GET_PRODUCT_QUERY'
 		}),
 
 		...mapState("products", {
