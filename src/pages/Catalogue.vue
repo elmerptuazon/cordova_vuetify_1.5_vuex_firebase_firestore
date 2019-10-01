@@ -2,13 +2,16 @@
 	<div>
 
 		<v-toolbar app color="primary" dark :extended="extended">
-			<v-text-field label="Search category..." clearable v-model="search" v-if="extended" slot="extension" class="mx-3" flat solo-inverted
-			prepend-icon="arrow_back"></v-text-field>
+			<v-text-field label="Search products..." clearable v-model="search" v-if="extended" slot="extension" class="mx-3" flat solo-inverted
+			 @keyup.enter="searchProduct" @click:clear="clearProductQuery"></v-text-field>
 			<BasketBadge/>
-			<!-- <v-btn icon @click="extended = !extended">
+			<v-btn icon @click="showSearchBar">
 				<v-icon v-if="!extended">search</v-icon>
 				<v-icon v-else>close</v-icon>
-			</v-btn> -->
+			</v-btn>
+			<v-btn icon v-if="extended" @click="searchProduct">
+				<v-icon>search</v-icon>
+			</v-btn>
 			<v-spacer></v-spacer>
 			<Logo />
 		</v-toolbar>
@@ -19,20 +22,34 @@
 				<v-progress-circular :size="100" :width="5" color="primary" indeterminate></v-progress-circular>
 			</div>
 
-			<!-- <v-layout row wrap>
-				<v-flex grow xs6 v-for="c in filterBy(GET_LIST, search)" :key="c.id" @click="goToProducts(c)">
-					<v-card class="mb-1">
-						<v-img contain :src="c.downloadURL" :lazy-src="require('@/assets/placeholder.png')">
-							<v-layout slot="placeholder" fill-height align-center justify-center ma-0>
-								<v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular>
-							</v-layout>
-						</v-img>
+			<v-layout row wrap v-if="search">
+				<div v-if="!searchedProducts.length" class="title grey--text lighten-2 text-xs-center">
+					No results...
+				</div>
+				<masonry v-else :cols="2" :gutter="8">
+					<v-card class="mb-1" v-for="product in searchedProducts" :key="product.id" @click="goToSearchedProduct(product)">
+						<v-layout row>
+							<v-img contain :src="product.downloadURL" :lazy-src="require('@/assets/placeholder.png')">
+								<v-layout slot="placeholder" fill-height align-center justify-center ma-0>
+									<v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular>
+								</v-layout>
+							</v-img>
+						</v-layout>
+						<v-layout row wrap pa-2>
+							<v-flex xs12>
+								<div class=" grey--text darken-2">{{product.name}}</div>
+							</v-flex>
+							
+							<v-flex xs12>
+								<div style="font-weight: bold;">{{product.price | currency('P')}}</div>
+							</v-flex>
+						</v-layout>
 					</v-card>
-				</v-flex>
-			</v-layout> -->
+				</masonry>		
+			</v-layout>
 
-			<masonry :cols="1" :gutter="8">
-				<v-card class="mb-2" v-for="c in filterBy(GET_LIST, search)" :key="c.id" @click="goToProducts(c)">
+			<masonry v-else :cols="1" :gutter="8">
+				<v-card class="mb-2" v-for="c in GET_LIST" :key="c.id" @click="goToProducts(c)">
 					<v-img contain :src="c.downloadURL" :lazy-src="require('@/assets/placeholder.png')">
 						<v-layout slot="placeholder" fill-height align-center justify-center ma-0>
 							<v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular>
@@ -54,10 +71,9 @@
 </template>
 
 
-
-
 <script>
 import {mapGetters} from 'vuex';
+import {mapState} from 'vuex';
 import { Spinner } from 'mint-ui';
 import BasketBadge from '@/components/BasketBadge';
 import {mixins} from '@/mixins';
@@ -71,9 +87,18 @@ export default {
 		isLoading: false,
 		snackbar: false,
 		message: null,
-		loading: false
+		loading: false,
+		//searchedProducts: [],
 	}),
 	created () {
+		this.search = this.GET_PRODUCT_QUERY;
+		if(this.search) {
+			this.extended = true;
+		} else {
+			this.extended = false;
+			this.$store.commit('products/CLEAR_SEARCHED_PRODUCTS');
+		} 
+
 		this.$store.dispatch('basket/GET_ITEMS');
 
 		if (this.GET_LIST.length === 0) {
@@ -99,10 +124,37 @@ export default {
 				this.snackbar = true;
 			});
 		},
+		async searchProduct() {
+			this.loading = true;
+			let search = this.search;
+
+			if(search) {
+				await this.$store.dispatch("products/SEARCH_PRODUCTS", search);	
+			}
+
+			this.loading = false;
+		},
 		goToProducts(catalogue) {
 			// this.$store.dispatch('products/GET_PRODUCTS', catalogue.id);
 			this.$store.commit('SET_CURRENT_CATALOGUE', catalogue.name);
 			this.$router.push({name: 'Products', params: { id: catalogue.id } });
+		},
+		goToSearchedProduct(product) {
+			console.log(product);
+			//this.$store.commit('SET_CURRENT_CATALOGUE', product.category);
+			this.$router.push({name: 'Item', params: {id: product.id, product, category: product.category}});
+		},
+		showSearchBar() {
+			this.extended = !(this.extended);
+
+			if(this.extended === false) {
+				this.search = '';
+				this.$store.commit('products/SET_PRODUCT_QUERY', this.search);
+				this.$store.commit('products/CLEAR_SEARCHED_PRODUCTS')
+			}
+		},
+		clearProductQuery() {
+			this.$store.commit('products/SET_PRODUCT_QUERY', '');
 		},
 		lsTest () {
 			this.$store.dispatch('basket/ADD_ITEM', {
@@ -115,7 +167,12 @@ export default {
 	computed: {
 		...mapGetters({
 			'GET_LIST': 'catalogues/GET_LIST',
-			'GET_ITEMS': 'basket/GET_ITEMS'
+			'GET_ITEMS': 'basket/GET_ITEMS',
+			'GET_PRODUCT_QUERY': 'products/GET_PRODUCT_QUERY'
+		}),
+
+		...mapState("products", {
+			searchedProducts: state => state.searchedProducts 
 		})
 	},
 	components: {

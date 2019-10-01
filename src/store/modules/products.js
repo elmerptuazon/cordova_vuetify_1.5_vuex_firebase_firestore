@@ -7,10 +7,13 @@ const products = {
 	namespaced: true,
 	state: {
 		products: [],
-		catalogue: {}
+		catalogue: {},
+		productQuery: '',
+		searchedProducts: [],
 	},
 	getters: {
-		GET_PRODUCTS: state => state.products
+		GET_PRODUCTS: state => state.products,
+		GET_PRODUCT_QUERY: state => state.productQuery,
 	},
 	mutations: {
 		SET_PRODUCTS (state, payload) {
@@ -18,7 +21,16 @@ const products = {
 		},
 		CLEAR_PRODUCTS (state) {
 			state.products.length = []
-		}
+		},
+		SET_PRODUCT_QUERY (state, payload) {
+			state.productQuery = payload;	
+		},
+		SET_SEARCHED_PRODUCTS (state, payload) {
+			state.searchedProducts = payload
+		},
+		CLEAR_SEARCHED_PRODUCTS (state) {
+			state.searchedProducts = []
+		},
 	},
 	actions: {
 		async GET_PRODUCTS ({commit}, payload) {
@@ -125,6 +137,25 @@ const products = {
 				})
 				.catch(error => reject(error));
 			});
+		},
+
+		async SEARCH_PRODUCTS({ commit }, payload) {
+			let allProducts = [];
+
+			commit('SET_PRODUCT_QUERY', payload);
+			const productSnapshot = await COLLECTION.products.where('name', '>=', payload).get();
+			if(!productSnapshot.empty) {
+				allProducts = productSnapshot.docs.map((doc) => {
+					const data = doc.data();
+					data.id = doc.id;
+					return data;
+				});
+			}
+			else {
+				allProducts = [];
+			}
+
+			commit('SET_SEARCHED_PRODUCTS', allProducts);
 		}
 	}
 }
