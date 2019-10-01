@@ -181,9 +181,18 @@
 							<v-flex xs2>
 								<v-avatar size="55">
 									<v-img
+                    v-if="resellerData.downloadURL"
 										:src="resellerData.downloadURL"
 										alt="avatar"
 									></v-img>
+                  <v-img
+                    v-else-if="resellerData.gender == 'Male' && !resellerData.downloadURL"
+                    :src="MaleDefaultImage"
+                  ></v-img>
+                  <v-img
+                    v-else-if="resellerData.gender == 'Female' && !resellerData.downloadURL"
+                    :src="FemaleDefaultImage"
+                  ></v-img>
 								</v-avatar>
 							</v-flex>
 							<v-flex xs10 ml-4>
@@ -326,6 +335,8 @@ import { date } from "@/mixins/date";
 import { mixins } from "@/mixins";
 import { COLLECTION } from "@/config/firebaseInit";
 import Payments from "@/components/Payments";
+import MaleDefaultImage from "@/assets/img/male-default.jpg";
+import FemaleDefaultImage from "@/assets/img/female-default.jpg";
 
 export default {
   components: { Payments },
