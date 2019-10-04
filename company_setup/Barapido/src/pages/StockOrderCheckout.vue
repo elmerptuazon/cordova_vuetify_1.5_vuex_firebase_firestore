@@ -142,6 +142,7 @@
       </v-card>
     </v-dialog>
     <ConfirmationModal ref="finalizeOrder" @confirmClicked="finalizeOrder" />
+    <Modal ref="modal" />
   </div>
 </template>
 
@@ -155,6 +156,7 @@ import BottomNav from "@/components/BottomNav";
 import BasketBadge from "@/components/BasketBadge";
 import ConfirmationModal from "@/components/ConfirmationModal";
 import creditCardForm from "@/components/creditCardForm";
+import Modal from "@/components/Modal";
 export default {
   mixins: [mixins],
   data: () => ({
@@ -211,18 +213,84 @@ export default {
     async finalizeOrder() {
       this.loaderDialog = true;
       this.loaderDialogMessage = "Submitting orders";
-
-      console.log(this.payment);
       try {
-        //process payment
+        let paymentResult = null;
+
         this.payment.amount = this.total;
-        let paymentResult = await this.$store.dispatch(
-          "payment/PayOrder",
-          this.payment
-        );
+        //check kung CC or COD
+
+        if (this.payment.paymentType === "CC") {
+          //validate card details
+          if (
+            !this.$cardFormat.validateCardNumber(
+              this.payment.cardDetails.cardNumber
+            )
+          ) {
+            this.loaderDialog = false;
+            this.loaderDialogMessage = null;
+            this.$refs.finalizeOrder.close();
+            this.$refs.modal.show(
+              "Card Details",
+              "Please check your card number."
+            );
+            return;
+          }
+          // validate card expiry
+          if (
+            !this.$cardFormat.validateCardExpiry(
+              this.payment.cardDetails.expiry
+            )
+          ) {
+            this.loaderDialog = false;
+            this.loaderDialogMessage = null;
+            this.$refs.finalizeOrder.close();
+            this.$refs.modal.show(
+              "Card Details",
+              "Please check your card expiry."
+            );
+            return;
+          }
+          // validate card CVC
+          if (!this.$cardFormat.validateCardCVC(this.payment.cardDetails.CVC)) {
+            this.loaderDialog = false;
+            this.loaderDialogMessage = null;
+            this.$refs.finalizeOrder.close();
+            this.$refs.modal.show(
+              "Card Details",
+              "Please check your card CVC."
+            );
+            return;
+          }
+
+          const user = this.$store.getters["accounts/user"];
+          let userDetails = {
+            name: `${user.lastName}, ${user.firstName} ${user.lastName}`,
+            email: user.email,
+            phone: user.contact
+          };
+
+          //process payment
+          paymentResult = await this.$store.dispatch(
+            "payment/PayOrderThruCreditCard",
+            {
+              payment: this.payment,
+              userDetails: userDetails,
+              stockOrderReference: this.stockOrder.stockOrderReference
+            }
+          );
+        } else {
+          paymentResult = await this.$store.dispatch(
+            "payment/ProcessCODOrder",
+            {
+              payment: this.payment
+            }
+          );
+        }
+
         this.stockOrder.paymentDetails = paymentResult;
         console.log(this.stockOrder);
-        //submit the stockorder if successful.
+        //this flow will always result to success, any error should be thrown
+        //and handled in the catch statement
         let result = await this.$store.dispatch(
           "stock_orders/SUBMIT",
           this.stockOrder
@@ -234,25 +302,32 @@ export default {
             submittedAt: result.submittedAt
           }
         });
-      } catch (e) {
+      } catch (error) {
         //add catch for incorrect payment/credit cards.
-        console.log(e);
+        console.log(error);
         this.loaderDialog = false;
+        this.loaderDialogMessage = null;
+        this.$refs.finalizeOrder.close();
+        switch (error.errors[0].code) {
+          case "generic_decline":
+            this.$refs.modal.show(
+              "Transaction Failed",
+              "Your card has been declined, please contact your service provider."
+            );
+            break;
+          case "insufficient_funds":
+            this.$refs.modal.show(
+              "Transaction Failed",
+              "Your card has insufficient funds, please contact your service provider."
+            );
+            break;
+          default:
+            this.$refs.modal.show(
+              "Transaction Failed",
+              "Charging your card unsuccessful, please contact your service provider."
+            );
+        }
       }
-      // this.$store
-      //   .dispatch("stock_orders/SUBMIT", this.stockOrder)
-      //   .then(res => {
-      //     this.$router.push({
-      //       name: "StockOrderCheckoutSuccess",
-      //       params: {
-      //         stockOrder: this.stockOrder,
-      //         submittedAt: res.submittedAt
-      //       }
-      //     });
-      //   })
-      //   .catch(error => {
-      //     console.log(error);
-      //   });
     },
     SetCardDetails(card) {
       this.payment.cardDetails = card;
@@ -329,7 +404,8 @@ export default {
   components: {
     BasketBadge,
     ConfirmationModal,
-    creditCardForm
+    creditCardForm,
+    Modal
   }
 };
 </script>

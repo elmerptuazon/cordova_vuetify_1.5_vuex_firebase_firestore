@@ -1,23 +1,83 @@
-// import { DB, AUTH, COLLECTION } from '@/config/firebaseInit';
-// import moment from 'moment';
+import { DB, COLLECTION } from '@/config/firebaseInit';
+import axios from 'axios';
 
-// function generateOrderNumber(resellerID) {
-//     var refNumber = (BigInt(resellerID).toString(36) + "-" + BigInt(Date.now()).toString(36)).toUpperCase();
-//     return refNumber;
-// }
 
-// function realImgDimension(src) {
-//     return new Promise((resolve) => {
-//         var i = new Image();
-//         i.onload = function () {
-//             resolve({
-//                 width: this.width,
-//                 height: this.height
-//             });
-//         }
-//         i.src = src;
-//     })
-// }
+
+async function GenerateToken(payload) {
+    try {
+        let keys = await COLLECTION.keys.doc(process.env.environment).get();
+        const res = await axios({
+            method: 'post',
+            url: 'https://api.paymongo.com/v1/tokens',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            data: {
+                "data": {
+                    "attributes": {
+                        "number": parseInt(payload.payment.cardDetails.cardNumber.replace(/\s/g, "")).toString(),
+                        "exp_month": parseInt(payload.payment.cardDetails.expiry.split("/")[0]),
+                        "exp_year": parseInt(payload.payment.cardDetails.expiry.split("/")[1]),
+                        "cvc": payload.payment.cardDetails.CVC,
+                        "billing": {
+                            "name": payload.userDetails.name,
+                            "email": payload.userDetails.email,
+                            "phone": payload.userDetails.phone
+                        }
+                    }
+                }
+            },
+            auth: {
+                username: keys.data().public,
+                password: ''
+            },
+
+        });
+
+        return res.data.data.id;
+    }
+    catch (e) {
+        throw e;
+    }
+}
+
+async function CreatePayment(payload) {
+    try {
+        let keys = await COLLECTION.keys.doc(process.env.environment).get();
+        const res = await axios({
+            method: 'post',
+            url: 'https://api.paymongo.com/v1/payments',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            data: {
+                "data": {
+                    "attributes": {
+                        "amount": Number(Number(payload.payment.amount).toFixed(2).replace(".", "")),
+                        "currency": "PHP",
+                        "description": `Stock Order Payment for ${payload.stockOrderReference}`,
+                        "statement_descriptor": `Barapido payment for stock order: ${payload.stockOrderReference}`,
+                        "source": {
+                            "id": payload.tokenDetails,
+                            "type": "token"
+                        }
+                    }
+                }
+            },
+            auth: {
+                username: keys.data().secret,
+                password: ''
+            },
+
+        });
+
+        return res;
+    }
+    catch (e) {
+        throw e;
+    }
+
+}
 
 const payment = {
     namespaced: true,
@@ -31,28 +91,54 @@ const payment = {
 
     },
     actions: {
-        async PayOrder({ commit }, payload) {
-            console.log(payload);
+        async PayOrderThruCreditCard({ commit }, payload) {
             try {
-                if (payload.paymentType === "COD") {
-                    if (payload.hasOwnProperty('cardDetails')) {
-                        delete payload.cardDetails;
+
+                //in here you validate the CC and do the payment in the api using axios, code below are the return if api payment is successful.
+                let tokenDetails = await GenerateToken({
+                    payment: payload.payment,
+                    userDetails: payload.userDetails
+                });
+
+                let paymentDetails = await CreatePayment({
+                    tokenDetails: tokenDetails,
+                    payment: payload.payment,
+                    stockOrderReference: payload.stockOrderReference
+                })
+                console.log(paymentDetails);
+
+                if (paymentDetails.data.data.attributes.status === "paid") {
+                    //delete card details
+                    if (payload.payment.hasOwnProperty('cardDetails')) {
+                        delete payload.payment.cardDetails;
                     }
-                    console.log(payload);
-                    payload.paymentStatus = 'Pending';
-                    return payload;
+                    payload.payment.paymentStatus = 'Paid';
+                    payload.payment.transactionNumber = paymentDetails.data.data.id;
                 }
                 else {
-                    //in here you validate the CC and do the payment in the api using axios, code below are the return if api payment is successful.
-                    if (payload.hasOwnProperty('cardDetails')) {
-                        delete payload.cardDetails;
-                    }
-                    payload.paymentStatus = 'Paid';
-                    return payload;
+                    //throw error
+                    //check what kind of error so we can update the code
+                    const error = new Error("payment not successful");
+                    error.code = "others"
+                    throw error;
+
                 }
+
+                return payload.payment;
+                //}
             } catch (error) {
-                throw error;
+                throw error.response.data;
             }
+        },
+        async ProcessCODOrder({ commit }, payload) {
+
+            if (payload.payment.hasOwnProperty('cardDetails')) {
+                delete payload.payment.cardDetails;
+            }
+
+            payload.payment.paymentStatus = 'Pending';
+            return payload.payment;
+
         }
     }
 }
