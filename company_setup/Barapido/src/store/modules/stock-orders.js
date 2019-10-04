@@ -519,7 +519,7 @@ export default {
 			}
 		},
 
-		LISTEN_TO_STOCK_ORDERS({ state }) {
+		LISTEN_TO_STOCK_ORDERS({ state, rootGetters }) {
 
 			const user = AUTH.currentUser;
 
@@ -545,9 +545,9 @@ export default {
 								let message;
 
 								if (change.status === 'processing') {
-									message = `Thank you for your order! \nYou may settle your payment thru \nCebuana Lhuillier or bank deposit. \nPlease wait for a message from ${this.$store.getters["GET_COMPANY"]} \nfor the complete details!`;
+									message = `Thank you for your order! \n your order is currently being processed!`;
 								} else if (change.status === 'cancelled') {
-									message = `One of your orders was cancelled \nplease contact ${this.$store.getters["GET_COMPANY"]} if you have any questions.`;
+									message = `One of your orders was cancelled \nplease contact ${rootGetters["GET_COMPANY"]} if you have any questions.`;
 								}
 
 								cordova.plugins.notification.local.schedule({

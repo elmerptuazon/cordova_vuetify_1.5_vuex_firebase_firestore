@@ -15,5 +15,5 @@ module.exports = merge(prodEnv, {
   companyName: '"Barapido"',
   version: '"0.6.7"',
   primaryColor: '"#16A2AF"',
-
+  environment: '"test"'
 })
