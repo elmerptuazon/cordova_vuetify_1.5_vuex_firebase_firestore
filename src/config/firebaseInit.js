@@ -34,6 +34,7 @@ export const COLLECTION = {
 	offline_contacts: DB.collection('offline_contacts'),
 	stock_orders: DB.collection('stock_orders'),
 	support: DB.collection('support'),
-	conversations: DB.collection('conversations')
+	conversations: DB.collection('conversations'),
+	keys: DB.collection('keys'),
 }
 
