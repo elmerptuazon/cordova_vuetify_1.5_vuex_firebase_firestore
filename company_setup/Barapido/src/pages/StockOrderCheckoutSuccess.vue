@@ -14,14 +14,41 @@
           <p class="text-xs-center primary--text headline mt-3 mb-1">
             Thank you for your order!
           </p>
-          <p class="text-xs-center body-1 mt-0">
-            It has been forwarded to the company.
+          <div v-if="order.paymentType === 'CC'">
+            <v-layout row wrap class="mt-0" justify-space-between>
+              <v-flex xs1></v-flex>
+              <v-flex xs10>
+                <div class="text-xs-center">
+                  <span class="body-1 mt-0 ">
+                    Your credit card payment has been accepted! and your order
+                    has been forwarded to the company.
+                  </span>
+                </div>
+              </v-flex>
+              <v-flex xs1></v-flex>
+            </v-layout>
+          </div>
+          <p v-else class="text-xs-center body-1 mt-0">
+            Your order has been forwarded to the company.
           </p>
         </div>
 
         <v-divider class="mt-3"></v-divider>
 
         <div class="px-3 mt-3">
+          <v-layout row wrap class="mt-2">
+            <v-flex xs6>
+              <div class="text-xs-left body-1">
+                Order Reference Number:
+              </div>
+            </v-flex>
+            <v-flex xs6>
+              <div class="text-xs-right body-2">
+                {{ order.stockOrderReference }}
+              </div>
+            </v-flex>
+          </v-layout>
+
           <v-layout row wrap class="mt-2">
             <v-flex xs6>
               <div class="text-xs-left body-1">
@@ -94,7 +121,10 @@ export default {
     order: {
       createdAt: null,
       submittedAt: null,
-      total: null
+      total: null,
+      paymentType: null,
+      stockOrderReference: null,
+      paymentReference: null
     }
   }),
   components: {
@@ -107,7 +137,10 @@ export default {
     this.order = {
       createdAt: stockOrder.createdAt,
       submittedAt: submittedAt,
-      total: stockOrder.items.reduce((a, b) => a + b.resellerPrice * b.qty, 0)
+      total: stockOrder.items.reduce((a, b) => a + b.resellerPrice * b.qty, 0),
+      paymentType: stockOrder.paymentDetails.paymentType,
+      stockOrderReference: stockOrder.stockOrderReference,
+      paymentReference: stockOrder.paymentDetails.transactionNumber || null
     };
   },
   methods: {

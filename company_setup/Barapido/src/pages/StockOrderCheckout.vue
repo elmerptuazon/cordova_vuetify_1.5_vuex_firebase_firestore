@@ -100,9 +100,13 @@
       </v-card-title>
       <v-divider></v-divider>
       <v-container>
-        <v-radio-group v-model="payment.paymentType" row>
-          <v-radio label="COD" value="COD"></v-radio>
-          <v-radio label="Credit Card" value="CC"></v-radio>
+        <v-radio-group v-model="payment.paymentType">
+          <v-radio label="Cash On Delivery (COD)" value="COD"></v-radio>
+          <v-radio
+            label="Credit Card (Visa and Mastercard Only)"
+            value="CC"
+          ></v-radio>
+          <v-divider v-if="payment.paymentType === 'CC'"></v-divider>
           <creditCardForm
             v-if="payment.paymentType === 'CC'"
             @cardDetails="SetCardDetails"
@@ -121,10 +125,10 @@
       >
         <v-icon left>check_circle</v-icon>
         <span v-if="payment.paymentType === 'COD'">
-          Submit Order to {{ $store.getters["GET_COMPANY"] }}
+          Submit Order
         </span>
         <span v-else>
-          Pay and Submit Order to {{ $store.getters["GET_COMPANY"] }}
+          Pay and Submit Order
         </span>
       </v-btn>
     </div>
@@ -264,7 +268,7 @@ export default {
 
           const user = this.$store.getters["accounts/user"];
           let userDetails = {
-            name: `${user.lastName}, ${user.firstName} ${user.lastName}`,
+            name: `${user.lastName}, ${user.firstName} ${user.middleInitial}`,
             email: user.email,
             phone: user.contact
           };
