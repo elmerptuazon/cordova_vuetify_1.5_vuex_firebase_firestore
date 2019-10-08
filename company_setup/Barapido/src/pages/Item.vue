@@ -265,6 +265,25 @@
 									</v-select>
 								</v-flex>
 							</v-layout>-->
+              <v-layout row wrap align-center justify-center>
+                <v-flex xs5>
+                  <v-text-field
+                    :rules="numberRules"
+                    v-model="orderQTY"
+                    label="Quantity"
+                  ></v-text-field>
+                </v-flex>
+                <v-flex xs2 ml-2>
+                  <v-btn color="primary" icon :disabled="orderQTY <= 0">
+                    <v-icon>remove</v-icon>
+                  </v-btn>
+                </v-flex>
+                <v-flex xs2 ml-2>
+                  <v-btn color="primary" icon>
+                    <v-icon>add</v-icon>
+                  </v-btn>
+                </v-flex>
+              </v-layout>
               <v-layout row wrap>
                 <v-flex
                   xs12
@@ -408,7 +427,8 @@ export default {
     showMoreDescription: false,
     addToInventoryLoading: false,
     addToStockOrderLoading: false,
-    selectedInventoryItem: {}
+    selectedInventoryItem: {},
+    orderQTY: null,
   }),
   methods: {
     goBack() {
@@ -676,12 +696,14 @@ export default {
       }
 
       this.addToStockOrderLoading = true;
+
       this.$store
         .dispatch("stock_orders/SAVE_ITEM_FROM_INVENTORY", {
           attributes: this.attribute,
           productId: this.product.id
         })
         .then(res => {
+          console.log("ATTRIBUTES", this.attribute);
           this.$refs.modal.show(
             "Success",
             "Order to " +
@@ -700,6 +722,7 @@ export default {
     },
     cancelEdit() {
       this.editItemDialog = false;
+      this.orderQTY = null;
     }
   },
   async mounted() {
