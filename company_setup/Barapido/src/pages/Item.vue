@@ -265,25 +265,30 @@
 									</v-select>
 								</v-flex>
 							</v-layout>-->
+
               <v-layout row wrap align-center justify-center>
                 <v-flex xs5>
                   <v-text-field
                     :rules="numberRules"
                     v-model="orderQTY"
                     label="Quantity"
+                    @change="quantityCounter('')"
                   ></v-text-field>
                 </v-flex>
-                <v-flex xs2 ml-2>
-                  <v-btn color="primary" icon :disabled="orderQTY <= 0">
+
+                <v-flex xs2 ml-4>
+                  <v-btn color="primary" icon :disabled="orderQTY <= 0" @click="quantityCounter('-')">
                     <v-icon>remove</v-icon>
                   </v-btn>
                 </v-flex>
-                <v-flex xs2 ml-2>
-                  <v-btn color="primary" icon>
+
+                <v-flex xs2 ml-3>
+                  <v-btn color="primary" icon @click="quantityCounter('+')">
                     <v-icon>add</v-icon>
                   </v-btn>
                 </v-flex>
               </v-layout>
+
               <v-layout row wrap>
                 <v-flex
                   xs12
@@ -433,6 +438,18 @@ export default {
   methods: {
     goBack() {
       this.$router.go(-1);
+    },
+
+    quantityCounter(operation) {
+      if(operation === '+') {
+        this.orderQTY += 1;
+        this.attribute["quantity"] = this.orderQTY;
+      }
+      else if(operation === '-') {
+        this.orderQTY -= 1;
+        this.attribute["quantity"] = this.orderQTY;
+      }
+      else this.attribute["quantity"] = this.orderQTY;
     },
 
     openBasketConfirmationDialog(text = "Item Added to cart!") {
@@ -723,6 +740,7 @@ export default {
     cancelEdit() {
       this.editItemDialog = false;
       this.orderQTY = null;
+      this.attribute["quantity"] = null;
     }
   },
   async mounted() {
@@ -740,6 +758,9 @@ export default {
         this.attribute[attrib.name.toLowerCase()] = null;
       });
     }
+    
+    const index = this.product.attributes.findIndex(attrib => attrib.name.toLowerCase() === 'quantity');
+    if(index != -1) this.product.attributes.splice(index, 1);
 
     this.cordovaBackButton(this.goBack);
   },
