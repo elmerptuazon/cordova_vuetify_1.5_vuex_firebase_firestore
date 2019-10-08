@@ -507,6 +507,7 @@ export default {
       this.$store.dispatch("basket/ADD_ITEM", item).then(() => {
         this.openBasketConfirmationDialog();
       });
+      this.orderQTY = null;
     },
 
     showBasketDialog() {
@@ -576,6 +577,7 @@ export default {
         this.addBasketToContactDialog = false;
         const text = `Item added to ${offlineContacts[i].firstName} ${offlineContacts[i].lastName}'s Shopping Cart!`;
         this.openBasketConfirmationDialog(text);
+        this.orderQTY = null;
       }
     },
     share(app) {
@@ -735,6 +737,7 @@ export default {
         .finally(() => {
           this.addToStockOrderLoading = false;
           this.editItemDialog = false;
+          this.orderQTY = null;
         });
     },
     cancelEdit() {
