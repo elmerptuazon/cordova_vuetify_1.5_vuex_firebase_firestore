@@ -246,6 +246,30 @@
 									</v-select>
 								</v-flex>
 							</v-layout>-->
+
+              <v-layout row wrap align-center justify-center>
+                <v-flex xs5>
+                  <v-text-field
+                    :rules="numberRules"
+                    v-model="orderQTY"
+                    label="Quantity"
+                    @change="quantityCounter('')"
+                  ></v-text-field>
+                </v-flex>
+
+                <v-flex xs2 pa-2>
+                  <v-btn color="primary" icon :disabled="orderQTY <= 0" @click="quantityCounter('-')">
+                    <v-icon>remove</v-icon>
+                  </v-btn>
+                </v-flex>
+
+                <v-flex xs2 pa-2>
+                  <v-btn color="primary" icon @click="quantityCounter('+')">
+                    <v-icon>add</v-icon>
+                  </v-btn>
+                </v-flex>
+              </v-layout>
+
               <v-layout row wrap>
                 <v-flex
                   xs12
@@ -389,11 +413,24 @@ export default {
     showMoreDescription: false,
     addToInventoryLoading: false,
     addToStockOrderLoading: false,
-    selectedInventoryItem: {}
+    selectedInventoryItem: {},
+    orderQTY: null,
   }),
   methods: {
     goBack() {
       this.$router.go(-1);
+    },
+
+    quantityCounter(operation) {
+      if(operation === '+') {
+        this.orderQTY += 1;
+        this.attribute["quantity"] = this.orderQTY;
+      }
+      else if(operation === '-') {
+        this.orderQTY -= 1;
+        this.attribute["quantity"] = this.orderQTY;
+      }
+      else this.attribute["quantity"] = this.orderQTY;
     },
 
     openBasketConfirmationDialog(text = "Item Added to Basket!") {
@@ -451,6 +488,7 @@ export default {
       this.$store.dispatch("basket/ADD_ITEM", item).then(() => {
         this.openBasketConfirmationDialog();
       });
+      this.orderQTY = null;
     },
 
     showBasketDialog() {
@@ -520,6 +558,7 @@ export default {
         this.addBasketToContactDialog = false;
         const text = `Item added to ${offlineContacts[i].firstName} ${offlineContacts[i].lastName}'s Shopping Cart!`;
         this.openBasketConfirmationDialog(text);
+        this.orderQTY = null;
       }
     },
     share(app) {
@@ -640,6 +679,7 @@ export default {
             this.$refs.modal.show("Success", "Inventory has been recorded.");
           }
         });
+        this.orderQTY = null;
     },
 
     goToInventory() {
@@ -677,10 +717,13 @@ export default {
         .finally(() => {
           this.addToStockOrderLoading = false;
           this.editItemDialog = false;
+          this.orderQTY = null;
         });
     },
     cancelEdit() {
       this.editItemDialog = false;
+      this.orderQTY = null;
+      this.attribute["quantity"] = null;
     }
   },
   async mounted() {
@@ -699,6 +742,9 @@ export default {
       });
     }
 
+    const index = this.product.attributes.findIndex(attrib => attrib.name.toLowerCase() === 'quantity');
+    if(index != -1) this.product.attributes.splice(index, 1);
+    
     this.cordovaBackButton(this.goBack);
   },
   computed: {
