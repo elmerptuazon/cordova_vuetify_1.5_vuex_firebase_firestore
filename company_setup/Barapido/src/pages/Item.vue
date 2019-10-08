@@ -276,13 +276,13 @@
                   ></v-text-field>
                 </v-flex>
 
-                <v-flex xs2 ml-4>
+                <v-flex xs2 pa-2>
                   <v-btn color="primary" icon :disabled="orderQTY <= 0" @click="quantityCounter('-')">
                     <v-icon>remove</v-icon>
                   </v-btn>
                 </v-flex>
 
-                <v-flex xs2 ml-3>
+                <v-flex xs2 pa-2>
                   <v-btn color="primary" icon @click="quantityCounter('+')">
                     <v-icon>add</v-icon>
                   </v-btn>
