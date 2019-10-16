@@ -26,6 +26,7 @@ async function copyCompanySetUp() {
         choices: [
             { title: 'Ever Bilena', value: 'EverBilena' },
             { title: 'Barapido', value: 'Barapido' },
+            { title: 'Fetch', value: 'Fetch' },
             { title: 'Mary Kay', value: 'MaryKay', disabled: true },
             { title: 'My Natural', value: 'MyNatural', disabled: true }
         ],
