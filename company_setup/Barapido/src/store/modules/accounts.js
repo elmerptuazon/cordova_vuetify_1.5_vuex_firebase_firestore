@@ -142,8 +142,8 @@ const accounts = {
 							created: Date.now(),
 							updated: Date.now(),
 							opened: {
-								[payload.uid]: false,
-								[rootState.webAdminId]: false
+								[payload.uid]: true,
+								[rootState.webAdminId]: true
 							},
 							users: [payload.uid, rootState.webAdminId]
 						});
