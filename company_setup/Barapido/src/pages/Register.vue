@@ -1,141 +1,359 @@
 <template>
   <v-container fluid grid-list-md class="pa-4">
-    <v-form v-model="valid" ref="form" lazy-validation @submit.prevent="submit">
+    <v-stepper v-model="frame">
+      <v-stepper-header>
+        <v-stepper-step :complete="frame > 1" step="1">Personal Information</v-stepper-step>
+        <v-divider></v-divider>
+
+        <v-stepper-step :complete="frame > 2" step="2">Home Address</v-stepper-step>
+        <v-divider></v-divider>
+
+        <v-stepper-step :complete="frame > 3" step="3">Account Details</v-stepper-step>
+        <v-divider></v-divider>
+
+        <v-stepper-step step="4">Upload Profile Pic and Proof of ID</v-stepper-step>
+      </v-stepper-header>
+
+      <v-stepper-items>
+        <v-stepper-content step="1">
+          <v-form v-model="valid" ref="form1" lazy-validation @submit.prevent="proceed(1)">
+            <v-layout row wrap>
+              <v-flex xs12>
+                <div class="font-weight-bold text-center">Personal Information</div>
+              </v-flex>
+              <v-flex xs12>
+                <v-select
+                  :rules="basicRules"
+                  append-icon="person_outline"
+                  required
+                  :items="['Customer', 'Reseller']"
+                  label="I am a..."
+                  v-model="registerData.type"
+                  single-line
+                  menu-props="bottom"
+                ></v-select>
+              </v-flex>
+              <v-flex xs12>
+                <v-text-field
+                  :rules="basicRules"
+                  required
+                  label="First Name*"
+                  v-model="registerData.firstName"
+                ></v-text-field>
+              </v-flex>
+              <v-flex xs12>
+                <v-text-field
+                  :rules="basicRules"
+                  required
+                  label="Middle Name*"
+                  v-model="registerData.middleInitial"
+                ></v-text-field>
+              </v-flex>
+              <v-flex xs12>
+                <v-text-field
+                  :rules="basicRules"
+                  required
+                  label="Last Name*"
+                  v-model="registerData.lastName"
+                ></v-text-field>
+              </v-flex>
+              <v-flex xs12>
+                <v-text-field
+                  label="Birthday*"
+                  append-icon="date_range"
+                  required
+                  :rules="basicRules"
+                  @focus="openCalendar"
+                  v-model="registerData.birthday"
+                ></v-text-field>
+              </v-flex>
+              <v-flex xs12>
+                <v-radio-group
+                  :rules="basicRules"
+                  required
+                  v-model="registerData.gender"
+                  row
+                >
+                  <v-radio label="Male" value="Male" color="primary"></v-radio>
+                  <v-radio label="Female" value="Female" color="primary"></v-radio>
+                </v-radio-group>
+              </v-flex>
+            </v-layout>
+            <v-spacer/>
+            <v-btn text >CANCEL</v-btn>
+            <v-btn 
+              type="submit" 
+              color="primary"
+            >
+                Proceed
+                <v-icon right>arrow_forward</v-icon>
+            </v-btn>
+          </v-form>
+        </v-stepper-content>
+
+        <v-stepper-content step="2">
+          <v-form v-model="valid" ref="form2" lazy-validation @submit.prevent="proceed(2)">
+            <v-layout row wrap>
+              <v-flex xs12>
+                <div class="font-weight-bold text-center">Home Address</div>
+              </v-flex>
+              <v-flex xs12>
+                <v-text-field
+                  label="House Number"
+                  v-model="registerData.address.house"
+                ></v-text-field>
+              </v-flex>
+              <v-flex xs12>
+                <v-text-field
+                  :rules="basicRules"
+                  label="Street Name*"
+                  v-model="registerData.address.streetName"
+                ></v-text-field>
+              </v-flex>
+              <v-flex xs12>
+                <v-autocomplete
+                  :rules="basicRules"
+                  :items="provinces"
+                  item-value="name"
+                  label="Province*"
+                  item-text="name"
+                  v-model="registerData.address.province"
+                ></v-autocomplete>
+              </v-flex>
+              <v-flex xs12>
+                <v-autocomplete
+                  :rules="basicRules"
+                  v-if="registerData.address.province"
+                  item-value="name"
+                  :items="cities"
+                  label="City/Municipality*"
+                  item-text="name"
+                  v-model="registerData.address.citymun"
+                ></v-autocomplete>
+              </v-flex>
+              <v-flex xs12>
+                <v-text-field
+                  :rules="basicRules"
+                  v-if="registerData.address.citymun"
+                  label="Barangay*"
+                  v-model="registerData.address.barangay"
+                ></v-text-field>
+              </v-flex>
+              <v-flex xs12>
+                <v-text-field
+                  :rules="basicRules"
+                  required
+                  label="Zip Code*"
+                  v-model="registerData.address.zipCode"
+                ></v-text-field>
+              </v-flex>
+            </v-layout>
+            <v-spacer/>
+            <v-btn text @click="frame -= 1">BACK</v-btn>
+            <v-btn type="submit" color="primary">Proceed<v-icon right>arrow_forward</v-icon></v-btn>
+          </v-form>
+        </v-stepper-content>
+
+        <v-stepper-content step="3">
+          <v-form v-model="valid" ref="form3" lazy-validation @submit.prevent="submitInfo">
+            <v-layout row wrap>
+              <v-flex xs12>
+                <div class="font-weight-bold text-center">Account Details</div>
+              </v-flex>
+              <v-flex xs12>
+                <v-text-field
+                  :rules="basicRules"
+                  label="Facebook URL/Username*"
+                  required
+                  v-model="registerData.social.facebook"
+                ></v-text-field>
+              </v-flex>
+              <v-flex xs12>
+                <v-text-field
+                  :rules="mobileRules"
+                  type="number"
+                  append-icon="contact_phone"
+                  required
+                  label="Mobile number*"
+                  v-model="registerData.contact"
+                ></v-text-field>
+              </v-flex>
+              <v-flex xs12>
+                <v-text-field
+                  :rules="emailRules"
+                  append-icon="email"
+                  label="Email address*"
+                  v-model="registerData.email"
+                ></v-text-field>
+              </v-flex>
+              <v-flex xs12>
+                <v-text-field
+                  :rules="passwordRules"
+                  append-icon="lock_outline"
+                  required
+                  label="Password*"
+                  type="password"
+                  v-model="registerData.password"
+                ></v-text-field>
+              </v-flex>
+              <v-flex xs12>
+                <v-text-field
+                  :rules="passwordRules"
+                  append-icon="lock_outline"
+                  required
+                  label="Confirm password*"
+                  type="password"
+                  v-model="registerData.confirmPassword"
+                ></v-text-field>
+              </v-flex>
+            </v-layout>
+            <v-spacer/>
+            <v-btn text @click="frame -= 1">BACK</v-btn>
+            <v-btn 
+              type="submit" 
+              color="primary" 
+              :disabled="submitBtnDisabled" 
+              :loading="submitBtnDisabled"
+            > 
+              Proceed
+              <v-icon right>arrow_forward</v-icon>
+            </v-btn>
+          </v-form>
+        </v-stepper-content>
+
+        <v-stepper-content step="4">
+          <div class="px-4 mt-4">
+            <v-flex xs12>
+              <div v-if="registerData.type == 'Reseller'" class="font-weight-bold text-center">Upload Profile Pic and Proof of ID</div>
+              <div v-else class="font-weight-bold text-center">Upload Profile Pic</div>
+            </v-flex>
+            <div class="text-xs-center" v-if="registerData.displayPicture">
+              <v-img
+                :src="registerData.displayPicture"
+                alt="display_picture"
+              ></v-img>
+            </div>
+            <v-bottom-sheet full-width v-model="sheet">
+              <v-btn
+                color="grey darken-1"
+                dark
+                depressed
+                block
+                large
+                slot="activator"
+                type="button"
+              >
+                <div v-if="!registerData.displayPicture">Add Profile Picture</div>
+                <div v-else>Change Profile Picture</div>
+              </v-btn>
+              <v-list>
+                <v-subheader>Add using</v-subheader>
+                <v-list-tile @click="takePicture('camera')">
+                  <v-list-tile-avatar>
+                    <v-icon>camera_alt</v-icon>
+                  </v-list-tile-avatar>
+                  <v-list-tile-title>Camera</v-list-tile-title>
+                </v-list-tile>
+                <v-list-tile @click="takePicture('photo_library')">
+                  <v-list-tile-avatar>
+                    <v-icon>photo_library</v-icon>
+                  </v-list-tile-avatar>
+                  <v-list-tile-title>Gallery</v-list-tile-title>
+                </v-list-tile>
+              </v-list>
+            </v-bottom-sheet>
+            <v-btn
+              flat
+              color="grey darken-1"
+              dark
+              v-show="registerData.displayPicture"
+              despressed
+              block
+              @click="registerData.displayPicture = null"
+              >Remove Profile Picture</v-btn
+            >
+
+            <div v-if="registerData.type == 'Reseller'">
+              <div class="text-xs-center" v-if="registerData.proofOfId">
+                <v-img :src="registerData.proofOfId" alt="proof_picture"></v-img>
+              </div>
+              <v-bottom-sheet full-width v-model="proofPictureSheet">
+                <v-btn
+                  color="grey darken-1"
+                  dark
+                  depressed
+                  block
+                  large
+                  slot="activator"
+                >
+                  <div v-if="!registerData.proofOfId">Add Proof of ID</div>
+                  <div v-else>Change Proof of ID</div>
+                </v-btn>
+                <v-list>
+                  <v-subheader>Add using</v-subheader>
+                  <v-list-tile @click="takeProofPicture('camera')">
+                    <v-list-tile-avatar>
+                      <v-icon>camera_alt</v-icon>
+                    </v-list-tile-avatar>
+                    <v-list-tile-title>Camera</v-list-tile-title>
+                  </v-list-tile>
+                  <v-list-tile @click="takeProofPicture('photo_library')">
+                    <v-list-tile-avatar>
+                      <v-icon>photo_library</v-icon>
+                    </v-list-tile-avatar>
+                    <v-list-tile-title>Gallery</v-list-tile-title>
+                  </v-list-tile>
+                </v-list>
+              </v-bottom-sheet>
+              <v-btn
+                color="grey darken-1"
+                dark
+                flat
+                v-show="registerData.proofOfId"
+                despressed
+                block
+                @click="!registerData.proofOfId"
+                >Remove Proof of ID</v-btn
+              >
+            </div>
+            <br />
+            <v-flex xs12>
+              <v-checkbox v-model="agree" color="primary">
+                <div slot="label">
+                  I accept the
+                  <a
+                    @click.stop="$refs.TermsAndConditionsDialog.show"
+                    class="blue--text text--darken-2"
+                    ><strong>Terms</strong></a
+                  >
+                  and
+                  <a
+                    @click.stop="$refs.DataPolicy.show"
+                    class="blue--text text--darken-2"
+                    ><strong>Data Privacy Policies</strong></a
+                  >
+                </div>
+              </v-checkbox>
+            </v-flex>
+          </div>
+          <v-spacer></v-spacer>
+          <v-btn text @click="frame -= 1">BACK</v-btn>
+          <v-btn 
+            color="primary"
+            @click="submitPhotoId" 
+            :disabled="submitBtnDisabled" 
+            :loading="submitBtnDisabled"
+          >
+            SUBMIT
+            <v-icon>done_all</v-icon>
+          </v-btn>
+        </v-stepper-content>
+      </v-stepper-items>
+    </v-stepper>
+    
+    <!-- <v-form v-model="valid" ref="form" lazy-validation @submit.prevent="submit">
       <v-layout row wrap>
         <v-flex xs12>
-          <v-select
-            :rules="basicRules"
-            append-icon="person_outline"
-            required
-            :items="['Customer', 'Reseller']"
-            label="I am a..."
-            v-model="registerData.type"
-            single-line
-            menu-props="bottom"
-          ></v-select>
-        </v-flex>
-        <v-flex xs12>
-          <v-text-field
-            :rules="basicRules"
-            required
-            label="First Name*"
-            v-model="registerData.firstName"
-          ></v-text-field>
-        </v-flex>
-        <v-flex xs12>
-          <v-text-field
-            :rules="basicRules"
-            required
-            label="Middle Name*"
-            v-model="registerData.middleInitial"
-          ></v-text-field>
-        </v-flex>
-        <v-flex xs12>
-          <v-text-field
-            :rules="basicRules"
-            required
-            label="Last Name*"
-            v-model="registerData.lastName"
-          ></v-text-field>
-        </v-flex>
-        <v-flex xs12>
-          <v-text-field
-            label="Birthday*"
-            append-icon="date_range"
-            required
-            :rules="basicRules"
-            @focus="openCalendar"
-            v-model="registerData.birthday"
-          ></v-text-field>
-        </v-flex>
-        <v-flex xs12>
-          <v-radio-group
-            :rules="basicRules"
-            required
-            v-model="registerData.gender"
-            row
-          >
-            <v-radio label="Male" value="Male" color="primary"></v-radio>
-            <v-radio label="Female" value="Female" color="primary"></v-radio>
-          </v-radio-group>
-        </v-flex>
-        <v-flex xs12>
-          <v-text-field
-            :rules="emailRules"
-            append-icon="email"
-            label="Email address*"
-            v-model="registerData.email"
-          ></v-text-field>
-        </v-flex>
-        <v-flex xs12>
-          <v-text-field
-            :rules="mobileRules"
-            type="number"
-            append-icon="contact_phone"
-            required
-            label="Mobile number*"
-            v-model="registerData.contact"
-          ></v-text-field>
-        </v-flex>
-        <v-flex xs12>
-          <v-text-field
-            label="House Number"
-            v-model="registerData.address.house"
-          ></v-text-field>
-        </v-flex>
-        <v-flex xs12>
-          <v-text-field
-            :rules="basicRules"
-            label="Street Name*"
-            v-model="registerData.address.streetName"
-          ></v-text-field>
-        </v-flex>
-        <v-flex xs12>
-          <v-autocomplete
-            :rules="basicRules"
-            :items="provinces"
-            item-value="name"
-            label="Province*"
-            item-text="name"
-            v-model="registerData.address.province"
-          ></v-autocomplete>
-        </v-flex>
-        <v-flex xs12>
-          <v-autocomplete
-            :rules="basicRules"
-            v-if="registerData.address.province"
-            item-value="name"
-            :items="cities"
-            label="City/Municipality*"
-            item-text="name"
-            v-model="registerData.address.citymun"
-          ></v-autocomplete>
-        </v-flex>
-        <v-flex xs12>
-          <v-text-field
-            :rules="basicRules"
-            v-if="registerData.address.citymun"
-            label="Barangay*"
-            v-model="registerData.address.barangay"
-          ></v-text-field>
-        </v-flex>
-        <v-flex xs12>
-          <v-text-field
-            :rules="basicRules"
-            required
-            label="Zip Code*"
-            v-model="registerData.address.zipCode"
-          ></v-text-field>
-        </v-flex>
-        <v-flex xs12>
-          <v-text-field
-            :rules="basicRules"
-            label="Facebook URL/Username*"
-            required
-            v-model="registerData.social.facebook"
-          ></v-text-field>
-        </v-flex>
-        <!--<v-flex xs12>
 					<v-text-field label="Instagram URL/Username" v-model="registerData.social.instagram"></v-text-field>
 				</v-flex>
 				<v-flex xs12>
@@ -143,138 +361,9 @@
 				</v-flex>
 				 <v-flex xs12 v-if="registerData.type == 'Reseller'">
 					<v-text-field :rules="basicRules" required label="Tax Identification Number" v-model="registerData.tin"></v-text-field>
-				</v-flex> -->
-        <v-flex xs12>
-          <v-text-field
-            :rules="passwordRules"
-            append-icon="lock_outline"
-            required
-            label="Password*"
-            type="password"
-            v-model="registerData.password"
-          ></v-text-field>
-        </v-flex>
-        <v-flex xs12>
-          <v-text-field
-            :rules="passwordRules"
-            append-icon="lock_outline"
-            required
-            label="Confirm password*"
-            type="password"
-            v-model="registerData.confirmPassword"
-          ></v-text-field>
-        </v-flex>
+				</v-flex>
       </v-layout>
 
-      <div class="px-4 mt-4">
-        <div class="text-xs-center" v-if="registerData.displayPicture">
-          <v-img
-            :src="registerData.displayPicture"
-            alt="display_picture"
-          ></v-img>
-        </div>
-        <v-bottom-sheet full-width v-model="sheet">
-          <v-btn
-            color="grey darken-1"
-            dark
-            depressed
-            block
-            large
-            slot="activator"
-            type="button"
-          >
-            <div v-if="!registerData.displayPicture">Add Profile Picture</div>
-            <div v-else>Change Profile Picture</div>
-          </v-btn>
-          <v-list>
-            <v-subheader>Add using</v-subheader>
-            <v-list-tile @click="takePicture('camera')">
-              <v-list-tile-avatar>
-                <v-icon>camera_alt</v-icon>
-              </v-list-tile-avatar>
-              <v-list-tile-title>Camera</v-list-tile-title>
-            </v-list-tile>
-            <v-list-tile @click="takePicture('photo_library')">
-              <v-list-tile-avatar>
-                <v-icon>photo_library</v-icon>
-              </v-list-tile-avatar>
-              <v-list-tile-title>Gallery</v-list-tile-title>
-            </v-list-tile>
-          </v-list>
-        </v-bottom-sheet>
-        <v-btn
-          flat
-          color="grey darken-1"
-          dark
-          v-show="registerData.displayPicture"
-          despressed
-          block
-          @click="registerData.displayPicture = null"
-          >Remove Profile Picture</v-btn
-        >
-
-        <div v-if="registerData.type == 'Reseller'">
-          <div class="text-xs-center" v-if="registerData.proofOfId">
-            <v-img :src="registerData.proofOfId" alt="proof_picture"></v-img>
-          </div>
-          <v-bottom-sheet full-width v-model="proofPictureSheet">
-            <v-btn
-              color="grey darken-1"
-              dark
-              depressed
-              block
-              large
-              slot="activator"
-            >
-              <div v-if="!registerData.proofOfId">Add Proof of ID</div>
-              <div v-else>Change Proof of ID</div>
-            </v-btn>
-            <v-list>
-              <v-subheader>Add using</v-subheader>
-              <v-list-tile @click="takeProofPicture('camera')">
-                <v-list-tile-avatar>
-                  <v-icon>camera_alt</v-icon>
-                </v-list-tile-avatar>
-                <v-list-tile-title>Camera</v-list-tile-title>
-              </v-list-tile>
-              <v-list-tile @click="takeProofPicture('photo_library')">
-                <v-list-tile-avatar>
-                  <v-icon>photo_library</v-icon>
-                </v-list-tile-avatar>
-                <v-list-tile-title>Gallery</v-list-tile-title>
-              </v-list-tile>
-            </v-list>
-          </v-bottom-sheet>
-          <v-btn
-            color="grey darken-1"
-            dark
-            flat
-            v-show="registerData.proofOfId"
-            despressed
-            block
-            @click="!registerData.proofOfId"
-            >Remove Proof of ID</v-btn
-          >
-        </div>
-        <br />
-        <v-flex xs12>
-          <v-checkbox v-model="agree" color="primary">
-            <div slot="label">
-              I accept the
-              <a
-                @click.stop="$refs.TermsAndConditionsDialog.show"
-                class="blue--text text--darken-2"
-                ><strong>Terms</strong></a
-              >
-              and
-              <a
-                @click.stop="$refs.DataPolicy.show"
-                class="blue--text text--darken-2"
-                ><strong>Data Privacy Policies</strong></a
-              >
-            </div>
-          </v-checkbox>
-        </v-flex>
         <v-btn
           :disabled="submitBtnDisabled"
           :loading="submitBtnDisabled"
@@ -287,7 +376,8 @@
           <v-icon left>check</v-icon> Submit
         </v-btn>
       </div>
-    </v-form>
+    </v-form> -->
+
     <Dialog />
     <TrialMessage ref="trial" />
     <Modal ref="modal" />
@@ -317,6 +407,7 @@ export default {
     sheet: false,
     proofPictureSheet: false,
     valid: true,
+    frame: 1,
 
     registerData: {
       type: null,
@@ -357,6 +448,121 @@ export default {
     this.enableBack();
   },
   methods: {
+    proceed(currentFrame) {
+      if(!this.$refs.form1.validate() && currentFrame === 1) {
+        this.$refs.modal.show(
+          "Sorry", 
+          "One or more mandatory fields are required"
+        );
+        return;
+      }
+
+      if(!this.$refs.form2.validate() && currentFrame === 2) {
+        this.$refs.modal.show(
+          "Sorry", 
+          "One or more mandatory fields are required"
+        );
+        return;
+      }
+
+      this.frame++;
+    },
+    async submitInfo() {
+      if (!this.$refs.form3.validate()) {
+        this.$refs.modal.show(
+          "Sorry",
+          "One or more mandatory fields are required"
+        );
+        return;
+      }
+
+      if (this.registerData.password != this.registerData.confirmPassword) {
+        this.$refs.modal.show("Sorry", "Passwords does not match.");
+        return;
+      }
+
+      this.submitBtnDisabled = true;
+      this.disableBack();
+
+      const registerData = JSON.parse(JSON.stringify(this.registerData));
+      registerData.createdAt = Date.now();
+
+      registerData.firstName = this.capitalizeFirstLetter(
+        registerData.firstName
+      );
+      registerData.lastName = this.capitalizeFirstLetter(registerData.lastName);
+      registerData.middleInitial = this.capitalizeFirstLetter(
+        registerData.middleInitial
+      );
+
+      if (registerData.email) {
+        try {
+          const response = await this.$store.dispatch(
+            "accounts/CREATE_ACCOUNT",
+            registerData
+          );
+          // this.startObserversAndProceed(registerData, response);
+          this.enableBack();
+          this.submitBtnDisabled = false;
+          this.frame++;
+          
+        } catch (error) {
+          console.log(error);
+          if (error.code === "auth/email-already-in-use") {
+            if (registerData.isEmailAutogenerated) {
+              this.submitInfo();
+              return;
+            }
+
+            this.$refs.modal.show("Sorry", error.message);
+          } else if (error.code === "auth/weak-password") {
+            this.$refs.modal.show("Sorry", error.message);
+          } else if (
+            error.code === "contact-already-in-use" ||
+            error.code === "agentId-already-in-use"
+          ) {
+            this.$refs.modal.show("Sorry", error.message);
+          } else {
+            this.$refs.modal.show("Sorry", "An error occurred");
+          }
+
+          this.submitBtnDisabled = false;
+          this.enableBack();
+        }
+      } else {
+        this.$refs.modal.show("Sorry", "Phone Auth is yet to be created");
+        this.submitBtnDisabled = false;
+        this.enableBack();
+        return;
+      }
+    },
+    async submitPhotoId() {
+      if (
+        this.registerData.type === "Reseller" &&
+        !this.registerData.proofOfId
+      ) {
+        this.$refs.modal.show("Sorry", "Proof of ID is required.");
+        return;
+      }
+
+      if (!this.agree) {
+        this.$refs.modal.show(
+          "Sorry",
+          "You must accept our terms and conditions."
+        );
+        return;
+      }
+
+      this.submitBtnDisabled = true;
+      await this.$store.dispatch("accounts/UPDATE_PROFILE_PHOTO", this.registerData.displayPicture);
+      
+      if(registerData.type === "Reseller") {
+        await this.$store.dispatch("accounts/UPDATE_PROOF_OF_ID", this.registerData.proofOfId);
+      }
+      
+      this.submitBtnDisabled = false;
+      this.startObserversAndProceed(registerData, response);
+    },
     async submit() {
       if (!this.$refs.form.validate()) {
         this.$refs.modal.show(
@@ -401,6 +607,8 @@ export default {
         registerData.middleInitial
       );
 
+      registerData.displayPicture = null;
+      registerData.proofOfId = null;
       // if (!registerData.email) {
       //   const randomString = Math.random()
       //     .toString(36)
@@ -418,14 +626,16 @@ export default {
             "accounts/CREATE_ACCOUNT",
             registerData
           );
-          this.startObserversAndProceed(registerData, response);
+          // this.startObserversAndProceed(registerData, response);
           this.enableBack();
-          this.submitBtnDisabled = true;
+          this.submitBtnDisabled = false;
+          this.frame++;
+
         } catch (error) {
           console.log(error);
           if (error.code === "auth/email-already-in-use") {
             if (registerData.isEmailAutogenerated) {
-              this.submit();
+              this.submitInfo();
               return;
             }
 
@@ -439,6 +649,7 @@ export default {
             this.$refs.modal.show("Sorry", error.message);
           } else {
             this.$refs.modal.show("Sorry", "An error occurred");
+            console.log(error.message);
           }
 
           this.submitBtnDisabled = false;
@@ -446,6 +657,8 @@ export default {
         }
       } else {
         this.$refs.modal.show("Sorry", "Phone Auth is yet to be created");
+        this.enableBack();
+        this.submitBtnDisabled = false;
         return;
       }
     },
