@@ -421,6 +421,10 @@ const accounts = {
 				if (userData.status && !state.approvalSubscriber && userData.status === 'pending') {
 					dispatch('LISTEN_TO_APPROVAL');
 				}
+			} else {
+				if (state.settings.newMessages) {
+					dispatch('conversations/LISTEN_TO_MESSAGES', null, { root: true });
+				}
 			}
 
 			if (state.settings.deliverySchedules) {
