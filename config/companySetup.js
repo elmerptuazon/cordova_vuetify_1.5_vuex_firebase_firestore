@@ -14,7 +14,7 @@ const prompts = require('prompts');
 // process.argv.forEach(function (val, index, array) {
 //     console.log(index + ': ' + val);
 // });
-// console.log();
+// console.log();Aquitek
 //update the sources depending on the company
 
 async function copyCompanySetUp() {
@@ -27,6 +27,7 @@ async function copyCompanySetUp() {
             { title: 'Ever Bilena', value: 'EverBilena' },
             { title: 'Barapido', value: 'Barapido' },
             { title: 'Fetch', value: 'Fetch' },
+            { title: 'Aquitek', value: 'Aquitek' },
             { title: 'Mary Kay', value: 'MaryKay', disabled: true },
             { title: 'My Natural', value: 'MyNatural', disabled: true }
         ],
