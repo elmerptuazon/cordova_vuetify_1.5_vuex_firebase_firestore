@@ -105,19 +105,21 @@ const accounts = {
 
 				await user.sendEmailVerification();
 
-				if (payload.displayPicture) {
-					const profPicSnapshot = await profPicStorageRef.child(response.user.uid).putString(payload.displayPicture, 'data_url');
-					delete payload.displayPicture;
-					const downloadURL = await profPicSnapshot.ref.getDownloadURL();
-					payload.hasPicture = true;
-					payload.downloadURL = downloadURL;
-				} else {
-					payload.hasPicture = false;
-				}
+				// if (payload.displayPicture) {
+				// 	const profPicSnapshot = await profPicStorageRef.child(response.user.uid).putString(payload.displayPicture, 'data_url');
+				// 	delete payload.displayPicture;
+				// 	const downloadURL = await profPicSnapshot.ref.getDownloadURL();
+				// 	payload.hasPicture = true;
+				// 	payload.downloadURL = downloadURL;
+				// } else {
+				// 	payload.hasPicture = false;
+				// }
 
 				if (payload.type === 'Reseller') {
-					const proofOfIdSnapshot = await profPicStorageRef.child(`proof_${response.user.uid}`).putString(payload.proofOfId, 'data_url');
-					payload.proofOfId = await proofOfIdSnapshot.ref.getDownloadURL();
+					// if(payload.proofOfId) {
+					// 	const proofOfIdSnapshot = await profPicStorageRef.child(`proof_${response.user.uid}`).putString(payload.proofOfId, 'data_url');
+					// 	payload.proofOfId = await proofOfIdSnapshot.ref.getDownloadURL();
+					// }
 
 					payload.customers = [];
 					payload.status = 'pending';
@@ -125,16 +127,16 @@ const accounts = {
 
 				await COLLECTION.accounts.doc(response.user.uid).set(payload);
 				payload.uid = response.user.uid;
-				const src = payload.gender === 'Male' ? malePlaceholder : femalePlaceholder;
+				// const src = payload.gender === 'Male' ? malePlaceholder : femalePlaceholder;
 
-				payload.imageObj = {
-					src,
-					loading: loader
-				}
+				// payload.imageObj = {
+				// 	src,
+				// 	loading: loader
+				// }
 
-				if (payload.hasPicture) {
-					payload.imageObj.src = payload.downloadURL;
-				}
+				// if (payload.hasPicture) {
+				// 	payload.imageObj.src = payload.downloadURL;
+				// }
 
 				if (payload.type === 'Reseller') {
 					try {
@@ -164,6 +166,50 @@ const accounts = {
 			} catch (error) {
 				throw error;
 			}
+		},
+
+		async UPLOAD_PROFILE_PHOTO({ commit }, payload) {
+			try {
+				if (payload.displayPicture) {
+					const profPicSnapshot = await profPicStorageRef.child(payload.uid).putString(payload.displayPicture, 'data_url');
+					delete payload.displayPicture;
+					const downloadURL = await profPicSnapshot.ref.getDownloadURL();
+					payload.hasPicture = true;
+					payload.downloadURL = downloadURL;
+				} else {
+					payload.hasPicture = false;
+				}
+	
+				const src = payload.gender === 'Male' ? malePlaceholder : femalePlaceholder;
+				payload.imageObj = {
+					src,
+					loading: loader
+				}
+	
+				if (payload.hasPicture) {
+					payload.imageObj.src = payload.downloadURL;
+				}
+
+				return payload;
+			}
+			catch(error) {
+				throw error;
+			}	
+		},
+
+		async UPLOAD_PROOF_OF_ID({ commit }, payload) {
+			try {
+				if(payload.type === 'Reseller' && payload.proofOfId) {
+					const proofOfIdSnapshot = await profPicStorageRef.child(`proof_${payload.uid}`).putString(payload.proofOfId, 'data_url');
+					payload.proofOfId = await proofOfIdSnapshot.ref.getDownloadURL();
+				}
+
+				return payload;
+			}
+			catch(error) {
+				throw error;
+			}
+			
 		},
 
 		async FIND_RESELLER({ commit }, payload) {
