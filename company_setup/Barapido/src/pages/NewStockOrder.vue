@@ -161,11 +161,25 @@
             </v-avatar>
             <div class="title mt-4">{{ selectedProduct.name }}</div>
           </div>
-          <v-text-field
-            type="number"
-            v-model.number="selectedProduct.qty"
-            label="Quantity"
-          ></v-text-field>
+          <v-layout row align-center justify-center>
+            <v-flex xs6>
+              <v-text-field
+              type="number"
+              v-model.number="selectedProduct.qty"
+              label="Quantity"
+            ></v-text-field>
+            </v-flex>
+            <v-flex xs2>
+                <v-btn color="primary" icon :disabled="selectedProduct.qty <= 0" @click="selectedProduct.qty -= 1">
+                  <v-icon>remove</v-icon>
+                </v-btn>
+            </v-flex>
+            <v-flex xs2>
+                <v-btn color="primary" icon @click="selectedProduct.qty += 1">
+                  <v-icon>add</v-icon>
+                </v-btn>
+            </v-flex>
+          </v-layout>
         </v-card-text>
         <v-card-actions>
           <v-btn
