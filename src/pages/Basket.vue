@@ -119,8 +119,27 @@
 						<v-container fluid>
 							<v-layout row wrap v-if="!selected.product.attributes">
 								<v-flex xs12>
-									<v-select :items="[1, 2, 3, 4, 5, 6, 7]" required
-									:rules="basicRules" label="Quantity" v-model="attribute.qty" single-line bottom></v-select>
+									<v-layout row align-center justify-center>
+										<v-flex xs8>
+											<v-text-field
+												:rules="numberRules"
+												v-model="attribute.qty"
+												label="Quantity"
+											></v-text-field>
+										</v-flex>
+
+										<v-flex xs2>
+											<v-btn color="primary" icon :disabled="attribute.qty <= 0" @click="attribute.qty -= 1">
+												<v-icon>remove</v-icon>
+											</v-btn>
+										</v-flex>
+
+										<v-flex xs2>
+											<v-btn color="primary" icon @click="attribute.qty += 1">
+												<v-icon>add</v-icon>
+											</v-btn>
+										</v-flex>
+									</v-layout>
 								</v-flex>
 								<v-flex xs12>
 									<v-select :items="['50ml', '100ml', '150ml', '200ml']" required
@@ -147,6 +166,30 @@
 							</v-flex>
 						</v-layout>
 						<v-layout row wrap v-else>
+							<v-flex xs12>
+								<v-layout row>
+									<v-flex xs8>
+										<v-text-field
+											:rules="numberRules"
+											v-model="attribute.qty"
+											label="Quantity"
+										></v-text-field>
+									</v-flex>
+
+									<v-flex xs2>
+										<v-btn color="primary" icon :disabled="attribute.qty <= 0" @click="attribute.qty -= 1">
+											<v-icon>remove</v-icon>
+										</v-btn>
+									</v-flex>
+
+									<v-flex xs2>
+										<v-btn color="primary" icon @click="attribute.qty += 1">
+											<v-icon>add</v-icon>
+										</v-btn>
+									</v-flex>
+								</v-layout>
+							</v-flex>
+							
 							<v-flex xs12 v-for="(a, index) in selected.product.attributes" :key="index">
 								<v-select
 								v-if="a.name == 'Color'"
@@ -275,7 +318,8 @@ export default {
 				this.selected.product.attributes.forEach((attrib) => {
 					const attribName = attrib.name.toLowerCase();
 					if (attribName === 'quantity') {
-						this.attribute['quantity'] = +item.attribute['qty'];
+						//this.attribute['quantity'] = +item.attribute['qty'];
+						this.attribute.qty = null;
 					} else {
 						this.attribute[attribName] = item.attribute[attribName];
 					}
