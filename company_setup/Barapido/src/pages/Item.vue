@@ -219,29 +219,31 @@
         <v-card-text class="pa-0">
           <v-container fluid>
             <v-form v-model="valid" ref="form" lazy-validation>
-              <!--	<v-layout row wrap v-if="!product.attributes">
+              	<v-layout row wrap v-if="!product.attributes" mt-3>
 									<v-flex xs12>
-										<v-select
-										v-if="selectedButton === 'Inventory'"
-										:items="[1, 2, 3, 4, 5, 6, 7]"
-										label="Quantity"
-										v-model="attribute.qty"
-										single-line
-										menu-props="bottom"
-										v-show="false"
-										></v-select>
-										<v-select
-										v-else
-										:items="[1, 2, 3, 4, 5, 6, 7]"
-										required
-										:rules="basicRules"
-										label="Quantity"
-										v-model="attribute.qty"
-										single-line
-										menu-props="bottom"
-										></v-select>
+										<v-layout row wrap align-center justify-start>
+                      <v-flex xs8>
+                        <v-text-field
+                          :rules="numberRules"
+                          v-model="attribute.quantity"
+                          label="Quantity"
+                        ></v-text-field>
+                      </v-flex>
+
+                      <v-flex xs2 pa-2>
+                        <v-btn color="primary" icon :disabled="attribute.quantity <= 0" @click="attribute.quantity -= 1">
+                          <v-icon>remove</v-icon>
+                        </v-btn>
+                      </v-flex>
+
+                      <v-flex xs2 pa-2>
+                        <v-btn color="primary" icon @click="attribute.quantity += 1">
+                          <v-icon>add</v-icon>
+                        </v-btn>
+                      </v-flex>
+                    </v-layout>
 									</v-flex>
-									<v-flex xs12>
+									<!-- <v-flex xs12>
 										<v-select :items="['50ml', '100ml', '150ml', '200ml']" required
 										:rules="basicRules" v-model="attribute.size" label="Size" single-line menu-props="bottom"></v-select>
 									</v-flex> 
@@ -263,27 +265,26 @@
 											</v-list-tile-content>
 										</template>
 									</v-select>
-								</v-flex>
-							</v-layout>-->
+								</v-flex> -->
+							</v-layout>
 
-              <v-layout row wrap align-center justify-center>
-                <v-flex xs5>
+              <v-layout v-else row wrap align-center justify-start mt-3>
+                <v-flex xs8>
                   <v-text-field
                     :rules="numberRules"
-                    v-model="orderQTY"
+                    v-model="attribute.quantity"
                     label="Quantity"
-                    @change="quantityCounter('')"
                   ></v-text-field>
                 </v-flex>
 
                 <v-flex xs2 pa-2>
-                  <v-btn color="primary" icon :disabled="orderQTY <= 0" @click="quantityCounter('-')">
+                  <v-btn color="primary" icon :disabled="attribute.quantity <= 0" @click="attribute.quantity -= 1">
                     <v-icon>remove</v-icon>
                   </v-btn>
                 </v-flex>
 
                 <v-flex xs2 pa-2>
-                  <v-btn color="primary" icon @click="quantityCounter('+')">
+                  <v-btn color="primary" icon @click="attribute.quantity += 1">
                     <v-icon>add</v-icon>
                   </v-btn>
                 </v-flex>
@@ -419,7 +420,9 @@ export default {
     hideProductThumbnail: false,
     snackbar: false,
     snackbarMessage: null,
-    attribute: {},
+    attribute: {
+      quantity: 0,
+    },
     addBasketToContactDialog: false,
     basketConfirmationDialogText: "Item Added to cart!",
     basicRules: [v => !!v || "Required"],
@@ -757,13 +760,13 @@ export default {
     }
 
     if (this.product.attributes) {
+      const index = this.product.attributes.findIndex(attrib => attrib.name.toLowerCase() === 'quantity');
+      if(index != -1) this.product.attributes.splice(index, 1);
+      
       this.product.attributes.forEach(attrib => {
         this.attribute[attrib.name.toLowerCase()] = null;
       });
     }
-    
-    const index = this.product.attributes.findIndex(attrib => attrib.name.toLowerCase() === 'quantity');
-    if(index != -1) this.product.attributes.splice(index, 1);
 
     this.cordovaBackButton(this.goBack);
   },
