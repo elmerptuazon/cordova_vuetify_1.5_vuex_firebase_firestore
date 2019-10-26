@@ -3,6 +3,13 @@
     <v-layout row wrap>
       <v-flex
         xs12
+        v-if="!shipmentList.length"
+      >
+        <div class="font-weight-bold mt-3">There are still no receivable shipments...</div>
+      </v-flex>
+      <v-flex
+        xs12
+        v-else
         v-for="shipment in shipmentList"
         :key="shipment.trackingNumber"
       >
