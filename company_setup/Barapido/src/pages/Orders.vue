@@ -96,7 +96,8 @@ export default {
     loader: false,
     tab: "tab1",
     items: [],
-    height: null
+    height: null,
+    loading: false
   }),
   created() {
     if (this.$route.query.hasOwnProperty("tab")) {
