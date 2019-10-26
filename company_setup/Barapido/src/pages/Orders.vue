@@ -153,7 +153,7 @@ export default {
         }
 
         console.log(this.items);
-        this.$refs.OrdersToEverBilena.loading = false;
+        this.$refs["OrdersToEverBilena"].loading = false;
       }
     },
 
