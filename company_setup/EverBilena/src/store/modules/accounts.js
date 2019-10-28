@@ -22,7 +22,7 @@ const accounts = {
 		user: {},
 		userID: "",
 		settings: {
-			newMessages: false,
+			newMessages: true,
 			catalogueUpdates: true,
 			newOrders: true,
 			deliverySchedules: true,
@@ -138,8 +138,8 @@ const accounts = {
 							created: Date.now(),
 							updated: Date.now(),
 							opened: {
-								[payload.uid]: false,
-								[rootState.webAdminId]: false
+								[payload.uid]: true,
+								[rootState.webAdminId]: true
 							},
 							users: [payload.uid, rootState.webAdminId]
 						});
@@ -369,7 +369,7 @@ const accounts = {
 					commit('SET_USER_SETTINGS', opts);
 				} else {
 					const opts = {
-						newMessages: false,
+						newMessages: true,
 						catalogueUpdates: true,
 						newOrders: true,
 						deliverySchedules: true,
@@ -421,9 +421,14 @@ const accounts = {
 		async START_OBSERVERS({ state, dispatch }, userData) {
 			if (userData.type === 'Reseller') {
 				if (state.settings.newOrders) {
-					dispatch('orders/LISTEN_TO_ORDERS', { id: userData.uid }, { root: true });
 
-					dispatch('stock_orders/LISTEN_TO_STOCK_ORDERS', null, { root: true });
+					if (userData.status === 'approved') {
+						dispatch('orders/LISTEN_TO_ORDERS', { id: userData.uid }, { root: true });
+						dispatch('stock_orders/LISTEN_TO_STOCK_ORDERS', null, { root: true });
+
+					}
+				}
+				if (state.settings.newMessages) {
 					if (userData.status === 'approved') {
 						dispatch('conversations/LISTEN_TO_MESSAGES', null, { root: true })
 					}
@@ -431,6 +436,10 @@ const accounts = {
 
 				if (userData.status && !state.approvalSubscriber && userData.status === 'pending') {
 					dispatch('LISTEN_TO_APPROVAL');
+				}
+			} else {
+				if (state.settings.newMessages) {
+					dispatch('conversations/LISTEN_TO_MESSAGES', null, { root: true });
 				}
 			}
 
@@ -654,7 +663,7 @@ const accounts = {
 					commit('SET_USER_SETTINGS', opts)
 				} else {
 					const opts = {
-						newMessages: false,
+						newMessages: true,
 						catalogueUpdates: true,
 						newOrders: true,
 						deliverySchedules: true,
