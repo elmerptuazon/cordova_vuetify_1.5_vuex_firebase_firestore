@@ -149,7 +149,7 @@
       </tbody>
     </table>
 
-    <v-card>
+    <v-card v-if="stockOrder.status === 'shipped' || stockOrder.status === 'partially shipped'">
       <v-card-title class="subheading font-weight-medium"
         >Shipments to Receive</v-card-title
       >
