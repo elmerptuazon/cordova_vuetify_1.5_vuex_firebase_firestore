@@ -420,36 +420,33 @@ const accounts = {
 		},
 		async START_OBSERVERS({ state, dispatch }, userData) {
 			if (userData.type === 'Reseller') {
-				if (state.settings.newOrders) {
-
-					if (userData.status === 'approved') {
+				if (userData.status === 'approved') {
+					if (state.settings.newOrders) {
 						dispatch('orders/LISTEN_TO_ORDERS', { id: userData.uid }, { root: true });
 						dispatch('stock_orders/LISTEN_TO_STOCK_ORDERS', null, { root: true });
-
+					}
+					if (state.settings.catalogueUpdates) {
+						dispatch('catalogues/LISTEN_TO_NEW_CATALOGUES', null, { root: true });
 					}
 				}
-				if (state.settings.newMessages) {
-					if (userData.status === 'approved') {
-						dispatch('conversations/LISTEN_TO_MESSAGES', null, { root: true })
-					}
-				}
-
 				if (userData.status && !state.approvalSubscriber && userData.status === 'pending') {
 					dispatch('LISTEN_TO_APPROVAL');
 				}
-			} else {
-				if (state.settings.newMessages) {
-					dispatch('conversations/LISTEN_TO_MESSAGES', null, { root: true });
+			}
+			else {
+				if (state.settings.catalogueUpdates) {
+					dispatch('catalogues/LISTEN_TO_NEW_CATALOGUES', null, { root: true });
 				}
+			}
+
+			if (state.settings.newMessages) {
+				dispatch('conversations/LISTEN_TO_MESSAGES', null, { root: true });
 			}
 
 			if (state.settings.deliverySchedules) {
 				dispatch('orders/LISTEN_TO_PROPOSED_DELIVERIES', { id: userData.uid }, { root: true });
 			}
 
-			if (state.settings.catalogueUpdates) {
-				dispatch('catalogues/LISTEN_TO_NEW_CATALOGUES', null, { root: true });
-			}
 		},
 		async UPDATE_ACCOUNT({ commit }, payload) {
 			console.log(payload)
@@ -780,14 +777,22 @@ const accounts = {
 			if (state.user.type === 'Reseller') {
 				if (state.settings.newOrders && !rootState.orders.subscriber) {
 					dispatch('orders/LISTEN_TO_ORDERS', { id: user.uid }, { root: true });
+					dispatch('stock_orders/LISTEN_TO_STOCK_ORDERS', null, { root: true });
 				}
 
 				if (!state.settings.newOrders) {
 					dispatch('orders/UNSUBSCRIBE_FROM_ORDERS', true, { root: true });
+					dispatch('stock_orders/UNSUBSCRIBE_FROM_STOCK_ORDERS', null, { root: true });
 				}
 
-				dispatch('conversations/LISTEN_TO_MESSAGES', null, { root: true })
+
 			}
+
+			if (state.settings.newMessages) {
+				dispatch('conversations/LISTEN_TO_MESSAGES', null, { root: true });
+			}
+			//Add unsubscriber here for messages
+
 
 			if (state.settings.deliverySchedules && !rootState.orders.proposed_subscriber) {
 				dispatch('orders/LISTEN_TO_PROPOSED_DELIVERIES', { id: user.uid }, { root: true });
@@ -804,6 +809,7 @@ const accounts = {
 			if (!state.settings.catalogueUpdates && !rootState.catalogues.subscriber) {
 				dispatch('catalogues/UNSUBSCRIBE_FROM_CATALOGUES', null, { root: true });
 			}
+
 
 		},
 
