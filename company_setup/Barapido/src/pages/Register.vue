@@ -352,7 +352,7 @@
 
     <v-dialog v-model="confirmationDialog" persistent>
       <v-card>
-        <v-card-title class="primary white--text headline pb-1">Submit Account Details</v-card-title>
+        <v-card-title class="primary white--text headline pb-1">SUBMIT ACCOUNT DETAILS</v-card-title>
         <v-card-text>
             You are about to submit your account details, are you sure about it? 
             Double-check encoded details if necessary. 
@@ -487,7 +487,7 @@ export default {
     },
     async submitInfo() {
       this.confirmationDialog = false;
-      
+
       if (!this.$refs.form3.validate()) {
         this.$refs.modal.show(
           "Sorry",
@@ -592,7 +592,7 @@ export default {
             return;
         }
       }
-
+      
       try { 
         const response = await this.$store.dispatch("accounts/UPLOAD_PROFILE_PHOTO", this.registerData);
         this.submitBtnDisabled = false;
