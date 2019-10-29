@@ -155,7 +155,7 @@
         </v-stepper-content>
 
         <v-stepper-content step="3">
-          <v-form ref="form3" lazy-validation @submit.prevent="submitInfo">
+          <v-form ref="form3" lazy-validation @submit.prevent="confirmationDialog = true">
             <v-layout row wrap>
               <v-flex xs12>
                 <div class="font-weight-bold text-center">Account Details</div>
@@ -207,7 +207,6 @@
                 ></v-text-field>
               </v-flex>
             </v-layout>
-            <v-spacer/>
             <v-btn text @click="frame -= 1">BACK</v-btn>
             <v-btn 
               type="submit" 
@@ -215,7 +214,7 @@
               :disabled="submitBtnDisabled" 
               :loading="submitBtnDisabled"
             > 
-              Proceed
+              Submit Account Details
               <v-icon right>arrow_forward</v-icon>
             </v-btn>
           </v-form>
@@ -337,9 +336,9 @@
             </v-flex>
           </div>
           <v-spacer></v-spacer>
-          <v-btn text @click="frame -= 1">BACK</v-btn>
           <v-btn 
             color="primary"
+            right
             @click="submitPhotoId" 
             :disabled="submitBtnDisabled" 
             :loading="submitBtnDisabled"
@@ -350,6 +349,21 @@
         </v-stepper-content>
       </v-stepper-items>
     </v-stepper>
+
+    <v-dialog v-model="confirmationDialog" persistent>
+      <v-card>
+        <v-card-title class="primary white--text headline pb-1">Submit Account Details</v-card-title>
+        <v-card-text>
+            You are about to submit your account details, are you sure about it? 
+            Double-check encoded details if necessary. 
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer/>
+          <v-btn outline @click.native="confirmationDialog = false">Cancel</v-btn>
+          <v-btn color="primary" dark depressed @click.native="submitInfo">Submit</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     
     <!-- <v-form v-model="valid" ref="form" lazy-validation @submit.prevent="submit">
       <v-layout row wrap>
@@ -408,6 +422,8 @@ export default {
     proofPictureSheet: false,
     valid: true,
     frame: 1,
+    confirmationDialog: false,
+    confirm: false,
 
     registerData: {
       type: null,
@@ -470,6 +486,8 @@ export default {
       this.frame++;
     },
     async submitInfo() {
+      this.confirmationDialog = false;
+      
       if (!this.$refs.form3.validate()) {
         this.$refs.modal.show(
           "Sorry",
