@@ -189,6 +189,15 @@ const accounts = {
 				if (payload.hasPicture) {
 					payload.imageObj.src = payload.downloadURL;
 				}
+				
+				try {
+					await COLLECTION.accounts.doc(payload.uid).update(payload)
+					commit('UPDATE_USER', payload);
+				}
+				catch(error) {
+					console.log(error);
+					throw error;
+				}
 
 				return payload;
 			}
@@ -202,6 +211,15 @@ const accounts = {
 				if(payload.type === 'Reseller' && payload.proofOfId) {
 					const proofOfIdSnapshot = await profPicStorageRef.child(`proof_${payload.uid}`).putString(payload.proofOfId, 'data_url');
 					payload.proofOfId = await proofOfIdSnapshot.ref.getDownloadURL();
+				}
+
+				try {
+					await COLLECTION.accounts.doc(payload.uid).update(payload)
+					commit('UPDATE_USER', payload);
+				}
+				catch(error) {
+					console.log(error);
+					throw error;
 				}
 
 				return payload;
