@@ -176,8 +176,10 @@ const accounts = {
 					const downloadURL = await profPicSnapshot.ref.getDownloadURL();
 					payload.hasPicture = true;
 					payload.downloadURL = downloadURL;
+
 				} else {
 					payload.hasPicture = false;
+					payload.downloadURL = null;
 				}
 	
 				const src = payload.gender === 'Male' ? malePlaceholder : femalePlaceholder;
@@ -190,22 +192,24 @@ const accounts = {
 					payload.imageObj.src = payload.downloadURL;
 				}
 				
-				try {
-					await COLLECTION.accounts
-					.doc(payload.uid)
-					.update(
-						{
-							downloadURL: payload.downloadURL,
-							hasPicture: payload.hasPicture,
-						}
-					)
-					commit('UPDATE_USER', payload);
+				if(payload.hasPicture) {
+					try {
+						await COLLECTION.accounts
+						.doc(payload.uid)
+						.update(
+							{
+								downloadURL: payload.downloadURL,
+								hasPicture: payload.hasPicture,
+							}
+						)
+						commit('UPDATE_USER', payload);
+					}
+					catch(error) {
+						console.log(error);
+						throw error;
+					}
 				}
-				catch(error) {
-					console.log(error);
-					throw error;
-				}
-
+				
 				return payload;
 			}
 			catch(error) {
