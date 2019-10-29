@@ -78,16 +78,19 @@
                   <v-radio label="Female" value="Female" color="primary"></v-radio>
                 </v-radio-group>
               </v-flex>
+              <v-flex xs12>
+                <v-btn 
+                  type="submit" 
+                  color="primary"
+                  block 
+                  depressed
+                  :disabled="!registerData.gender"
+                >
+                    Proceed
+                    <v-icon right>arrow_forward</v-icon>
+                </v-btn>
+              </v-flex>
             </v-layout>
-            <v-spacer/>
-            <v-btn text >CANCEL</v-btn>
-            <v-btn 
-              type="submit" 
-              color="primary"
-            >
-                Proceed
-                <v-icon right>arrow_forward</v-icon>
-            </v-btn>
           </v-form>
         </v-stepper-content>
 
@@ -149,8 +152,16 @@
               </v-flex>
             </v-layout>
             <v-spacer/>
-            <v-btn text @click="frame -= 1">BACK</v-btn>
-            <v-btn type="submit" color="primary">Proceed<v-icon right>arrow_forward</v-icon></v-btn>
+            <v-btn depressed outline @click="frame -= 1">BACK</v-btn>
+            <v-btn 
+              type="submit" 
+              depressed 
+              color="primary"
+              :disabled="!registerData.address.zipCode"
+            >
+              Proceed
+              <v-icon right>arrow_forward</v-icon>
+            </v-btn>
           </v-form>
         </v-stepper-content>
 
@@ -206,17 +217,22 @@
                   v-model="registerData.confirmPassword"
                 ></v-text-field>
               </v-flex>
+              <v-flex xs12>
+                <v-btn 
+                  type="submit" 
+                  color="primary"
+                  block depressed
+                  :disabled="submitBtnDisabled || !registerData.confirmPassword" 
+                  :loading="submitBtnDisabled"
+                >
+                  Submit Account Details
+                  <v-icon right>arrow_forward</v-icon>
+                </v-btn>
+              </v-flex>
+              <v-flex xs12>
+                <v-btn block depressed outline @click="frame -= 1">BACK</v-btn>
+              </v-flex>
             </v-layout>
-            <v-btn text @click="frame -= 1">BACK</v-btn>
-            <v-btn 
-              type="submit" 
-              color="primary" 
-              :disabled="submitBtnDisabled" 
-              :loading="submitBtnDisabled"
-            > 
-              Submit Account Details
-              <v-icon right>arrow_forward</v-icon>
-            </v-btn>
           </v-form>
         </v-stepper-content>
 
@@ -335,17 +351,18 @@
               </v-checkbox>
             </v-flex>
           </div>
-          <v-spacer></v-spacer>
-          <v-btn 
-            color="primary"
-            right
-            @click="submitPhotoId" 
-            :disabled="submitBtnDisabled" 
-            :loading="submitBtnDisabled"
-          >
-            SUBMIT
-            <v-icon>done_all</v-icon>
-          </v-btn>
+          <div>
+            <v-btn 
+              color="primary"
+              block depressed
+              @click="submitPhotoId" 
+              :disabled="submitBtnDisabled " 
+              :loading="submitBtnDisabled"
+            >
+              SUBMIT
+              <v-icon>done_all</v-icon>
+            </v-btn>
+          </div>
         </v-stepper-content>
       </v-stepper-items>
     </v-stepper>
@@ -359,8 +376,8 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer/>
-          <v-btn outline @click.native="confirmationDialog = false">Cancel</v-btn>
-          <v-btn color="primary" dark depressed @click.native="submitInfo">Submit</v-btn>
+          <v-btn block outline @click.native="confirmationDialog = false">Cancel</v-btn>
+          <v-btn block color="primary" dark depressed @click.native="submitInfo">Submit</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
