@@ -193,17 +193,29 @@
           <v-container fluid>
             <v-layout row wrap v-if="!selected.product.attributes">
               <v-flex xs12>
-                <v-select
-                  :items="[1, 2, 3, 4, 5, 6, 7]"
-                  required
-                  :rules="basicRules"
-                  label="Quantity"
-                  v-model="attribute.qty"
-                  single-line
-                  menu-props="bottom"
-                ></v-select>
-              </v-flex>
-              <v-flex xs12>
+								<v-layout row align-center justify-start>
+                  <v-flex xs8>
+                    <v-text-field
+                      :rules="numberRules"
+                      v-model="attribute.qty"
+                      label="Quantity"
+                    ></v-text-field>
+                  </v-flex>
+
+                  <v-flex xs2 pa-2>
+                    <v-btn color="primary" icon :disabled="attribute.qty <= 0" @click="attribute.qty -= 1">
+                      <v-icon>remove</v-icon>
+                    </v-btn>
+                  </v-flex>
+
+                  <v-flex xs2 pa-2>
+                    <v-btn color="primary" icon @click="attribute.qty += 1">
+                      <v-icon>add</v-icon>
+                    </v-btn>
+                  </v-flex>
+								</v-layout>
+							</v-flex>
+              <!-- <v-flex xs12>
                 <v-select
                   :items="['50ml', '100ml', '150ml', '200ml']"
                   required
@@ -234,9 +246,32 @@
                     </v-list-tile-content>
                   </template>
                 </v-select>
-              </v-flex>
+              </v-flex> -->
             </v-layout>
             <v-layout row wrap v-else>
+              <v-flex xs12>
+								<v-layout row align-center justify-start>
+                  <v-flex xs8>
+                    <v-text-field
+                      :rules="numberRules"
+                      v-model="attribute.qty"
+                      label="Quantity"
+                    ></v-text-field>
+                  </v-flex>
+
+                  <v-flex xs2 pa-2>
+                    <v-btn color="primary" icon :disabled="attribute.qty <= 0" @click="attribute.qty -= 1">
+                      <v-icon>remove</v-icon>
+                    </v-btn>
+                  </v-flex>
+
+                  <v-flex xs2 pa-2>
+                    <v-btn color="primary" icon @click="attribute.qty += 1">
+                      <v-icon>add</v-icon>
+                    </v-btn>
+                  </v-flex>
+								</v-layout>
+							</v-flex>
               <v-flex
                 xs12
                 v-for="(a, index) in selected.product.attributes"
@@ -308,9 +343,11 @@ export default {
 		selected: {},
 		basketSnackbar: false,
 		basketSnackbarMsg: null,
-		offlineUser: {},
-		currentIndex: null,
-		attribute: {}
+    offlineUser: {},
+    currentIndex: -1,
+		attribute: {
+      qty: 0
+    }
 	}),
 	created() {
 		this.offlineUser = Object.assign({}, this.$route.params.basket)
@@ -361,12 +398,13 @@ export default {
 			})
 		},
 		editItem (item, index) {
-			this.$store.dispatch('products/GET_PRODUCT', item.product.id)
+      this.currentIndex = index;
+      this.$store.dispatch('products/GET_PRODUCT', item.product.id)
 			.then((res) => {
 		   		 // open dialog
-		   		 this.editItemDialog = true
+		   		 this.editItemDialog = true;
 			   // store to localstorage so that we can reset values if cancelled
-			   this.currentIndex = index
+         //this.currentIndex = index;
 			   localStorage.setItem('selected_basket_item', JSON.stringify(item))
 			   // set dialog values
 			   this.selected = Object.assign({}, item)
@@ -376,7 +414,7 @@ export default {
 			   	this.selected.product.attributes.forEach((attrib) => {
 			   		const attribName = attrib.name.toLowerCase();
 			   		if (attribName === 'quantity') {
-			   			this.attribute['quantity'] = +item.attribute['qty'];
+			   			this.attribute['qty'] = item.attribute['qty'];
 			   		} else {
 			   			this.attribute[attribName] = item.attribute[attribName];
 			   		}
@@ -387,8 +425,13 @@ export default {
 			   		size: item.attribute.size,
 			   		color: item.attribute.color
 			   	}
-			   }
-			   console.log(this.attribute)
+         }
+         
+         const index = this.selected.product.attributes.findIndex((attrib) => attrib.name.toLowerCase() === 'quantity');
+         if(index != -1) this.selected.product.attributes.splice(index, 1);
+         
+         console.log(this.attribute);
+         
 			})
 		},
 		cancelEdit () {
@@ -402,16 +445,16 @@ export default {
 			const userIndex = offlineContacts.findIndex((contact) => contact.id === this.offlineUser.id);
 			offlineContacts[userIndex] = Object.assign({}, this.offlineUser);
 			const attributeClone = JSON.parse(JSON.stringify(this.attribute));
-			attributeClone.qty = attributeClone.quantity ? attributeClone.quantity : attributeClone.qty;
+      attributeClone.qty = attributeClone.quantity ? attributeClone.quantity : attributeClone.qty;
 			delete attributeClone.quantity;
-			offlineContacts[userIndex].basket.items[this.currentIndex].attribute = attributeClone;
+      offlineContacts[userIndex].basket.items[this.currentIndex].attribute = attributeClone;
 			localStorage.setItem(`${AUTH.currentUser.uid}_offline_contacts`, JSON.stringify(offlineContacts))
 			setTimeout(() => {
-				this.selected = {}
-				this.editItemDialog = false
-				this.notify('Item has been updated')
-				localStorage.removeItem('selected_basket_item')
-			}, 250)
+				this.selected = {};
+				this.editItemDialog = false;
+				this.notify('Item has been updated');
+				localStorage.removeItem('selected_basket_item');
+			}, 250);
 		},
 		deleteItem () {
 			const offlineContacts = JSON.parse(localStorage.getItem(`${AUTH.currentUser.uid}_offline_contacts`))
