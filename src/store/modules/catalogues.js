@@ -8,7 +8,7 @@ const catalogues = {
 		loaded: false
 	},
 	getters: {
-		GET_LIST (state) {
+		GET_LIST(state) {
 			state.list.forEach((item) => {
 				if (!item.position) {
 					item.position = 0;
@@ -20,19 +20,19 @@ const catalogues = {
 		IS_LOADED: state => state.loaded
 	},
 	mutations: {
-		SET_LIST (state, payload) {
+		SET_LIST(state, payload) {
 			state.list = payload
 		},
-		SET_IMAGE_LOADED (state, alt) {
+		SET_IMAGE_LOADED(state, alt) {
 			const i = state.list.findIndex((l) => l.id === alt);
 			state.list[i].imageLoaded = true;
 		},
-		SET_LOADED (state, payload) {
+		SET_LOADED(state, payload) {
 			state.loaded = payload;
 		}
 	},
 	actions: {
-		async GET_LIST ({ commit, state }) {
+		async GET_LIST({ commit, state }) {
 
 			if (state.loaded) {
 				console.log('Catalogue already loaded.');
@@ -41,8 +41,8 @@ const catalogues = {
 
 			try {
 				const querySnapshot = await COLLECTION.catalogues
-				.where('active', '==', 1)
-				.get();
+					.where('active', '==', 1)
+					.get();
 
 
 				const catalogues = querySnapshot.docs.map((documentSnapshot) => {
@@ -59,7 +59,7 @@ const catalogues = {
 				throw error;
 			}
 		},
-		LISTEN_TO_NEW_CATALOGUES ({rootState, state}) {
+		LISTEN_TO_NEW_CATALOGUES({ rootState, state }) {
 			const storageCode = rootState.storageCode;
 			state.subscriber = COLLECTION.catalogues.onSnapshot((snapshot) => {
 				let changes = snapshot.docChanges().filter(c => c.type === 'added');
@@ -72,7 +72,7 @@ const catalogues = {
 				const storagePath = `${storageCode}_categories`;
 
 				// set fresh storage with current catalogue ids if storage is not set
-				if(!localStorage.getItem(storagePath)) {
+				if (!localStorage.getItem(storagePath)) {
 					const ids = changes.map(c => c.id);
 					localStorage.setItem(storagePath, JSON.stringify(ids));
 					return;
@@ -88,8 +88,8 @@ const catalogues = {
 						localStorage.setItem(storagePath, JSON.stringify(category_ids));
 						document.addEventListener('deviceready', () => {
 							cordova.plugins.notification.local.schedule({
-								title: 'New catalogue has been added!',
-								text: `Catalogue name: ${change.name || ''}`,
+								title: 'New category has been added!',
+								text: `Category name: ${change.name || ''}`,
 								foreground: true,
 								vibrate: true
 							});
@@ -98,7 +98,7 @@ const catalogues = {
 				});
 			});
 		},
-		UNSUBSCRIBE_FROM_CATALOGUES ({dispatch, state}) {
+		UNSUBSCRIBE_FROM_CATALOGUES({ dispatch, state }) {
 			if (state.subscriber) {
 				state.subscriber();
 			}
