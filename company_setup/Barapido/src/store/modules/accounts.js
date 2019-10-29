@@ -727,6 +727,8 @@ const accounts = {
 					notif.text = 'Your distributor registration request has been approved!';
 					dispatch('RELOAD_USER_DATA', uid);
 					dispatch('SEND_PUSH_NOTIFICATION', notif);
+					console.log("Unsubscribing to approvals");
+					state.approvalSubscriber();
 				} else if (data.status === 'denied') {
 					notif.title = 'Sorry';
 					notif.text = 'Your distributor registration request has been denied.';
@@ -735,14 +737,9 @@ const accounts = {
 					dispatch('SEND_PUSH_NOTIFICATION', notif);
 				}
 
-				console.log('Approval listener:');
-				console.log(title, text);
+				// console.log('Approval listener:');
+				// console.log(title, text);
 
-
-
-				if (state.approvalSubscriber && data.status === 'approved') {
-					state.approvalSubscriber();
-				}
 
 				commit('UPDATE_USER_KEY', { key: 'status', value: data.status });
 			});
