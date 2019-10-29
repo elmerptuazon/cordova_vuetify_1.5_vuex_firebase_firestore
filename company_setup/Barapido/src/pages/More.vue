@@ -102,9 +102,7 @@
     >
       <v-alert border="right" outline color="info" value="true" elevation="2">
         Hello! Your Reseller application will only be approved once you have
-        ordered and paid for your starter kit. Purchasing your starter kit also
-        entitles you to one month free subscription to the Barapido Reseller app
-        - standard price of 99 php per month.
+        ordered and paid for your starter kit.
         <br /><br />
         If you have not already ordered your starter kit, you can do so
         <a href="https://www.barapido.com/?product=barapido-reseller-kit"
