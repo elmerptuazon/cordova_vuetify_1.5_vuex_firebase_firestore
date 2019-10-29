@@ -191,7 +191,15 @@ const accounts = {
 				}
 				
 				try {
-					await COLLECTION.accounts.doc(payload.uid).update(payload)
+					await COLLECTION.accounts
+					.doc(payload.uid)
+					.update(
+						{
+							downloadURL: payload.downloadURL,
+							hasPicture: payload.hasPicture,
+							imageObj: payload.imageObj
+						}
+					)
 					commit('UPDATE_USER', payload);
 				}
 				catch(error) {
@@ -214,7 +222,7 @@ const accounts = {
 				}
 
 				try {
-					await COLLECTION.accounts.doc(payload.uid).update(payload)
+					await COLLECTION.accounts.doc(payload.uid).update({proofOfId: payload.proofOfId});
 					commit('UPDATE_USER', payload);
 				}
 				catch(error) {
