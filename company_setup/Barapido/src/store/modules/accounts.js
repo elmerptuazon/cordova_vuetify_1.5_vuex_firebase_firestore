@@ -197,7 +197,6 @@ const accounts = {
 						{
 							downloadURL: payload.downloadURL,
 							hasPicture: payload.hasPicture,
-							imageObj: payload.imageObj
 						}
 					)
 					commit('UPDATE_USER', payload);
