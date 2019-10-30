@@ -55,8 +55,8 @@ async function CreatePayment(payload) {
                     "attributes": {
                         "amount": Number(Number(payload.payment.amount).toFixed(2).replace(".", "")),
                         "currency": "PHP",
-                        "description": `Stock Order Payment for ${payload.stockOrderReference}`,
-                        "statement_descriptor": `Barapido payment for stock order: ${payload.stockOrderReference}`,
+                        "description": `Customer Payment for ${payload.stockOrderReference}`,
+                        "statement_descriptor": `BRP-STCKODR ${payload.stockOrderReference}`,
                         "source": {
                             "id": payload.tokenDetails,
                             "type": "token"
