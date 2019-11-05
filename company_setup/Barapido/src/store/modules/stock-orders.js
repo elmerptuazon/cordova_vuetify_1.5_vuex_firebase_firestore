@@ -290,10 +290,21 @@ export default {
 						stockOrderReference: GenerateStockOrderNumber(userDetails.agentId)
 					}
 
+					const keys = Object.keys(payload.attributes).sort();
+					let unique = '';
+
+					keys.forEach((key) => {
+						if (key !== 'quantity' && key !== 'qty') {
+							unique += `_${key}:${payload.attributes[key]}`;
+						}
+					});
+					unique = payload.productId + unique;
+
 					obj.items.push({
 						attributes: payload.attributes,
 						productId: payload.productId,
-						qty: payload.attributes.quantity
+						qty: payload.attributes.quantity,
+						unique: unique
 					});
 
 					commit('SET_BASKET_COUNT', 1);

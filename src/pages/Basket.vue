@@ -117,16 +117,35 @@
 							<div class="title">{{selected.product.name}}</div>
 						</div>
 						<v-container fluid>
-							<v-layout row wrap v-if="!selected.product.attributes">
+							<v-layout row wrap v-if="!selected.product.attributes" align-center justify-center>
 								<v-flex xs12>
-									<v-select :items="[1, 2, 3, 4, 5, 6, 7]" required
-									:rules="basicRules" label="Quantity" v-model="attribute.qty" single-line bottom></v-select>
+									<v-layout row align-center justify-start>
+										<v-flex xs8>
+											<v-text-field
+												:rules="numberRules"
+												v-model="attribute.qty"
+												label="Quantity"
+											></v-text-field>
+										</v-flex>
+
+										<v-flex xs2 pa-2>
+											<v-btn color="primary" icon :disabled="attribute.qty <= 0" @click="attribute.qty -= 1">
+												<v-icon>remove</v-icon>
+											</v-btn>
+										</v-flex>
+
+										<v-flex xs2 pa-2>
+											<v-btn color="primary" icon @click="attribute.qty += 1">
+												<v-icon>add</v-icon>
+											</v-btn>
+										</v-flex>
+									</v-layout>
 								</v-flex>
-								<v-flex xs12>
+								<!-- <v-flex xs12>
 									<v-select :items="['50ml', '100ml', '150ml', '200ml']" required
 									:rules="basicRules" v-model="attribute.size" label="Size" single-line bottom></v-select>
-								</v-flex>
-								<v-flex xs12>
+								</v-flex> -->
+								<!-- <v-flex xs12>
 									<v-select
 									label="Color"
 									:items="['Red', 'Blue', 'Yellow', 'Green']"
@@ -144,9 +163,33 @@
 										</v-list-tile-content>
 									</template>
 								</v-select>
-							</v-flex>
+							</v-flex> -->
 						</v-layout>
-						<v-layout row wrap v-else>
+						<v-layout row wrap v-else align-center justify-start>
+							<v-flex xs12>
+								<v-layout row>
+									<v-flex xs8>
+										<v-text-field
+											:rules="numberRules"
+											v-model="attribute.qty"
+											label="Quantity"
+										></v-text-field>
+									</v-flex>
+
+									<v-flex xs2 pa-2>
+										<v-btn color="primary" icon :disabled="attribute.qty <= 0" @click="attribute.qty -= 1">
+											<v-icon>remove</v-icon>
+										</v-btn>
+									</v-flex>
+
+									<v-flex xs2 pa-2>
+										<v-btn color="primary" icon @click="attribute.qty += 1">
+											<v-icon>add</v-icon>
+										</v-btn>
+									</v-flex>
+								</v-layout>
+							</v-flex>
+							
 							<v-flex xs12 v-for="(a, index) in selected.product.attributes" :key="index">
 								<v-select
 								v-if="a.name == 'Color'"
@@ -221,7 +264,9 @@ export default {
 		selected: {},
 		basketSnackbar: false,
 		basketSnackbarMsg: null,
-		attribute: {},
+		attribute: {
+			qty: 0,
+		},
 		loader: false
 	}),
 	created() {
@@ -275,11 +320,16 @@ export default {
 				this.selected.product.attributes.forEach((attrib) => {
 					const attribName = attrib.name.toLowerCase();
 					if (attribName === 'quantity') {
-						this.attribute['quantity'] = +item.attribute['qty'];
+						this.attribute['qty'] = item.attribute['qty'];
 					} else {
 						this.attribute[attribName] = item.attribute[attribName];
 					}
 				})
+
+				//delete the "quantity" attribute on the product
+				const index = this.selected.product.attributes.findIndex((attrib) => attrib.name.toLowerCase() === 'quantity');
+				if(index != -1) this.selected.product.attributes.splice(index, 1);
+				
 			} else {
 				this.attribute = {
 					qty: item.attribute.qty,
@@ -294,20 +344,29 @@ export default {
 		this.editItemDialog = false
 		this.$store.dispatch('basket/GET_ITEMS')
 		.then(() => {
-			this.selected = {}
+			this.selected = {};
+			this.attribute = {
+				qty: 0,
+			};
 		})
 	},
 	update () {
 		this.selected.attribute = Object.assign({}, this.selected.attribute, this.attribute);
-		this.selected.attribute.qty = this.selected.attribute.quantity ?  this.selected.attribute.quantity : this.selected.attribute.qty;
-		delete this.selected.attribute.quantity;
+		// console.log("THIS.SELECTED.ATTRIBUTE: ", this.selected.attribute);
+		// console.log("THIS.ATTRIBUTE: ", this.attribute);
+
+		if(this.selected.attribute.quantity) delete this.selected.attribute.quantity;
+
 		this.$store.dispatch('basket/UPDATE_ITEM', this.selected)
 		.then(() => {
 			return this.$store.dispatch('basket/GET_ITEMS');
 		})
 		.then(() => {
 			this.editItemDialog = false;
-			this.selected = {}
+			this.selected = {};
+			this.attribute = {
+				qty: 0,
+			};
 			this.notify('Item has been updated');
 		})
 	},
@@ -315,7 +374,10 @@ export default {
 		this.$store.dispatch('basket/REMOVE_ITEM', this.selected._id)
 		.then(() => {
 			this.editItemDialog = false
-			this.selected = {}
+			this.selected = {};
+			this.attribute = {
+				qty: 0,
+			};
 			this.notify('Item has been removed')
 		})
 	}
