@@ -2,16 +2,24 @@
   <v-container fluid grid-list-md class="pa-4">
     <v-stepper v-model="frame">
       <v-stepper-header>
-        <v-stepper-step :complete="frame > 1" step="1">Personal Information</v-stepper-step>
+        <v-stepper-step :complete="frame > 1" step="1"
+          >Personal Information</v-stepper-step
+        >
         <v-divider></v-divider>
 
-        <v-stepper-step :complete="frame > 2" step="2">Home Address</v-stepper-step>
+        <v-stepper-step :complete="frame > 2" step="2"
+          >Home Address</v-stepper-step
+        >
         <v-divider></v-divider>
 
-        <v-stepper-step :complete="frame > 3" step="3">Account Details</v-stepper-step>
+        <v-stepper-step :complete="frame > 3" step="3"
+          >Account Details</v-stepper-step
+        >
         <v-divider></v-divider>
 
-        <v-stepper-step step="4">Upload Profile Pic and Proof of ID</v-stepper-step>
+        <v-stepper-step step="4"
+          >Upload Profile Pic and Proof of ID</v-stepper-step
+        >
       </v-stepper-header>
 
       <v-stepper-items>
@@ -19,7 +27,9 @@
           <v-form ref="form1" lazy-validation @submit.prevent="proceed(1)">
             <v-layout row wrap>
               <v-flex xs12>
-                <div class="font-weight-bold text-center">Personal Information</div>
+                <div class="font-weight-bold text-center">
+                  Personal Information
+                </div>
               </v-flex>
               <v-flex xs12>
                 <v-select
@@ -75,19 +85,23 @@
                   row
                 >
                   <v-radio label="Male" value="Male" color="primary"></v-radio>
-                  <v-radio label="Female" value="Female" color="primary"></v-radio>
+                  <v-radio
+                    label="Female"
+                    value="Female"
+                    color="primary"
+                  ></v-radio>
                 </v-radio-group>
               </v-flex>
               <v-flex xs12>
-                <v-btn 
-                  type="submit" 
+                <v-btn
+                  type="submit"
                   color="primary"
-                  block 
+                  block
                   depressed
                   :disabled="!registerData.gender"
                 >
-                    Proceed
-                    <v-icon right>arrow_forward</v-icon>
+                  Proceed
+                  <v-icon right>arrow_forward</v-icon>
                 </v-btn>
               </v-flex>
             </v-layout>
@@ -151,11 +165,11 @@
                 ></v-text-field>
               </v-flex>
             </v-layout>
-            <v-spacer/>
+            <v-spacer />
             <v-btn depressed outline @click="frame -= 1">BACK</v-btn>
-            <v-btn 
-              type="submit" 
-              depressed 
+            <v-btn
+              type="submit"
+              depressed
               color="primary"
               :disabled="!registerData.address.zipCode"
             >
@@ -166,7 +180,11 @@
         </v-stepper-content>
 
         <v-stepper-content step="3">
-          <v-form ref="form3" lazy-validation @submit.prevent="confirmationDialog = true">
+          <v-form
+            ref="form3"
+            lazy-validation
+            @submit.prevent="confirmationDialog = true"
+          >
             <v-layout row wrap>
               <v-flex xs12>
                 <div class="font-weight-bold text-center">Account Details</div>
@@ -218,11 +236,30 @@
                 ></v-text-field>
               </v-flex>
               <v-flex xs12>
-                <v-btn 
-                  type="submit" 
+                <v-checkbox v-model="agree" color="primary">
+                  <div slot="label">
+                    I accept the
+                    <a
+                      @click.stop="$refs.TermsAndConditionsDialog.show"
+                      class="blue--text text--darken-2"
+                      ><strong>Terms</strong></a
+                    >
+                    and
+                    <a
+                      @click.stop="$refs.DataPolicy.show"
+                      class="blue--text text--darken-2"
+                      ><strong>Data Privacy Policies</strong></a
+                    >
+                  </div>
+                </v-checkbox>
+              </v-flex>
+              <v-flex xs12>
+                <v-btn
+                  type="submit"
                   color="primary"
-                  block depressed
-                  :disabled="submitBtnDisabled || !registerData.confirmPassword" 
+                  block
+                  depressed
+                  :disabled="submitBtnDisabled || !registerData.confirmPassword"
                   :loading="submitBtnDisabled"
                 >
                   Submit Account Details
@@ -239,8 +276,15 @@
         <v-stepper-content step="4">
           <div class="px-4 mt-4">
             <v-flex xs12>
-              <div v-if="registerData.type == 'Reseller'" class="font-weight-bold text-center">Upload Profile Pic and Proof of ID</div>
-              <div v-else class="font-weight-bold text-center">Upload Profile Pic</div>
+              <div
+                v-if="registerData.type == 'Reseller'"
+                class="font-weight-bold text-center"
+              >
+                Upload Profile Pic and Proof of ID
+              </div>
+              <div v-else class="font-weight-bold text-center">
+                Upload Profile Pic
+              </div>
             </v-flex>
             <div class="text-xs-center" v-if="registerData.displayPicture">
               <v-img
@@ -258,7 +302,9 @@
                 slot="activator"
                 type="button"
               >
-                <div v-if="!registerData.displayPicture">Add Profile Picture</div>
+                <div v-if="!registerData.displayPicture">
+                  Add Profile Picture
+                </div>
                 <div v-else>Change Profile Picture</div>
               </v-btn>
               <v-list>
@@ -290,7 +336,10 @@
 
             <div v-if="registerData.type == 'Reseller'">
               <div class="text-xs-center" v-if="registerData.proofOfId">
-                <v-img :src="registerData.proofOfId" alt="proof_picture"></v-img>
+                <v-img
+                  :src="registerData.proofOfId"
+                  alt="proof_picture"
+                ></v-img>
               </div>
               <v-bottom-sheet full-width v-model="proofPictureSheet">
                 <v-btn
@@ -332,31 +381,14 @@
               >
             </div>
             <br />
-            <v-flex xs12>
-              <v-checkbox v-model="agree" color="primary">
-                <div slot="label">
-                  I accept the
-                  <a
-                    @click.stop="$refs.TermsAndConditionsDialog.show"
-                    class="blue--text text--darken-2"
-                    ><strong>Terms</strong></a
-                  >
-                  and
-                  <a
-                    @click.stop="$refs.DataPolicy.show"
-                    class="blue--text text--darken-2"
-                    ><strong>Data Privacy Policies</strong></a
-                  >
-                </div>
-              </v-checkbox>
-            </v-flex>
           </div>
           <div>
-            <v-btn 
+            <v-btn
               color="primary"
-              block depressed
-              @click="submitPhotoId" 
-              :disabled="submitBtnDisabled " 
+              block
+              depressed
+              @click="submitPhotoId"
+              :disabled="submitBtnDisabled"
               :loading="submitBtnDisabled"
             >
               SUBMIT
@@ -369,19 +401,24 @@
 
     <v-dialog v-model="confirmationDialog" persistent>
       <v-card>
-        <v-card-title class="primary white--text headline pb-1">SUBMIT ACCOUNT DETAILS</v-card-title>
+        <v-card-title class="subheading font-weight-bold primary white--text"
+          >SUBMIT ACCOUNT DETAILS</v-card-title
+        >
         <v-card-text>
-            You are about to submit your account details, are you sure about it? 
-            Double-check encoded details if necessary. 
+          You are about to submit your account details, are you sure about it?
         </v-card-text>
         <v-card-actions>
-          <v-spacer/>
-          <v-btn block outline @click.native="confirmationDialog = false">Cancel</v-btn>
-          <v-btn block color="primary" dark depressed @click.native="submitInfo">Submit</v-btn>
+          <v-spacer />
+          <v-btn block outline @click.native="confirmationDialog = false"
+            >Cancel</v-btn
+          >
+          <v-btn block color="primary" dark depressed @click.native="submitInfo"
+            >Submit</v-btn
+          >
         </v-card-actions>
       </v-card>
     </v-dialog>
-    
+
     <!-- <v-form v-model="valid" ref="form" lazy-validation @submit.prevent="submit">
       <v-layout row wrap>
         <v-flex xs12>
@@ -482,17 +519,17 @@ export default {
   },
   methods: {
     proceed(currentFrame) {
-      if(!this.$refs.form1.validate() && currentFrame === 1) {
+      if (!this.$refs.form1.validate() && currentFrame === 1) {
         this.$refs.form1.modal.show(
-          "Sorry", 
+          "Sorry",
           "One or more mandatory fields are required"
         );
         return;
       }
 
-      if(!this.$refs.form2.validate() && currentFrame === 2) {
+      if (!this.$refs.form2.validate() && currentFrame === 2) {
         this.$refs.form2.modal.show(
-          "Sorry", 
+          "Sorry",
           "One or more mandatory fields are required"
         );
         return;
@@ -509,6 +546,14 @@ export default {
         this.$refs.modal.show(
           "Sorry",
           "One or more mandatory fields are required"
+        );
+        return;
+      }
+
+      if (!this.agree) {
+        this.$refs.modal.show(
+          "Sorry",
+          "You must accept our terms and conditions."
         );
         return;
       }
@@ -546,7 +591,6 @@ export default {
           this.submitBtnDisabled = false;
           this.registerData = response;
           this.frame++;
-          
         } catch (error) {
           console.log(error);
           if (error.code === "auth/email-already-in-use") {
@@ -586,39 +630,31 @@ export default {
         return;
       }
 
-      if (!this.agree) {
-        this.$refs.modal.show(
-          "Sorry",
-          "You must accept our terms and conditions."
-        );
-        return;
-      }
-
       this.submitBtnDisabled = true;
 
-      if(this.registerData.type === "Reseller") {
+      if (this.registerData.type === "Reseller") {
         try {
-          await this.$store.dispatch("accounts/UPLOAD_PROOF_OF_ID", this.registerData);
-        } catch(error) {
-            this.$refs.modal.show(
-              "Sorry",
-              "An error occured. Please Try Again."
-            );
-            this.submitBtnDisabled = false;
-            console.log(error);
-            return;
+          await this.$store.dispatch(
+            "accounts/UPLOAD_PROOF_OF_ID",
+            this.registerData
+          );
+        } catch (error) {
+          this.$refs.modal.show("Sorry", "An error occured. Please Try Again.");
+          this.submitBtnDisabled = false;
+          console.log(error);
+          return;
         }
       }
-      
-      try { 
-        const response = await this.$store.dispatch("accounts/UPLOAD_PROFILE_PHOTO", this.registerData);
+
+      try {
+        const response = await this.$store.dispatch(
+          "accounts/UPLOAD_PROFILE_PHOTO",
+          this.registerData
+        );
         this.submitBtnDisabled = false;
         this.startObserversAndProceed(this.registerData, response);
-      } catch(error) {
-        this.$refs.modal.show(
-          "Sorry",
-          "An error occured. Please Try Again."
-        );
+      } catch (error) {
+        this.$refs.modal.show("Sorry", "An error occured. Please Try Again.");
         this.submitBtnDisabled = false;
 
         console.log(error);
