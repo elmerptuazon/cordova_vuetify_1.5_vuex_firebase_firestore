@@ -18,6 +18,7 @@ export default !firebase.apps.length ? firebase.initializeApp(config) : firebase
 export const STORAGE = firebase.storage();
 export const AUTH = firebase.auth();
 export const DB = firebase.firestore();
+export const FIRESTORE = firebase.firestore;
 // DB.settings({
 // 	timestampsInSnapshots: true
 // });

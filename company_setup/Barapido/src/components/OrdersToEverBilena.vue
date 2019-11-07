@@ -27,23 +27,23 @@
       </tr>
     </template>
     <template slot="items" slot-scope="props">
-      <tr 
+      <tr
         @click="viewOrder(props.item)"
-        :class="[props.item.shipmentCount > 0 ? 'green lighten-4' : '']"
+        :class="[props.item.shipmentsToReceive > 0 ? 'green lighten-4' : '']"
       >
         <td class="text-xs-center">
-            <v-badge color="red" left overlap>
-                <span slot="badge" 
-                  v-if="props.item.shipmentCount > 0" 
-                >
-                  {{ props.item.shipmentCount }}
-                </span>
-                <v-icon color="grey lighten-1">shopping_cart</v-icon>
-            </v-badge>
+          <v-badge color="red" left overlap>
+            <span slot="badge" v-if="props.item.shipmentsToReceive > 0">
+              {{ props.item.shipmentsToReceive }}
+            </span>
+            <v-icon color="grey lighten-1">shopping_cart</v-icon>
+          </v-badge>
         </td>
         <td class="text-xs-center">{{ props.item.stockOrderReference }}</td>
         <td class="text-xs-center">{{ props.item.status | uppercase }}</td>
-        <td class="text-xs-center">{{ props.item.submittedAt | momentify("DD-MMM-YYYY") }}</td>
+        <td class="text-xs-center">
+          {{ props.item.submittedAt | momentify("DD-MMM-YYYY") }}
+        </td>
         <!-- <td class="text-xs-center">
           {{ props.item.discountedTotal | currency("P") }}
         </td> -->
@@ -75,7 +75,7 @@ export default {
       {
         text: "Receivable Shipments",
         value: "",
-        sortable: false,          
+        sortable: false,
         align: "center"
       },
       {
@@ -118,12 +118,10 @@ export default {
         this.pagination.sortBy = column;
         this.pagination.descending = false;
       }
-    },
+    }
   },
 
-  computed: {
-    
-  }
+  computed: {}
 };
 </script>
 
