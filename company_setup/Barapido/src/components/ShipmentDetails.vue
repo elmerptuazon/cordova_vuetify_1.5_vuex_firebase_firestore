@@ -1,11 +1,10 @@
 <template>
   <v-container fluid grid-list-lg>
     <v-layout row wrap>
-      <v-flex
-        xs12
-        v-if="!shipmentList.length"
-      >
-        <div class="font-weight-bold mt-3">There are still no receivable shipments...</div>
+      <v-flex xs12 v-if="!shipmentList.length">
+        <div class="font-weight-bold mt-3">
+          There are still no receivable shipments...
+        </div>
       </v-flex>
       <v-flex
         xs12
@@ -37,8 +36,11 @@
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn
-              v-if="shipment.status === 'Pending' &&
-                    (shipment.type === 'Partial Shipment' || shipment.type === 'Full Shipment')"
+              v-if="
+                shipment.status === 'Pending' &&
+                  (shipment.type === 'Partial Shipment' ||
+                    shipment.type === 'Full Shipment')
+              "
               class="primary"
               @click="TagShipmentAsReceived(shipment)"
               :loading="buttonLoading"
@@ -46,17 +48,16 @@
               >TAG THIS SHIPMENT AS RECEIVED</v-btn
             >
             <v-btn
-              v-else-if="!shipment.isAddedToInventory && shipment.status === 'Received'"
+              v-else-if="
+                !shipment.isAddedToInventory && shipment.status === 'Received'
+              "
               class="primary"
               @click="AddShipmentToInventory(shipment)"
               :loading="buttonLoading"
               :disabled="buttonLoading"
               >ADD ITEM/S TO INVENTORY</v-btn
             >
-            <v-btn
-              v-else
-              class="primary"
-              :disabled="true"
+            <v-btn v-else class="primary" :disabled="true"
               >ITEM/s ALREADY IN THE INVENTORY</v-btn
             >
           </v-card-actions>
@@ -70,6 +71,7 @@
 <script>
 import { mapState } from "vuex";
 import Modal from "@/components/Modal";
+import { FIRESTORE } from "@/config/firebaseInit";
 export default {
   props: ["stockOrderId"],
   data: () => ({
@@ -99,6 +101,8 @@ export default {
     async TagShipmentAsReceived(shipment) {
       this.buttonLoading = true;
       try {
+        const shipmentDecrement = FIRESTORE.FieldValue.increment(-1);
+
         let updatedShipment = {};
         updatedShipment.id = shipment.id;
         updatedShipment.trackingNumber = shipment.trackingNumber;
@@ -106,14 +110,19 @@ export default {
           status: "Received",
           isAddedToInventory: false
         };
-        await this.$store.dispatch(
-          "shipment/UpdateShipment",
-          updatedShipment
+        //update counter in stockOrder
+        updatedShipment.stockOrderId = shipment.stockOrder.stockOrderId;
+        updatedShipment.stockOrderUpdate = {
+          shipmentsToReceive: shipmentDecrement
+        };
+
+        await this.$store.dispatch("shipment/UpdateShipment", updatedShipment);
+        this.$refs.modal.show(
+          "Success",
+          "Shipment has been tagged as Received!"
         );
-        this.$refs.modal.show("Success", "Shipment has been tagged as Received!");
         this.buttonLoading = false;
-      }
-      catch(error) {
+      } catch (error) {
         console.log(error);
         this.$refs.modal.show("Error", "An error occurred.");
         this.buttonLoading = false;
@@ -133,7 +142,7 @@ export default {
           updatedShipment.id = shipment.id;
           updatedShipment.trackingNumber = shipment.trackingNumber;
           updatedShipment.update = {
-            isAddedToInventory: true,
+            isAddedToInventory: true
           };
           await this.$store.dispatch(
             "shipment/UpdateShipment",
