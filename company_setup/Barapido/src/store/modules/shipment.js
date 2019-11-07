@@ -55,7 +55,7 @@ const shipment = {
             }
 
         },
-        async UpdateShipment({ commit }, payload) {
+        async UpdateShipment({ commit, dispatch }, payload) {
             try {
 
                 const response = await DB.collection('shipment').doc(payload.id).update(payload.update);
@@ -64,6 +64,13 @@ const shipment = {
                     trackingNumber: payload.trackingNumber,
                     update: payload.update
                 })
+                if (payload.hasOwnProperty("stockOrderId")) {
+                    await dispatch("stock_orders/UPDATE_STOCK_ORDER", {
+                        id: payload.stockOrderId,
+                        key: "shipmentsToReceive",
+                        value: payload.stockOrderUpdate.shipmentsToReceive
+                    }, { root: true });
+                }
                 return response;
             } catch (error) {
                 throw error;
