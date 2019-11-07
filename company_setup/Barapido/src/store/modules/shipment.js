@@ -11,9 +11,9 @@ const shipment = {
         shipmentList: []
     },
     getters: {
-        GET_RECEIVABLE_SHIPMENT_COUNT(state) {
-            return state.shipmentList.filter(shipment => shipment.status !== 'Received').length;
-        }
+        // GET_RECEIVABLE_SHIPMENT_COUNT(state) {
+        //     return state.shipmentList.filter(shipment => shipment.status !== 'Received').length;
+        // }
     },
     mutations: {
         AddShipment(state, payload) {
