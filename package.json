@@ -160,7 +160,8 @@
       "cordova-plugin-background-mode": {},
       "cordova-plugin-screen-orientation": {},
       "cordova-plugin-ionic-keyboard": {},
-      "cordova-plugin-splashscreen": {}
+      "cordova-plugin-splashscreen": {},
+      "cordova-plugin-inappbrowser": {}
     },
     "platforms": [
       "browser",
