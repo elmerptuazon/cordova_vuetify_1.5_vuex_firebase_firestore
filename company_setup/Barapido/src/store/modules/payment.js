@@ -5,36 +5,29 @@ import axios from 'axios';
 
 async function GenerateToken(payload) {
     try {
-        let keys = await COLLECTION.keys.doc(process.env.environment).get();
+        let keysRef = await DB.collection('keys').doc('payment').collection('magpie').doc('public').get();
         const res = await axios({
             method: 'post',
-            url: 'https://api.paymongo.com/v1/tokens',
+            url: 'https://api.magpie.im/v1.1/tokens',
             headers: {
                 'Content-Type': 'application/json',
             },
             data: {
-                "data": {
-                    "attributes": {
-                        "number": parseInt(payload.payment.cardDetails.cardNumber.replace(/\s/g, "")).toString(),
-                        "exp_month": parseInt(payload.payment.cardDetails.expiry.split("/")[0]),
-                        "exp_year": parseInt(payload.payment.cardDetails.expiry.split("/")[1]),
-                        "cvc": payload.payment.cardDetails.CVC,
-                        "billing": {
-                            "name": payload.userDetails.name,
-                            "email": payload.userDetails.email,
-                            "phone": payload.userDetails.phone
-                        }
-                    }
+                "card": {
+                    "name": payload.userDetails.name,
+                    "number": parseInt(payload.payment.cardDetails.cardNumber.replace(/\s/g, "")).toString(),
+                    "exp_month": parseInt(payload.payment.cardDetails.expiry.split("/")[0]),
+                    "exp_year": parseInt(payload.payment.cardDetails.expiry.split("/")[1]),
+                    "cvc": payload.payment.cardDetails.CVC
                 }
             },
             auth: {
-                username: keys.data().public,
+                username: keysRef.data().key,
                 password: ''
-            },
+            }
 
         });
-
-        return res.data.data.id;
+        return res.data.id;
     }
     catch (e) {
         throw e;
@@ -43,29 +36,27 @@ async function GenerateToken(payload) {
 
 async function CreatePayment(payload) {
     try {
-        let keys = await COLLECTION.keys.doc(process.env.environment).get();
+        // need to set up this and include in the data
+        //"gateway": "magpie_3ds",
+        //"redirect_url": "https://logistikusapi.firebaseapp.com/api/v1/",
+        //"callback_url": "https://app.com/webhook/callback/${id}"
+        let keysRef = await DB.collection('keys').doc('payment').collection('magpie').doc('secret').get();
         const res = await axios({
             method: 'post',
-            url: 'https://api.paymongo.com/v1/payments',
+            url: 'https://api.magpie.im/v1.1/charges',
             headers: {
                 'Content-Type': 'application/json',
             },
             data: {
-                "data": {
-                    "attributes": {
-                        "amount": Number(Number(payload.payment.amount).toFixed(2).replace(".", "")),
-                        "currency": "PHP",
-                        "description": `Customer Payment for ${payload.stockOrderReference}`,
-                        "statement_descriptor": `BRP-STCKODR ${payload.stockOrderReference}`,
-                        "source": {
-                            "id": payload.tokenDetails,
-                            "type": "token"
-                        }
-                    }
-                }
+                "amount": Number(Number(payload.payment.amount).toFixed(2).replace(".", "")),
+                "currency": "php",
+                "description": `Customer Payment for ${payload.stockOrderReference}`,
+                "statement_descriptor": `STCKO ${payload.stockOrderReference}`,
+                "source": payload.tokenDetails,
+                "capture": true,
             },
             auth: {
-                username: keys.data().secret,
+                username: keysRef.data().key,
                 password: ''
             },
 
@@ -95,11 +86,12 @@ const payment = {
             try {
 
                 //in here you validate the CC and do the payment in the api using axios, code below are the return if api payment is successful.
+                console.log("Generating Token");
                 let tokenDetails = await GenerateToken({
                     payment: payload.payment,
                     userDetails: payload.userDetails
                 });
-
+                console.log("Creating Payment");
                 let paymentDetails = await CreatePayment({
                     tokenDetails: tokenDetails,
                     payment: payload.payment,
@@ -107,13 +99,13 @@ const payment = {
                 })
                 console.log(paymentDetails);
 
-                if (paymentDetails.data.data.attributes.status === "paid") {
+                if (paymentDetails.data.status === "succeeded") {
                     //delete card details
                     if (payload.payment.hasOwnProperty('cardDetails')) {
                         delete payload.payment.cardDetails;
                     }
                     payload.payment.paymentStatus = 'Paid';
-                    payload.payment.transactionNumber = paymentDetails.data.data.id;
+                    payload.payment.transactionNumber = paymentDetails.data.id;
                 }
                 else {
                     //throw error
