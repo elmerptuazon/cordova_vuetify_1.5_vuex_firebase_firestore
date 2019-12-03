@@ -1,6 +1,6 @@
 import { DB, COLLECTION } from '@/config/firebaseInit';
 import axios from 'axios';
-
+import router from '@/router';
 
 
 async function GenerateToken(payload) {
@@ -37,9 +37,7 @@ async function GenerateToken(payload) {
 async function CreatePayment(payload) {
     try {
         // need to set up this and include in the data
-        //"gateway": "magpie_3ds",
-        //"redirect_url": "https://logistikusapi.firebaseapp.com/api/v1/",
-        //"callback_url": "https://app.com/webhook/callback/${id}"
+
         let keysRef = await DB.collection('keys').doc('payment').collection('magpie').doc('secret').get();
         const res = await axios({
             method: 'post',
@@ -50,10 +48,13 @@ async function CreatePayment(payload) {
             data: {
                 "amount": Number(Number(payload.payment.amount).toFixed(2).replace(".", "")),
                 "currency": "php",
-                "description": `Customer Payment for ${payload.stockOrderReference}`,
-                "statement_descriptor": `STCKO ${payload.stockOrderReference}`,
+                "description": `Customer Payment for ${payload.stockOrder.stockOrderReference}`,
+                "statement_descriptor": `STCKO ${payload.stockOrder.stockOrderReference}`,
                 "source": payload.tokenDetails,
                 "capture": true,
+                "gateway": "magpie_3ds",
+                "redirect_url": `https://us-central1-barapido-dev.cloudfunctions.net/callback/checkPaymentStatus/${payload.stockOrder.id}`,
+                "callback_url": `https://us-central1-barapido-dev.cloudfunctions.net/callback/checkPaymentStatus/${payload.stockOrder.id}`
             },
             auth: {
                 username: keysRef.data().key,
@@ -73,12 +74,22 @@ async function CreatePayment(payload) {
 const payment = {
     namespaced: true,
     state: {
-
+        subscriber: null,
+        inAppBrowserRef: null,
     },
     getters: {
 
     },
     mutations: {
+
+        // SetBrowser({ state }, payload) {
+        //     state.inAppBrowserRef = payload
+
+
+        // },
+        // CloseBrowser({ state }) {
+        //     state.inAppBrowserRef.close();
+        // }
 
     },
     actions: {
@@ -91,32 +102,36 @@ const payment = {
                     payment: payload.payment,
                     userDetails: payload.userDetails
                 });
+                console.log(tokenDetails);
+                console.log(payload.payment);
+                console.log(payload.stockOrder);
+                //You Just need to call the API, as the API will call a callback function from us
+                //so you just need to return the value of the payment to get the URL of the 3DS
                 console.log("Creating Payment");
                 let paymentDetails = await CreatePayment({
                     tokenDetails: tokenDetails,
                     payment: payload.payment,
-                    stockOrderReference: payload.stockOrderReference
+                    stockOrder: payload.stockOrder
                 })
                 console.log(paymentDetails);
+                //for magpie they use Capatured
+                // if (paymentDetails.data.captured) {
+                //     //delete card details
+                //     if (payload.payment.hasOwnProperty('cardDetails')) {
+                //         delete payload.payment.cardDetails;
+                //     }
+                //     payload.payment.paymentStatus = 'Paid';
+                //     payload.payment.transactionNumber = paymentDetails.data.id;
+                // }
+                // else {
+                //     //throw error
+                //     //check what kind of error so we can update the code
+                //     const error = new Error("payment not successful");
+                //     error.code = "others"
+                //     throw error;
 
-                if (paymentDetails.data.status === "succeeded") {
-                    //delete card details
-                    if (payload.payment.hasOwnProperty('cardDetails')) {
-                        delete payload.payment.cardDetails;
-                    }
-                    payload.payment.paymentStatus = 'Paid';
-                    payload.payment.transactionNumber = paymentDetails.data.id;
-                }
-                else {
-                    //throw error
-                    //check what kind of error so we can update the code
-                    const error = new Error("payment not successful");
-                    error.code = "others"
-                    throw error;
-
-                }
-
-                return payload.payment;
+                // }
+                return paymentDetails.data;
                 //}
             } catch (error) {
                 throw error.response.data;
@@ -131,7 +146,48 @@ const payment = {
             payload.payment.paymentStatus = 'Pending';
             return payload.payment;
 
-        }
+        },
+
+        ListenToPaymentStatus({ state, dispatch }, payload) {
+
+
+            console.log(payload);
+            state.subscriber = COLLECTION.stock_orders.doc(payload.id)
+                .onSnapshot(async (doc) => {
+
+                    console.log('Listening to Payment .....');
+                    let stockOrderDocument = doc.data();
+                    console.log(stockOrderDocument);
+                    if (stockOrderDocument.paymentDetails.paymentStatus.toLowerCase() === "paid") {
+                        let result = await dispatch(
+                            "stock_orders/SUBMIT_CALLBACK",
+                            stockOrderDocument, { root: true }
+                        );
+                        router.push({
+                            name: "StockOrderCheckoutSuccess",
+                            params: {
+                                stockOrder: stockOrderDocument,
+                                submittedAt: result.submittedAt
+                            }
+                        });
+                        dispatch("UnsubscribeToListener");
+                    } else {
+                        //handle failed stockOrder 
+                        console.log("Payment Failed");
+
+                    }
+
+
+
+                });
+        },
+
+        UnsubscribeToListener({ state }) {
+            if (state.subscriber) {
+                console.log("Unsubscribing to Payment Listener");
+                state.subscriber();
+            }
+        },
     }
 }
 
