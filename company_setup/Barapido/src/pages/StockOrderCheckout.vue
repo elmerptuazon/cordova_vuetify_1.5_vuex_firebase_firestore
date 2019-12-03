@@ -217,6 +217,7 @@ export default {
     async finalizeOrder() {
       this.loaderDialog = true;
       this.loaderDialogMessage = "Submitting orders";
+
       try {
         let paymentResult = null;
 
@@ -279,9 +280,20 @@ export default {
             {
               payment: this.payment,
               userDetails: userDetails,
-              stockOrderReference: this.stockOrder.stockOrderReference
+              stockOrder: this.stockOrder
             }
           );
+          //dispatch listener for CC Payment
+          //listener for CC Payment should update the stock order based on the details and then push it to stockOrderCheckoutSuccess
+          this.$store.dispatch(
+            "payment/ListenToPaymentStatus",
+            this.stockOrder
+          );
+          //open the webview for the URL returned
+          const url = paymentResult.checkout_url;
+          const target = "_blank";
+          const options = `location=no,hardwareback=no,footer=yes,closebuttoncaption=DONE,closebuttoncolor=#ffffff,footercolor=${process.env.primaryColor}`;
+          let inAppBrowserRef = cordova.InAppBrowser.open(url, target, options);
         } else {
           paymentResult = await this.$store.dispatch(
             "payment/ProcessCODOrder",
@@ -289,72 +301,57 @@ export default {
               payment: this.payment
             }
           );
-        }
 
-        this.stockOrder.paymentDetails = paymentResult;
-        console.log(this.stockOrder);
-        //this flow will always result to success, any error should be thrown
-        //and handled in the catch statement
-        let result = await this.$store.dispatch(
-          "stock_orders/SUBMIT",
-          this.stockOrder
-        );
-        this.$router.push({
-          name: "StockOrderCheckoutSuccess",
-          params: {
-            stockOrder: this.stockOrder,
-            submittedAt: result.submittedAt
-          }
-        });
+          this.stockOrder.paymentDetails = paymentResult;
+          console.log(this.stockOrder);
+          //this flow will always result to success, any error should be thrown
+          //and handled in the catch statement
+          let result = await this.$store.dispatch(
+            "stock_orders/SUBMIT",
+            this.stockOrder
+          );
+          this.$router.push({
+            name: "StockOrderCheckoutSuccess",
+            params: {
+              stockOrder: this.stockOrder,
+              submittedAt: result.submittedAt
+            }
+          });
+        }
       } catch (error) {
         //add catch for incorrect payment/credit cards.
         console.log(error);
         this.loaderDialog = false;
         this.loaderDialogMessage = null;
         this.$refs.finalizeOrder.close();
-        switch (error.errors[0].code) {
-          case "generic_decline":
-            this.$refs.modal.show(
-              "Transaction Failed",
-              "Your card has been declined, please contact your service provider."
-            );
-            break;
-          case "insufficient_funds":
-            this.$refs.modal.show(
-              "Transaction Failed",
-              "Your card has insufficient funds, please contact your service provider."
-            );
-            break;
-          default:
-            this.$refs.modal.show(
-              "Transaction Failed",
-              "Charging your card unsuccessful, please contact your service provider."
-            );
-        }
+        // switch (error.errors[0].code) {
+        //   case "generic_decline":
+        //     this.$refs.modal.show(
+        //       "Transaction Failed",
+        //       "Your card has been declined, please contact your service provider."
+        //     );
+        //     break;
+        //   case "insufficient_funds":
+        //     this.$refs.modal.show(
+        //       "Transaction Failed",
+        //       "Your card has insufficient funds, please contact your service provider."
+        //     );
+        //     break;
+        //   default:
+        //     this.$refs.modal.show(
+        //       "Transaction Failed",
+        //       "Charging your card unsuccessful, please contact your service provider."
+        //     );
+        // }
+        this.$refs.modal.show(
+          "Transaction Failed",
+          "Charging your card unsuccessful, please contact your service provider."
+        );
       }
     },
     SetCardDetails(card) {
       this.payment.cardDetails = card;
     }
-    // submitStockOrder() {
-    //   this.loaderDialog = true;
-    //   this.loaderDialogMessage = "Submitting orders";
-
-    //   this.$store
-    //     .dispatch("stock_orders/SUBMIT", this.stockOrder)
-    //     .then(res => {
-    //       this.$router.push({
-    //         name: "StockOrderCheckoutSuccess",
-    //         params: {
-    //           stockOrder: this.stockOrder,
-    //           submittedAt: res.submittedAt
-    //         }
-    //       });
-    //     })
-    //     .catch(error => {
-    //       console.log(error);
-    //     });
-    // }
   },
   computed: {
     subTotal() {
