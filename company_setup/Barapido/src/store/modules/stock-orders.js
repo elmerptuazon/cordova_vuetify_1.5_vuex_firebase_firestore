@@ -449,6 +449,19 @@ export default {
 
 		async SUBMIT_CALLBACK({ commit }, stockOrder) {
 
+			for (let product of stockOrder.items) {
+
+				const productRef = await COLLECTION.products.doc(product.productId).get();
+
+				if (productRef.exists) {
+
+					const productData = productRef.data();
+					product.resellerPrice = productData.resellerPrice;
+					product.price = productData.price;
+				}
+
+			}
+
 			stockOrder.items = stockOrder.items.map((item) => {
 				delete item.attributes.qty;
 				delete item.attributes.quantity;
