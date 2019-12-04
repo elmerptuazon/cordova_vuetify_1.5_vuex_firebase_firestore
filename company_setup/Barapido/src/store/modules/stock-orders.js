@@ -447,6 +447,48 @@ export default {
 			}
 		},
 
+		async SUBMIT_CALLBACK({ commit }, stockOrder) {
+
+			for (let product of stockOrder.items) {
+
+				const productRef = await COLLECTION.products.doc(product.productId).get();
+
+				if (productRef.exists) {
+
+					const productData = productRef.data();
+					product.resellerPrice = productData.resellerPrice;
+					product.price = productData.price;
+				}
+
+			}
+
+			stockOrder.items = stockOrder.items.map((item) => {
+				delete item.attributes.qty;
+				delete item.attributes.quantity;
+				delete item.name;
+				delete item.image;
+				return item;
+			});
+
+			commit('SET_BASKET_COUNT', 0);
+
+			const submittedAt = Date.now();
+			await COLLECTION.stock_orders.doc(stockOrder.id).update({
+				active: false,
+				submittedAt,
+				status: 'pending',
+				items: stockOrder.items,
+			});
+
+
+
+			return {
+				success: true,
+				submittedAt
+			}
+
+		},
+
 		async MARKED_AS_ADDED_TO_INVENTORY({ }, id) {
 			try {
 				await COLLECTION.stock_orders.doc(id).update({ 'addedToInventory': true });

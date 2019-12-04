@@ -154,7 +154,7 @@
 
 
 <script>
-import { mapGetters } from "vuex";
+import { mapState } from "vuex";
 import { mixins } from "@/mixins";
 import BottomNav from "@/components/BottomNav";
 import BasketBadge from "@/components/BasketBadge";
@@ -179,11 +179,11 @@ export default {
       amount: null,
       cardDetails: null
     },
-    loaderDialogMessage: null
+    loaderDialogMessage: null,
+    inAppBrowserRef: null
   }),
   created() {
     this.cordovaBackButton(this.goBack);
-
     this.loaderDialog = true;
     this.loaderDialogMessage = "Please wait";
     this.$store
@@ -217,6 +217,7 @@ export default {
     async finalizeOrder() {
       this.loaderDialog = true;
       this.loaderDialogMessage = "Submitting orders";
+
       try {
         let paymentResult = null;
 
@@ -279,9 +280,28 @@ export default {
             {
               payment: this.payment,
               userDetails: userDetails,
-              stockOrderReference: this.stockOrder.stockOrderReference
+              stockOrder: this.stockOrder
             }
           );
+          //check if it has a checkout_URL, if none proceed to regular update
+          console.log(paymentResult);
+          if (paymentResult.checkout_url) {
+            //dispatch listener for CC Payment
+            //listener for CC Payment should update the stock order based on the details and then push it to stockOrderCheckoutSuccess
+            this.$store.dispatch(
+              "payment/ListenToPaymentStatus",
+              this.stockOrder
+            );
+            //open the webview for the URL returned
+            const url = paymentResult.checkout_url;
+            const target = "_blank";
+            const options = `location=no,hardwareback=no,footer=yes,closebuttoncaption=DONE,closebuttoncolor=#ffffff,footercolor=${process.env.primaryColor}`;
+            this.inAppBrowserRef = cordova.InAppBrowser.open(
+              url,
+              target,
+              options
+            );
+          }
         } else {
           paymentResult = await this.$store.dispatch(
             "payment/ProcessCODOrder",
@@ -289,72 +309,57 @@ export default {
               payment: this.payment
             }
           );
-        }
 
-        this.stockOrder.paymentDetails = paymentResult;
-        console.log(this.stockOrder);
-        //this flow will always result to success, any error should be thrown
-        //and handled in the catch statement
-        let result = await this.$store.dispatch(
-          "stock_orders/SUBMIT",
-          this.stockOrder
-        );
-        this.$router.push({
-          name: "StockOrderCheckoutSuccess",
-          params: {
-            stockOrder: this.stockOrder,
-            submittedAt: result.submittedAt
-          }
-        });
+          this.stockOrder.paymentDetails = paymentResult;
+          console.log(this.stockOrder);
+          //this flow will always result to success, any error should be thrown
+          //and handled in the catch statement
+          let result = await this.$store.dispatch(
+            "stock_orders/SUBMIT",
+            this.stockOrder
+          );
+          this.$router.push({
+            name: "StockOrderCheckoutSuccess",
+            params: {
+              stockOrder: this.stockOrder,
+              submittedAt: result.submittedAt
+            }
+          });
+        }
       } catch (error) {
         //add catch for incorrect payment/credit cards.
         console.log(error);
         this.loaderDialog = false;
         this.loaderDialogMessage = null;
         this.$refs.finalizeOrder.close();
-        switch (error.errors[0].code) {
-          case "generic_decline":
-            this.$refs.modal.show(
-              "Transaction Failed",
-              "Your card has been declined, please contact your service provider."
-            );
-            break;
-          case "insufficient_funds":
-            this.$refs.modal.show(
-              "Transaction Failed",
-              "Your card has insufficient funds, please contact your service provider."
-            );
-            break;
-          default:
-            this.$refs.modal.show(
-              "Transaction Failed",
-              "Charging your card unsuccessful, please contact your service provider."
-            );
-        }
+        // switch (error.errors[0].code) {
+        //   case "generic_decline":
+        //     this.$refs.modal.show(
+        //       "Transaction Failed",
+        //       "Your card has been declined, please contact your service provider."
+        //     );
+        //     break;
+        //   case "insufficient_funds":
+        //     this.$refs.modal.show(
+        //       "Transaction Failed",
+        //       "Your card has insufficient funds, please contact your service provider."
+        //     );
+        //     break;
+        //   default:
+        //     this.$refs.modal.show(
+        //       "Transaction Failed",
+        //       "Charging your card unsuccessful, please contact your service provider."
+        //     );
+        // }
+        this.$refs.modal.show(
+          "Transaction Failed",
+          "Charging your card unsuccessful, check the details and try again."
+        );
       }
     },
     SetCardDetails(card) {
       this.payment.cardDetails = card;
     }
-    // submitStockOrder() {
-    //   this.loaderDialog = true;
-    //   this.loaderDialogMessage = "Submitting orders";
-
-    //   this.$store
-    //     .dispatch("stock_orders/SUBMIT", this.stockOrder)
-    //     .then(res => {
-    //       this.$router.push({
-    //         name: "StockOrderCheckoutSuccess",
-    //         params: {
-    //           stockOrder: this.stockOrder,
-    //           submittedAt: res.submittedAt
-    //         }
-    //       });
-    //     })
-    //     .catch(error => {
-    //       console.log(error);
-    //     });
-    // }
   },
   computed: {
     subTotal() {
@@ -386,7 +391,10 @@ export default {
       } else {
         return this.subTotal;
       }
-    }
+    },
+    ...mapState("payment", {
+      paymentOccured: state => state.paymentOccured
+    })
   },
   filters: {
     joinAttributes(val) {
@@ -410,6 +418,32 @@ export default {
     ConfirmationModal,
     creditCardForm,
     Modal
+  },
+
+  watch: {
+    paymentOccured: function(val) {
+      console.log(`payment ${val}`);
+      if (val) {
+        this.inAppBrowserRef.close();
+      } else {
+        this.inAppBrowserRef.close();
+        this.$refs.finalizeOrder.close();
+        this.loaderDialog = false;
+        this.loaderDialogMessage = null;
+        this.$refs.modal.show(
+          "Transaction Failed",
+          "Charging your card unsuccessful, please try again."
+        );
+        this.$store.commit("payment/SetPaymentOccured", null);
+      }
+    }
+
+    //   paymentOccured(newValue, oldValue) {
+    //     console.log(`payment from ${oldValue} to ${newValue}`);
+    //     if (val) {
+    //       this.inAppBrowserRef.close();
+    //     }
+    //   }
   }
 };
 </script>
