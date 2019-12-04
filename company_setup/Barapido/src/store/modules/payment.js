@@ -1,4 +1,4 @@
-import { DB, COLLECTION } from '@/config/firebaseInit';
+import { DB, COLLECTION, FIRESTORE } from '@/config/firebaseInit';
 import axios from 'axios';
 import router from '@/router';
 
@@ -74,22 +74,16 @@ async function CreatePayment(payload) {
 const payment = {
     namespaced: true,
     state: {
-        subscriber: null,
-        inAppBrowserRef: null,
+        paymentOccured: null
     },
     getters: {
 
     },
     mutations: {
 
-        // SetBrowser({ state }, payload) {
-        //     state.inAppBrowserRef = payload
-
-
-        // },
-        // CloseBrowser({ state }) {
-        //     state.inAppBrowserRef.close();
-        // }
+        SetPaymentOccured(state, payload) {
+            state.paymentOccured = payload;
+        },
 
     },
     actions: {
@@ -148,32 +142,49 @@ const payment = {
 
         },
 
-        ListenToPaymentStatus({ state, dispatch }, payload) {
+        ListenToPaymentStatus({ state, dispatch, commit }, payload) {
 
 
             console.log(payload);
-            state.subscriber = COLLECTION.stock_orders.doc(payload.id)
-                .onSnapshot(async (doc) => {
-
+            let subscriber;
+            subscriber = COLLECTION.stock_orders.doc(payload.id)
+                .onSnapshot((doc) => {
                     console.log('Listening to Payment .....');
                     let stockOrderDocument = doc.data();
+                    stockOrderDocument.id = doc.id;
                     console.log(stockOrderDocument);
                     if (stockOrderDocument.paymentDetails.paymentStatus.toLowerCase() === "paid") {
-                        let result = await dispatch(
+                        dispatch(
                             "stock_orders/SUBMIT_CALLBACK",
                             stockOrderDocument, { root: true }
-                        );
-                        router.push({
-                            name: "StockOrderCheckoutSuccess",
-                            params: {
-                                stockOrder: stockOrderDocument,
-                                submittedAt: result.submittedAt
+                        ).then(
+                            result => {
+                                router.push({
+                                    name: "StockOrderCheckoutSuccess",
+                                    params: {
+                                        stockOrder: stockOrderDocument,
+                                        submittedAt: result.submittedAt
+                                    }
+                                });
                             }
-                        });
-                        dispatch("UnsubscribeToListener");
+                        );
+                        subscriber();
+                        commit('SetPaymentOccured', true);
+
                     } else {
                         //handle failed stockOrder 
-                        console.log("Payment Failed");
+                        subscriber();
+                        //delete paymentObject
+                        const stockOrderRef = COLLECTION.stock_orders.doc(payload.id);
+
+                        // Remove the 'capital' field from the document
+                        const removePaymentDetails = stockOrderRef.update({
+                            paymentDetails: FIRESTORE.FieldValue.delete()
+                        });
+                        console.log(`Payment Failed Removing Payment Details" ${removePaymentDetails}`);
+                        commit('SetPaymentOccured', false);
+
+
 
                     }
 
@@ -182,12 +193,7 @@ const payment = {
                 });
         },
 
-        UnsubscribeToListener({ state }) {
-            if (state.subscriber) {
-                console.log("Unsubscribing to Payment Listener");
-                state.subscriber();
-            }
-        },
+
     }
 }
 
