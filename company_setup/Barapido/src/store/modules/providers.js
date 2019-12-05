@@ -27,9 +27,11 @@ const providers = {
             state.logisticsProvider = filteredLogistics;
         },
         UnsubscribeToPaymentSubscriber(state) {
+            console.log('Unsubscribing to Payment Provider')
             state.paymentProviderSubscriber();
         },
         UnsubscribeToLogisticsSubscriber(state) {
+            console.log('Unsubscribing to Logistic Provider')
             state.logisticsProviderSubscriber();
         }
     },
@@ -37,7 +39,7 @@ const providers = {
 
 
         ListenToPaymentProvider({ state, commit }) {
-
+            console.log("listening to payment providers....")
             state.paymentProviderSubscriber = db.collection("providers").where("providerType", "==", "payment")
                 .onSnapshot((snapshot) => {
                     snapshot.docChanges().forEach((change) => {
@@ -62,7 +64,7 @@ const providers = {
 
         },
         ListenToLogisticsProvider({ state, commit }) {
-
+            console.log("listening to Logistics providers....")
             state.logisticsProviderSubscriber = db.collection("providers").where("providerType", "==", "logistics")
                 .onSnapshot((snapshot) => {
                     snapshot.docChanges().forEach((change) => {
