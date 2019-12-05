@@ -1,4 +1,4 @@
-import { DB, COLLECTION, FIRESTORE } from '@/config/firebaseInit';
+import { DB } from '@/config/firebaseInit';
 
 const providers = {
     namespaced: true,
@@ -40,7 +40,7 @@ const providers = {
 
         ListenToPaymentProvider({ state, commit }) {
             console.log("listening to payment providers....")
-            state.paymentProviderSubscriber = db.collection("providers").where("providerType", "==", "payment")
+            state.paymentProviderSubscriber = DB.collection("providers").where("providerType", "==", "payment")
                 .onSnapshot((snapshot) => {
                     snapshot.docChanges().forEach((change) => {
                         let paymentProviderData = change.doc.data();
@@ -65,7 +65,7 @@ const providers = {
         },
         ListenToLogisticsProvider({ state, commit }) {
             console.log("listening to Logistics providers....")
-            state.logisticsProviderSubscriber = db.collection("providers").where("providerType", "==", "logistics")
+            state.logisticsProviderSubscriber = DB.collection("providers").where("providerType", "==", "logistics")
                 .onSnapshot((snapshot) => {
                     snapshot.docChanges().forEach((change) => {
                         let logisticProviderData = change.doc.data();
@@ -82,7 +82,7 @@ const providers = {
                             if (logisticProviderData.isActive) {
                                 commit('AddLogisticProvider', logisticProviderData)
                             }
-                            if (logisticProviderData.isActive) {
+                            if (!logisticProviderData.isActive) {
                                 commit('RemoveLogisticProvider', logisticProviderData)
                             }
                         }
