@@ -1,4 +1,5 @@
 import { DB } from '@/config/firebaseInit';
+import axios from 'axios';
 
 const providers = {
     namespaced: true,
@@ -78,13 +79,19 @@ const providers = {
                         }
                         if (change.type === "modified") {
                             console.log("Modified logistics Provider: ", logisticProviderData);
+                            const logisticStateValue = state.logisticsProvider.find(logistic => logistic.id == logisticProviderData.id);
 
-                            if (logisticProviderData.isActive) {
+                            if (logisticStateValue === undefined) {
                                 commit('AddLogisticProvider', logisticProviderData)
+                            } else {
+                                if (logisticProviderData.isActive && (logisticStateValue.isActive != logisticProviderData.isActive)) {
+                                    commit('AddLogisticProvider', logisticProviderData)
+                                }
+                                if (!logisticProviderData.isActive) {
+                                    commit('RemoveLogisticProvider', logisticProviderData)
+                                }
                             }
-                            if (!logisticProviderData.isActive) {
-                                commit('RemoveLogisticProvider', logisticProviderData)
-                            }
+
                         }
 
                     });
@@ -92,6 +99,30 @@ const providers = {
 
 
         },
+
+        async CalculateShipping({ state }, payload) {
+
+
+            for (const logistics of state.logisticsProvider) {
+                if (logistics.id != 'pick-up') {
+                    //get key
+                    //run http call for different url to get quotations per company
+                    const res = await axios({
+                        method: 'get',
+                        url: 'https://us-central1-barapido-dev.cloudfunctions.net/barapidoAPI/getQuotation',
+                        params: {
+                            province: payload.toAddress.province,
+                            cityMun: payload.toAddress.citymun,
+                            itemWeight: payload.itemWeight / 1000
+                        }
+
+
+                    });
+                    logistics.shippingFee = res.data.deliveryFee
+                }
+            }
+
+        }
 
 
     }
