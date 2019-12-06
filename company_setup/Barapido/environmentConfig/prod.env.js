@@ -10,7 +10,7 @@ module.exports = {
   storageCode: '"barapido"',
   webAdminId: '"admin"',
   companyName: '"Barapido"',
-  version: '"0.6.7"',
+  version: '"0.6.8"',
   primaryColor: '"#16A2AF"',
   environment: '"live"'
 }
