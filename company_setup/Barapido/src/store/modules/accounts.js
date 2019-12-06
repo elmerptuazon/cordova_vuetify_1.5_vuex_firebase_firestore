@@ -181,64 +181,64 @@ const accounts = {
 					payload.hasPicture = false;
 					payload.downloadURL = null;
 				}
-	
+
 				const src = payload.gender === 'Male' ? malePlaceholder : femalePlaceholder;
 				payload.imageObj = {
 					src,
 					loading: loader
 				}
-	
+
 				if (payload.hasPicture) {
 					payload.imageObj.src = payload.downloadURL;
 				}
-				
-				if(payload.hasPicture) {
+
+				if (payload.hasPicture) {
 					try {
 						await COLLECTION.accounts
-						.doc(payload.uid)
-						.update(
-							{
-								downloadURL: payload.downloadURL,
-								hasPicture: payload.hasPicture,
-							}
-						)
+							.doc(payload.uid)
+							.update(
+								{
+									downloadURL: payload.downloadURL,
+									hasPicture: payload.hasPicture,
+								}
+							)
 						commit('UPDATE_USER', payload);
 					}
-					catch(error) {
+					catch (error) {
 						console.log(error);
 						throw error;
 					}
 				}
-				
+
 				return payload;
 			}
-			catch(error) {
+			catch (error) {
 				throw error;
-			}	
+			}
 		},
 
 		async UPLOAD_PROOF_OF_ID({ commit }, payload) {
 			try {
-				if(payload.type === 'Reseller' && payload.proofOfId) {
+				if (payload.type === 'Reseller' && payload.proofOfId) {
 					const proofOfIdSnapshot = await profPicStorageRef.child(`proof_${payload.uid}`).putString(payload.proofOfId, 'data_url');
 					payload.proofOfId = await proofOfIdSnapshot.ref.getDownloadURL();
 				}
 
 				try {
-					await COLLECTION.accounts.doc(payload.uid).update({proofOfId: payload.proofOfId});
+					await COLLECTION.accounts.doc(payload.uid).update({ proofOfId: payload.proofOfId });
 					commit('UPDATE_USER', payload);
 				}
-				catch(error) {
+				catch (error) {
 					console.log(error);
 					throw error;
 				}
 
 				return payload;
 			}
-			catch(error) {
+			catch (error) {
 				throw error;
 			}
-			
+
 		},
 
 		async FIND_RESELLER({ commit }, payload) {
@@ -485,6 +485,8 @@ const accounts = {
 		async START_OBSERVERS({ state, dispatch }, userData) {
 			if (userData.type === 'Reseller') {
 				if (userData.status === 'approved') {
+					dispatch('providers/ListenToPaymentProvider', null, { root: true })
+					dispatch('providers/ListenToLogisticsProvider', null, { root: true })
 					if (state.settings.newOrders) {
 						dispatch('orders/LISTEN_TO_ORDERS', { id: userData.uid }, { root: true });
 						dispatch('stock_orders/LISTEN_TO_STOCK_ORDERS', null, { root: true });
@@ -660,6 +662,9 @@ const accounts = {
 				if (state.settings.catalogueUpdates) {
 					dispatch('catalogues/UNSUBSCRIBE_FROM_CATALOGUES', {}, { root: true });
 				}
+				//UNSUBSCRIBE TO PROVIDERS
+				commit('providers/UnsubscribeToPaymentSubscriber', null, { root: true })
+				commit('providers/UnsubscribeToLogisticsSubscriber', null, { root: true })
 				return await AUTH.signOut();
 			} catch (error) {
 				throw error;

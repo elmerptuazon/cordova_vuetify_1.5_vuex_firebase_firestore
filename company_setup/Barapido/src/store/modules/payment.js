@@ -5,7 +5,7 @@ import router from '@/router';
 
 async function GenerateToken(payload) {
     try {
-        let keysRef = await DB.collection('keys').doc('payment').collection('magpie').doc('public').get();
+        let keysRef = await DB.collection('providers').doc('magpie').collection('keys').doc('public').get();
         const res = await axios({
             method: 'post',
             url: 'https://api.magpie.im/v1.1/tokens',
@@ -38,7 +38,7 @@ async function CreatePayment(payload) {
     try {
         // need to set up this and include in the data
 
-        let keysRef = await DB.collection('keys').doc('payment').collection('magpie').doc('secret').get();
+        let keysRef = await DB.collection('providers').doc('magpie').collection('keys').doc('secret').get();
         const res = await axios({
             method: 'post',
             url: 'https://api.magpie.im/v1.1/charges',
@@ -179,7 +179,8 @@ const payment = {
 
                         // Remove the 'capital' field from the document
                         const removePaymentDetails = stockOrderRef.update({
-                            paymentDetails: FIRESTORE.FieldValue.delete()
+                            paymentDetails: FIRESTORE.FieldValue.delete(),
+                            logisticsDetails: FIRESTORE.FieldValue.delete()
                         });
                         console.log(`Payment Failed Removing Payment Details" ${removePaymentDetails}`);
                         commit('SetPaymentOccured', false);

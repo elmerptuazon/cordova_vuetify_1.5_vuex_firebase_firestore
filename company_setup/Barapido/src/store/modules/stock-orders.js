@@ -58,6 +58,7 @@ export default {
 							product.image = productData.downloadURL;
 							product.name = productData.name;
 							product.unique = product.productId + unique;
+							product.weight = productData.weight;
 
 						}
 
@@ -436,7 +437,8 @@ export default {
 				submittedAt,
 				status: 'pending',
 				items: stockOrder.items,
-				paymentDetails: stockOrder.paymentDetails
+				paymentDetails: stockOrder.paymentDetails,
+				logisticsDetails: stockOrder.logisticsDetails
 			});
 
 
@@ -458,6 +460,7 @@ export default {
 					const productData = productRef.data();
 					product.resellerPrice = productData.resellerPrice;
 					product.price = productData.price;
+					product.weight = productData.weight;
 				}
 
 			}
