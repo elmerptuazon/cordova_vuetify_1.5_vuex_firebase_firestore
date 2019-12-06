@@ -179,7 +179,8 @@ const payment = {
 
                         // Remove the 'capital' field from the document
                         const removePaymentDetails = stockOrderRef.update({
-                            paymentDetails: FIRESTORE.FieldValue.delete()
+                            paymentDetails: FIRESTORE.FieldValue.delete(),
+                            logisticsDetails: FIRESTORE.FieldValue.delete()
                         });
                         console.log(`Payment Failed Removing Payment Details" ${removePaymentDetails}`);
                         commit('SetPaymentOccured', false);
