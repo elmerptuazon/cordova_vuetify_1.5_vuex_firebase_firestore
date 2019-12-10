@@ -1,4 +1,4 @@
-import {DB, AUTH, STORAGE, COLLECTION} from '@/config/firebaseInit';
+import { DB, AUTH, STORAGE, COLLECTION } from '@/config/firebaseInit';
 import loader from '@/assets/img/fb-loader-small.svg';
 const productStorageRef = STORAGE.ref('appsell').child('products');
 const moment = require('moment');
@@ -16,30 +16,30 @@ const products = {
 		GET_PRODUCT_QUERY: state => state.productQuery,
 	},
 	mutations: {
-		SET_PRODUCTS (state, payload) {
+		SET_PRODUCTS(state, payload) {
 			state.products = payload
 		},
-		CLEAR_PRODUCTS (state) {
+		CLEAR_PRODUCTS(state) {
 			state.products.length = []
 		},
-		SET_PRODUCT_QUERY (state, payload) {
-			state.productQuery = payload;	
+		SET_PRODUCT_QUERY(state, payload) {
+			state.productQuery = payload;
 		},
-		SET_SEARCHED_PRODUCTS (state, payload) {
+		SET_SEARCHED_PRODUCTS(state, payload) {
 			state.searchedProducts = payload
 		},
-		CLEAR_SEARCHED_PRODUCTS (state) {
+		CLEAR_SEARCHED_PRODUCTS(state) {
 			state.searchedProducts = []
 		},
 	},
 	actions: {
-		async GET_PRODUCTS ({commit}, payload) {
+		async GET_PRODUCTS({ commit }, payload) {
 			try {
 				commit('CLEAR_PRODUCTS')
 				let querySnapshot = await COLLECTION.products
-				.where('categoryId', '==', payload)
-				.where('active', '==', 1)
-				.get()
+					.where('categoryId', '==', payload)
+					.where('active', '==', 1)
+					.get()
 				let products = querySnapshot.docs.map((documentSnapshot) => {
 					const data = documentSnapshot.data()
 					data.id = documentSnapshot.id
@@ -55,7 +55,7 @@ const products = {
 				throw error
 			}
 		},
-		async GET_PRODUCT({}, product_id) {
+		async GET_PRODUCT({ }, product_id) {
 			try {
 				let data = {};
 				const doc = await COLLECTION.products.doc(product_id).get();
@@ -64,11 +64,11 @@ const products = {
 					data.id = doc.id;
 				}
 				return data;
-			} catch(error) {
+			} catch (error) {
 				return error;
 			}
 		},
-		GET_ALL_PRODUCTS ({}, payload) {
+		GET_ALL_PRODUCTS({ }, payload) {
 			return new Promise((resolve, reject) => {
 
 				const user = AUTH.currentUser;
@@ -86,10 +86,10 @@ const products = {
 					const startTimestamp = moment().startOf('month').format('x');
 					const endTimestamp = moment().endOf('month').format('x');
 					query = COLLECTION.orders
-					.where('created_at', '>=', +startTimestamp)
-					.where('created_at', '<=', +endTimestamp)
-					.where('resellerId', '==', user.uid)
-					.get();
+						.where('created_at', '>=', +startTimestamp)
+						.where('created_at', '<=', +endTimestamp)
+						.where('resellerId', '==', user.uid)
+						.get();
 				} else if (payload.selected === 'Quarter') {
 					const quarters = {
 						1: {
@@ -113,29 +113,29 @@ const products = {
 					const startTimestamp = moment(quarters[currentQuarter].start, 'M').startOf('month').format('x');
 					const endTimestamp = moment(quarters[currentQuarter].end, 'M').endOf('month').format('x');
 					query = COLLECTION.orders
-					.where('created_at', '>=', +startTimestamp)
-					.where('created_at', '<=', +endTimestamp)
-					.where('resellerId', '==', user.uid)
-					.get();
+						.where('created_at', '>=', +startTimestamp)
+						.where('created_at', '<=', +endTimestamp)
+						.where('resellerId', '==', user.uid)
+						.get();
 				}
 
 				query
-				.then((ordersSnapshot) => {
-					// get customer orders
-					const orders = ordersSnapshot.docs.map((documentSnapshot) => {
-						const data = documentSnapshot.data();
-						data.id = documentSnapshot.id;
-						return data;
-					});
+					.then((ordersSnapshot) => {
+						// get customer orders
+						const orders = ordersSnapshot.docs.map((documentSnapshot) => {
+							const data = documentSnapshot.data();
+							data.id = documentSnapshot.id;
+							return data;
+						});
 
-					// get basket items
-					const flattened_items = [].concat.apply([], orders.map((order) => {
-						return order.basket.map(item => item);
-					}));
+						// get basket items
+						const flattened_items = [].concat.apply([], orders.map((order) => {
+							return order.basket.map(item => item);
+						}));
 
-					resolve(flattened_items);
-				})
-				.catch(error => reject(error));
+						resolve(flattened_items);
+					})
+					.catch(error => reject(error));
 			});
 		},
 
@@ -143,8 +143,9 @@ const products = {
 			let allProducts = [];
 
 			commit('SET_PRODUCT_QUERY', payload);
-			const productSnapshot = await COLLECTION.products.where('name', '>=', payload).get();
-			if(!productSnapshot.empty) {
+
+			const productSnapshot = await COLLECTION.products.where('searchTerms', 'array-contains-any', payload.split(" ")).get();
+			if (!productSnapshot.empty) {
 				allProducts = productSnapshot.docs.map((doc) => {
 					const data = doc.data();
 					data.id = doc.id;
