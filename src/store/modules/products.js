@@ -143,8 +143,10 @@ const products = {
 			let allProducts = [];
 
 			commit('SET_PRODUCT_QUERY', payload);
-
-			const productSnapshot = await COLLECTION.products.where('searchTerms', 'array-contains-any', payload.split(" ")).get();
+			let searchTerms = payload.split(" ").map(terms => {
+				return terms.toLowerCase();
+			})
+			const productSnapshot = await COLLECTION.products.where('searchTerms', 'array-contains-any', searchTerms).get();
 			if (!productSnapshot.empty) {
 				allProducts = productSnapshot.docs.map((doc) => {
 					const data = doc.data();

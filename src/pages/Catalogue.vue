@@ -1,17 +1,6 @@
 <template>
   <div>
     <v-toolbar app color="primary" dark :extended="extended">
-      <v-text-field
-        label="Search products..."
-        clearable
-        v-model="search"
-        v-if="extended"
-        slot="extension"
-        class="mx-3"
-        flat
-        solo-inverted
-        @click:clear="clearProductQuery"
-      ></v-text-field>
       <BasketBadge />
       <v-btn icon @click="showSearchBar">
         <v-icon v-if="!extended">search</v-icon>
@@ -22,6 +11,18 @@
       </v-btn>
       <v-spacer></v-spacer>
       <Logo />
+      <v-text-field
+        label="Search products..."
+        clearable
+        v-model="search"
+        v-if="extended"
+        slot="extension"
+        class="mx-3"
+        flat
+        solo-inverted
+        @change="searchProduct"
+        @click:clear="clearProductQuery"
+      ></v-text-field>
     </v-toolbar>
 
     <v-container fluid>
