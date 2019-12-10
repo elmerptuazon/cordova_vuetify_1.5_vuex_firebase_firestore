@@ -396,7 +396,7 @@ export default {
             //save details for logisticsDetails
             this.$store.dispatch("stock_orders/UPDATE_STOCK_ORDER", {
               id: this.stockOrder.id,
-              key: logisticsDetails,
+              key: "logisticsDetails",
               value: this.stockOrder.logisticsDetails
             });
             //dispatch listener for CC Payment
