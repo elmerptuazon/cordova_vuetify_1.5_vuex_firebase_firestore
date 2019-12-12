@@ -45,9 +45,13 @@
       <span>Organizer</span>
       <v-icon>insert_chart</v-icon>
     </v-btn>
-    <v-btn flat color="white" value="more" class="reduced-width">
+    <!-- <v-btn flat color="white" value="more" class="reduced-width">
       <span>Account</span>
       <v-icon>account_circle</v-icon>
+    </v-btn> -->
+    <v-btn flat color="white" value="contacts" class="reduced-width">
+      <span>Customers</span>
+      <v-icon>people</v-icon>
     </v-btn>
   </v-bottom-nav>
 </template>
@@ -110,6 +114,8 @@ export default {
         this.$router.push({ name: "Catalogue" });
       } else if (val === "basket") {
         this.$router.push({ name: "MyBasket" });
+      } else if (val === "contacts") {
+        this.$router.push({ name: "Contacts" });
       }
     },
 
