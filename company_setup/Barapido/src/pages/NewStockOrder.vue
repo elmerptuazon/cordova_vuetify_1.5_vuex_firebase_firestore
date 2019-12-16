@@ -10,7 +10,7 @@
         <v-icon>refresh</v-icon>
       </v-btn>
       <v-spacer></v-spacer>
-      <Logo />
+      <Accounts />
     </v-toolbar>
 
     <table class="basket-table" v-show="!loader">

@@ -9,7 +9,7 @@
 			<v-spacer v-if="$store.state.rightAlignToolbarIcons"></v-spacer>
 			<BasketBadge tabName="msa" />
 			<v-spacer></v-spacer>
-			<Logo />
+			<Accounts />
 		</v-toolbar>
 
 		<v-container class="pa-0">

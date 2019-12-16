@@ -7,7 +7,7 @@
 	      </v-btn>
 	      <BasketBadge tabName="more" />
 	      <v-spacer></v-spacer>
-			<Logo />
+			<Accounts />
 	    </v-toolbar>
 
 	    <v-container>

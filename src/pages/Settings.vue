@@ -5,7 +5,7 @@
 			<v-btn icon @click="backToMain">
 				<v-icon>arrow_back</v-icon>
 			</v-btn>
-			<Logo />
+			<Accounts />
 			<v-toolbar-title v-if="$store.state.showToolbarTitles">Settings</v-toolbar-title>
 			<v-spacer></v-spacer>
 		</v-toolbar>
@@ -16,7 +16,7 @@
 			</v-btn>
 			<v-toolbar-title v-if="$store.state.showToolbarTitles">Settings</v-toolbar-title>
 			<v-spacer></v-spacer>
-			<Logo />
+			<Accounts />
 		</v-toolbar>
 
 		<div>

@@ -2,7 +2,7 @@
 	<div>
 		<v-toolbar app color="primary" dark :extended="extended" v-if="$store.state.rightAlignToolbarIcons">
 			<v-toolbar-title v-if="$store.state.showToolbarTitles">Catalogue</v-toolbar-title>
-			<Logo />
+			<Accounts />
 			<v-spacer></v-spacer>
 			<v-text-field label="Search category..." clearable v-model="search" v-if="extended" slot="extension" class="mx-3" flat solo-inverted
 			prepend-icon="arrow_back"></v-text-field>
@@ -23,7 +23,7 @@
 				<v-icon v-else>close</v-icon>
 			</v-btn>
 			<v-spacer></v-spacer>
-			<Logo />
+			<Accounts />
 		</v-toolbar>
 
 		<v-container grid-list-lg>

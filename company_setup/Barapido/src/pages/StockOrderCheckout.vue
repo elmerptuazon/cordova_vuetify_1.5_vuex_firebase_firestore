@@ -10,7 +10,7 @@
       <v-spacer v-if="$store.state.rightAlignToolbarIcons"></v-spacer>
       <BasketBadge tabName="msa" />
       <v-spacer></v-spacer>
-      <Logo />
+      <Accounts />
     </v-toolbar>
 
     <v-stepper v-model="stepperCounter">

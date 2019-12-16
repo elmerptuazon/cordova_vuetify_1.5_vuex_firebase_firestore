@@ -7,7 +7,7 @@
 			</v-btn>
 			<BasketBadge tabName="msa" />
 			<v-spacer></v-spacer>
-			<Logo />
+			<Accounts />
 		</v-toolbar>
 
 		<table class="basket-table">

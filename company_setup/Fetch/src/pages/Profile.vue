@@ -9,7 +9,7 @@
 				<v-icon>border_color</v-icon>
 			</v-btn>
 			<v-spacer></v-spacer>
-			<Logo />
+			<Accounts />
 		</v-toolbar>
 
 		<v-container fluid grid-list-lg>

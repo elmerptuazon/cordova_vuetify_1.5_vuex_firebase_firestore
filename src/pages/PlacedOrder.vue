@@ -16,7 +16,7 @@
 				<v-icon>delete</v-icon>
 			</v-btn>
 			<v-spacer></v-spacer>
-			<Logo />
+			<Accounts />
 		</v-toolbar>
 
 		<v-container class="pa-0 pt-2 ma-0" grid-list-xs fluid>

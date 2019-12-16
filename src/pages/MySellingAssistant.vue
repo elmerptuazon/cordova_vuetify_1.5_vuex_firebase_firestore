@@ -3,7 +3,7 @@
     <v-toolbar app color="primary" dark>
       <BasketBadge tabName="msa" />
       <v-spacer></v-spacer>
-      <Logo />
+      <Accounts />
     </v-toolbar>
 
     <v-container>

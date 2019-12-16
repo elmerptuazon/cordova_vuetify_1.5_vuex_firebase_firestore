@@ -6,7 +6,7 @@
       </v-btn>
       <BasketBadge tabName="msa" />
       <v-spacer></v-spacer>
-      <Logo />
+      <Accounts />
     </v-toolbar>
 
     <v-container>

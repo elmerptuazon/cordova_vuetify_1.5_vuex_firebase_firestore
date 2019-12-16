@@ -11,7 +11,7 @@
 			</v-btn>
 
 			<v-spacer></v-spacer>
-			<Logo />
+			<Accounts />
 		</v-toolbar>
 
 		<v-container fluid grid-list-lg>
