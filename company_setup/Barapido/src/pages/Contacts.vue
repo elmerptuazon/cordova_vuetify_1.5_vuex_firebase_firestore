@@ -1,9 +1,6 @@
 <template>
   <div>
     <v-toolbar app color="primary" dark :extended="extended">
-      <v-btn icon @click="backToMore">
-        <v-icon>arrow_back</v-icon>
-      </v-btn>
       <v-text-field
         label="Search contact..."
         clearable
@@ -161,6 +158,7 @@
         </v-list>
       </div>
     </v-container>
+    <BottomNav currentTab="contacts" />
   </div>
 </template>
 
@@ -168,6 +166,7 @@
 import { mixins } from "@/mixins";
 import { mapGetters } from "vuex";
 import { Spinner } from "mint-ui";
+import BottomNav from "@/components/BottomNav";
 const malePlaceholder = require("./../../static/img/male-default.jpg");
 const femalePlaceholder = require("./../../static/img/female-default.jpg");
 const loader = require("./../../static/img/spinner.gif");
