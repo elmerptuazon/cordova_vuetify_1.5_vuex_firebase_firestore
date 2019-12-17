@@ -53,8 +53,8 @@ async function CreatePayment(payload) {
                 "source": payload.tokenDetails,
                 "capture": true,
                 "gateway": "magpie_3ds",
-                "redirect_url": `https://us-central1-barapido-dev.cloudfunctions.net/callback/checkPaymentStatus/${payload.stockOrder.id}`,
-                "callback_url": `https://us-central1-barapido-dev.cloudfunctions.net/callback/checkPaymentStatus/${payload.stockOrder.id}`
+                "redirect_url": `${process.env.callbackURL}/${payload.stockOrder.id}`,
+                "callback_url": `${process.env.callbackURL}/${payload.stockOrder.id}`
             },
             auth: {
                 username: keysRef.data().key,
