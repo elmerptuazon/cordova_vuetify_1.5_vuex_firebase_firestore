@@ -12,5 +12,7 @@ module.exports = {
   companyName: '"Barapido"',
   version: '"0.6.8"',
   primaryColor: '"#16A2AF"',
-  environment: '"live"'
+  environment: '"live"',
+  callbackURL: '"https://us-central1-barapido-baf1e.cloudfunctions.net/callback/checkPaymentStatus"',
+  barapidoShippingURL: '"https://us-central1-barapido-baf1e.cloudfunctions.net/barapidoAPI/getQuotation"'
 }
