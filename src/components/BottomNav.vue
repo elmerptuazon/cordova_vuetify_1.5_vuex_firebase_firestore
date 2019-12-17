@@ -49,7 +49,13 @@
       <span>Account</span>
       <v-icon>account_circle</v-icon>
     </v-btn> -->
-    <v-btn flat color="white" value="contacts" class="reduced-width">
+    <v-btn
+      v-if="user.type === 'Reseller'"
+      flat
+      color="white"
+      value="contacts"
+      class="reduced-width"
+    >
       <span>Customers</span>
       <v-icon>people</v-icon>
     </v-btn>
