@@ -15,5 +15,7 @@ module.exports = merge(prodEnv, {
   companyName: '"Barapido"',
   version: '"0.6.8"',
   primaryColor: '"#16A2AF"',
-  environment: '"test"'
+  environment: '"test"',
+  callbackURL: '"https://us-central1-barapido-dev.cloudfunctions.net/callback/checkPaymentStatus"',
+  barapidoShippingURL: '"https://us-central1-barapido-dev.cloudfunctions.net/barapidoAPI/getQuotation"'
 })

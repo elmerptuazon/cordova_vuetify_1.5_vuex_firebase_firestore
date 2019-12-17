@@ -109,7 +109,7 @@ const providers = {
                     //run http call for different url to get quotations per company
                     const res = await axios({
                         method: 'get',
-                        url: 'https://us-central1-barapido-dev.cloudfunctions.net/barapidoAPI/getQuotation',
+                        url: process.env.barapidoShippingURL,
                         params: {
                             province: payload.toAddress.province,
                             cityMun: payload.toAddress.citymun,
