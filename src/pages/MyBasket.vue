@@ -10,7 +10,7 @@
       <v-btn icon @click="back" v-if="user.type === 'Reseller'">
         <v-icon>arrow_back</v-icon>
       </v-btn>
-      <Logo />
+      <Accounts />
       <div v-if="$store.state.showToolbarTitles">
         <v-toolbar-title v-if="user.type === 'Customer'"
           >Orders</v-toolbar-title
@@ -77,7 +77,7 @@
         <v-icon v-else>close</v-icon>
       </v-btn>
       <v-spacer></v-spacer>
-      <Logo />
+      <Accounts />
     </v-toolbar>
 
     <v-container class="pa-0">

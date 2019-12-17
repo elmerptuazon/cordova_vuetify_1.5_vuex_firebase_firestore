@@ -15,7 +15,7 @@
         <v-icon>save</v-icon>
       </v-btn>
       <v-spacer></v-spacer>
-      <Logo />
+      <Accounts />
     </v-toolbar>
 
     <v-container fluid grid-list-md>

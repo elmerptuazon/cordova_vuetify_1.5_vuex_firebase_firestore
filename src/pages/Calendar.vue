@@ -6,7 +6,7 @@
 				<v-icon>arrow_back</v-icon>
 			</v-btn>
 			<v-spacer></v-spacer>
-			<Logo />
+			<Accounts />
 			<v-toolbar-title v-if="$store.state.showToolbarTitles">Calendar</v-toolbar-title>
 			<BasketBadge tabName="msa" />
 		</v-toolbar>
@@ -18,7 +18,7 @@
 			<v-toolbar-title v-if="$store.state.showToolbarTitles">Calendar</v-toolbar-title>
 			<BasketBadge tabName="msa" />
 			<v-spacer></v-spacer>
-			<Logo />
+			<Accounts />
 		</v-toolbar>
 
 		<v-container class="pa-0">

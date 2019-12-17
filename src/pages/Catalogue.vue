@@ -10,7 +10,7 @@
         <v-icon>search</v-icon>
       </v-btn>
       <v-spacer></v-spacer>
-      <Logo />
+      <Accounts />
       <v-text-field
         label="Search products..."
         clearable

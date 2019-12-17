@@ -8,7 +8,8 @@ import Dialog from '@/components/Dialog';
 import CheckMark from '@/components/CheckMark';
 // import {StarRating} from 'vue-rate-it';
 import { mapGetters } from 'vuex';
-import Logo from '@/components/CompanyLogo';
+//import Logo from '@/components/CompanyLogo';
+import Accounts from '@/components/Accounts';
 import BottomNav from '@/components/BottomNav';
 
 export const mixins = {
@@ -109,7 +110,8 @@ export const mixins = {
   components: {
     Dialog,
     CheckMark,
-    Logo,
+    //Logo,
+    Accounts,
     BottomNav
   }
 }

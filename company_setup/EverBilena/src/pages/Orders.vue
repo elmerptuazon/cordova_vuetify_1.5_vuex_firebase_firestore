@@ -16,7 +16,7 @@
 			</v-btn>
 			<BasketBadge v-if="user.type === 'Reseller'" />
 			<v-spacer></v-spacer>
-			<Logo />
+			<Accounts />
 		</v-toolbar>
 
 		<v-tabs

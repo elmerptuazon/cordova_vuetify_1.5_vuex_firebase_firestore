@@ -27,7 +27,7 @@
         <v-icon>person_add</v-icon>
       </v-btn>
       <v-spacer></v-spacer>
-      <Logo />
+      <Accounts />
     </v-toolbar>
 
     <v-container fluid grid-list-lg class="pa-0 pt-3">

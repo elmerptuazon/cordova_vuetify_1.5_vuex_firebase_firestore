@@ -11,7 +11,7 @@
 				<v-icon>share</v-icon>
 			</v-btn>
 			<v-spacer></v-spacer>
-			<Logo />
+			<Accounts />
 		</v-toolbar>
 
 		<div class="text-xs-center mt-5" v-if="!product.id">

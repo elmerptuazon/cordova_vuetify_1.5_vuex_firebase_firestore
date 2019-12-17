@@ -5,7 +5,7 @@
       <v-btn icon @click="goBack">
         <v-icon>arrow_back</v-icon>
       </v-btn>
-      <Logo />
+      <Accounts />
       <v-spacer></v-spacer>
       <v-toolbar-title v-if="$store.state.showToolbarTitles">Sales Performance</v-toolbar-title>
       <BasketBadge tabName="msa" />
@@ -19,7 +19,7 @@
       <v-spacer v-if="$store.state.rightAlignToolbarIcons"></v-spacer>
       <BasketBadge tabName="msa" />
       <v-spacer></v-spacer>
-      <Logo />
+      <Accounts />
     </v-toolbar>
 
     <v-container>

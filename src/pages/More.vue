@@ -3,7 +3,7 @@
     <v-toolbar app color="primary" dark>
       <BasketBadge />
       <v-spacer></v-spacer>
-      <Logo />
+      <Accounts />
     </v-toolbar>
 
     <v-container fluid grid-list-lg v-if="user.type === 'Reseller'">
