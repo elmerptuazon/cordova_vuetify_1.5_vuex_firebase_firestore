@@ -647,6 +647,7 @@ const accounts = {
 
 		async LOG_OUT({ rootState, commit, state, dispatch }) {
 			try {
+				const user = state.user;
 				// SET USER TO AN EMPTY OBJECT
 				commit('SET_USER', {});
 				// EMPTY CATALOGUES
@@ -663,8 +664,10 @@ const accounts = {
 					dispatch('catalogues/UNSUBSCRIBE_FROM_CATALOGUES', {}, { root: true });
 				}
 				//UNSUBSCRIBE TO PROVIDERS
-				commit('providers/UnsubscribeToPaymentSubscriber', null, { root: true })
-				commit('providers/UnsubscribeToLogisticsSubscriber', null, { root: true })
+				if(user.type === 'Reseller') {
+					commit('providers/UnsubscribeToPaymentSubscriber', null, { root: true })
+					commit('providers/UnsubscribeToLogisticsSubscriber', null, { root: true })
+				}
 				return await AUTH.signOut();
 			} catch (error) {
 				throw error;
