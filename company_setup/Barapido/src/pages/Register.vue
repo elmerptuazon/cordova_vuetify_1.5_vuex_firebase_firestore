@@ -13,11 +13,16 @@
         <v-divider></v-divider>
 
         <v-stepper-step :complete="frame > 3" step="3"
+          >Referral / Reseller Details</v-stepper-step
+        >
+        <v-divider></v-divider>
+
+        <v-stepper-step :complete="frame > 4" step="4"
           >Account Details</v-stepper-step
         >
         <v-divider></v-divider>
 
-        <v-stepper-step step="4"
+        <v-stepper-step step="5"
           >Upload Profile Pic and Proof of ID</v-stepper-step
         >
       </v-stepper-header>
@@ -180,8 +185,85 @@
         </v-stepper-content>
 
         <v-stepper-content step="3">
+          <v-layout row wrap>
+            <v-flex xs12>
+              <div class="font-weight-bold text-center" v-if="registerData.type === 'Reseller'">Referred By</div>
+              <div class="font-weight-bold text-center" v-else>Reseller Details</div>
+            </v-flex>
+            
+            <v-flex xs12 mt-3>
+              <v-text-field
+                clearable
+                label="Email address or Membership ID"
+                v-model="referralSearch"
+              ></v-text-field>
+            </v-flex>
+
+            <v-flex xs12 mt-3>
+              <p v-if="registerData.type === 'Reseller'" class="grey--text text--darken-2 mt-4 subheading text-xs-center">
+                {{
+                  `${referralBy.firstName ||
+                    "Your"} ${referralBy.middleInitial ||
+                    ""} ${referralBy.lastName || "Referrer"}`
+                }}
+              </p>
+              <p v-else class="grey--text text--darken-2 mt-4 subheading text-xs-center">
+                {{
+                  `${referralBy.firstName ||
+                    "Your"} ${referralBy.middleInitial ||
+                    ""} ${referralBy.lastName || "Reseller"}`
+                }}
+              </p>
+              <div class="text-xs-center">
+                <v-avatar :tile="true" size="92px" class="grey lighten-4">
+                  <v-img :src="imgObj.src"></v-img>
+                </v-avatar>
+              </div>
+            </v-flex>
+          </v-layout>
+          
+          <v-layout row wrap mt-2 mb-4 align-center>
+            <v-btn
+              depressed
+              @click="findReferral"
+              color="primary"
+              :loading="btnLoading"
+              :disabled="btnLoading || !referralSearch"
+              block
+              v-show="!referralFound"
+              >
+                <span v-if="registerData.type === 'Reseller'">Find Your Referrer</span>
+                <span v-else>Find your Reseller</span>
+            </v-btn>
+            <v-btn
+              depressed
+              color="primary"
+              block
+              v-show="referralFound"
+              @click="confirmReferral"
+              :loading="btnLoading"
+              :disabled="btnLoading"
+              >
+                <span v-if="registerData.type === 'Reseller'">Confirm Your Referrer</span>
+                <span v-else>Confirm your Reseller</span>
+                <v-icon right>arrow_forward</v-icon>
+            </v-btn>
+          </v-layout>
+
+          <v-layout row wrap mt-4 align-center justify-center>
+            <v-flex xs5>
+              <v-btn depressed outline @click="frame -= 1">BACK</v-btn>
+            </v-flex>
+
+            <v-flex xs6>
+              <v-btn depressed outline color="primary" @click="proceed(3)">SKIP FOR NOW</v-btn>
+            </v-flex>
+          </v-layout>
+        </v-stepper-content>
+
+        <v-stepper-content step="4">
           <v-form
-            ref="form3"
+            ref="form4"
             lazy-validation
             @submit.prevent="confirmationDialog = true"
           >
@@ -273,7 +355,7 @@
           </v-form>
         </v-stepper-content>
 
-        <v-stepper-content step="4">
+        <v-stepper-content step="5">
           <div class="px-4 mt-4">
             <v-flex xs12>
               <div
@@ -510,7 +592,14 @@ export default {
     cities: [],
     barangays: [],
     submitBtnDisabled: false,
-    agree: false
+    agree: false,
+
+    referralSearch: null,
+    referralBy: {},
+    imgObj: {},
+    referralFound: false,
+    btnLoading: false,
+
   }),
   created() {
     this.provinces = provinces;
@@ -542,7 +631,7 @@ export default {
     async submitInfo() {
       this.confirmationDialog = false;
 
-      if (!this.$refs.form3.validate()) {
+      if (!this.$refs.form4.validate()) {
         this.$refs.modal.show(
           "Sorry",
           "One or more mandatory fields are required"
