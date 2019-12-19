@@ -647,7 +647,7 @@ const accounts = {
 
 		async LOG_OUT({ rootState, commit, state, dispatch }) {
 			try {
-				const user = AUTH.currentUser;
+				const user = state.user;
 				// SET USER TO AN EMPTY OBJECT
 				commit('SET_USER', {});
 				// EMPTY CATALOGUES
