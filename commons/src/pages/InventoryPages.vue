@@ -50,8 +50,6 @@
   import BottomNav from '@/components/BottomNav'
   import BasketBadge from '@/components/BasketBadge'
   import InventoryImage from '@/assets/msa/msa-inventory.png'
-  import CurrentStockOrders from '@/assets/inventory/current-stock-orders.png'
-  import PreviousStockOrders from '@/assets/inventory/previous-stock-orders.png'
   export default {
     mixins: [mixins],
     data: () => ({
