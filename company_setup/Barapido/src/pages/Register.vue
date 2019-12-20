@@ -769,7 +769,7 @@ export default {
         this.Indicator().open();
 
         delete this.referralBy.customers;
-        this.registerData.refferedBy = Object.assign({}, this.referralBy);
+        this.registerData.referredBy = Object.assign({}, this.referralBy);
 
         try {
           await this.$store.dispatch("accounts/UPDATE_ACCOUNT", this.registerData);
@@ -792,6 +792,7 @@ export default {
         this.frame++;
       }
       else {
+        delete this.registerData.referralBy;
         const payload = {
           customers: this.referralBy.customers,
           customerId: this.registerData.uid,
