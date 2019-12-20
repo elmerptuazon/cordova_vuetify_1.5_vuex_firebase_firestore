@@ -12,13 +12,13 @@
         >
         <v-divider></v-divider>
 
-        <v-stepper-step :complete="frame > 3" step="3"
-          >Referral / Reseller Details</v-stepper-step
+         <v-stepper-step :complete="frame > 3" step="3"
+          >Account Details</v-stepper-step
         >
         <v-divider></v-divider>
 
         <v-stepper-step :complete="frame > 4" step="4"
-          >Account Details</v-stepper-step
+          >Referral / Reseller Details</v-stepper-step
         >
         <v-divider></v-divider>
 
@@ -185,83 +185,6 @@
         </v-stepper-content>
 
         <v-stepper-content step="3">
-          <v-layout row wrap>
-            <v-flex xs12>
-              <div class="font-weight-bold text-center" v-if="registerData.type === 'Reseller'">Referred By</div>
-              <div class="font-weight-bold text-center" v-else>Reseller Details</div>
-            </v-flex>
-            
-            <v-flex xs12 mt-3>
-              <v-text-field
-                clearable
-                label="Email address or Membership ID"
-                v-model="referralSearch"
-              ></v-text-field>
-            </v-flex>
-
-            <v-flex xs12 mt-3>
-              <p v-if="registerData.type === 'Reseller'" class="grey--text text--darken-2 mt-4 subheading text-xs-center">
-                {{
-                  `${referralBy.firstName ||
-                    "Your"} ${referralBy.middleInitial ||
-                    ""} ${referralBy.lastName || "Referrer"}`
-                }}
-              </p>
-              <p v-else class="grey--text text--darken-2 mt-4 subheading text-xs-center">
-                {{
-                  `${referralBy.firstName ||
-                    "Your"} ${referralBy.middleInitial ||
-                    ""} ${referralBy.lastName || "Reseller"}`
-                }}
-              </p>
-              <div class="text-xs-center">
-                <v-avatar :tile="true" size="92px" class="grey lighten-4">
-                  <v-img :src="imgObj.src"></v-img>
-                </v-avatar>
-              </div>
-            </v-flex>
-          </v-layout>
-          
-          <v-layout row wrap mt-2 mb-4 align-center>
-            <v-btn
-              depressed
-              @click="findReferral"
-              color="primary"
-              :loading="btnLoading"
-              :disabled="btnLoading || !referralSearch"
-              block
-              v-show="!referralFound"
-              >
-                <span v-if="registerData.type === 'Reseller'">Find Your Referrer</span>
-                <span v-else>Find your Reseller</span>
-            </v-btn>
-            <v-btn
-              depressed
-              color="primary"
-              block
-              v-show="referralFound"
-              @click="confirmReferral"
-              :loading="btnLoading"
-              :disabled="btnLoading"
-              >
-                <span v-if="registerData.type === 'Reseller'">Confirm Your Referrer</span>
-                <span v-else>Confirm your Reseller</span>
-                <v-icon right>arrow_forward</v-icon>
-            </v-btn>
-          </v-layout>
-
-          <v-layout row wrap mt-4 align-center justify-center>
-            <v-flex xs5>
-              <v-btn depressed outline @click="frame -= 1">BACK</v-btn>
-            </v-flex>
-
-            <v-flex xs6>
-              <v-btn depressed outline color="primary" @click="proceed(3)">SKIP FOR NOW</v-btn>
-            </v-flex>
-          </v-layout>
-        </v-stepper-content>
-
-        <v-stepper-content step="4">
           <v-form
             ref="form4"
             lazy-validation
@@ -344,7 +267,7 @@
                   :disabled="submitBtnDisabled || !registerData.confirmPassword"
                   :loading="submitBtnDisabled"
                 >
-                  Submit Account Details
+                  Submit Details and Proceed
                   <v-icon right>arrow_forward</v-icon>
                 </v-btn>
               </v-flex>
@@ -353,6 +276,84 @@
               </v-flex>
             </v-layout>
           </v-form>
+        </v-stepper-content>
+
+        <v-stepper-content step="4">
+          <v-layout row wrap>
+            <v-flex xs12>
+              <div class="font-weight-bold text-center" v-if="registerData.type === 'Reseller'">Referred By</div>
+              <div class="font-weight-bold text-center" v-else>Reseller Details</div>
+            </v-flex>
+            
+            <v-flex xs12 mt-3>
+              <v-text-field
+                clearable
+                label="Email address or Membership ID"
+                v-model="referralSearch"
+                @click:clear="clearReferralField"
+              ></v-text-field>
+            </v-flex>
+
+            <v-flex xs12 mt-3>
+              <p v-if="registerData.type === 'Reseller'" class="grey--text text--darken-2 mt-4 subheading text-xs-center">
+                {{
+                  `${referralBy.firstName ||
+                    "Your"} ${referralBy.middleInitial ||
+                    ""} ${referralBy.lastName || "Referrer"}`
+                }}
+              </p>
+              <p v-else class="grey--text text--darken-2 mt-4 subheading text-xs-center">
+                {{
+                  `${referralBy.firstName ||
+                    "Your"} ${referralBy.middleInitial ||
+                    ""} ${referralBy.lastName || "Reseller"}`
+                }}
+              </p>
+              <div class="text-xs-center">
+                <v-avatar :tile="true" size="92px" class="grey lighten-4">
+                  <v-img :src="imgObj.src"></v-img>
+                </v-avatar>
+              </div>
+            </v-flex>
+          </v-layout>
+          
+          <v-layout row wrap mt-2 mb-4 align-center>
+            <v-btn
+              depressed
+              @click="findReferral"
+              color="primary"
+              :loading="btnLoading"
+              :disabled="btnLoading || !referralSearch"
+              block
+              v-show="!referralFound"
+              >
+                <span v-if="registerData.type === 'Reseller'">Find Your Referrer</span>
+                <span v-else>Find your Reseller</span>
+            </v-btn>
+            <v-btn
+              depressed
+              color="primary"
+              block
+              v-show="referralFound"
+              @click="confirmReferral"
+              :loading="btnLoading"
+              :disabled="btnLoading"
+              >
+                <span v-if="registerData.type === 'Reseller'">Confirm Your Referrer</span>
+                <span v-else>Confirm your Reseller</span>
+                <v-icon right>arrow_forward</v-icon>
+            </v-btn>
+          </v-layout>
+
+          <v-layout row wrap mt-4 align-center justify-center>
+            <v-flex xs5>
+              <v-btn depressed outline @click="frame -= 1">BACK</v-btn>
+            </v-flex>
+
+            <v-flex xs6>
+              <v-btn depressed outline color="primary" @click="proceed(4)">SKIP FOR NOW</v-btn>
+            </v-flex>
+          </v-layout>
         </v-stepper-content>
 
         <v-stepper-content step="5">
@@ -628,6 +629,12 @@ export default {
       this.$refs.form2.resetValidation();
       this.frame++;
     },
+    clearReferralField() {
+      this.referralSearch = null;
+      this.referralBy = {};
+      this.referralFound = false;
+      this.imgObj = {};
+    },
     async submitInfo() {
       this.confirmationDialog = false;
 
@@ -655,8 +662,11 @@ export default {
       this.submitBtnDisabled = true;
       this.disableBack();
 
+      this.registerData.hasPicture = null;
       this.registerData.displayPicture = null;
       this.registerData.proofOfId = null;
+
+      this.registerData.referredBy = {};
 
       const registerData = JSON.parse(JSON.stringify(this.registerData));
       registerData.createdAt = Date.now();
@@ -679,6 +689,7 @@ export default {
           this.enableBack();
           this.submitBtnDisabled = false;
           this.registerData = response;
+
           this.frame++;
         } catch (error) {
           console.log(error);
@@ -707,7 +718,107 @@ export default {
         this.$refs.modal.show("Sorry", "Phone Auth is yet to be created");
         this.submitBtnDisabled = false;
         this.enableBack();
+      }
+    },
+    async findReferral() {
+      this.Indicator().open();
+
+      let res;
+      try {
+        res = await this.$store.dispatch("accounts/FIND_RESELLER", { data: this.referralSearch });
+      }
+      catch(error) {
+        console.log(error);
+        this.Indicator().close();
+        this.$refs.modal.show(
+          "Sorry",
+          "There was an error while retrieving the reseller..."
+        );
         return;
+      }
+
+      console.log(res);
+      if(!res.empty) {
+        this.Indicator().close();
+        this.referralFound = true;
+        const reseller = res.data;
+
+        this.referralBy.firstName = reseller.firstName;
+        this.referralBy.middleInitial = reseller.middleInitial;
+        this.referralBy.lastName = reseller.lastName;
+        this.referralBy.uid = reseller.uid;
+        this.referralBy.agentId = reseller.agentId;
+        this.referralBy.customers = reseller.customers;
+
+        this.imgObj.src =
+          reseller.downloadURL || MaleDefaultImage;
+        
+        console.log(this.imgObj);
+      }
+      else {
+        this.Indicator().close();
+        this.referralFound = false;
+        this.$refs.modal.show(
+          "Sorry",
+          "No reseller was found. Please try again."
+        );
+      }
+    },
+    async confirmReferral() {
+      if(this.registerData.type === 'Reseller') {
+        this.Indicator().open();
+
+        delete this.referralBy.customers;
+        this.registerData.refferedBy = Object.assign({}, this.referralBy);
+
+        try {
+          await this.$store.dispatch("accounts/UPDATE_ACCOUNT", this.registerData);
+        }
+        catch(error) {
+          console.log(error);
+          this.Indicator().close();
+          this.$refs.modal.show(
+            "Confirm Referral error",
+            "Unexpected error occurred. Please try again.",
+          );
+          return;
+        }
+
+        this.Indicator().close();
+        this.$refs.modal.show(
+          "Success!",
+          "Your referral was added successfully!",
+        );
+        this.frame++;
+      }
+      else {
+        const payload = {
+          customers: this.referralBy.customers,
+          customerId: this.registerData.uid,
+          resellerId: this.referralBy.uid,
+          resellerData: this.referralBy
+        };
+
+        this.Indicator().open();
+
+        try {
+          await this.$store.dispatch("accounts/ADD_CUSTOMER_TO_RESELLER", payload);
+
+          this.Indicator().close();
+          this.$refs.modal.show(
+            "Success",
+            "Your reseller has been updated.",
+          );
+          this.frame++;
+        }
+        catch(error) {
+          console.log(error);
+          this.Indicator().close();
+          this.$refs.modal.show(
+            "Confirm reseller error",
+            "Unexpected error occurred. Please try again.",
+          );
+        }
       }
     },
     async submitPhotoId() {
