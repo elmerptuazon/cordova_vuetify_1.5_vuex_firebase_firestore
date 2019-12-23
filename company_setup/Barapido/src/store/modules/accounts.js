@@ -299,7 +299,7 @@ const accounts = {
 				throw error
 			}
 		},
-
+		
 		async ADD_CUSTOMER_TO_RESELLER({ commit, state }, payload) {
 			try {
 				const newCustomer = {};
@@ -353,6 +353,25 @@ const accounts = {
 				}
 			} catch (error) {
 				throw error
+			}
+		},
+		async ADD_REFERRED_BY_TO_RESELLER({ commit, state, dispatch }, payload) {
+			try {
+				await COLLECTION.accounts.doc(payload.uid).update({referredById: payload.referredById});
+				state.user.referredById = payload.referredById;
+			} 
+			catch(error) {
+				throw error;
+			}
+
+			try {
+				const response = await dispatch("FIND_RESELLER", {
+					data: payload.referrersEmail
+				});
+				state.user.referredBy = response.data;
+			}
+			catch(error) {
+				throw error;
 			}
 		},
 		async GET_PROFILE_PICTURE(context, payload) {
@@ -661,6 +680,7 @@ const accounts = {
 
 		async LOG_OUT({ rootState, commit, state, dispatch }) {
 			try {
+				const user = state.user;
 				// SET USER TO AN EMPTY OBJECT
 				commit('SET_USER', {});
 				// EMPTY CATALOGUES
@@ -677,8 +697,10 @@ const accounts = {
 					dispatch('catalogues/UNSUBSCRIBE_FROM_CATALOGUES', {}, { root: true });
 				}
 				//UNSUBSCRIBE TO PROVIDERS
-				commit('providers/UnsubscribeToPaymentSubscriber', null, { root: true })
-				commit('providers/UnsubscribeToLogisticsSubscriber', null, { root: true })
+				if(user.type === 'Reseller' && user.status === 'approved') {
+					commit('providers/UnsubscribeToPaymentSubscriber', null, { root: true })
+					commit('providers/UnsubscribeToLogisticsSubscriber', null, { root: true })
+				}
 				return await AUTH.signOut();
 			} catch (error) {
 				throw error;
@@ -723,6 +745,19 @@ const accounts = {
 								loading: loader
 							}
 							userData.resellerData.imageObj.src = userData.resellerData.downloadURL
+						}
+					}
+				}
+				else {
+					if(userData.referredById) {
+						userData.referredBy = {}
+						const myReferrer = await COLLECTION.accounts.doc(userData.referredById).get()
+						const myReferrerData = myReferrer.data()
+						myReferrerData.uid = myReferrer.id
+						userData.referredBy = Object.assign({}, myReferrerData)
+						if (!userData.referredBy.hasPicture) {
+							const rsrc = userData.referredBy.gender === 'Male' ? malePlaceholder : femalePlaceholder
+							userData.referredBy.placeholder = rsrc
 						}
 					}
 				}
