@@ -18,7 +18,20 @@
             label="Email address or Membership ID"
             v-model="resellerSearch"
           ></v-text-field>
-          <p class="grey--text text--darken-2 mt-4 subheading text-xs-center">
+          <p 
+            class="grey--text text--darken-2 mt-4 subheading text-xs-center" 
+            v-if="user.type === 'Reseller'"
+          >
+            {{
+              `${resellerDetails.firstName ||
+                "Your"} ${resellerDetails.middleInitial ||
+                ""} ${resellerDetails.lastName || "Referrer"}`
+            }}
+          </p>
+          <p 
+            class="grey--text text--darken-2 mt-4 subheading text-xs-center"
+            v-else
+          >
             {{
               `${resellerDetails.firstName ||
                 "Your"} ${resellerDetails.middleInitial ||
@@ -40,7 +53,10 @@
               block
               large
               v-show="!resellerFound"
-              >Find Your Reseller</v-btn
+              >
+                <span v-if="user.type === 'Reseller'">Find Your Referrer</span>
+                <span v-else>Find Your Reseller</span>
+              </v-btn
             >
             <v-btn
               depressed
@@ -51,7 +67,10 @@
               @click="showConfirmationDialog"
               :loading="btnLoading"
               :disabled="btnLoading"
-              >Confirm Reseller</v-btn
+              >
+                <span v-if="user.type === 'Reseller'">Confirm Your Referrer</span>
+                <span v-else>Confirm Your Reseller</span>
+              </v-btn
             >
             <div class="mt-4 text-xs-center">
               <v-btn flat type="button" color="primary" @click="goBack"
@@ -142,8 +161,13 @@ export default {
     },
     confirmReseller() {
       if(this.user.type === 'Reseller') {
+
         this.Indicator().open();
-        this.$store.dispatch("accounts/UPDATE_ACCOUNT", {referredById: this.resellerDetails.uid})
+        this.$store.dispatch("accounts/ADD_REFERRED_BY_TO_RESELLER", {
+          referredById: this.resellerDetails.uid,
+          referrersEmail: this.resellerDetails.email,
+          uid: this.user.uid,
+        })
         .then(() => {
           this.Indicator().close();
           this.$refs.modal.show(
@@ -214,6 +238,10 @@ export default {
   created() {
     this.action = this.$route.params.action === "add" ? "Add" : "Update";
     const userReseller = this.user.resellerData;
+    if(!this.user.referredBy || this.user.referredBy === undefined) {
+      this.imgObj.src = MaleDefaultImage;
+    }
+
     if (userReseller !== undefined) {
       this.resellerDetails = userReseller;
       this.imgObj.src = userReseller.downloadURL || MaleDefaultImage;
