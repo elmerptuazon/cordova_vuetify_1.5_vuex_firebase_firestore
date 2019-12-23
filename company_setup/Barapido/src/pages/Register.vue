@@ -666,8 +666,10 @@ export default {
       this.registerData.displayPicture = null;
       this.registerData.proofOfId = null;
 
-      this.registerData.referredBy = {};
-
+      if(this.registerData.type === "Reseller") {
+        this.registerData.referredById = null;
+      }
+      
       const registerData = JSON.parse(JSON.stringify(this.registerData));
       registerData.createdAt = Date.now();
 
@@ -768,8 +770,7 @@ export default {
       if(this.registerData.type === 'Reseller') {
         this.Indicator().open();
 
-        delete this.referralBy.customers;
-        this.registerData.referredBy = Object.assign({}, this.referralBy);
+        this.registerData.referredById = this.referralBy.uid;
 
         try {
           await this.$store.dispatch("accounts/UPDATE_ACCOUNT", this.registerData);
@@ -790,6 +791,7 @@ export default {
           "Your referral was added successfully!",
         );
         this.frame++;
+        this.referralBy = {};
       }
       else {
         delete this.registerData.referralBy;
@@ -964,6 +966,7 @@ export default {
     // },
 
     startObserversAndProceed(registerData, response) {
+      this.$store.dispatch("accounts/START_OBSERVERS", registerData);
       this.$store.dispatch("orders/LISTEN_TO_PROPOSED_DELIVERIES", {
         id: response.uid
       });

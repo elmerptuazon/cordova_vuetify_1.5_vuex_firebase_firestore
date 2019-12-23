@@ -48,7 +48,7 @@
               block
               large
               v-show="resellerFound"
-              @click="confirmReseller"
+              @click="showConfirmationDialog"
               :loading="btnLoading"
               :disabled="btnLoading"
               >Confirm Reseller</v-btn
@@ -126,7 +126,49 @@ export default {
           });
       }
     },
+    showConfirmationDialog() {
+      if(this.user.type === 'Reseller') {
+         this.$refs.modal.show(
+          "Warning!",
+          "Are you sure you want to add this referral? This is unchangable once confirmed.",
+          () => {
+            this.confirmReseller();
+          }
+        );
+      }
+      else {
+        this.confirmReseller();
+      }
+    },
     confirmReseller() {
+      if(this.user.type === 'Reseller') {
+        this.Indicator().open();
+        this.$store.dispatch("accounts/UPDATE_ACCOUNT", {referredById: this.resellerDetails.uid})
+        .then(() => {
+          this.Indicator().close();
+          this.$refs.modal.show(
+            "Success",
+            "Your referral has been updated.",
+            () => {
+              this.$router.go(-1);
+            }
+          );
+        })
+        .catch(error => {
+          console.log(error);
+          this.Indicator().close();
+          this.$refs.modal.show(
+            "Error",
+            "There was a problem adding your referral. Please try again.",
+            () => {
+              this.$router.go(-1);
+            }
+          );
+        });
+        return; 
+      }
+
+      //everything below is executed if user is not a reseller
       const payload = {
         customers: this.resellerDetails.customers,
         customerId: this.user.uid,
