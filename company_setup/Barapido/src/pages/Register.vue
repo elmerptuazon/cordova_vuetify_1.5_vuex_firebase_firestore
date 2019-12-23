@@ -633,7 +633,9 @@ export default {
       this.referralSearch = null;
       this.referralBy = {};
       this.referralFound = false;
-      this.imgObj = {};
+      this.imgObj = {
+        src: MaleDefaultImage
+      };
     },
     async submitInfo() {
       this.confirmationDialog = false;
@@ -773,7 +775,11 @@ export default {
         this.registerData.referredById = this.referralBy.uid;
 
         try {
-          await this.$store.dispatch("accounts/UPDATE_ACCOUNT", this.registerData);
+          await this.$store.dispatch("accounts/ADD_REFERRED_BY_TO_RESELLER", {
+            referredById: this.referralBy.uid,
+            referrersEmail: this.referralBy.email,
+            uid: this.registerData.uid,
+          });
         }
         catch(error) {
           console.log(error);
@@ -791,7 +797,6 @@ export default {
           "Your referral was added successfully!",
         );
         this.frame++;
-        this.referralBy = {};
       }
       else {
         delete this.registerData.referralBy;
@@ -974,11 +979,15 @@ export default {
       this.$store.dispatch("catalogues/LISTEN_TO_NEW_CATALOGUES");
 
       if (this.registerData.type === "Customer") {
-        this.$store.commit("SET_TOOLBAR_TITLE", "Add Your Reseller");
         this.$router.push({
           name: "RegisterSuccess",
-          params: { response, userType: this.registerData.type }
+          params: {
+            response,
+            userType: this.registerData.type,
+            registerData: this.registerData
+          }
         });
+        this.$store.commit("SET_SHOW_TOOLBAR", true);
       } else {
         this.$store.dispatch("orders/LISTEN_TO_ORDERS", { id: response.uid });
         this.$router.push({
