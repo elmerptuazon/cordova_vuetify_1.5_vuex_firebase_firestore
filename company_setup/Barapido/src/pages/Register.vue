@@ -633,9 +633,7 @@ export default {
       this.referralSearch = null;
       this.referralBy = {};
       this.referralFound = false;
-      this.imgObj = {
-        src: MaleDefaultImage
-      };
+      this.imgObj = {};
     },
     async submitInfo() {
       this.confirmationDialog = false;
@@ -752,6 +750,7 @@ export default {
         this.referralBy.lastName = reseller.lastName;
         this.referralBy.uid = reseller.uid;
         this.referralBy.agentId = reseller.agentId;
+        this.referralBy.email = reseller.email;
         this.referralBy.customers = reseller.customers;
 
         this.imgObj.src =
