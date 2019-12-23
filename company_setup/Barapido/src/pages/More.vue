@@ -8,6 +8,40 @@
 
     <v-container fluid grid-list-lg v-if="user.type === 'Reseller'">
       <ProfileHeader :hasRating="false" />
+      <v-list two-line class="transparent" dense v-if="user.referredBy">
+        <v-list-tile avatar ripple >
+          <v-list-tile-avatar>
+            <v-avatar v-if="user.referredBy.downloadURL" width="50px">
+              <v-img
+                :src="user.referredBy.downloadURL"
+                width="50"
+                contain
+              ></v-img>
+            </v-avatar>
+            <v-avatar v-else width="50px">
+              <v-img :src="MaleDefaultImage" width="50" contain></v-img>
+            </v-avatar>
+          </v-list-tile-avatar>
+          <v-list-tile-content>
+            <v-list-tile-sub-title>Your Referrer</v-list-tile-sub-title>
+            <v-list-tile-title class="grey--text text--darken-2"
+              >{{ user.referredBy.firstName }}
+              {{ user.referredBy.middleInitial }}
+              {{ user.referredBy.lastName }}</v-list-tile-title
+            >
+          </v-list-tile-content>
+        </v-list-tile>
+      </v-list>
+      <div v-else>
+        No Referral...
+        <a
+          style="text-decoration: none;"
+          @click="
+            $router.push({ name: 'EditReseller', params: { action: 'add' } })
+          "
+          >Add one?</a
+        >
+      </div>
     </v-container>
     <v-container fluid grid-list-lg v-else-if="user.type === 'Customer'">
       <ProfileHeader />
