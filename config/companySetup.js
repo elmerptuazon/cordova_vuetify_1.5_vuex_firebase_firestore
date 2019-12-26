@@ -36,6 +36,16 @@ async function copyCompanySetUp() {
     );
 
     try {
+        //remove old files
+        fs.emptyDirSync('src');
+        console.log('Deleted Files');
+
+        //setup commons folder
+        let commonSource = 'commons/src';
+        let commonDestination = 'src'
+        await fs.copy(commonSource, commonDestination)
+        console.log('Common Files has been Set');
+
         let imgSource = `company_setup/${answer.value}/src/assets/img`;
         let imgDestination = 'src/assets/img'
         await fs.copy(imgSource, imgDestination)
@@ -71,6 +81,7 @@ async function copyCompanySetUp() {
         let configxmlgDestination = 'config.xml'
         await fs.copy(configxmlSource, configxmlgDestination)
         console.log('config.xml update success!')
+
 
     }
     catch (err) {

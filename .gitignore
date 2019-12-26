@@ -9,7 +9,7 @@ yarn-debug.log*
 yarn-error.log*
 test/unit/coverage
 /config/*.env.js
-/src/assets/img/header_logo.jpg
+/src/
 /res/
 /config.xml
 ul_web_hooks/
