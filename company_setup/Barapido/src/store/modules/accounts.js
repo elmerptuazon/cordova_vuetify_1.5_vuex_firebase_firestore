@@ -299,7 +299,7 @@ const accounts = {
 				throw error
 			}
 		},
-		
+
 		async ADD_CUSTOMER_TO_RESELLER({ commit, state }, payload) {
 			try {
 				const newCustomer = {};
@@ -357,10 +357,10 @@ const accounts = {
 		},
 		async ADD_REFERRED_BY_TO_RESELLER({ commit, state, dispatch }, payload) {
 			try {
-				await COLLECTION.accounts.doc(payload.uid).update({referredById: payload.referredById});
+				await COLLECTION.accounts.doc(payload.uid).update({ referredById: payload.referredById });
 				state.user.referredById = payload.referredById;
-			} 
-			catch(error) {
+			}
+			catch (error) {
 				throw error;
 			}
 
@@ -370,7 +370,7 @@ const accounts = {
 				});
 				state.user.referredBy = response.data;
 			}
-			catch(error) {
+			catch (error) {
 				throw error;
 			}
 		},
@@ -434,7 +434,7 @@ const accounts = {
 						}
 					}
 					else {
-						if(userData.referredById) {
+						if (userData.referredById) {
 							userData.referredBy = {}
 							const myReferrer = await COLLECTION.accounts.doc(userData.referredById).get()
 							const myReferrerData = myReferrer.data()
@@ -697,7 +697,7 @@ const accounts = {
 					dispatch('catalogues/UNSUBSCRIBE_FROM_CATALOGUES', {}, { root: true });
 				}
 				//UNSUBSCRIBE TO PROVIDERS
-				if(user.type === 'Reseller' && user.status === 'approved') {
+				if (user.type === 'Reseller' && user.status === 'approved') {
 					commit('providers/UnsubscribeToPaymentSubscriber', null, { root: true })
 					commit('providers/UnsubscribeToLogisticsSubscriber', null, { root: true })
 				}
@@ -749,7 +749,7 @@ const accounts = {
 					}
 				}
 				else {
-					if(userData.referredById) {
+					if (userData.referredById) {
 						userData.referredBy = {}
 						const myReferrer = await COLLECTION.accounts.doc(userData.referredById).get()
 						const myReferrerData = myReferrer.data()
