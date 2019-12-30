@@ -90,7 +90,7 @@ export default {
     width: null,
     ordersBadge: null,
   }),
-  created() {
+  async created() {
     const user = this.user;
 
     if (user.type === "Reseller" && user.status === "pending") {
@@ -99,6 +99,34 @@ export default {
       this.showNav = false;
     } else {
       this.showNav = true;
+    }
+
+    this.ordersBadge = false;
+    let response = await this.$store.dispatch("orders/GET_ORDERS_RESELLER_VIEW");
+
+    let customerOrders = [];
+    if(response.length) {
+      customerOrders = response.filter(order => order.status.toLowerCase() === 'placed' || 
+                                                order.status.toLowerCase() === 'on cart'
+                                      );
+    } 
+    console.log("CUSTOMER ORDER", customerOrders);
+
+    if(customerOrders.length) {
+      this.ordersBadge = true;
+    }
+    
+    response = await this.$store.dispatch("stock_orders/FIND_ALL");
+    console.log("STOCK_ORDER: ", response);
+    
+    let items = [];
+    if(response.data.length) {
+      items = response.data.filter(item => item.shipmentsReceive > 0);
+    }
+    console.log("items with shipment", items);
+
+    if(items.length) {
+      this.ordersBadge = true;
     }
   },
   mounted() {
