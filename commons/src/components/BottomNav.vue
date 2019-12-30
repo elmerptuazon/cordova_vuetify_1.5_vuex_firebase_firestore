@@ -29,7 +29,17 @@
       class="reduced-width"
     >
       <span>Orders</span>
-      <v-icon>list</v-icon>
+      <v-badge
+        :value="ordersBadge"
+        color="red"
+        right  
+        small
+      >
+        <template v-slot:badge>
+          <span></span>
+        </template>
+        <v-icon>list</v-icon>
+      </v-badge>
     </v-btn>
     <v-btn flat color="white" value="messages" class="reduced-width">
       <span>Messages</span>
@@ -77,7 +87,8 @@ export default {
   },
   data: () => ({
     showNav: true,
-    width: null
+    width: null,
+    ordersBadge: null,
   }),
   created() {
     const user = this.user;
