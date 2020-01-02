@@ -121,7 +121,7 @@ export default {
     
     let items = [];
     if(response.data.length) {
-      items = response.data.filter(item => item.shipmentsReceive > 0);
+      items = response.data.filter(item => item.shipmentsToReceive > 0);
     }
     console.log("items with shipment", items);
 
