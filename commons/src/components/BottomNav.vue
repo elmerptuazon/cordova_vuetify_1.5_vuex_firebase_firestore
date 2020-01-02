@@ -36,7 +36,9 @@
         small
       >
         <template v-slot:badge>
-          <span></span>
+          <span class="pa-1">
+            <v-icon>error_outline</v-icon>
+          </span>
         </template>
         <v-icon>list</v-icon>
       </v-badge>
