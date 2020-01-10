@@ -15,5 +15,6 @@ module.exports = merge(prodEnv, {
   webAdminId: '"admin"',
   companyName: '"Fetch"',
   version: '"0.6.7"',
-  environment: '"test"'
+  environment: '"test"',
+  callbackURL: '"https://us-central1-barapido-dev.cloudfunctions.net/callback/checkPaymentStatus"'
 })
