@@ -22,7 +22,7 @@ const accounts = {
 		user: {},
 		userID: "",
 		settings: {
-			newMessages: false,
+			newMessages: true,
 			catalogueUpdates: true,
 			newOrders: true,
 			deliverySchedules: true,
@@ -105,19 +105,21 @@ const accounts = {
 
 				await user.sendEmailVerification();
 
-				if (payload.displayPicture) {
-					const profPicSnapshot = await profPicStorageRef.child(response.user.uid).putString(payload.displayPicture, 'data_url');
-					delete payload.displayPicture;
-					const downloadURL = await profPicSnapshot.ref.getDownloadURL();
-					payload.hasPicture = true;
-					payload.downloadURL = downloadURL;
-				} else {
-					payload.hasPicture = false;
-				}
+				// if (payload.displayPicture) {
+				// 	const profPicSnapshot = await profPicStorageRef.child(response.user.uid).putString(payload.displayPicture, 'data_url');
+				// 	delete payload.displayPicture;
+				// 	const downloadURL = await profPicSnapshot.ref.getDownloadURL();
+				// 	payload.hasPicture = true;
+				// 	payload.downloadURL = downloadURL;
+				// } else {
+				// 	payload.hasPicture = false;
+				// }
 
 				if (payload.type === 'Reseller') {
-					const proofOfIdSnapshot = await profPicStorageRef.child(`proof_${response.user.uid}`).putString(payload.proofOfId, 'data_url');
-					payload.proofOfId = await proofOfIdSnapshot.ref.getDownloadURL();
+					// if(payload.proofOfId) {
+					// 	const proofOfIdSnapshot = await profPicStorageRef.child(`proof_${response.user.uid}`).putString(payload.proofOfId, 'data_url');
+					// 	payload.proofOfId = await proofOfIdSnapshot.ref.getDownloadURL();
+					// }
 
 					payload.customers = [];
 					payload.status = 'pending';
@@ -125,16 +127,16 @@ const accounts = {
 
 				await COLLECTION.accounts.doc(response.user.uid).set(payload);
 				payload.uid = response.user.uid;
-				const src = payload.gender === 'Male' ? malePlaceholder : femalePlaceholder;
+				// const src = payload.gender === 'Male' ? malePlaceholder : femalePlaceholder;
 
-				payload.imageObj = {
-					src,
-					loading: loader
-				}
+				// payload.imageObj = {
+				// 	src,
+				// 	loading: loader
+				// }
 
-				if (payload.hasPicture) {
-					payload.imageObj.src = payload.downloadURL;
-				}
+				// if (payload.hasPicture) {
+				// 	payload.imageObj.src = payload.downloadURL;
+				// }
 
 				if (payload.type === 'Reseller') {
 					try {
@@ -142,8 +144,8 @@ const accounts = {
 							created: Date.now(),
 							updated: Date.now(),
 							opened: {
-								[payload.uid]: false,
-								[rootState.webAdminId]: false
+								[payload.uid]: true,
+								[rootState.webAdminId]: true
 							},
 							users: [payload.uid, rootState.webAdminId]
 						});
@@ -164,6 +166,79 @@ const accounts = {
 			} catch (error) {
 				throw error;
 			}
+		},
+
+		async UPLOAD_PROFILE_PHOTO({ commit }, payload) {
+			try {
+				if (payload.displayPicture) {
+					const profPicSnapshot = await profPicStorageRef.child(payload.uid).putString(payload.displayPicture, 'data_url');
+					delete payload.displayPicture;
+					const downloadURL = await profPicSnapshot.ref.getDownloadURL();
+					payload.hasPicture = true;
+					payload.downloadURL = downloadURL;
+
+				} else {
+					payload.hasPicture = false;
+					payload.downloadURL = null;
+				}
+
+				const src = payload.gender === 'Male' ? malePlaceholder : femalePlaceholder;
+				payload.imageObj = {
+					src,
+					loading: loader
+				}
+
+				if (payload.hasPicture) {
+					payload.imageObj.src = payload.downloadURL;
+				}
+
+				if (payload.hasPicture) {
+					try {
+						await COLLECTION.accounts
+							.doc(payload.uid)
+							.update(
+								{
+									downloadURL: payload.downloadURL,
+									hasPicture: payload.hasPicture,
+								}
+							)
+						commit('UPDATE_USER', payload);
+					}
+					catch (error) {
+						console.log(error);
+						throw error;
+					}
+				}
+
+				return payload;
+			}
+			catch (error) {
+				throw error;
+			}
+		},
+
+		async UPLOAD_PROOF_OF_ID({ commit }, payload) {
+			try {
+				if (payload.type === 'Reseller' && payload.proofOfId) {
+					const proofOfIdSnapshot = await profPicStorageRef.child(`proof_${payload.uid}`).putString(payload.proofOfId, 'data_url');
+					payload.proofOfId = await proofOfIdSnapshot.ref.getDownloadURL();
+				}
+
+				try {
+					await COLLECTION.accounts.doc(payload.uid).update({ proofOfId: payload.proofOfId });
+					commit('UPDATE_USER', payload);
+				}
+				catch (error) {
+					console.log(error);
+					throw error;
+				}
+
+				return payload;
+			}
+			catch (error) {
+				throw error;
+			}
+
 		},
 
 		async FIND_RESELLER({ commit }, payload) {
@@ -280,6 +355,25 @@ const accounts = {
 				throw error
 			}
 		},
+		async ADD_REFERRED_BY_TO_RESELLER({ commit, state, dispatch }, payload) {
+			try {
+				await COLLECTION.accounts.doc(payload.uid).update({ referredById: payload.referredById });
+				state.user.referredById = payload.referredById;
+			}
+			catch (error) {
+				throw error;
+			}
+
+			try {
+				const response = await dispatch("FIND_RESELLER", {
+					data: payload.referrersEmail
+				});
+				state.user.referredBy = response.data;
+			}
+			catch (error) {
+				throw error;
+			}
+		},
 		async GET_PROFILE_PICTURE(context, payload) {
 			try {
 				try {
@@ -339,6 +433,19 @@ const accounts = {
 							}
 						}
 					}
+					else {
+						if (userData.referredById) {
+							userData.referredBy = {}
+							const myReferrer = await COLLECTION.accounts.doc(userData.referredById).get()
+							const myReferrerData = myReferrer.data()
+							myReferrerData.uid = myReferrer.id
+							userData.referredBy = Object.assign({}, myReferrerData)
+							if (!userData.referredBy.hasPicture) {
+								const rsrc = userData.referredBy.gender === 'Male' ? malePlaceholder : femalePlaceholder
+								userData.referredBy.placeholder = rsrc
+							}
+						}
+					}
 
 					// Set address object if address prop is missing
 					if (!userData.address) {
@@ -356,7 +463,7 @@ const accounts = {
 						commit('SET_USER_SETTINGS', opts);
 					} else {
 						const opts = {
-							newMessages: false,
+							newMessages: true,
 							catalogueUpdates: true,
 							newOrders: true,
 							deliverySchedules: true,
@@ -409,27 +516,35 @@ const accounts = {
 		},
 		async START_OBSERVERS({ state, dispatch }, userData) {
 			if (userData.type === 'Reseller') {
-				if (state.settings.newOrders) {
-					dispatch('orders/LISTEN_TO_ORDERS', { id: userData.uid }, { root: true });
-
-					dispatch('stock_orders/LISTEN_TO_STOCK_ORDERS', null, { root: true });
-					if (userData.status === 'approved') {
-						dispatch('conversations/LISTEN_TO_MESSAGES', null, { root: true })
+				if (userData.status === 'approved') {
+					dispatch('providers/ListenToPaymentProvider', null, { root: true })
+					dispatch('providers/ListenToLogisticsProvider', null, { root: true })
+					if (state.settings.newOrders) {
+						dispatch('orders/LISTEN_TO_ORDERS', { id: userData.uid }, { root: true });
+						dispatch('stock_orders/LISTEN_TO_STOCK_ORDERS', null, { root: true });
+					}
+					if (state.settings.catalogueUpdates) {
+						dispatch('catalogues/LISTEN_TO_NEW_CATALOGUES', null, { root: true });
 					}
 				}
-
 				if (userData.status && !state.approvalSubscriber && userData.status === 'pending') {
 					dispatch('LISTEN_TO_APPROVAL');
 				}
+			}
+			else {
+				if (state.settings.catalogueUpdates) {
+					dispatch('catalogues/LISTEN_TO_NEW_CATALOGUES', null, { root: true });
+				}
+			}
+
+			if (state.settings.newMessages) {
+				dispatch('conversations/LISTEN_TO_MESSAGES', null, { root: true });
 			}
 
 			if (state.settings.deliverySchedules) {
 				dispatch('orders/LISTEN_TO_PROPOSED_DELIVERIES', { id: userData.uid }, { root: true });
 			}
 
-			if (state.settings.catalogueUpdates) {
-				dispatch('catalogues/LISTEN_TO_NEW_CATALOGUES', null, { root: true });
-			}
 		},
 		async UPDATE_ACCOUNT({ commit }, payload) {
 			console.log(payload)
@@ -467,7 +582,8 @@ const accounts = {
 					type: payload.type,
 					address: payload.address,
 					social: payload.social || {},
-					isEmailAutogenerated: payload.isEmailAutogenerated || null
+					isEmailAutogenerated: payload.isEmailAutogenerated || null,
+					referredById: payload.referredById
 				}
 
 				const userPayload = payload.type === 'Reseller' ? resellerPayload : customerPayload
@@ -564,6 +680,7 @@ const accounts = {
 
 		async LOG_OUT({ rootState, commit, state, dispatch }) {
 			try {
+				const user = state.user;
 				// SET USER TO AN EMPTY OBJECT
 				commit('SET_USER', {});
 				// EMPTY CATALOGUES
@@ -578,6 +695,11 @@ const accounts = {
 				// UNSUBSCRIBE TO CATALOGUES
 				if (state.settings.catalogueUpdates) {
 					dispatch('catalogues/UNSUBSCRIBE_FROM_CATALOGUES', {}, { root: true });
+				}
+				//UNSUBSCRIBE TO PROVIDERS
+				if (user.type === 'Reseller' && user.status === 'approved') {
+					commit('providers/UnsubscribeToPaymentSubscriber', null, { root: true })
+					commit('providers/UnsubscribeToLogisticsSubscriber', null, { root: true })
 				}
 				return await AUTH.signOut();
 			} catch (error) {
@@ -626,6 +748,19 @@ const accounts = {
 						}
 					}
 				}
+				else {
+					if (userData.referredById) {
+						userData.referredBy = {}
+						const myReferrer = await COLLECTION.accounts.doc(userData.referredById).get()
+						const myReferrerData = myReferrer.data()
+						myReferrerData.uid = myReferrer.id
+						userData.referredBy = Object.assign({}, myReferrerData)
+						if (!userData.referredBy.hasPicture) {
+							const rsrc = userData.referredBy.gender === 'Male' ? malePlaceholder : femalePlaceholder
+							userData.referredBy.placeholder = rsrc
+						}
+					}
+				}
 
 				// Set address object if address prop is missing
 				if (!userData.address) {
@@ -643,7 +778,7 @@ const accounts = {
 					commit('SET_USER_SETTINGS', opts)
 				} else {
 					const opts = {
-						newMessages: false,
+						newMessages: true,
 						catalogueUpdates: true,
 						newOrders: true,
 						deliverySchedules: true,
@@ -721,6 +856,8 @@ const accounts = {
 					notif.text = 'Your distributor registration request has been approved!';
 					dispatch('RELOAD_USER_DATA', uid);
 					dispatch('SEND_PUSH_NOTIFICATION', notif);
+					console.log("Unsubscribing to approvals");
+					state.approvalSubscriber();
 				} else if (data.status === 'denied') {
 					notif.title = 'Sorry';
 					notif.text = 'Your distributor registration request has been denied.';
@@ -729,14 +866,9 @@ const accounts = {
 					dispatch('SEND_PUSH_NOTIFICATION', notif);
 				}
 
-				console.log('Approval listener:');
-				console.log(title, text);
+				// console.log('Approval listener:');
+				// console.log(title, text);
 
-
-
-				if (state.approvalSubscriber && data.status === 'approved') {
-					state.approvalSubscriber();
-				}
 
 				commit('UPDATE_USER_KEY', { key: 'status', value: data.status });
 			});
@@ -760,14 +892,22 @@ const accounts = {
 			if (state.user.type === 'Reseller') {
 				if (state.settings.newOrders && !rootState.orders.subscriber) {
 					dispatch('orders/LISTEN_TO_ORDERS', { id: user.uid }, { root: true });
+					dispatch('stock_orders/LISTEN_TO_STOCK_ORDERS', null, { root: true });
 				}
 
 				if (!state.settings.newOrders) {
 					dispatch('orders/UNSUBSCRIBE_FROM_ORDERS', true, { root: true });
+					dispatch('stock_orders/UNSUBSCRIBE_FROM_STOCK_ORDERS', null, { root: true });
 				}
 
-				dispatch('conversations/LISTEN_TO_MESSAGES', null, { root: true })
+
 			}
+
+			if (state.settings.newMessages) {
+				dispatch('conversations/LISTEN_TO_MESSAGES', null, { root: true });
+			}
+			//Add unsubscriber here for messages
+
 
 			if (state.settings.deliverySchedules && !rootState.orders.proposed_subscriber) {
 				dispatch('orders/LISTEN_TO_PROPOSED_DELIVERIES', { id: user.uid }, { root: true });
@@ -784,6 +924,7 @@ const accounts = {
 			if (!state.settings.catalogueUpdates && !rootState.catalogues.subscriber) {
 				dispatch('catalogues/UNSUBSCRIBE_FROM_CATALOGUES', null, { root: true });
 			}
+
 
 		},
 

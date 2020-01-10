@@ -13,125 +13,223 @@
       <Accounts />
     </v-toolbar>
 
-    <table class="basket-table">
-      <thead>
-        <tr>
-          <th class="border-bottom header-size grey--text text--darken-1">
-            NAME
-          </th>
-          <th
-            class="border-bottom text-xs-right header-size grey--text text--darken-1"
-          >
-            QTY
-          </th>
-          <th
-            class="border-bottom text-xs-right header-size grey--text text--darken-1"
-          >
-            COST
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr
-          v-for="(item, i) in filterBy(
-            orderBy(stockOrder.items, 'created_at', -1),
-            search
-          )"
-          :key="i"
+    <v-stepper v-model="stepperCounter">
+      <v-stepper-header>
+        <v-stepper-step :complete="stepperCounter > 1" step="1"
+          >Shipment Options</v-stepper-step
         >
-          <td class="border-bottom">
-            <v-layout row>
-              <v-flex xs4>
-                <v-avatar tile size="40px">
-                  <v-img
-                    :src="item.image"
-                    :alt="item.name"
-                    class="elevation-1"
-                  ></v-img>
-                </v-avatar>
-              </v-flex>
-              <v-flex xs8>
-                <span v-html="item.name" class="caption"></span>
-                <br />
-                <span class="caption">
-                  {{ item.attributes | joinAttributes }}
-                </span>
-              </v-flex>
-            </v-layout>
-          </td>
-          <td class="caption text-xs-right border-bottom">{{ item.qty }}</td>
-          <td class="caption text-xs-right border-bottom">
-            {{ (item.qty * item.resellerPrice) | currency("P") }}
-          </td>
-        </tr>
-        <tr>
-          <td colspan="3"></td>
-        </tr>
-        <!-- <tr>
-          <td class="caption text-xs-right" colspan="2">
-            Subtotal
-          </td>
-          <td class="caption text-xs-right">
-            {{ subTotal | currency("P") }}
-          </td>
-        </tr>
-        <tr>
-          <td class="caption text-xs-right" colspan="2">
-            Discount
-          </td>
-          <td class="caption text-xs-right">
-            <span v-if="discount">{{ discount }}%</span>
-          </td>
-        </tr> -->
-        <tr>
-          <td class="caption text-xs-right" colspan="2">
-            Total
-          </td>
-          <td class="caption text-xs-right">
-            <strong>{{ total | currency("P") }}</strong>
-          </td>
-        </tr>
-      </tbody>
-    </table>
 
-    <v-card>
-      <v-card-title>
-        <span class="title">Select Payment Option</span>
-      </v-card-title>
-      <v-divider></v-divider>
-      <v-container>
-        <v-radio-group v-model="payment.paymentType">
-          <v-radio label="Cash On Delivery (COD)" value="COD"></v-radio>
-          <v-radio
-            label="Credit Card (Visa and Mastercard Only)"
-            value="CC"
-          ></v-radio>
-          <v-divider v-if="payment.paymentType === 'CC'"></v-divider>
-          <creditCardForm
-            v-if="payment.paymentType === 'CC'"
-            @cardDetails="SetCardDetails"
-          />
-        </v-radio-group>
-      </v-container>
-    </v-card>
-    <div class="text-xs-center mt-3 mb-3">
-      <v-btn
-        @click="submitStockOrder"
-        depressed
-        large
-        color="primary"
-        class="white--text"
-        :disabled="stockOrder.items.length < 1"
-      >
-        <v-icon left>check_circle</v-icon>
-        <span v-if="payment.paymentType === 'COD'">
-          Submit Order
-        </span>
-        <span v-else>
-          Pay and Submit Order
-        </span>
-      </v-btn>
-    </div>
+        <v-divider></v-divider>
+
+        <v-stepper-step :complete="stepperCounter > 2" step="2"
+          >Payment Options</v-stepper-step
+        >
+
+        <v-divider></v-divider>
+        <v-stepper-step step="3">Submit Order</v-stepper-step>
+      </v-stepper-header>
+
+      <v-stepper-items>
+        <v-stepper-content step="1">
+          <v-card class="mb-2" flat>
+            <v-card-title>
+              <span class="body-2">Select shipping option</span>
+            </v-card-title>
+            <v-divider></v-divider>
+            <v-container>
+              <v-radio-group v-model="logisticsID">
+                <v-card
+                  v-for="logistics in logisticsProvider"
+                  :key="logistics.id"
+                  min-width="275px"
+                >
+                  <v-card-title>
+                    <v-radio :value="logistics.id"></v-radio>
+                    <span class="subheading">{{
+                      logistics.id.toUpperCase()
+                    }}</span>
+                  </v-card-title>
+                  <v-divider></v-divider>
+                  <v-card-text>
+                    <v-layout>
+                      <v-flex xs5>
+                        <v-img
+                          :src="logistics.logoURL"
+                          height="125px"
+                          contain
+                        ></v-img>
+                      </v-flex>
+                      <v-flex xs7>
+                        <v-card-title primary-title>
+                          <div>
+                            <div class="subheading">Shipping Fee:</div>
+                            <div>+ PHP {{ logistics.shippingFee }}</div>
+                          </div>
+                        </v-card-title>
+                      </v-flex>
+                    </v-layout>
+                  </v-card-text>
+                </v-card>
+              </v-radio-group>
+            </v-container>
+          </v-card>
+          <v-btn color="primary" @click="stepperCounter = 2">
+            Continue
+          </v-btn>
+        </v-stepper-content>
+
+        <v-stepper-content step="2">
+          <v-card class="mb-5">
+            <v-card-title>
+              <span class="body-2">Breakdown of Orders</span>
+            </v-card-title>
+            <v-divider></v-divider>
+            <table class="basket-table">
+              <thead>
+                <tr>
+                  <th
+                    class="border-bottom header-size grey--text text--darken-1"
+                  >
+                    NAME
+                  </th>
+                  <th
+                    class="border-bottom text-xs-right header-size grey--text text--darken-1"
+                  >
+                    QTY
+                  </th>
+                  <th
+                    class="border-bottom text-xs-right header-size grey--text text--darken-1"
+                  >
+                    COST
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="(item, i) in filterBy(
+                    orderBy(stockOrder.items, 'created_at', -1),
+                    search
+                  )"
+                  :key="i"
+                >
+                  <td class="border-bottom">
+                    <v-layout row>
+                      <v-flex xs4>
+                        <v-avatar tile size="40px">
+                          <v-img
+                            :src="item.image"
+                            :alt="item.name"
+                            class="elevation-1"
+                          ></v-img>
+                        </v-avatar>
+                      </v-flex>
+                      <v-flex xs8>
+                        <span v-html="item.name" class="caption"></span>
+                        <br />
+                        <span class="caption">
+                          {{ item.attributes | joinAttributes }}
+                        </span>
+                      </v-flex>
+                    </v-layout>
+                  </td>
+                  <td class="caption text-xs-right border-bottom">
+                    {{ item.qty }}
+                  </td>
+                  <td class="caption text-xs-right border-bottom">
+                    {{ (item.qty * item.resellerPrice) | currency("P") }}
+                  </td>
+                </tr>
+                <tr>
+                  <td colspan="3"></td>
+                </tr>
+                <tr>
+                  <td class="caption text-xs-right" colspan="2">
+                    Subtotal
+                  </td>
+                  <td class="caption text-xs-right">
+                    {{ subTotal | currency("P") }}
+                  </td>
+                </tr>
+                <!-- <tr>
+                  <td class="caption text-xs-right" colspan="2">
+                    Discount
+                  </td>
+                  <td class="caption text-xs-right">
+                    <span v-if="discount">{{ discount }}%</span>
+                  </td>
+                </tr> -->
+                <tr>
+                  <td class="caption text-xs-right" colspan="2">
+                    Shipping Fee
+                  </td>
+                  <td class="caption text-xs-right">
+                    <span>{{ shippingFee | currency("P") }}</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="caption text-xs-right" colspan="2">
+                    Total
+                  </td>
+                  <td class="caption text-xs-right">
+                    <strong>{{ total | currency("P") }}</strong>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </v-card>
+          <v-btn color="primary" @click="stepperCounter = 3">
+            Continue
+          </v-btn>
+
+          <v-btn flat @click="stepperCounter = 1">Back</v-btn>
+        </v-stepper-content>
+
+        <v-stepper-content step="3">
+          <v-card class="mb-5">
+            <v-card-title>
+              <span class="body-2">Select Payment Option</span>
+            </v-card-title>
+            <v-divider></v-divider>
+            <v-container>
+              <v-radio-group v-model="payment.paymentType">
+                <v-radio
+                  label="Cash On Delivery (COD)/Upon pick-up"
+                  value="COD"
+                ></v-radio>
+                <v-radio
+                  label="Credit Card (Visa and Mastercard Only)"
+                  value="CC"
+                ></v-radio>
+                <v-divider v-if="payment.paymentType === 'CC'"></v-divider>
+                <creditCardForm
+                  v-if="payment.paymentType === 'CC'"
+                  @cardDetails="SetCardDetails"
+                />
+              </v-radio-group>
+            </v-container>
+          </v-card>
+          <div class="text-xs-center mt-3 mb-3">
+            <v-btn
+              @click="submitStockOrder"
+              depressed
+              large
+              color="primary"
+              class="white--text"
+              :disabled="stockOrder.items.length < 1"
+            >
+              <v-icon left>check_circle</v-icon>
+              <span v-if="payment.paymentType === 'COD'">
+                Submit Order
+              </span>
+              <span v-else>
+                Pay and Submit Order
+              </span>
+            </v-btn>
+            <v-btn flat @click="stepperCounter = 2">Back</v-btn>
+          </div>
+        </v-stepper-content>
+      </v-stepper-items>
+    </v-stepper>
 
     <v-dialog v-model="loaderDialog" hide-overlay persistent width="300">
       <v-card color="primary" dark>
@@ -154,7 +252,7 @@
 
 
 <script>
-import { mapGetters } from "vuex";
+import { mapState } from "vuex";
 import { mixins } from "@/mixins";
 import BottomNav from "@/components/BottomNav";
 import BasketBadge from "@/components/BasketBadge";
@@ -179,11 +277,14 @@ export default {
       amount: null,
       cardDetails: null
     },
-    loaderDialogMessage: null
-  }),
-  created() {
-    this.cordovaBackButton(this.goBack);
 
+    logisticsID: "pick-up",
+    loaderDialogMessage: null,
+    inAppBrowserRef: null,
+    stepperCounter: 0
+  }),
+  mounted() {
+    this.cordovaBackButton(this.goBack);
     this.loaderDialog = true;
     this.loaderDialogMessage = "Please wait";
     this.$store
@@ -198,8 +299,10 @@ export default {
         console.log(error);
       })
       .finally(() => {
-        this.loaderDialogMessage = null;
-        this.loaderDialog = false;
+        this.invokeShippingCalculation().then(() => {
+          this.loaderDialogMessage = null;
+          this.loaderDialog = false;
+        });
       });
   },
   methods: {
@@ -217,12 +320,17 @@ export default {
     async finalizeOrder() {
       this.loaderDialog = true;
       this.loaderDialogMessage = "Submitting orders";
+
       try {
         let paymentResult = null;
 
         this.payment.amount = this.total;
-        //check kung CC or COD
+        this.stockOrder.logisticsDetails = {
+          logisticProvider: this.logisticsID,
+          shippingFee: this.shippingFee
+        };
 
+        //check kung CC or COD
         if (this.payment.paymentType === "CC") {
           //validate card details
           if (
@@ -279,9 +387,34 @@ export default {
             {
               payment: this.payment,
               userDetails: userDetails,
-              stockOrderReference: this.stockOrder.stockOrderReference
+              stockOrder: this.stockOrder
             }
           );
+          //check if it has a checkout_URL, if none proceed to regular update
+          console.log(paymentResult);
+          if (paymentResult.checkout_url) {
+            //save details for logisticsDetails
+            this.$store.dispatch("stock_orders/UPDATE_STOCK_ORDER", {
+              id: this.stockOrder.id,
+              key: "logisticsDetails",
+              value: this.stockOrder.logisticsDetails
+            });
+            //dispatch listener for CC Payment
+            //listener for CC Payment should update the stock order based on the details and then push it to stockOrderCheckoutSuccess
+            this.$store.dispatch(
+              "payment/ListenToPaymentStatus",
+              this.stockOrder
+            );
+            //open the webview for the URL returned
+            const url = paymentResult.checkout_url;
+            const target = "_blank";
+            const options = `location=no,hardwareback=no,footer=yes,closebuttoncaption=DONE,closebuttoncolor=#ffffff,footercolor=${process.env.primaryColor}`;
+            this.inAppBrowserRef = cordova.InAppBrowser.open(
+              url,
+              target,
+              options
+            );
+          }
         } else {
           paymentResult = await this.$store.dispatch(
             "payment/ProcessCODOrder",
@@ -289,72 +422,67 @@ export default {
               payment: this.payment
             }
           );
-        }
 
-        this.stockOrder.paymentDetails = paymentResult;
-        console.log(this.stockOrder);
-        //this flow will always result to success, any error should be thrown
-        //and handled in the catch statement
-        let result = await this.$store.dispatch(
-          "stock_orders/SUBMIT",
-          this.stockOrder
-        );
-        this.$router.push({
-          name: "StockOrderCheckoutSuccess",
-          params: {
-            stockOrder: this.stockOrder,
-            submittedAt: result.submittedAt
-          }
-        });
+          this.stockOrder.paymentDetails = paymentResult;
+
+          console.log(this.stockOrder);
+          //this flow will always result to success, any error should be thrown
+          //and handled in the catch statement
+          let result = await this.$store.dispatch(
+            "stock_orders/SUBMIT",
+            this.stockOrder
+          );
+          this.$router.push({
+            name: "StockOrderCheckoutSuccess",
+            params: {
+              stockOrder: this.stockOrder,
+              submittedAt: result.submittedAt
+            }
+          });
+        }
       } catch (error) {
         //add catch for incorrect payment/credit cards.
         console.log(error);
         this.loaderDialog = false;
         this.loaderDialogMessage = null;
         this.$refs.finalizeOrder.close();
-        switch (error.errors[0].code) {
-          case "generic_decline":
-            this.$refs.modal.show(
-              "Transaction Failed",
-              "Your card has been declined, please contact your service provider."
-            );
-            break;
-          case "insufficient_funds":
-            this.$refs.modal.show(
-              "Transaction Failed",
-              "Your card has insufficient funds, please contact your service provider."
-            );
-            break;
-          default:
-            this.$refs.modal.show(
-              "Transaction Failed",
-              "Charging your card unsuccessful, please contact your service provider."
-            );
-        }
+        // switch (error.errors[0].code) {
+        //   case "generic_decline":
+        //     this.$refs.modal.show(
+        //       "Transaction Failed",
+        //       "Your card has been declined, please contact your service provider."
+        //     );
+        //     break;
+        //   case "insufficient_funds":
+        //     this.$refs.modal.show(
+        //       "Transaction Failed",
+        //       "Your card has insufficient funds, please contact your service provider."
+        //     );
+        //     break;
+        //   default:
+        //     this.$refs.modal.show(
+        //       "Transaction Failed",
+        //       "Charging your card unsuccessful, please contact your service provider."
+        //     );
+        // }
+        this.$refs.modal.show(
+          "Transaction Failed",
+          "Charging your card unsuccessful, check the details and try again."
+        );
       }
+    },
+    async invokeShippingCalculation() {
+      //invoke some please wait here
+      const user = this.$store.getters["accounts/user"];
+      await this.$store.dispatch("providers/CalculateShipping", {
+        itemWeight: this.totalWeight,
+        toAddress: user.address
+      });
+      //this.stepperCounter = 2;
     },
     SetCardDetails(card) {
       this.payment.cardDetails = card;
     }
-    // submitStockOrder() {
-    //   this.loaderDialog = true;
-    //   this.loaderDialogMessage = "Submitting orders";
-
-    //   this.$store
-    //     .dispatch("stock_orders/SUBMIT", this.stockOrder)
-    //     .then(res => {
-    //       this.$router.push({
-    //         name: "StockOrderCheckoutSuccess",
-    //         params: {
-    //           stockOrder: this.stockOrder,
-    //           submittedAt: res.submittedAt
-    //         }
-    //       });
-    //     })
-    //     .catch(error => {
-    //       console.log(error);
-    //     });
-    // }
   },
   computed: {
     subTotal() {
@@ -363,7 +491,13 @@ export default {
         0
       );
     },
-
+    totalWeight() {
+      return this.stockOrder.items.reduce(
+        (totalWeight, currentItem) =>
+          totalWeight + currentItem.weight * currentItem.qty,
+        0
+      );
+    },
     discount() {
       let discount;
       // if (this.subTotal >= 1500 && this.subTotal <= 2999) {
@@ -382,11 +516,28 @@ export default {
 
     total() {
       if (this.discount) {
-        return this.subTotal - (this.discount / 100) * this.subTotal;
+        return (
+          this.subTotal -
+          (this.discount / 100) * this.subTotal +
+          this.shippingFee
+        );
       } else {
-        return this.subTotal;
+        return this.subTotal + this.shippingFee;
       }
-    }
+    },
+    shippingFee() {
+      const logisticsData = this.logisticsProvider.find(
+        logistics => logistics.id === this.logisticsID
+      );
+      return logisticsData.shippingFee;
+    },
+    ...mapState("payment", {
+      paymentOccured: state => state.paymentOccured
+    }),
+    ...mapState("providers", {
+      paymentProvider: state => state.paymentProvider,
+      logisticsProvider: state => state.logisticsProvider
+    })
   },
   filters: {
     joinAttributes(val) {
@@ -410,6 +561,32 @@ export default {
     ConfirmationModal,
     creditCardForm,
     Modal
+  },
+
+  watch: {
+    paymentOccured: function(val) {
+      console.log(`payment ${val}`);
+      if (val) {
+        this.inAppBrowserRef.close();
+      } else {
+        this.inAppBrowserRef.close();
+        this.$refs.finalizeOrder.close();
+        this.loaderDialog = false;
+        this.loaderDialogMessage = null;
+        this.$refs.modal.show(
+          "Transaction Failed",
+          "Charging your card unsuccessful, please try again."
+        );
+        this.$store.commit("payment/SetPaymentOccured", null);
+      }
+    }
+
+    //   paymentOccured(newValue, oldValue) {
+    //     console.log(`payment from ${oldValue} to ${newValue}`);
+    //     if (val) {
+    //       this.inAppBrowserRef.close();
+    //     }
+    //   }
   }
 };
 </script>

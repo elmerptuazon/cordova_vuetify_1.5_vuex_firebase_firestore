@@ -3,7 +3,6 @@
     <div
       id="reseller-container"
       class="mt-5 text-xs-center"
-      v-if="userType === 'Reseller'"
     >
       <p class="title blue--text text--darken-2">
         Your application has been submitted!
@@ -32,7 +31,7 @@
       >
     </div>
 
-    <div
+    <!-- <div
       id="customer-container"
       class="mt-2"
       v-else-if="userType === 'Customer'"
@@ -100,7 +99,7 @@
           </div>
         </div>
       </v-form>
-    </div>
+    </div> -->
     <Modal ref="modal" />
     <Dialog />
   </v-container>

@@ -141,19 +141,22 @@ export default {
         this.items = response.data.map(data => {
           data.total = data.items.reduce((a, b) => a + b.resellerTotal, 0);
           data.discountedTotal = this.applyDiscount(data.total);
+          if (!data.hasOwnProperty("shipmentsToReceive")) {
+            data.shipmentsToReceive = 0;
+          }
           return data;
         });
 
-        for (let i = 0; i < this.items.length; i++) {
-          let item = this.items[i];
-          await this.$store.dispatch("shipment/GetShipments", item.id);
-          this.items[i].shipmentCount = this.$store.getters[
-            "shipment/GET_RECEIVABLE_SHIPMENT_COUNT"
-          ];
-        }
+        // for (let i = 0; i < this.items.length; i++) {
+        //   let item = this.items[i];
+        //   await this.$store.dispatch("shipment/GetShipments", item.id);
+        //   this.items[i].shipmentCount = this.$store.getters[
+        //     "shipment/GET_RECEIVABLE_SHIPMENT_COUNT"
+        //   ];
+        // }
 
         console.log(this.items);
-        this.$refs.OrdersToEverBilena.loading = false;
+        this.$refs["OrdersToEverBilena"].loading = false;
       }
     },
 

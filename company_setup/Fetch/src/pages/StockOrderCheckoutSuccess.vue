@@ -137,7 +137,9 @@ export default {
     this.order = {
       createdAt: stockOrder.createdAt,
       submittedAt: submittedAt,
-      total: stockOrder.items.reduce((a, b) => a + b.resellerPrice * b.qty, 0),
+      total:
+        stockOrder.items.reduce((a, b) => a + b.resellerPrice * b.qty, 0) +
+        stockOrder.logisticsDetails.shippingFee,
       paymentType: stockOrder.paymentDetails.paymentType,
       stockOrderReference: stockOrder.stockOrderReference,
       paymentReference: stockOrder.paymentDetails.transactionNumber || null

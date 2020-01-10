@@ -1,8 +1,14 @@
 <template>
   <v-container fluid grid-list-lg>
     <v-layout row wrap>
+      <v-flex xs12 v-if="!shipmentList.length">
+        <div class="font-weight-bold mt-3">
+          There are still no receivable shipments...
+        </div>
+      </v-flex>
       <v-flex
         xs12
+        v-else
         v-for="shipment in shipmentList"
         :key="shipment.trackingNumber"
       >
@@ -30,12 +36,29 @@
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn
-              v-if="shipment.status === 'Pending'"
+              v-if="
+                shipment.status === 'Pending' &&
+                  (shipment.type === 'Partial Shipment' ||
+                    shipment.type === 'Full Shipment')
+              "
+              class="primary"
+              @click="TagShipmentAsReceived(shipment)"
+              :loading="buttonLoading"
+              :disabled="buttonLoading"
+              >TAG THIS SHIPMENT AS RECEIVED</v-btn
+            >
+            <v-btn
+              v-else-if="
+                !shipment.isAddedToInventory && shipment.status === 'Received'
+              "
               class="primary"
               @click="AddShipmentToInventory(shipment)"
               :loading="buttonLoading"
               :disabled="buttonLoading"
-              >Receive Items</v-btn
+              >ADD ITEM/S TO INVENTORY</v-btn
+            >
+            <v-btn v-else class="primary" :disabled="true"
+              >ITEM/s ALREADY IN THE INVENTORY</v-btn
             >
           </v-card-actions>
         </v-card>
@@ -48,6 +71,7 @@
 <script>
 import { mapState } from "vuex";
 import Modal from "@/components/Modal";
+import { FIRESTORE } from "@/config/firebaseInit";
 export default {
   props: ["stockOrderId"],
   data: () => ({
@@ -71,8 +95,39 @@ export default {
     //run vuex to get corresponding shipment details for a stockOrder via the stockOrderId
     console.log(this.stockOrderId);
     this.$store.dispatch("shipment/GetShipments", this.stockOrderId);
+    console.log("SHIPMENTDETAILS COMPONENT: ", this.shipmentList);
   },
   methods: {
+    async TagShipmentAsReceived(shipment) {
+      this.buttonLoading = true;
+      try {
+        const shipmentDecrement = FIRESTORE.FieldValue.increment(-1);
+
+        let updatedShipment = {};
+        updatedShipment.id = shipment.id;
+        updatedShipment.trackingNumber = shipment.trackingNumber;
+        updatedShipment.update = {
+          status: "Received",
+          isAddedToInventory: false
+        };
+        //update counter in stockOrder
+        updatedShipment.stockOrderId = shipment.stockOrder.stockOrderId;
+        updatedShipment.stockOrderUpdate = {
+          shipmentsToReceive: shipmentDecrement
+        };
+
+        await this.$store.dispatch("shipment/UpdateShipment", updatedShipment);
+        this.$refs.modal.show(
+          "Success",
+          "Shipment has been tagged as Received!"
+        );
+        this.buttonLoading = false;
+      } catch (error) {
+        console.log(error);
+        this.$refs.modal.show("Error", "An error occurred.");
+        this.buttonLoading = false;
+      }
+    },
     async AddShipmentToInventory(shipment) {
       console.log(shipment);
       try {
@@ -87,7 +142,7 @@ export default {
           updatedShipment.id = shipment.id;
           updatedShipment.trackingNumber = shipment.trackingNumber;
           updatedShipment.update = {
-            status: "Received"
+            isAddedToInventory: true
           };
           await this.$store.dispatch(
             "shipment/UpdateShipment",
