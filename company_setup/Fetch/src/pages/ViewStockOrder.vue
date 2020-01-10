@@ -69,6 +69,28 @@
             </v-chip>
           </div>
         </v-card-text>
+        <v-divider></v-divider>
+        <v-card-title>
+          <span class="subheading font-weight-medium">Shipping Provider</span>
+        </v-card-title>
+        <v-divider></v-divider>
+        <v-card-text>
+          <div>
+            <span v-if="stockOrder.logisticsDetails"
+              >Provider:
+              {{
+                stockOrder.logisticsDetails.logisticProvider | uppercase
+              }}</span
+            >
+            <span v-else>Provider: N/A</span>
+          </div>
+          <div>
+            <span v-if="stockOrder.logisticsDetails"
+              >Shipping Fee: {{ stockOrder.logisticsDetails.shippingFee }}</span
+            >
+            <span v-else>Shipping Fee: N/A</span>
+          </div>
+        </v-card-text>
       </v-card>
     </v-container>
     <br />
@@ -149,7 +171,12 @@
       </tbody>
     </table>
 
-    <v-card>
+    <v-card
+      v-if="
+        stockOrder.status === 'shipped' ||
+          stockOrder.status === 'partially shipped'
+      "
+    >
       <v-card-title class="subheading font-weight-medium"
         >Shipments to Receive</v-card-title
       >
@@ -308,6 +335,9 @@ export default {
       });
 
       return str;
+    },
+    uppercase(v) {
+      return v.toUpperCase();
     }
   },
   components: {

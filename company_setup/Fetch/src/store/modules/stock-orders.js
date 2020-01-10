@@ -58,6 +58,7 @@ export default {
 							product.image = productData.downloadURL;
 							product.name = productData.name;
 							product.unique = product.productId + unique;
+							product.weight = productData.weight;
 
 						}
 
@@ -290,10 +291,21 @@ export default {
 						stockOrderReference: GenerateStockOrderNumber(userDetails.agentId)
 					}
 
+					const keys = Object.keys(payload.attributes).sort();
+					let unique = '';
+
+					keys.forEach((key) => {
+						if (key !== 'quantity' && key !== 'qty') {
+							unique += `_${key}:${payload.attributes[key]}`;
+						}
+					});
+					unique = payload.productId + unique;
+
 					obj.items.push({
 						attributes: payload.attributes,
 						productId: payload.productId,
-						qty: payload.attributes.quantity
+						qty: payload.attributes.quantity,
+						unique: unique
 					});
 
 					commit('SET_BASKET_COUNT', 1);
@@ -425,7 +437,8 @@ export default {
 				submittedAt,
 				status: 'pending',
 				items: stockOrder.items,
-				paymentDetails: stockOrder.paymentDetails
+				paymentDetails: stockOrder.paymentDetails,
+				logisticsDetails: stockOrder.logisticsDetails
 			});
 
 
@@ -434,6 +447,49 @@ export default {
 				success: true,
 				submittedAt
 			}
+		},
+
+		async SUBMIT_CALLBACK({ commit }, stockOrder) {
+
+			for (let product of stockOrder.items) {
+
+				const productRef = await COLLECTION.products.doc(product.productId).get();
+
+				if (productRef.exists) {
+
+					const productData = productRef.data();
+					product.resellerPrice = productData.resellerPrice;
+					product.price = productData.price;
+					product.weight = productData.weight;
+				}
+
+			}
+
+			stockOrder.items = stockOrder.items.map((item) => {
+				delete item.attributes.qty;
+				delete item.attributes.quantity;
+				delete item.name;
+				delete item.image;
+				return item;
+			});
+
+			commit('SET_BASKET_COUNT', 0);
+
+			const submittedAt = Date.now();
+			await COLLECTION.stock_orders.doc(stockOrder.id).update({
+				active: false,
+				submittedAt,
+				status: 'pending',
+				items: stockOrder.items,
+			});
+
+
+
+			return {
+				success: true,
+				submittedAt
+			}
+
 		},
 
 		async MARKED_AS_ADDED_TO_INVENTORY({ }, id) {
