@@ -51,10 +51,7 @@ async function CreatePayment(payload) {
                 "description": `Customer Payment for ${payload.stockOrder.stockOrderReference}`,
                 "statement_descriptor": `STCKO ${payload.stockOrder.stockOrderReference}`,
                 "source": payload.tokenDetails,
-                "capture": true,
-                "gateway": "magpie_3ds",
-                "redirect_url": `${process.env.callbackURL}/${payload.stockOrder.id}`,
-                "callback_url": `${process.env.callbackURL}/${payload.stockOrder.id}`
+                "capture": true
             },
             auth: {
                 username: keysRef.data().key,
@@ -68,7 +65,9 @@ async function CreatePayment(payload) {
     catch (e) {
         throw e;
     }
-
+    // "gateway": "magpie_3ds",
+    // "redirect_url": `${process.env.callbackURL}/${payload.stockOrder.id}`,
+    // "callback_url": `${process.env.callbackURL}/${payload.stockOrder.id}`
 }
 
 const payment = {
