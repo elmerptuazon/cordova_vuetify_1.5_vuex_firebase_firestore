@@ -392,29 +392,62 @@ export default {
           );
           //check if it has a checkout_URL, if none proceed to regular update
           console.log(paymentResult);
-          if (paymentResult.checkout_url) {
-            //save details for logisticsDetails
-            this.$store.dispatch("stock_orders/UPDATE_STOCK_ORDER", {
-              id: this.stockOrder.id,
-              key: "logisticsDetails",
-              value: this.stockOrder.logisticsDetails
-            });
-            //dispatch listener for CC Payment
-            //listener for CC Payment should update the stock order based on the details and then push it to stockOrderCheckoutSuccess
-            this.$store.dispatch(
-              "payment/ListenToPaymentStatus",
+          if (paymentResult.captured) {
+            let paymentDetails = {
+              amount: Number((paymentResult.amount / 100).toFixed(2)),
+              paymentStatus: "Paid",
+              paymentType: "CC",
+              transactionNumber: paymentResult.id,
+              paymentGateway: "Magpie"
+            };
+
+            this.stockOrder.paymentDetails = paymentDetails;
+
+            console.log(this.stockOrder);
+            let result = await this.$store.dispatch(
+              "stock_orders/SUBMIT",
               this.stockOrder
             );
-            //open the webview for the URL returned
-            const url = paymentResult.checkout_url;
-            const target = "_blank";
-            const options = `location=no,hardwareback=no,footer=yes,closebuttoncaption=DONE,closebuttoncolor=#ffffff,footercolor=${process.env.primaryColor}`;
-            this.inAppBrowserRef = cordova.InAppBrowser.open(
-              url,
-              target,
-              options
-            );
+            this.$router.push({
+              name: "StockOrderCheckoutSuccess",
+              params: {
+                stockOrder: this.stockOrder,
+                submittedAt: result.submittedAt
+              }
+            });
+          } else {
+            let paymentDetails = {
+              amount: Number((paymentResult.amount / 100).toFixed(2)),
+              paymentStatus: "Failed",
+              paymentType: "CC",
+              transactionNumber: paymentResult.id,
+              paymentGateway: "Magpie"
+            };
           }
+          //use this for 3DS
+          // if (paymentResult.checkout_url) {
+          //   //save details for logisticsDetails
+          //   this.$store.dispatch("stock_orders/UPDATE_STOCK_ORDER", {
+          //     id: this.stockOrder.id,
+          //     key: "logisticsDetails",
+          //     value: this.stockOrder.logisticsDetails
+          //   });
+          //   //dispatch listener for CC Payment
+          //   //listener for CC Payment should update the stock order based on the details and then push it to stockOrderCheckoutSuccess
+          //   this.$store.dispatch(
+          //     "payment/ListenToPaymentStatus",
+          //     this.stockOrder
+          //   );
+          //   //open the webview for the URL returned
+          //   const url = paymentResult.checkout_url;
+          //   const target = "_blank";
+          //   const options = `location=no,hardwareback=no,footer=yes,closebuttoncaption=DONE,closebuttoncolor=#ffffff,footercolor=${process.env.primaryColor}`;
+          //   this.inAppBrowserRef = cordova.InAppBrowser.open(
+          //     url,
+          //     target,
+          //     options
+          //   );
+          // }
         } else {
           paymentResult = await this.$store.dispatch(
             "payment/ProcessCODOrder",
