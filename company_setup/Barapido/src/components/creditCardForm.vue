@@ -6,7 +6,6 @@
         <v-text-field
           single-line
           outline
-          placeholder="#### #### #### ####"
           v-cardformat:formatCardNumber
           v-model="cardDetails.cardNumber"
           prepend-inner-icon="credit_card"
