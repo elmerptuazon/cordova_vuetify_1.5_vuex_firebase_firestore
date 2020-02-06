@@ -100,11 +100,10 @@ const providers = {
 
         },
 
-        async CalculateShipping({ state }, payload) {
-
+        async CalculateShipping({ state, dispatch }, payload) {
 
             for (const logistics of state.logisticsProvider) {
-                if (logistics.id != 'pick-up') {
+                if (logistics.id != 'barapido') {
                     //get key
                     //run http call for different url to get quotations per company
                     const res = await axios({
@@ -119,6 +118,11 @@ const providers = {
 
                     });
                     logistics.shippingFee = res.data.deliveryFee
+                }
+
+                if(logistics.id === 'lalamove') {
+                    const res = await dispatch('delivery/getQuotation', payload);
+                    logistics.shippingFee = res;
                 }
             }
 

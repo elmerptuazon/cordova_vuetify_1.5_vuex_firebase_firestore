@@ -43,6 +43,7 @@
     "fastclick": "^1.0.6",
     "firebase": "^7.2.3",
     "fs-extra": "^7.0.0",
+    "lalamove-js": "^1.0.0",
     "material-design-icons-iconfont": "^3.0.3",
     "mint-ui": "^2.2.13",
     "moment": "^2.20.1",
