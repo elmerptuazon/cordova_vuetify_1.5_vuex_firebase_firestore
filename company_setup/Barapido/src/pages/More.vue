@@ -90,14 +90,8 @@
               </div>
               <v-layout row wrap>
                 <v-flex xs4>
-                  <v-avatar
-                    v-if="resellerData.downloadURL"
-                    width="92px"
-                    tile
-                  >
-                    <v-img
-                      :src="resellerData.downloadURL"
-                    ></v-img>
+                  <v-avatar v-if="resellerData.downloadURL" width="92px" tile>
+                    <v-img :src="resellerData.downloadURL"></v-img>
                   </v-avatar>
                   <v-avatar v-else width="92px" tile>
                     <v-img :src="resellerData.placeholder"></v-img>
@@ -136,13 +130,7 @@
       v-if="user.type === 'Reseller' && user.status === 'pending'"
     >
       <v-alert border="right" outline color="info" value="true" elevation="2">
-        Hello! Your Reseller application will only be approved once you have
-        ordered and paid for your starter kit.
-        <br /><br />
-        If you have not already ordered your starter kit, you can do so
-        <a href="https://www.barapido.com/?product=barapido-reseller-kit"
-          >here</a
-        >.<br /><br />
+        Hello! Your Reseller application is currently pending for review.<br /><br />
         Check back to this page to see if your application has been approved, or
         you can contact the Barapido Team on Viber at 09284787508.
       </v-alert>
@@ -306,11 +294,10 @@ export default {
     },
 
     viewReseller() {
-      if(this.user.type === 'Reseller') {
+      if (this.user.type === "Reseller") {
         this.resellerData = Object.assign({}, this.user.referredBy);
         console.log(this.resellerData);
-      }
-      else {
+      } else {
         this.resellerData = Object.assign({}, this.user.resellerData);
       }
 
