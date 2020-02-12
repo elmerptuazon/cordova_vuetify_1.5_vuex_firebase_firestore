@@ -29,7 +29,19 @@
       class="reduced-width"
     >
       <span>Orders</span>
-      <v-icon>list</v-icon>
+      <v-badge
+        :value="ordersBadge"
+        color="red"
+        right  
+        small
+      >
+        <template v-slot:badge>
+          <span class="pa-1">
+            <v-icon>error_outline</v-icon>
+          </span>
+        </template>
+        <v-icon>list</v-icon>
+      </v-badge>
     </v-btn>
     <v-btn flat color="white" value="messages" class="reduced-width">
       <span>Messages</span>
@@ -77,9 +89,10 @@ export default {
   },
   data: () => ({
     showNav: true,
-    width: null
+    width: null,
+    ordersBadge: null,
   }),
-  created() {
+  async created() {
     const user = this.user;
 
     if (user.type === "Reseller" && user.status === "pending") {
@@ -88,6 +101,34 @@ export default {
       this.showNav = false;
     } else {
       this.showNav = true;
+    }
+
+    this.ordersBadge = false;
+    let response = await this.$store.dispatch("orders/GET_ORDERS_RESELLER_VIEW");
+
+    let customerOrders = [];
+    if(response.length) {
+      customerOrders = response.filter(order => order.status.toLowerCase() === 'placed' || 
+                                                order.status.toLowerCase() === 'on cart'
+                                      );
+    } 
+    console.log("CUSTOMER ORDER", customerOrders);
+
+    if(customerOrders.length) {
+      this.ordersBadge = true;
+    }
+    
+    response = await this.$store.dispatch("stock_orders/FIND_ALL");
+    console.log("STOCK_ORDER: ", response);
+    
+    let items = [];
+    if(response.data.length) {
+      items = response.data.filter(item => item.shipmentsToReceive > 0);
+    }
+    console.log("items with shipment", items);
+
+    if(items.length) {
+      this.ordersBadge = true;
     }
   },
   mounted() {
