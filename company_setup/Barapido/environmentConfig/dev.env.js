@@ -18,12 +18,6 @@ module.exports = merge(prodEnv, {
   environment: '"test"',
   callbackURL: '"https://us-central1-barapido-dev.cloudfunctions.net/callback/checkPaymentStatus"',
   barapidoShippingURL: '"https://us-central1-barapido-dev.cloudfunctions.net/barapidoAPI/getQuotation"',
-  lalamoveURL: '" https://sandbox-rest.lalamove.com"',
-  companyAddress: {
-    house: 'Inoza Tower',
-    streetName: '40th Street',
-    barangay: 'BGC',
-    citymun: 'Taguig City',
-    province: 'Metro Manila'
-  }
+  lalamoveURL: '"https://sandbox-rest.lalamove.com"',
+  companyAddress: "Inoza Tower, 40th Street, BGC, Taguig City, Metro Manila"
 })

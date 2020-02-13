@@ -16,5 +16,8 @@ module.exports = merge(prodEnv, {
   companyName: '"Fetch"',
   version: '"0.6.7"',
   environment: '"test"',
-  callbackURL: '"https://us-central1-fetch-dev-a1f39.cloudfunctions.net/callback/checkPaymentStatus"'
+  callbackURL: '"https://us-central1-fetch-dev-a1f39.cloudfunctions.net/callback/checkPaymentStatus"',
+  lalamoveURL: '"https://sandbox-rest.lalamove.com"',
+  companyAddress: "'170, Salcedo St. Legazpi Village, Makati City, Metro Manila, 1229'",
+  contactNo: '"09123456789"'
 })
