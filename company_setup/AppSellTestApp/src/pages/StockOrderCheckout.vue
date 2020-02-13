@@ -476,7 +476,8 @@ export default {
       const user = this.$store.getters["accounts/user"];
       await this.$store.dispatch("providers/CalculateShipping", {
         itemWeight: this.totalWeight,
-        toAddress: user.address
+        toAddress: user.address,
+        stockOrder: this.stockOrder
       });
       //this.stepperCounter = 2;
     },
