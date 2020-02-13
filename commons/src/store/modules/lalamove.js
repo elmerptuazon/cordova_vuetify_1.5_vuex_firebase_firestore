@@ -130,8 +130,8 @@ const lalamove = {
                     {
                         'toStop': 1,
                         'toContact': {
-                            'name': 'Barapido',
-                            'phone': '+639653202725'
+                            'name': process.env.companyName,
+                            'phone': process.env.contactNo
                         },
                         'remarks': `STOCK ORDER: ${payload.stockOrder.stockOrderReference}`
                     }
