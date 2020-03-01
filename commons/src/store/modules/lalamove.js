@@ -32,21 +32,32 @@ async function generateHeader(method, path, body) {
 const lalamove = {
     namespaced: true,
     state: {
-
+        quotationBody: {},
     },
     getters: {
-
+        GET_QUOTATION_BODY: state => state.quotationBody,
     },
     mutations: {
-
+        SET_QUOTATION_BODY(state, payload) {
+            state.quotationBody = payload;
+        },
     },
     actions: {
-        async getQuotation({state, dispatch, rootGetters}, payload) {
+        attachQuotationBody({state}, payload) {
+            let stockOrder = Object.assign({}, payload);
+            stockOrder.quotationBody = Object.assign({}, state.quotationBody);
+            return stockOrder;
+        },
+
+        async getQuotation({state, commit, rootGetters}, payload) {
+            commit('SET_QUOTATION_BODY', {});
             
-            let companyAdd = process.env.companyAddress.replace(/ /g, "+");
+            const pickUpAdd = await DB.collection('companyDetails').doc('address').get();
+            let companyAdd = pickUpAdd.data().deliveryPickUp;
+            let companyAddMod = companyAdd.replace(/ /g, "+");
             let response = await axios({
                 method: 'get',
-                url: `https://maps.googleapis.com/maps/api/geocode/json?address=${companyAdd}&key=AIzaSyAbCne97dfOmDY_xM01-awzqa95u2gyHvk`
+                url: `https://maps.googleapis.com/maps/api/geocode/json?address=${companyAddMod}&key=AIzaSyAbCne97dfOmDY_xM01-awzqa95u2gyHvk`
             });
 
             let originCoordinates = {
@@ -58,11 +69,11 @@ const lalamove = {
 
             const address = payload.toAddress;
             let resellerAdd = `${address.streetName}, ${address.barangay}, ${address.citymun}, ${address.province}, ${address.zipCode}`;
-            resellerAdd = resellerAdd.replace(/ /g, "+");
+            let resellerAddMod = resellerAdd.replace(/ /g, "+");
 
             let res = await axios({
                 method: 'get',
-                url: `https://maps.googleapis.com/maps/api/geocode/json?address=${resellerAdd}&key=AIzaSyAbCne97dfOmDY_xM01-awzqa95u2gyHvk`
+                url: `https://maps.googleapis.com/maps/api/geocode/json?address=${resellerAddMod}&key=AIzaSyAbCne97dfOmDY_xM01-awzqa95u2gyHvk`
             });
             
             let toAddress = {
@@ -82,7 +93,11 @@ const lalamove = {
             else 
                 serviceType = 'VAN';
 
-            let specialRequest = ["COD"];
+            let specialRequest = [];
+            if(payload.paymentType === 'COD') {
+                specialRequest.push('COD');
+            }
+
             console.log(payload);
             // if(payload.stockOrder.paymentDetails.paymentType === 'COD')
             //     specialRequest.push("COD");
@@ -90,15 +105,18 @@ const lalamove = {
             const user = rootGetters["accounts/user"];
 
             const currentTime = new Date();
-            const tomorrow = `${currentTime.getMonth() + 1}/${currentTime.getDate() + 1}/${currentTime.getFullYear()} 12:00:00`; 
+            const tomorrow = `${currentTime.getMonth() + 1}/${currentTime.getDate() + 2}/${currentTime.getFullYear()} 13:00:00`; 
+
+            let companyNum = await DB.collection('companyDetails').doc('contact').get();
+            companyNum = companyNum.data().mobileNum;
 
             const body = {
                 'scheduleAt': new Date(tomorrow).toISOString(),
                 'serviceType': serviceType,
                 'specialRequests': specialRequest,
                 'requesterContact': {
-                    'name': `${user.firstName} ${user.lastName}`,
-                    'phone': user.contact
+                    'name': process.env.companyName,
+                    'phone': companyNum
                 },
                 'stops': [
                     {
@@ -108,7 +126,7 @@ const lalamove = {
                         },
                         'addresses': {
                             'en_PH': {
-                                'displayString': companyAdd.replace(/[+]/g, " "),
+                                'displayString': companyAdd,
                                 'country': 'PH'
                             }
                         }
@@ -130,8 +148,8 @@ const lalamove = {
                     {
                         'toStop': 1,
                         'toContact': {
-                            'name': process.env.companyName,
-                            'phone': process.env.contactNo
+                            'name': `${user.firstName} ${user.lastName}`,
+                            'phone': user.contact
                         },
                         'remarks': `STOCK ORDER: ${payload.stockOrder.stockOrderReference}`
                     }
@@ -139,18 +157,27 @@ const lalamove = {
             };
 
             try {
-                const response = await axios({
+                let response = await axios({
                     method: 'post',
                     url: `${host}/v2/quotations`,
                     headers: await generateHeader('POST', '/v2/quotations', body),
                     data: body,
                 });
                 console.log("LALAMOVE QUOTATION RESPONSE: ", response);
-                return response.data;
+                response = response.data;
+
+                body.quotedTotalFee = {
+                    'amount': response.totalFee,
+                    'currency': response.totalFeeCurrency
+                };
+                body.sms = true;
+
+                commit('SET_QUOTATION_BODY', body);
+                return response;
             }
             catch(error) {
-                console.log("LALAMOVE QUOTATION RESPONSE ERROR: ", error);
-                throw 0.00;
+                console.log("LALAMOVE QUOTATION RESPONSE ERROR: ", error.response);
+                throw error;
             }
         }
     }
