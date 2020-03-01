@@ -122,6 +122,9 @@ const providers = {
                     });
                     logistics.shippingFee = res.data.deliveryFee
                 } 
+                else {
+                    logistics.shippingFee = 0.00;
+                }
             }
 
         }
