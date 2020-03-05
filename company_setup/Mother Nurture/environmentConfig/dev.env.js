@@ -13,7 +13,7 @@ module.exports = merge(prodEnv, {
   measurementId: '"G-QWTXNCX24B"',
   storageCode: '"Mother-Nature"',
   webAdminId: '"admin"',
-  companyName: '"Mother Nature"',
+  companyName: '"Mother Nurture"',
   version: '"0.6.8"',
   primaryColor: '"#0E9648"',
   environment: '"test"',

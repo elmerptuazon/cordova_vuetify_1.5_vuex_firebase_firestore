@@ -132,7 +132,7 @@
       <v-alert border="right" outline color="info" value="true" elevation="2">
         Hello! Your Reseller application is currently pending for review.<br /><br />
         Check back to this page to see if your application has been approved, or
-        you can contact the Mother Nature Team on Viber at 09274074674.
+        you can contact the Mother Nurture Team on Viber at 09274074674.
       </v-alert>
     </div>
 
