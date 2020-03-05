@@ -1,0 +1,17 @@
+module.exports = {
+  NODE_ENV: '"production"',
+  apiKey: '""',
+  authDomain: '""',
+  databaseURL: '""',
+  projectId: '""',
+  storageBucket: '""',
+  messagingSenderId: '""',
+  appId: '""',
+  storageCode: '"mother-nature-dev"',
+  webAdminId: '"admin"',
+  companyName: '"Mother Nature"',
+  version: '"0.6.8"',
+  primaryColor: '"#0E9648"',
+  environment: '"live"',
+  callbackURL: '""',
+}
