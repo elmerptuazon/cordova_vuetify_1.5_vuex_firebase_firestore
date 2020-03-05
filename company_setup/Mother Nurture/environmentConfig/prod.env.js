@@ -9,9 +9,9 @@ module.exports = {
   appId: '""',
   storageCode: '"mother-nature-dev"',
   webAdminId: '"admin"',
-  companyName: '"Mother Nature"',
+  companyName: '"Mother Nurture"',
   version: '"0.6.8"',
-  primaryColor: '"#0E9648"',
+  primaryColor: '"#aa7c51"',
   environment: '"live"',
   callbackURL: '""',
 }
