@@ -7,11 +7,11 @@ module.exports = {
   storageBucket: '""',
   messagingSenderId: '""',
   appId: '""',
-  storageCode: '"mother-nature-dev"',
+  storageCode: '""',
   webAdminId: '"admin"',
   companyName: '"Mother Nurture"',
   version: '"0.6.8"',
-  primaryColor: '"#aa7c51"',
+  primaryColor: '"#90b252"',
   environment: '"live"',
   callbackURL: '""',
 }
