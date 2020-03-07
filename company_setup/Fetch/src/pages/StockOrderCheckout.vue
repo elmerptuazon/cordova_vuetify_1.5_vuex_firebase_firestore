@@ -15,25 +15,97 @@
 
     <v-stepper v-model="stepperCounter">
       <v-stepper-header>
-        <v-stepper-step :complete="stepperCounter > 1" step="1"
+        <v-stepper-step :complete="stepperCounter > 0" step="1"
+          >Confirm Address and Payment Method</v-stepper-step
+        >
+        <v-divider></v-divider>
+
+        <v-stepper-step :complete="stepperCounter > 1" step="2"
           >Shipment Options</v-stepper-step
         >
 
         <v-divider></v-divider>
 
-        <v-stepper-step :complete="stepperCounter > 2" step="2"
-          >Payment Options</v-stepper-step
+        <v-stepper-step :complete="stepperCounter > 2" step="3"
+          >Breakdown of Orders</v-stepper-step
         >
 
         <v-divider></v-divider>
-        <v-stepper-step step="3">Submit Order</v-stepper-step>
+        <v-stepper-step step="4">Submit Order</v-stepper-step>
       </v-stepper-header>
 
       <v-stepper-items>
         <v-stepper-content step="1">
           <v-card class="mb-2" flat>
             <v-card-title>
-              <span class="body-2">Select shipping option</span>
+              <span class="body-2">Confirm Address and Select Payment Method</span>
+            </v-card-title>
+            <v-divider></v-divider>
+            <v-container>
+              <v-layout align-center justify-center wrap>
+                <v-flex xs12>
+                  <div class="caption">
+                    This stock order will be delivered in this address:
+                  </div>
+                </v-flex>
+                <v-flex xs12 mt-3>
+                  <div class="primary--text headline font-weight-bold">
+                    {{ userAddress.house }}, {{ userAddress.streetName }}, {{ userAddress.barangay }}, {{ userAddress.citymun }},
+                    {{ userAddress.province }}, {{ userAddress.zipCode }}
+                  </div>
+                </v-flex>
+                <v-flex xs12 mt-3>
+                  <div class="font-italic caption">
+                    To change this shipping address, kindly go to your profile page and change your address.
+                    or <b class="body-1 primary--text font-weight-bold" @click="$router.push({name: 'EditProfile'})">CLICK HERE</b> to go to Edit Profile Page.
+                  </div>
+                </v-flex>
+              </v-layout>
+
+              <v-divider class="my-3"/>
+
+              <v-layout align-center justify-center>
+                <v-flex xs12>
+                  <v-card class="mb-3">
+                    <v-card-title>
+                      <span class="body-2">Select Payment Option</span>
+                    </v-card-title>
+                    <v-divider></v-divider>
+                    <v-container>
+                      <v-radio-group v-model="payment.paymentType">
+                        <v-radio
+                          label="Cash On Delivery (COD)/Upon pick-up"
+                          value="COD"
+                        ></v-radio>
+                        <v-radio
+                          label="Credit Card (Visa and Mastercard Only)"
+                          value="CC"
+                        ></v-radio>
+                      </v-radio-group>
+                    </v-container>
+                  </v-card>
+                </v-flex>
+              </v-layout>
+              <v-layout align-center justify-center>
+                <v-flex xs3>
+                  <v-btn flat @click="goBack">
+                    CANCEL
+                  </v-btn>
+                </v-flex>
+                <v-flex xs3 offset-xs1>
+                  <v-btn color="primary" depressed @click="startShippingCalculation">
+                    Continue
+                  </v-btn>
+                </v-flex>
+              </v-layout>
+            </v-container>
+          </v-card>
+        </v-stepper-content>
+
+        <v-stepper-content step="2">
+          <v-card class="mb-2" flat>
+            <v-card-title>
+              <span class="body-2">Select Shipping option</span>
             </v-card-title>
             <v-divider></v-divider>
             <v-container>
@@ -71,14 +143,23 @@
                   </v-card-text>
                 </v-card>
               </v-radio-group>
+              <v-layout align-center justify-center mt-3>
+                <v-flex xs3>
+                  <v-btn flat @click="stepperCounter = 1">
+                    BACK
+                  </v-btn>
+                </v-flex>
+                <v-flex xs3 offset-xs1>
+                  <v-btn depressed color="primary" @click="stepperCounter = 3">
+                    Continue
+                  </v-btn>
+                </v-flex>
+              </v-layout>
             </v-container>
           </v-card>
-          <v-btn color="primary" @click="stepperCounter = 2">
-            Continue
-          </v-btn>
         </v-stepper-content>
 
-        <v-stepper-content step="2">
+        <v-stepper-content step="3">
           <v-card class="mb-5">
             <v-card-title>
               <span class="body-2">Breakdown of Orders</span>
@@ -177,35 +258,39 @@
               </tbody>
             </table>
           </v-card>
-          <v-btn color="primary" @click="stepperCounter = 3">
-            Continue
-          </v-btn>
-
-          <v-btn flat @click="stepperCounter = 1">Back</v-btn>
+          <v-layout align-center justify-center mt-1>
+            <v-flex xs3>
+              <v-btn flat @click="stepperCounter = 2">Back</v-btn>
+            </v-flex>
+            <v-flex xs3 offset-xs1>
+              <v-btn color="primary" depressed @click="stepperCounter = 4">
+                Continue
+              </v-btn>
+            </v-flex>
+          </v-layout>
         </v-stepper-content>
 
-        <v-stepper-content step="3">
+        <v-stepper-content step="4">
           <v-card class="mb-5">
             <v-card-title>
-              <span class="body-2">Select Payment Option</span>
+              <span class="body-2">Selected Payment Option</span>
             </v-card-title>
             <v-divider></v-divider>
-            <v-container>
-              <v-radio-group v-model="payment.paymentType">
-                <v-radio
-                  label="Cash On Delivery (COD)/Upon pick-up"
-                  value="COD"
-                ></v-radio>
-                <v-radio
-                  label="Credit Card (Visa and Mastercard Only)"
-                  value="CC"
-                ></v-radio>
-                <v-divider v-if="payment.paymentType === 'CC'"></v-divider>
-                <creditCardForm
-                  v-if="payment.paymentType === 'CC'"
-                  @cardDetails="SetCardDetails"
-                />
-              </v-radio-group>
+            <v-container class="px-3">
+              <div class="title primary--text font-weight-bold">
+                <span v-if="payment.paymentType !== 'CC'">
+                  Cash On Delivery (COD) / Upon pick-up
+                </span>
+                <span v-else>
+                  Credit Card (Visa and Mastercard Only)
+                </span>
+              </div>
+              <v-divider class="mt-3" v-if="payment.paymentType === 'CC'"></v-divider>
+              <creditCardForm
+                class="mt-2 px-2"
+                v-if="payment.paymentType === 'CC'"
+                @cardDetails="SetCardDetails"
+              />
             </v-container>
           </v-card>
           <div class="text-xs-center mt-3 mb-3">
@@ -225,7 +310,7 @@
                 Pay and Submit Order
               </span>
             </v-btn>
-            <v-btn flat @click="stepperCounter = 2">Back</v-btn>
+            <v-btn flat @click="stepperCounter = 3">Back</v-btn>
           </div>
         </v-stepper-content>
       </v-stepper-items>
@@ -281,9 +366,12 @@ export default {
     logisticsID: "pick-up",
     loaderDialogMessage: null,
     inAppBrowserRef: null,
-    stepperCounter: 0
+    stepperCounter: 0,
+    userAddress: {}
   }),
   mounted() {
+    this.userAddress = Object.assign({}, this.$store.getters["accounts/user"].address);
+
     this.cordovaBackButton(this.goBack);
     this.loaderDialog = true;
     this.loaderDialogMessage = "Please wait";
@@ -298,16 +386,33 @@ export default {
       .catch(error => {
         console.log(error);
       })
-      .finally(() => {
-        this.invokeShippingCalculation().then(() => {
-          this.loaderDialogMessage = null;
-          this.loaderDialog = false;
-        });
-      });
+      
+      this.loaderDialogMessage = null;
+      this.loaderDialog = false;
   },
   methods: {
     goBack() {
       this.$router.go(-1);
+    },
+    startShippingCalculation() {
+      this.loaderDialogMessage = "Please Wait...";
+      this.loaderDialog = true;
+
+      this.invokeShippingCalculation().then(() => {
+        this.loaderDialogMessage = null;
+        this.loaderDialog = false;
+        this.stepperCounter = 2;
+      })
+      .catch((error) => {
+        console.log(error);
+        this.loaderDialogMessage = null;
+        this.loaderDialog = false;
+        this.$refs.modal.show(
+          "Getting Quotation Failed",
+          `An error happened. Please try again. (${error.message})`
+        );
+        this.stepperCounter = 2;
+      });
     },
     submitStockOrder() {
       this.$refs.finalizeOrder.show(
@@ -327,7 +432,8 @@ export default {
         this.payment.amount = this.total;
         this.stockOrder.logisticsDetails = {
           logisticProvider: this.logisticsID,
-          shippingFee: this.shippingFee
+          shippingFee: this.shippingFee,
+          quotationBody: this.$store.getters['lalamove/GET_QUOTATION_BODY'],
         };
 
         //check kung CC or COD
@@ -465,10 +571,19 @@ export default {
         //       "Charging your card unsuccessful, please contact your service provider."
         //     );
         // }
-        this.$refs.modal.show(
-          "Transaction Failed",
-          "Charging your card unsuccessful, check the details and try again."
-        );
+        if(this.payment.paymentType === 'CC') {
+          this.$refs.modal.show(
+            "Transaction Failed",
+            "Charging your card unsuccessful, check the details and try again."
+          );
+        }
+        else {
+          this.$refs.modal.show(
+            "Transaction Failed",
+            `There was an error. Please try again. (${error.message})`
+          );
+        }
+        
       }
     },
     async invokeShippingCalculation() {
@@ -477,7 +592,8 @@ export default {
       await this.$store.dispatch("providers/CalculateShipping", {
         itemWeight: this.totalWeight,
         toAddress: user.address,
-        stockOrder: this.stockOrder
+        stockOrder: this.stockOrder,
+        paymentType: this.payment.paymentType
       });
       //this.stepperCounter = 2;
     },
