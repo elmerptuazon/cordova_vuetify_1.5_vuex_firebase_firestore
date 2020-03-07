@@ -21,6 +21,7 @@
           outline
           v-cardformat:formatCardExpiry
           v-model="cardDetails.expiry"
+          placeholder="MM / YYYY"
         >
         </v-text-field>
       </v-flex>
