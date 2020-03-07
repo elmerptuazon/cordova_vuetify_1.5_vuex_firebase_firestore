@@ -93,14 +93,13 @@ const lalamove = {
             else 
                 serviceType = 'VAN';
 
+            //Determine user payment preference and add it to lalamove quotations
             let specialRequest = [];
             if(payload.paymentType === 'COD') {
                 specialRequest.push('COD');
             }
 
             console.log(payload);
-            // if(payload.stockOrder.paymentDetails.paymentType === 'COD')
-            //     specialRequest.push("COD");
 
             const user = rootGetters["accounts/user"];
 
