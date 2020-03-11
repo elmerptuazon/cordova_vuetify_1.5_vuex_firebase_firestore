@@ -135,7 +135,12 @@
                         <v-card-title primary-title>
                           <div>
                             <div class="subheading">Shipping Fee:</div>
-                            <div>+ PHP {{ logistics.shippingFee }}</div>
+                            <div 
+                              v-if="freeShipping && logistics.id === 'lalamove'" 
+                              class="primary--text"
+                              >FREE SHIPPING
+                            </div>
+                            <div v-else>+ PHP {{ logistics.shippingFee }}</div>
                           </div>
                         </v-card-title>
                       </v-flex>
@@ -398,6 +403,17 @@ export default {
       this.loaderDialogMessage = "Please Wait...";
       this.loaderDialog = true;
 
+
+      if(this.userAddress.province !== 'Metro Manila') {
+        this.$refs.modal.show(
+          "Service Unavailable",
+          `Lalamove delivery is not available in your area.`
+        );
+
+        this.loaderDialogMessage = null;
+        this.loaderDialog = false;
+      }
+
       this.invokeShippingCalculation().then(() => {
         this.loaderDialogMessage = null;
         this.loaderDialog = false;
@@ -407,10 +423,20 @@ export default {
         console.log(error);
         this.loaderDialogMessage = null;
         this.loaderDialog = false;
-        this.$refs.modal.show(
-          "Getting Quotation Failed",
-          `An error happened. Please try again. (${error.message})`
-        );
+        
+        if(error.response.data.message === 'ERR_OUT_OF_SERVICE_AREA') {
+          this.$refs.modal.show(
+            "Lalamove Unavailble",
+            `Lalamove delivery is not available in your area.`
+          );
+        }
+        else {
+          this.$refs.modal.show(
+            "Getting Quotation Failed",
+            `An error happened. Please try again. (${error.message})`
+          );
+        }
+        
         this.stepperCounter = 2;
       });
     },
@@ -432,9 +458,12 @@ export default {
         this.payment.amount = this.total;
         this.stockOrder.logisticsDetails = {
           logisticProvider: this.logisticsID,
-          shippingFee: this.shippingFee,
-          quotationBody: this.$store.getters['lalamove/GET_QUOTATION_BODY'],
-        };
+          shippingFee: this.shippingFee
+        }
+        
+        if(this.logisticsID === 'lalamove') {
+          this.stockOrder.logisticsDetails.quotationBody = Object.assign({}, this.$store.getters['lalamove/GET_QUOTATION_BODY']);
+        }
 
         //check kung CC or COD
         if (this.payment.paymentType === "CC") {
@@ -642,11 +671,35 @@ export default {
         return this.subTotal + this.shippingFee;
       }
     },
+    freeShipping() {
+      if(
+        this.userAddress.province === 'Metro Manila' 
+        && this.userAddress.citymun === 'Makati'
+        && this.subTotal >= 10000
+      ) {
+        return true;
+      }
+      else if(
+        this.userAddress.province === 'Metro Manila' 
+        && this.userAddress.citymun !== 'Makati'
+        && this.subTotal >= 15000
+      ) {
+        return true;
+      }
+      else {
+        return false;
+      }
+    },
     shippingFee() {
       const logisticsData = this.logisticsProvider.find(
         logistics => logistics.id === this.logisticsID
       );
-      return logisticsData.shippingFee;
+      
+      if(this.freeShipping) {
+        return 0.00;
+      }
+
+      return logisticsData.shippingFee;;
     },
     ...mapState("payment", {
       paymentOccured: state => state.paymentOccured
