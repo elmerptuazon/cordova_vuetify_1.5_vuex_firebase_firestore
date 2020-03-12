@@ -37,9 +37,8 @@
             <v-spacer></v-spacer>
             <v-btn
               v-if="
-                shipment.status === 'Pending' &&
-                  (shipment.type === 'Partial Shipment' ||
-                    shipment.type === 'Full Shipment')
+                shipment.status.toLowerCase() === 'completed' &&
+                  shipment.lalamoveOrderDetails
               "
               class="primary"
               @click="TagShipmentAsReceived(shipment)"
@@ -49,7 +48,19 @@
             >
             <v-btn
               v-else-if="
-                !shipment.isAddedToInventory && shipment.status === 'Received'
+                shipment.status.toLowerCase() === 'pending' &&
+                  !shipment.lalamoveOrderDetails
+              "
+              class="primary"
+              @click="TagShipmentAsReceived(shipment)"
+              :loading="buttonLoading"
+              :disabled="buttonLoading"
+              >TAG THIS SHIPMENT AS RECEIVED</v-btn
+            >
+            <v-btn
+              v-else-if="
+                !shipment.isAddedToInventory && 
+                  shipment.status.toLowerCase() === 'received'
               "
               class="primary"
               @click="AddShipmentToInventory(shipment)"
@@ -57,7 +68,10 @@
               :disabled="buttonLoading"
               >ADD ITEM/S TO INVENTORY</v-btn
             >
-            <v-btn v-else class="primary" :disabled="true"
+            <v-btn 
+              v-else-if="shipment.isAddedToInventory" 
+              class="primary" 
+              :disabled="true"
               >ITEM/s ALREADY IN THE INVENTORY</v-btn
             >
           </v-card-actions>
@@ -89,12 +103,13 @@ export default {
         value: "qtyToShip",
         align: "center"
       }
-    ]
+    ],
   }),
-  created() {
+  async created() {
     //run vuex to get corresponding shipment details for a stockOrder via the stockOrderId
     console.log(this.stockOrderId);
-    this.$store.dispatch("shipment/GetShipments", this.stockOrderId);
+    await this.$store.dispatch("shipment/GetShipments", this.stockOrderId);
+
     console.log("SHIPMENTDETAILS COMPONENT: ", this.shipmentList);
   },
   methods: {
@@ -163,7 +178,13 @@ export default {
   },
   computed: {
     ...mapState("shipment", {
-      shipmentList: state => state.shipmentList
+      shipmentList: state => state.shipmentList.filter((shipment) => {
+        if(shipment.status.toLowerCase() === 'picked_up' || 
+            shipment.status.toLowerCase() === 'completed' || 
+            shipment.status.toLowerCase() === 'pending' ||
+            shipment.status.toLowerCase() === 'received'
+        ) return shipment;
+      })
     })
   }
 };
