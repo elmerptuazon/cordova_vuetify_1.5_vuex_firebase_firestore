@@ -122,6 +122,17 @@ const providers = {
                 }
             }
 
+        },
+
+        async GetFreeDeliveryCutOff() {
+            try {
+                const response = await DB.collection('providers').doc('settings').get();
+                return response.data();
+            }
+            catch(error) {
+                console.log(error);
+                throw error;
+            }
         }
 
 
