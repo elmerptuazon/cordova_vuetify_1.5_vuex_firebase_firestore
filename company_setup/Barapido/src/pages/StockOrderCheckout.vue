@@ -63,7 +63,16 @@
                         <v-card-title primary-title>
                           <div>
                             <div class="subheading">Shipping Fee:</div>
-                            <div v-if="userHasNoOrders && logistics.id !== 'pick-up'" class="primary--text"> FREE SHIPPING</div>
+                            <div 
+                              v-if="userHasNoOrders && logistics.id !== 'pick-up'" 
+                              class="primary--text"
+                            > FREE SHIPPING</div>
+                            <div 
+                              v-else-if="subTotal >= freeDeliveryCutOff && 
+                                logistics.id !== 'pick-up'
+                              " 
+                              class="primary--text"
+                            > FREE SHIPPING</div>
                             <div v-else>+ PHP {{ logistics.shippingFee }}</div>
                           </div>
                         </v-card-title>
@@ -164,7 +173,11 @@
                     Shipping Fee
                   </td>
                   <td class="caption text-xs-right">
-                    <span>{{ shippingFee | currency("P") }}</span>
+                    <span 
+                      v-if="subTotal >= freeDeliveryCutOff" 
+                      class="primary--text"
+                    >FREE</span>
+                    <span v-else>{{ shippingFee | currency("P") }}</span>
                   </td>
                 </tr>
                 <tr>
@@ -279,6 +292,7 @@ export default {
       cardDetails: null
     },
     userHasNoOrders: '',
+    freeDeliveryCutOff: 0.00,
 
     logisticsID: "pick-up",
     loaderDialogMessage: null,
@@ -307,13 +321,28 @@ export default {
       })
       .catch(error => {
         console.log(error);
+        this.loaderDialogMessage = null;
+        this.loaderDialog = false;
       })
       .finally(() => {
         this.invokeShippingCalculation().then(() => {
           this.loaderDialogMessage = null;
           this.loaderDialog = false;
+          console.log('logistics provider:', this.logisticsProvider);
         });
       });
+
+    this.$store
+      .dispatch('providers/GetFreeDeliveryCutOff')
+      .then(res => {
+        this.freeDeliveryCutOff = res.cutOffPrice;
+      })
+      .catch(error => {
+        console.log(error);
+      });
+    
+    this.loaderDialogMessage = null;
+    this.loaderDialog = false;
   },
   methods: {
     goBack() {
@@ -345,6 +374,10 @@ export default {
           this.stockOrder.logisticsDetails.isFreeShipping = true;
           user.hasNoOrders = false;
           await this.$store.dispatch('accounts/UPDATE_ACCOUNT', user);
+        }
+
+        if(this.subTotal >= this.freeDeliveryCutOff) {
+          this.stockOrder.logisticsDetails.isFreeShipping = true;
         }
 
         //check kung CC or COD
@@ -571,18 +604,25 @@ export default {
           (this.discount / 100) * this.subTotal +
           this.shippingFee
         );
-      } else {
+      } else if(this.subTotal >= this.freeDeliveryCutOff) { 
+        //dont include delivery free if stock order amount exceeds the freeDeliveryCutOff price quota
+        return this.subTotal;
+      }else {
         return this.subTotal + this.shippingFee;
       }
     },
     shippingFee() {
-      if(this.userHasNoOrders) {
-        return 0.00; //if the reseller hasnt made any orders yet, then they are entitled for a free delivery
-      }
-
       const logisticsData = this.logisticsProvider.find(
         logistics => logistics.id === this.logisticsID
       );
+
+      // if(this.userHasNoOrders) {
+      //   return 0.00; //if the reseller hasnt made any orders yet, then they are entitled for a free delivery
+      // }
+
+      // if(this.subTotal >= this.freeDeliveryCutOff) {
+      //   return 0.00;
+      // }
 
       return logisticsData.shippingFee;
     },
