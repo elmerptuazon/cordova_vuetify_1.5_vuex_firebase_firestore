@@ -85,7 +85,8 @@
             <span v-else>Provider: N/A</span>
           </div>
           <div>
-            <span v-if="stockOrder.logisticsDetails"
+            <span v-if="stockOrder.logisticsDetails.isFreeShipping">Shipping Fee: FREE</span>
+            <span v-else-if="stockOrder.logisticsDetails"
               >Shipping Fee: {{ stockOrder.logisticsDetails.shippingFee }}</span
             >
             <span v-else>Shipping Fee: N/A</span>
@@ -242,7 +243,7 @@ export default {
         paymentType: null
       }
     },
-    loaderDialogMessage: null
+    loaderDialogMessage: null,
   }),
   mounted() {
     this.cordovaBackButton(this.goBack);

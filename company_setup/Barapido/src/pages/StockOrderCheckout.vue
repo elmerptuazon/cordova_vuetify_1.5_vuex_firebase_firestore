@@ -63,7 +63,8 @@
                         <v-card-title primary-title>
                           <div>
                             <div class="subheading">Shipping Fee:</div>
-                            <div>+ PHP {{ logistics.shippingFee }}</div>
+                            <div v-if="userHasNoOrders && logistics.id !== 'pick-up'" class="primary--text"> FREE SHIPPING</div>
+                            <div v-else>+ PHP {{ logistics.shippingFee }}</div>
                           </div>
                         </v-card-title>
                       </v-flex>
@@ -277,6 +278,7 @@ export default {
       amount: null,
       cardDetails: null
     },
+    userHasNoOrders: '',
 
     logisticsID: "pick-up",
     loaderDialogMessage: null,
@@ -287,6 +289,14 @@ export default {
     this.cordovaBackButton(this.goBack);
     this.loaderDialog = true;
     this.loaderDialogMessage = "Please wait";
+    
+    const user = this.$store.getters["accounts/user"];
+    if(!user.hasNoOrders) {
+      this.userHasNoOrders = false;  
+    } else {
+      this.userHasNoOrders = user.hasNoOrders;
+    }
+    
     this.$store
       .dispatch("stock_orders/GET")
       .then(res => {
@@ -320,6 +330,7 @@ export default {
     async finalizeOrder() {
       this.loaderDialog = true;
       this.loaderDialogMessage = "Submitting orders";
+      let user = this.$store.getters["accounts/user"];
 
       try {
         let paymentResult = null;
@@ -329,6 +340,12 @@ export default {
           logisticProvider: this.logisticsID,
           shippingFee: this.shippingFee
         };
+
+        if(this.userHasNoOrders) {
+          this.stockOrder.logisticsDetails.isFreeShipping = true;
+          user.hasNoOrders = false;
+          await this.$store.dispatch('accounts/UPDATE_ACCOUNT', user);
+        }
 
         //check kung CC or COD
         if (this.payment.paymentType === "CC") {
@@ -374,7 +391,6 @@ export default {
             return;
           }
 
-          const user = this.$store.getters["accounts/user"];
           let userDetails = {
             name: `${user.lastName}, ${user.firstName} ${user.middleInitial}`,
             email: user.email,
@@ -415,6 +431,8 @@ export default {
                 submittedAt: result.submittedAt
               }
             });
+
+
           } else {
             let paymentDetails = {
               amount: Number((paymentResult.amount / 100).toFixed(2)),
@@ -558,9 +576,14 @@ export default {
       }
     },
     shippingFee() {
+      if(this.userHasNoOrders) {
+        return 0.00; //if the reseller hasnt made any orders yet, then they are entitled for a free delivery
+      }
+
       const logisticsData = this.logisticsProvider.find(
         logistics => logistics.id === this.logisticsID
       );
+
       return logisticsData.shippingFee;
     },
     ...mapState("payment", {

@@ -586,6 +586,10 @@ const accounts = {
 					referredById: payload.referredById
 				}
 
+				if(payload.hasOwnProperty("hasNoOrders")) {
+					resellerPayload.hasNoOrders = payload.hasNoOrders;
+				}
+
 				const userPayload = payload.type === 'Reseller' ? resellerPayload : customerPayload
 				// check if email will be updated
 				if (user.email !== payload.email) {
