@@ -64,11 +64,7 @@
                           <div>
                             <div class="subheading">Shipping Fee:</div>
                             <div 
-                              v-if="userHasNoOrders && logistics.id !== 'pick-up'" 
-                              class="primary--text"
-                            > FREE SHIPPING</div>
-                            <div 
-                              v-else-if="subTotal >= freeDeliveryCutOff && 
+                              v-if="subTotal >= freeDeliveryCutOff && 
                                 logistics.id !== 'pick-up'
                               " 
                               class="primary--text"
@@ -304,12 +300,12 @@ export default {
     this.loaderDialog = true;
     this.loaderDialogMessage = "Please wait";
     
-    const user = this.$store.getters["accounts/user"];
-    if(!user.hasNoOrders) {
-      this.userHasNoOrders = false;  
-    } else {
-      this.userHasNoOrders = user.hasNoOrders;
-    }
+    // const user = this.$store.getters["accounts/user"];
+    // if(user.hasOwnProperty('hasNoOrders')) {
+    //   this.userHasNoOrders = user.hasNoOrders;
+    // } else {
+    //   this.userHasNoOrders = false;  
+    // }
     
     this.$store
       .dispatch("stock_orders/GET")
@@ -329,6 +325,10 @@ export default {
           this.loaderDialogMessage = null;
           this.loaderDialog = false;
           console.log('logistics provider:', this.logisticsProvider);
+        })
+        .catch(error => {
+          this.loaderDialogMessage = error;
+          this.loaderDialog = true;
         });
       });
 
@@ -340,9 +340,6 @@ export default {
       .catch(error => {
         console.log(error);
       });
-    
-    this.loaderDialogMessage = null;
-    this.loaderDialog = false;
   },
   methods: {
     goBack() {
@@ -370,11 +367,11 @@ export default {
           shippingFee: this.shippingFee
         };
 
-        if(this.userHasNoOrders) {
-          this.stockOrder.logisticsDetails.isFreeShipping = true;
-          user.hasNoOrders = false;
-          await this.$store.dispatch('accounts/UPDATE_ACCOUNT', user);
-        }
+        // if(this.userHasNoOrders) {
+        //   this.stockOrder.logisticsDetails.isFreeShipping = true;
+        //   user.hasNoOrders = false;
+        //   await this.$store.dispatch('accounts/UPDATE_ACCOUNT', user);
+        // }
 
         if(this.subTotal >= this.freeDeliveryCutOff) {
           this.stockOrder.logisticsDetails.isFreeShipping = true;
@@ -598,16 +595,23 @@ export default {
     },
 
     total() {
-      if (this.discount) {
+      if(this.discount && (this.subTotal >= this.freeDeliveryCutOff)) { 
+        //dont include delivery free if stock order amount exceeds the freeDeliveryCutOff price quota
+        return (
+          this.subTotal -
+          (this.discount / 100) * this.subTotal
+        );
+
+      } else if(this.subTotal >= this.freeDeliveryCutOff) {
+        return this.subTotal;
+
+      } else if (this.discount) {
         return (
           this.subTotal -
           (this.discount / 100) * this.subTotal +
           this.shippingFee
         );
-      } else if(this.subTotal >= this.freeDeliveryCutOff) { 
-        //dont include delivery free if stock order amount exceeds the freeDeliveryCutOff price quota
-        return this.subTotal;
-      }else {
+      } else {
         return this.subTotal + this.shippingFee;
       }
     },
