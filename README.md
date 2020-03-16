@@ -40,7 +40,7 @@ npm run android-vm
 npm run generate
 
 # create unsigned apk in dev connection - Select company you wish to generate
-npm rungenerate-dev
+npm run generate-dev
 
 # create the released files
 cordova build android --release
