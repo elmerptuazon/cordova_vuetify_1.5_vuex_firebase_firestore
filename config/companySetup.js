@@ -27,6 +27,7 @@ async function copyCompanySetUp() {
             { title: 'Ever Bilena', value: 'EverBilena' },
             { title: 'Barapido', value: 'Barapido' },
             { title: 'Fetch', value: 'Fetch' },
+            { title: 'Babae', value: 'Babae' },
             { title: 'Mother Nurture', value: 'Mother Nurture' },
             { title: 'AppSellTestApp', value: 'AppSellTestApp' },
             { title: 'Aquitek', value: 'Aquitek' },
