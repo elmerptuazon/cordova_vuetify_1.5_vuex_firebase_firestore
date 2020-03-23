@@ -438,7 +438,8 @@ export default {
 				status: 'pending',
 				items: stockOrder.items,
 				paymentDetails: stockOrder.paymentDetails,
-				logisticsDetails: stockOrder.logisticsDetails
+				logisticsDetails: stockOrder.logisticsDetails,
+				isRead: stockOrder.isRead,
 			});
 
 
