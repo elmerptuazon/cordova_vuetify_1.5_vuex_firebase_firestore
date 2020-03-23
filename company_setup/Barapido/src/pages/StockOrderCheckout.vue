@@ -76,122 +76,141 @@
                     </v-layout>
                   </v-card-text>
                 </v-card>
+
+                <v-layout align-center justify-end row px-6 mt-4>
+                  <v-flex xs4 mr-2>
+                    <v-btn color="black" flat @click="goBack">
+                      BACK
+                    </v-btn>
+                  </v-flex>
+                  <v-flex xs4>
+                    <v-btn color="primary" depressed @click="stepperCounter = 2">
+                      Continue
+                    </v-btn>
+                  </v-flex>
+                </v-layout>
               </v-radio-group>
             </v-container>
           </v-card>
-          <v-btn color="primary" @click="stepperCounter = 2">
-            Continue
-          </v-btn>
         </v-stepper-content>
 
         <v-stepper-content step="2">
-          <v-card class="mb-5">
+          <v-card>
             <v-card-title>
               <span class="body-2">Breakdown of Orders</span>
             </v-card-title>
             <v-divider></v-divider>
-            <table class="basket-table">
-              <thead>
-                <tr>
-                  <th
-                    class="border-bottom header-size grey--text text--darken-1"
+            <v-container>
+               <table class="basket-table">
+                <thead>
+                  <tr>
+                    <th
+                      class="border-bottom header-size grey--text text--darken-1"
+                    >
+                      NAME
+                    </th>
+                    <th
+                      class="border-bottom text-xs-right header-size grey--text text--darken-1"
+                    >
+                      QTY
+                    </th>
+                    <th
+                      class="border-bottom text-xs-right header-size grey--text text--darken-1"
+                    >
+                      COST
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    v-for="(item, i) in filterBy(
+                      orderBy(stockOrder.items, 'created_at', -1),
+                      search
+                    )"
+                    :key="i"
                   >
-                    NAME
-                  </th>
-                  <th
-                    class="border-bottom text-xs-right header-size grey--text text--darken-1"
-                  >
-                    QTY
-                  </th>
-                  <th
-                    class="border-bottom text-xs-right header-size grey--text text--darken-1"
-                  >
-                    COST
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr
-                  v-for="(item, i) in filterBy(
-                    orderBy(stockOrder.items, 'created_at', -1),
-                    search
-                  )"
-                  :key="i"
-                >
-                  <td class="border-bottom">
-                    <v-layout row>
-                      <v-flex xs4>
-                        <v-avatar tile size="40px">
-                          <v-img
-                            :src="item.image"
-                            :alt="item.name"
-                            class="elevation-1"
-                          ></v-img>
-                        </v-avatar>
-                      </v-flex>
-                      <v-flex xs8>
-                        <span v-html="item.name" class="caption"></span>
-                        <br />
-                        <span class="caption">
-                          {{ item.attributes | joinAttributes }}
-                        </span>
-                      </v-flex>
-                    </v-layout>
-                  </td>
-                  <td class="caption text-xs-right border-bottom">
-                    {{ item.qty }}
-                  </td>
-                  <td class="caption text-xs-right border-bottom">
-                    {{ (item.qty * item.resellerPrice) | currency("P") }}
-                  </td>
-                </tr>
-                <tr>
-                  <td colspan="3"></td>
-                </tr>
-                <tr>
-                  <td class="caption text-xs-right" colspan="2">
-                    Subtotal
-                  </td>
-                  <td class="caption text-xs-right">
-                    {{ subTotal | currency("P") }}
-                  </td>
-                </tr>
-                <!-- <tr>
-                  <td class="caption text-xs-right" colspan="2">
-                    Discount
-                  </td>
-                  <td class="caption text-xs-right">
-                    <span v-if="discount">{{ discount }}%</span>
-                  </td>
-                </tr> -->
-                <tr>
-                  <td class="caption text-xs-right" colspan="2">
-                    Shipping Fee
-                  </td>
-                  <td class="caption text-xs-right">
-                    <span 
-                      v-if="subTotal >= freeDeliveryCutOff" 
-                      class="primary--text"
-                    >FREE</span>
-                    <span v-else>{{ shippingFee | currency("P") }}</span>
-                  </td>
-                </tr>
-                <tr>
-                  <td class="caption text-xs-right" colspan="2">
-                    Total
-                  </td>
-                  <td class="caption text-xs-right">
-                    <strong>{{ total | currency("P") }}</strong>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+                    <td class="border-bottom">
+                      <v-layout row>
+                        <v-flex xs4>
+                          <v-avatar tile size="40px">
+                            <v-img
+                              :src="item.image"
+                              :alt="item.name"
+                              class="elevation-1"
+                            ></v-img>
+                          </v-avatar>
+                        </v-flex>
+                        <v-flex xs8>
+                          <span v-html="item.name" class="caption"></span>
+                          <br />
+                          <span class="caption">
+                            {{ item.attributes | joinAttributes }}
+                          </span>
+                        </v-flex>
+                      </v-layout>
+                    </td>
+                    <td class="caption text-xs-right border-bottom">
+                      {{ item.qty }}
+                    </td>
+                    <td class="caption text-xs-right border-bottom">
+                      {{ (item.qty * item.resellerPrice) | currency("P") }}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td colspan="3"></td>
+                  </tr>
+                  <tr>
+                    <td class="caption text-xs-right" colspan="2">
+                      Subtotal
+                    </td>
+                    <td class="caption text-xs-right">
+                      {{ subTotal | currency("P") }}
+                    </td>
+                  </tr>
+                  <!-- <tr>
+                    <td class="caption text-xs-right" colspan="2">
+                      Discount
+                    </td>
+                    <td class="caption text-xs-right">
+                      <span v-if="discount">{{ discount }}%</span>
+                    </td>
+                  </tr> -->
+                  <tr>
+                    <td class="caption text-xs-right" colspan="2">
+                      Shipping Fee
+                    </td>
+                    <td class="caption text-xs-right">
+                      <span 
+                        v-if="subTotal >= freeDeliveryCutOff" 
+                        class="primary--text"
+                      >FREE</span>
+                      <span v-else>{{ shippingFee | currency("P") }}</span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="caption text-xs-right" colspan="2">
+                      Total
+                    </td>
+                    <td class="caption text-xs-right">
+                      <strong>{{ total | currency("P") }}</strong>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </v-container>
           </v-card>
-          <v-btn color="primary" @click="stepperCounter = 3">
-            Continue
-          </v-btn>
-
-          <v-btn flat @click="stepperCounter = 1">Back</v-btn>
+          <v-container class="mt-4 px-3">
+            <v-layout align-center justify-end px-6 row>
+              <v-flex xs4 mr-2>
+                <v-btn flat @click="stepperCounter = 1">Back</v-btn>
+              </v-flex>
+              <v-flex xs4>
+                <v-btn color="primary" depressed @click="stepperCounter = 3">
+                  Continue
+                </v-btn>
+              </v-flex>
+            </v-layout>
+          </v-container>
         </v-stepper-content>
 
         <v-stepper-content step="3">
@@ -367,6 +386,10 @@ export default {
           shippingFee: this.shippingFee
         };
 
+        //this a flag that tells the dashboard that this is a new order and hasnt been read by the brand company.
+        this.stockOrder.isRead = false;
+        
+        
         // if(this.userHasNoOrders) {
         //   this.stockOrder.logisticsDetails.isFreeShipping = true;
         //   user.hasNoOrders = false;
