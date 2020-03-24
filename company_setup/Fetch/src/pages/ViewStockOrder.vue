@@ -85,9 +85,11 @@
             <span v-else>Provider: N/A</span>
           </div>
           <div>
-            <span v-if="stockOrder.logisticsDetails"
-              >Shipping Fee: {{ stockOrder.logisticsDetails.shippingFee }}</span
-            >
+            <span v-if="stockOrder.logisticsDetails">
+              Shipping Fee: 
+              <span v-if="stockOrder.logisticsDetails.isFreeShipping">FREE</span>
+              <span v-else>{{ stockOrder.logisticsDetails.shippingFee }}</span>
+            </span>
             <span v-else>Shipping Fee: N/A</span>
           </div>
         </v-card-text>
@@ -180,7 +182,10 @@
       <v-card-title class="subheading font-weight-medium"
         >Shipments to Receive</v-card-title
       >
-      <ShipmentDetails :stockOrderId="$route.params.id" />
+      <ShipmentDetails 
+        :stockOrderId="$route.params.id" 
+        :logisticProvider="stockOrder.logisticsDetails.logisticProvider"
+      />
     </v-card>
 
     <!-- <div class="text-xs-center mt-3 mb-3" v-if="!stockOrder.addedToInventory">

@@ -249,7 +249,11 @@
                     Shipping Fee
                   </td>
                   <td class="caption text-xs-right">
-                    <span>{{ shippingFee | currency("P") }}</span>
+                    <span 
+                      v-if="freeShipping && logisticsID === 'lalamove'" 
+                      class="primary--text"
+                    >FREE</span>
+                    <span v-else>{{ shippingFee | currency("P") }}</span>
                   </td>
                 </tr>
                 <tr>
@@ -458,11 +462,16 @@ export default {
         this.payment.amount = this.total;
         this.stockOrder.logisticsDetails = {
           logisticProvider: this.logisticsID,
-          shippingFee: this.shippingFee
+          shippingFee: this.shippingFee,
+          isFreeShipping: false,
         }
         
         if(this.logisticsID === 'lalamove') {
           this.stockOrder.logisticsDetails.quotationBody = Object.assign({}, this.$store.getters['lalamove/GET_QUOTATION_BODY']);
+        }
+
+        if(this.logisticsID === 'lalamove' && this.freeShipping) {
+          this.stockOrder.logisticsDetails.isFreeShipping = true;
         }
 
         //check kung CC or COD
@@ -661,6 +670,10 @@ export default {
     },
 
     total() {
+      if(this.freeShipping) {
+        return this.subTotal;
+      }
+
       if (this.discount) {
         return (
           this.subTotal -
@@ -694,12 +707,8 @@ export default {
       const logisticsData = this.logisticsProvider.find(
         logistics => logistics.id === this.logisticsID
       );
-      
-      if(this.freeShipping) {
-        return 0.00;
-      }
 
-      return logisticsData.shippingFee;;
+      return logisticsData.shippingFee;
     },
     ...mapState("payment", {
       paymentOccured: state => state.paymentOccured
