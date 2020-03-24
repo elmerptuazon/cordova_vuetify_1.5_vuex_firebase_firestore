@@ -8,22 +8,32 @@ import uuid from 'uuid';
 const host = process.env.lalamoveURL;
 
 async function generateSigniture(time, path, body, method) {
-    const secret = await DB.collection('providers').doc('lalamove').collection('keys').doc('secret').get();
+    let secret = await DB.collection('providers').doc('lalamove').collection('keys').doc('secret').get();
+    secret = secret.data().key;
+
     let _encryptedStr = `${time}\r\n${method}\r\n${path}\r\n\r\n`
+    
+    if(method === 'PUT') {
+        return cryptoJS.HmacSHA256(_encryptedStr, secret);
+    }
+    
     if (method !== 'GET') {
       let _body = JSON.stringify(body)
       _encryptedStr = _encryptedStr + _body
     }
-    return cryptoJS.HmacSHA256(_encryptedStr, secret.data().key)
+
+    return cryptoJS.HmacSHA256(_encryptedStr, secret);
 }
 
 async function generateHeader(method, path, body) {
-    const key = await DB.collection('providers').doc('lalamove').collection('keys').doc('public').get();
+    let key = await DB.collection('providers').doc('lalamove').collection('keys').doc('public').get();
+    key = key.data().key;
+    
     let time = new Date().getTime().toString();
     return {
         'X-Request-ID': uuid.v4(),
         'Content-type': 'application/json; charset=utf-8',
-        'Authorization': 'hmac ' + key.data().key + ':' + time + ':' + await generateSigniture(time, path, body, method),
+        'Authorization': 'hmac ' + key + ':' + time + ':' + await generateSigniture(time, path, body, method),
         'Accept': 'application/json',
         'X-LLM-Country': 'PH'
     }
@@ -178,7 +188,31 @@ const lalamove = {
                 console.log("LALAMOVE QUOTATION RESPONSE ERROR: ", error.response);
                 throw error;
             }
-        }
+        },
+
+        async getOrderStatus({state, commit, dispatch}, payload) {
+           
+            let URL = `${host}/v2/orders/${payload.orderRef}`;
+
+            try {
+                let response = await axios({
+                    method: 'get',
+                    url: URL,
+                    headers: await generateHeader('GET', `/v2/orders/${payload.orderRef}`, null),
+                });
+                console.log('LALAMOVE GET ORDER STATUS:', response.data);
+                
+                if(response.data.status === 'CANCELED') {
+                    response.data.status = 'CANCELLED';
+                }
+
+                return response.data;
+            }
+            catch(error) {
+                console.log('LALAMOVE GET ORDER STATUS ERROR', error);
+                throw error;
+            }
+        },
     }
 }
 
