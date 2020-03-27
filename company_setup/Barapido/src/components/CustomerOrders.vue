@@ -27,7 +27,10 @@
       </tr>
     </template>
     <template slot="items" slot-scope="props">
-      <tr @click="viewOrder(props.item)">
+      <tr 
+        @click="viewOrder(props.item)"
+        :class="[props.item.read === false ? 'blue lighten-4' : '']"
+      >
         <td class="text-xs-left" style="padding-left: 5px; padding-right: 5px;">
           <div v-if="props.item.status === 'On Cart'">
             <!-- for offline customers basket -->
@@ -114,65 +117,67 @@ import { date } from '@/mixins/date';
 export default {
 	mixins: [date],
 
-    props: ['items', 'search'],
+  props: ['items', 'search'],
 
-    data: () => ({
-		pagination: {
-			sortBy: 'position',
-			descending: false,
-			rowsPerPage: -1
-		},
-		loading: false,
-        headers: [
-            {
-                text: '',
-                value: 'id',
-				sortable: false,
-				align: 'left'
-			},
-            {
-                text: 'Date Placed',
-				value: 'created_at',
-				align: 'center'
-            },
-            {
-                text: 'Status',
-				value: 'position',
-				align: 'center'
-            },
-            {
-                text: 'Cost',
-				value: 'total',
-				align: 'center'
-            }
-		]
-    }),
+  data: () => ({
+    pagination: {
+      sortBy: 'created_at',
+      descending: true,
+      rowsPerPage: -1
+    },
 
-    methods: {
-        viewOrder(item) {
-			console.log(item);
-			if (item.status === 'On Cart' || item.status === 'on cart') {
-				this.$router.push({
-					name: 'ViewOfflineBasket',
-					params: {
-						basket: item.contact
-					},
-					query: {
-						fromOrders: true
-					}
-				});
-			} else {
-				this.$router.push({
-					name: 'PlacedOrder',
-					params: {
-						order: item
-					},
-					query: {
-						fromOrders: true
-					}
-				});
-			}
-		},
+    loading: false,
+
+    headers: [
+      {
+        text: '',
+        value: 'id',
+        sortable: false,
+        align: 'left'
+      },
+      {
+        text: 'Date Placed',
+        value: 'created_at',
+        align: 'center'
+      },
+      {
+        text: 'Status',
+        value: 'position',
+        align: 'center'
+      },
+      {
+        text: 'Cost',
+        value: 'total',
+        align: 'center'
+      }
+    ]
+  }),
+
+  methods: {
+    viewOrder(item) {
+      console.log(item);
+      if (item.status === 'On Cart' || item.status === 'on cart') {
+        this.$router.push({
+          name: 'ViewOfflineBasket',
+          params: {
+            basket: item.contact
+          },
+          query: {
+            fromOrders: true
+          }
+        });
+      } else {
+        this.$router.push({
+          name: 'PlacedOrder',
+          params: {
+            order: item
+          },
+          query: {
+            fromOrders: true
+          }
+        });
+      }
+    },
 		
 		changeSort (column) {
 			if (this.pagination.sortBy === column) {
