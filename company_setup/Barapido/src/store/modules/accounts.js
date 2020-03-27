@@ -123,6 +123,7 @@ const accounts = {
 
 					payload.customers = [];
 					payload.status = 'pending';
+					payload.isRead = false;
 				}
 
 				await COLLECTION.accounts.doc(response.user.uid).set(payload);
@@ -721,6 +722,7 @@ const accounts = {
 		},
 
 		async RELOAD_USER_DATA({ commit, dispatch }, payload) {
+			console.log('user data being reloaded...');
 			try {
 				// GET USER DATA WHEN RELOADED, AND ALSO HIS RESELLER DATA
 				const user = await COLLECTION.accounts.doc(payload).get();
