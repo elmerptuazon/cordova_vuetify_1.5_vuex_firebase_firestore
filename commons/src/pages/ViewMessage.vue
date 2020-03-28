@@ -5,7 +5,15 @@
 			<v-btn icon @click="goBack">
 				<v-icon>arrow_back</v-icon>
 			</v-btn>
-			<v-text-field v-model="search" label="Search messages..." clearable v-if="extended" slot="extension" class="mx-3" flat solo-inverted prepend-icon="search"></v-text-field>
+			<v-text-field 
+				v-model="search" 
+				label="Search messages..."  
+				v-if="extended" 
+				slot="extension" 
+				class="mx-3" 
+				flat solo-inverted clearable
+				prepend-icon="search"
+			></v-text-field>
 			<v-spacer v-if="$store.state.rightAlignToolbarIcons"></v-spacer>
 			<BasketBadge />
 			<v-btn icon @click="extended = !extended">
@@ -21,11 +29,23 @@
 		</div>
 		
 		<div id="messages-container" v-show="!loading" class="pa-2" :style="{ height: `${height}px` }">
-			<div v-for="m in filterBy(orderBy(messages, 'created'), search)" class="message-container" :key="m.id">
-				<div v-if="m.attachment" style="width: 200px;" :class="[m.you ? 'you my-2' : 'not-you my-2']">
+			<div 
+				v-for="m in filterBy(orderBy(messages, 'created'), search)" 
+				:key="m.id"
+				class="message-container" 
+			>
+				<div 
+					v-if="m.attachment" 
+					style="width: 200px;" 
+					:class="[m.you ? 'you my-2' : 'not-you my-2']"
+				>
 					<v-img :src="m.url" contain max-width="200"></v-img>
 				</div>
-				<v-card flat class="message" :class="[m.you ? 'you primary white--text' : 'not-you grey lighten-2 grey--text text--darken-3']" v-else>
+				<v-card 
+					flat class="message" 
+					:class="[m.you ? 'you primary white--text' : 'not-you grey lighten-2 grey--text text--darken-3']" 
+					v-else
+				>
 					<v-card-text class="pa-2">
 						<div>{{ m.text }}</div>
 					</v-card-text>
@@ -36,7 +56,17 @@
 		<v-layout wrap>
 			<v-flex xs12>
 				<div id="text-container" class="px-2" v-show="!loading">
-					<v-textarea prepend-inner-icon="insert_photo" @click:prepend-inner="openAttachment" @focus="toggleNav(false)" @blur="toggleNav(true)" v-model="text" placeholder="Type a message..." outline rows="1" single-line append-icon="send" @click:append="sendMessage"></v-textarea>
+					<v-textarea 
+						prepend-inner-icon="insert_photo" 
+						@click:prepend-inner="openAttachment" 
+						@focus="toggleNav(false)" 
+						@blur="toggleNav(true)" 
+						v-model="text" 
+						placeholder="Type a message..." 
+						outline rows="1" single-line 
+						append-icon="send" 
+						@click:append="sendMessage"
+					></v-textarea>
 				</div>
 			</v-flex>
 		</v-layout>
@@ -81,7 +111,7 @@
 			extended: false,
 			items: [],
 			loading: false,
-			messages: [],
+			// messages: [],
 			text: null,
 			height: null,
 			search: null,
@@ -92,6 +122,24 @@
 			innerHeight: null,
 			sheet: false
 		}),
+		async created () {
+			this.loading = true;
+			const { conversationId } = this.$route.params;
+			try {
+				// this.listenToConversations(conversationId);
+				await this.$store.dispatch('conversations/LISTEN_TO_MESSAGES', conversationId);
+				await this.$store.dispatch('conversations/OPEN_UNREAD', conversationId);
+				// await this.listenToNewMessages(conversationId);
+				this.loading = false;
+				this.scrollDown();
+			} catch (error) {
+				console.log(error);
+				this.loading = false;
+				this.scrollDown();
+			}
+			
+		},
+
 		mounted () {
 			this.innerHeight = window.innerHeight;
 			this.height = window.innerHeight - 180;
@@ -113,60 +161,51 @@
 				
 			}
 		},
-		async created () {
-			const { conversationId } = this.$route.params;
-			try {
-				this.listenToConversations(conversationId);
-				await this.$store.dispatch('conversations/OPEN_UNREAD', conversationId);
-				this.listenToNewMessages(conversationId);
-			} catch (error) {
-				console.log(error);
-			}
-		},
+
 		methods: {
 			goBack () {
 				this.$router.push({ name: 'Messages' });
 			},
 			
-			listenToConversations (conversationId) {
-				const user = this.$store.getters['accounts/user'];
-				this.conversationsListener = DB.collection('conversations')
-				.doc(conversationId)
-				.onSnapshot(async (snapshot) => {
-					await this.$store.dispatch('conversations/OPEN_UNREAD', conversationId);
-				});
-			},
+			// listenToConversations (conversationId) {
+			// 	const user = this.$store.getters['accounts/user'];
+			// 	this.conversationsListener = DB.collection('conversations')
+			// 	.doc(conversationId)
+			// 	.onSnapshot(async (snapshot) => {
+			// 		await this.$store.dispatch('conversations/OPEN_UNREAD', conversationId);
+			// 	});
+			// },
 			
-			listenToNewMessages (conversationId) {
-				this.loading = true;
-				const user = this.$store.getters['accounts/user'];
+			// listenToNewMessages (conversationId) {
+			// 	// this.loading = true;
+			// 	const user = this.$store.getters['accounts/user'];
 				
-				this.messagesListener = DB.collection('messages')
-				.where('conversationId', '==', conversationId)
-				.onSnapshot((snapshot) => {
+			// 	this.messagesListener = DB.collection('messages')
+			// 	.where('conversationId', '==', conversationId)
+			// 	.onSnapshot((snapshot) => {
 					
-					this.loading = false;
+			// 		// this.loading = false;
 					
-					snapshot.docChanges().forEach(async (change) => {
+			// 		snapshot.docChanges().forEach(async (change) => {
 						
-						const data = change.doc.data();
-						data.id = change.doc.id;
+			// 			const data = change.doc.data();
+			// 			data.id = change.doc.id;
 						
-						if (change.type === 'added') {
-							if (data.sender === user.uid) {
-								data.you = true;
-							} else {
-								data.you = false;
-							}
+			// 			if (change.type === 'added') {
+			// 				if (data.sender === user.uid) {
+			// 					data.you = true;
+			// 				} else {
+			// 					data.you = false;
+			// 				}
 							
-							this.messages.push(data);
-							this.scrollDown();
-						}
+			// 				this.messages.push(data);
+			// 				this.scrollDown();
+			// 			}
 						
-					});
+			// 		});
 					
-				});
-			},
+			// 	});
+			// },
 			
 			async sendMessage () {
 				if (!this.text) {
@@ -247,14 +286,18 @@
 					const messagesWindow = document.getElementById('messages-container');
 					const totalHeight = messagesWindow.scrollHeight;
 					messagesWindow.scrollTo(0, totalHeight);
-				}, 500)
+				}, 250)
 			}
 		},
 		beforeDestroy () {
-			this.conversationsListener();
-			this.messagesListener();
+			// this.conversationsListener();
+			// this.messagesListener();
 		},
 		computed: {
+			messages() {
+				this.scrollDown();
+				return this.$store.getters['conversations/GET_MESSAGES_LIST'];
+			},
 			userPlaceholder (val) {
 				return malePlaceholder;
 			},
@@ -317,7 +360,7 @@
 		font-weight: 900;
 	}
 	
-	>>>.v-input__icon--append .v-icon { 
+	.v-input__icon--append .v-icon { 
 		font-size: 35px;
 	}
 </style>
