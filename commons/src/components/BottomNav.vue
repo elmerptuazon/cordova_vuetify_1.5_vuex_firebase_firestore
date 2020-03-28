@@ -106,7 +106,7 @@ export default {
     ordersBadge: null,
     messageBadge: null,
     newCustomerOrder: 0,
-    newMessage: 0,
+    // newMessage: 0,
   }),
   async created() {
     const user = this.user;
@@ -124,10 +124,10 @@ export default {
     customerOrders = customerOrders.filter((customerOrder) => customerOrder.read === false);
     this.newCustomerOrder = customerOrders.length;
     
-    //display badge notif on message btn for new messages
-    let conversationList = await this.$store.dispatch("conversations/GET_CONVERSATIONS");
-    conversationList = conversationList.filter((convo) => convo.opened[user.uid] === false);
-    this.newMessage = conversationList.length;
+    // //display badge notif on message btn for new messages
+    // let conversationList = await this.$store.dispatch("conversations/GET_CONVERSATIONS");
+    // conversationList = conversationList.filter((convo) => convo.opened[user.uid] === false);
+    // this.newMessage = conversationList.length;
 
 
   },
@@ -143,6 +143,11 @@ export default {
     ...mapGetters({
       user: "accounts/user",
     }),
+
+    newMessage() {
+      const newMessage = this.$store.getters['conversations/GET_CONVERSATION_LIST'];
+      return newMessage.filter((convo) => convo.opened[this.user.uid] === false).length;
+    },
 
     computedCurrentTab() {
       return this.currentTab;
