@@ -543,6 +543,8 @@ const accounts = {
 			// }
 			dispatch('conversations/LISTEN_TO_CONVERSATIONS', null, { root: true });
 
+			dispatch('orders/LISTEN_TO_CUSTOMER_ORDERS', null, { root: true });
+
 			if (state.settings.deliverySchedules) {
 				dispatch('orders/LISTEN_TO_PROPOSED_DELIVERIES', { id: userData.uid }, { root: true });
 			}
@@ -714,6 +716,9 @@ const accounts = {
 
 				//UNSUBSCRIBE TO CONVERSATIONS
 				commit('conversations/UNSUBSCRIBE_FROM_CONVERSATIONS', null, { root: true });
+
+				//UNSUBSCRIBE TO CUSTOMER ORDERS
+				dispatch('orders/UNSUBSCRIBE_FROM_CUSTOMER_ORDERS', null, { rooot: true });
 
 				return await AUTH.signOut();
 			} catch (error) {
@@ -932,6 +937,10 @@ const accounts = {
 
 			if (!state.settings.deliverySchedules && rootState.orders.proposed_subscriber) {
 				dispatch('orders/UNSUBSCRIBE_FROM_ORDERS', false, { root: true });
+			}
+
+			if(!rootState.orders.customerSubscriber) {
+				dispatch('orders/LISTEN_TO_CUSTOMER_ORDERS', null, { root: true });
 			}
 
 			if (state.settings.catalogueUpdates && !rootState.catalogues.subscriber) {
