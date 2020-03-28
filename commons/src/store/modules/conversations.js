@@ -3,12 +3,143 @@ import { COLLECTION, AUTH, DB } from '@/config/firebaseInit';
 const messages = {
 	namespaced: true,
 	state: {
+		conversationSubscriber: null,
+		messageSubscriber: null,
+		conversationList: [],
+		messagesList: []
 	},
 	getters: {
+		GET_CONVERSATION_LIST: state => state.conversationList,
+		GET_MESSAGES_LIST: state => state.messagesList,
+		GET_NEW_MESSAGE_COUNT(state) {
+			const userId = AUTH.currentUser.uid;
+			return state.conversationList.filter((convo) => convo.opened[userId] === false).length;
+		}
 	},
 	mutations: {
+		UNSUBSCRIBE_FROM_CONVERSATIONS(state) {
+			state.conversationSubscriber();
+			state.messageSubscriber();	
+		}
 	},
 	actions: {
+		LISTEN_TO_CONVERSATIONS({ state, commit, getters, rootGetters, dispatch }) {
+			const uid = AUTH.currentUser.uid;
+			const settings = rootGetters['accounts/settings'];
+			console.log('settings in convo: ', settings);
+
+			console.log('listening to conversations');
+			
+			state.conversationList = [];
+			
+			state.conversationSubscriber = DB.collection('conversations')
+			.where("users", "array-contains", uid)
+			.orderBy('updated', 'desc')
+			.onSnapshot((snapShot) => {
+				
+				snapShot.docChanges()
+				.forEach(async (change) => {
+					console.log('there is a change in conversations');
+
+					let notif = {};
+					if (change.type === "added") {
+						let conversationData = change.doc.data();
+						conversationData.id = change.doc.id;
+
+						if (!conversationData.users.includes("admin")) {
+							console.log("found user");
+							const userIndex = conversationData.users.findIndex(user => user !== uid);
+							conversationData.user = await dispatch(
+								'accounts/GET_USER', 
+								conversationData.users[userIndex], 
+								{ root: true }
+							);
+						
+						} else {
+							console.log("found Admin");
+							conversationData.user = Object.assign({}, {
+								id: "admin",
+								isAdmin: true
+							});
+						}
+
+
+						state.conversationList.push(conversationData);
+
+						//create notification if the user turned the new message setting on
+						if (conversationData.opened[uid] === false && settings.newMessage) {
+							notif.title = 'New Message!';
+							notif.text = 'New Message has been received, open the app to see the message!';
+							dispatch('accounts/SEND_PUSH_NOTIFICATION', notif, { root: true });
+						}
+					}
+					else if (change.type === "modified") {
+						let conversationData = change.doc.data();
+						conversationData.id = change.doc.id;
+
+						const index = state.conversationList.findIndex((convo) => convo.id === conversationData.id);
+						if(index !== -1) {
+							state.conversationList[index].updatedAt = conversationData.updatedAt;
+							state.conversationList[index].opened = conversationData.opened;
+							
+						}
+
+						//create notification if the user turned the new message setting on
+						if (conversationData.opened[uid] === false && settings.newMessage) {
+							notif.title = 'New Message!';
+							notif.text = 'New Message has been received, open the app to see the message!';
+							//console.log("disapatching push notif");
+							dispatch('accounts/SEND_PUSH_NOTIFICATION', notif, { root: true });
+						}
+					}
+				})
+			})
+		},
+		
+		LISTEN_TO_MESSAGES({ state, commit, dispatch }, conversationId) {
+			const uid = AUTH.currentUser.uid;
+			console.log('Listening to new messages');
+			state.messagesList = [];
+
+			state.messageSubscriber = DB.collection('messages')
+			.where('conversationId', '==', conversationId)
+			.onSnapshot((snapshot) => {
+				
+				
+				snapshot.docChanges()
+				.forEach(async (change) => {
+					console.log('new message arrived');
+					const data = change.doc.data();
+					data.id = change.doc.id;
+					
+					if (change.type === 'added') {
+						if (data.sender === uid) {
+							data.you = true;
+						} else {
+							data.you = false;
+						}
+						
+						//if current messages list is empty, push the first message first
+						if(!state.messagesList.length) {
+							state.messagesList.push(data);
+						
+						} else {
+							//avoid pusing the same message that the reseller sent to the reciepient in the message list 
+							const lastIndex = state.messagesList.length - 1;
+							const lastMessage = state.messagesList[lastIndex];
+							
+							if(lastMessage.id !== data.id) {
+								state.messagesList.push(data);
+							}
+						}
+					}
+					
+				});
+				
+			});
+
+		},
+
 		async GET_CONVERSATIONS({ rootState, dispatch }, payload) {
 			try {
 				const convoRef = COLLECTION.conversations;
@@ -47,6 +178,7 @@ const messages = {
 				throw error;
 			}
 		},
+
 		async GET_MESSAGES({ rootState }, conversationId) {
 			try {
 				const messageRef = DB.collection('messages');
@@ -75,6 +207,7 @@ const messages = {
 				throw error;
 			}
 		},
+
 		async ADD_CONVERSATION({ rootState }, payload) {
 			const conversationsRef = DB.collection('conversations');
 			const userId = AUTH.currentUser.uid;
@@ -94,6 +227,7 @@ const messages = {
 				throw error;
 			}
 		},
+
 		async SEND_MESSAGE({ }, payload) {
 			const messagesRef = DB.collection('messages');
 			const conversationsRef = DB.collection('conversations');
@@ -130,6 +264,7 @@ const messages = {
 				throw error;
 			}
 		},
+
 		async CHECK_IF_EXISTS({ rootState, dispatch }, recipientId) {
 			const convoRef = DB.collection('conversations');
 			const userId = AUTH.currentUser.uid;
@@ -169,6 +304,7 @@ const messages = {
 			}
 
 		},
+
 		async OPEN_UNREAD({ rootState }, id) {
 			const conversationsRef = DB.collection('conversations');
 			const userId = AUTH.currentUser.uid;
@@ -178,40 +314,6 @@ const messages = {
 			} catch (error) {
 				throw error;
 			}
-		},
-		LISTEN_TO_MESSAGES({ state, commit, dispatch }) {
-			const uid = AUTH.currentUser.uid;
-			console.log('Listening to new messages')
-
-			COLLECTION.conversations.where("users", "array-contains", uid).onSnapshot((snapShot) => {
-
-				snapShot.docChanges().forEach((change) => {
-					let notif = {};
-					if (change.type === "added") {
-						let conversationData = change.doc.data();
-						if (conversationData.opened[uid] === false) {
-							notif.title = 'New Message!';
-							notif.text = 'New Message has been received, open the app to see the message!';
-							dispatch('accounts/SEND_PUSH_NOTIFICATION', notif, { root: true });
-						}
-					}
-					else if (change.type === "modified") {
-						let conversationData = change.doc.data();
-						if (conversationData.opened[uid] === false) {
-							notif.title = 'New Message!';
-							notif.text = 'New Message has been received, open the app to see the message!';
-							//console.log("disapatching push notif");
-							dispatch('accounts/SEND_PUSH_NOTIFICATION', notif, { root: true });
-						}
-					}
-				})
-
-				//console.log('messages listener:');
-				//console.log(title, text);
-
-
-
-			});
 		},
 
 	}
