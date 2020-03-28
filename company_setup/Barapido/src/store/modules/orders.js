@@ -24,12 +24,15 @@ const orders = {
 	state: {
 		orders: [],
 		order: {},
+		customerOrders: [],
+		customerSubscriber: null,
 		subscriber: null,
 		proposed_subscriber: null
 	},
 	getters: {
 		GET_ORDERS: state => state.orders,
-		GET_ORDER: state => state.order
+		GET_ORDER: state => state.order,
+		GET_CUSTOMER_ORDERS: state => state.customerOrders,
 	},
 	mutations: {
 		SET_ORDERS(state, orders) {
@@ -37,6 +40,9 @@ const orders = {
 		},
 		SET_ORDER(state, order) {
 			state.order = Object.assign({}, order)
+		},
+		SET_CUSTOMER_ORDER(state, payload) {
+			state.customerOrders = payload;
 		},
 		UPDATE_ORDER(state, order) {
 			const i = state.orders.findIndex(o => o.orderNo == order.orderNo)
@@ -46,6 +52,7 @@ const orders = {
 				state.order = { ...updatedOrder }
 			}
 		}
+
 	},
 	actions: {
 		async GET_ORDERS({ commit }, payload) {
@@ -523,6 +530,58 @@ const orders = {
 					});
 				});
 		},
+
+		LISTEN_TO_CUSTOMER_ORDERS({ state, commit, rootGetters, dispatch}) {
+			const user = AUTH.currentUser
+			state.customerOrders = [];
+			
+			state.customerSubscriber = COLLECTION.orders.where('resellerId', '==', user.uid)
+			.onSnapshot(async (snapshot) => {
+
+				console.log('listening to customer orders');
+
+				let changes = snapshot.docChanges();
+				// changes = changes.filter(doc => doc.type === 'added');
+
+				changes = changes.map((change) => {
+					const order = change.doc.data();
+					order.id = change.doc.id;
+					order.type = change.type;
+					return order;
+				});
+
+				for(let order of changes) {
+					//updating the offlineContact field will yield to alot of problems that might appear with the app
+					//so instead, we just mask the data of the online user as "offlineContact" as an easier fix
+					//and will also have less problems with other modules.
+					if (order.hasOwnProperty('offlineContact')) {
+						order.isOffline = true; //customer is an offline customer
+					}
+					else {
+						const customerData = await dispatch('accounts/GET_USER', order.uid, { root: true });
+
+						order.offlineContact = customerData;
+						order.offlineContact.imageObj = { loading: "./img/spinner.9ac168c.gif", src: customerData.downloadURL };
+						order.isOffline = false; //customer is an online customer
+					}
+					
+					if(order.type === 'added') {
+						state.customerOrders.push(order);
+					
+					} else if(order.type === 'modified') {
+						const index = state.customerOrders.findIndex((customerOrder) => customerOrder.id === order.id);
+						if(index !== -1) {
+							state.customerOrders[index] = order;
+						}
+					}
+
+					delete order.type;
+					
+				}
+				
+			})
+
+		},
 		LISTEN_TO_PROPOSED_DELIVERIES({ commit, state, rootState }) {
 			const user = rootState.accounts.user;
 
@@ -627,6 +686,11 @@ const orders = {
 
 			if (state.proposed_subscriber) {
 				state.proposed_subscriber();
+			}
+		},
+		UNSUBSCRIBE_FROM_CUSTOMER_ORDERS({ dispatch, state }) {
+			if(state.customerSubscriber) {
+				state.customerSubscriber();
 			}
 		}
 	}
