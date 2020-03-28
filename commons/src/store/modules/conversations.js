@@ -67,7 +67,7 @@ const messages = {
 						state.conversationList.push(conversationData);
 
 						//create notification if the user turned the new message setting on
-						if (conversationData.opened[uid] === false && settings.newMessage) {
+						if (conversationData.opened[uid] === false && settings.newMessages) {
 							notif.title = 'New Message!';
 							notif.text = 'New Message has been received, open the app to see the message!';
 							dispatch('accounts/SEND_PUSH_NOTIFICATION', notif, { root: true });
@@ -85,7 +85,7 @@ const messages = {
 						}
 
 						//create notification if the user turned the new message setting on
-						if (conversationData.opened[uid] === false && settings.newMessage) {
+						if (conversationData.opened[uid] === false && settings.newMessages) {
 							notif.title = 'New Message!';
 							notif.text = 'New Message has been received, open the app to see the message!';
 							//console.log("disapatching push notif");
