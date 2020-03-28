@@ -55,17 +55,20 @@
 		
 		<v-layout wrap>
 			<v-flex xs12>
-				<div id="text-container" class="px-2" v-show="!loading">
+				<div class="px-2" v-show="!loading">
 					<v-textarea 
-						prepend-inner-icon="insert_photo" 
-						@click:prepend-inner="openAttachment" 
+						prepend-icon="insert_photo" 
+						@click:prepend="openAttachment" 
 						@focus="toggleNav(false)" 
 						@blur="toggleNav(true)" 
 						v-model="text" 
 						placeholder="Type a message..." 
-						outline rows="1" single-line 
-						append-icon="send" 
-						@click:append="sendMessage"
+						outline single-line auto-grow
+						rows="1" full-width
+						append-outer-icon="send" 
+						@click:append-outer="sendMessage"
+						:loading="sendLoader"
+						id="text-message"
 					></v-textarea>
 				</div>
 			</v-flex>
@@ -120,11 +123,14 @@
 			sendLoader: false,
 			keyboardHeight: null,
 			innerHeight: null,
-			sheet: false
+			sheet: false,
+			conversationId: '',
 		}),
 		async created () {
 			this.loading = true;
 			const { conversationId } = this.$route.params;
+			this.conversationId = conversationId;
+
 			try {
 				// this.listenToConversations(conversationId);
 				await this.$store.dispatch('conversations/LISTEN_TO_MESSAGES', conversationId);
@@ -142,7 +148,7 @@
 
 		mounted () {
 			this.innerHeight = window.innerHeight;
-			this.height = window.innerHeight - 180;
+			this.height = window.innerHeight - 175;
 			
 			window.onresize = (event) => {
 				
@@ -155,10 +161,16 @@
 					this.height = this.height - (this.keyboardHeight - 40);
 					console.log(this.height)
 				} else {
-					this.height = this.innerHeight - 180;
+					this.height = this.innerHeight - 175;
 					console.log(this.height)
 				}
 				
+			}
+		},
+
+		watch: {
+			height(val) {
+				this.scrollDown();
 			}
 		},
 
@@ -213,31 +225,42 @@
 				}
 				
 				this.sendLoader = true;
+
+				const text = this.text;
+				this.text = null;
 				
 				try {
 					const { conversationId, recipientId } = this.$route.params;
 					const response = await this.$store.dispatch('conversations/SEND_MESSAGE', {
 						conversationId: conversationId,
-						text: this.text,
+						text: text,
 						recipientId: recipientId
 					});
 					
-					this.text = null;
 				} catch (error) {
 					console.log(error);
 				}
 				
 				this.sendLoader = false;
+				this.scrollDown();
 			},
 			
 			toggleNav (val) {
 				if (val) {
 					// blur
 					// this.height = this.height - this.keyboardHeight;
+					
 					this.scrollDown();
 				} else {
 					// focus
 					// this.height = this.height - this.keyboardHeight;
+
+					//mark convo as read when the user focused on the message text area
+					//especially when the user stays on this page 
+					if(!this.currentConversation.opened[this.userId]) {
+						this.$store.dispatch('conversations/OPEN_UNREAD', this.conversationId);
+					}
+
 					this.scrollDown();
 				}
 				
@@ -298,6 +321,12 @@
 				this.scrollDown();
 				return this.$store.getters['conversations/GET_MESSAGES_LIST'];
 			},
+			currentConversation() { 
+				const convo = this.$store.getters['conversations/GET_CONVERSATION_LIST'];
+				const index = convo.findIndex((convo) => convo.id === this.conversationId);
+				console.log('current convo', convo[index]);
+				return convo[index];
+			},
 			userPlaceholder (val) {
 				return malePlaceholder;
 			},
@@ -320,6 +349,10 @@
 <style scoped>
 	#messages-container {
 		overflow-y: scroll;
+	}
+	
+	.v-text-field--outline>.v-input__control>.v-input__slot {
+		border-radius: 35px;
 	}
 	
 	#text-container {
@@ -360,7 +393,7 @@
 		font-weight: 900;
 	}
 	
-	.v-input__icon--append .v-icon { 
+	.v-input__icon--append>.v-icon { 
 		font-size: 35px;
 	}
 </style>
