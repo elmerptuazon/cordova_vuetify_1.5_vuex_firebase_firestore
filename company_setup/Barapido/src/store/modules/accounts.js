@@ -538,9 +538,10 @@ const accounts = {
 				}
 			}
 
-			if (state.settings.newMessages) {
-				dispatch('conversations/LISTEN_TO_MESSAGES', null, { root: true });
-			}
+			// if (state.settings.newMessages) {
+			// 	dispatch('conversations/LISTEN_TO_CONVERSATIONS', null, { root: true });
+			// }
+			dispatch('conversations/LISTEN_TO_CONVERSATIONS', null, { root: true });
 
 			if (state.settings.deliverySchedules) {
 				dispatch('orders/LISTEN_TO_PROPOSED_DELIVERIES', { id: userData.uid }, { root: true });
@@ -706,6 +707,14 @@ const accounts = {
 					commit('providers/UnsubscribeToPaymentSubscriber', null, { root: true })
 					commit('providers/UnsubscribeToLogisticsSubscriber', null, { root: true })
 				}
+				
+				// if (state.settings.newMessages) {
+				// 	commit('conversations/UNSUBSCRIBE_FROM_CONVERSATIONS', null, { root: true });
+				// }
+
+				//UNSUBSCRIBE TO CONVERSATIONS
+				commit('conversations/UNSUBSCRIBE_FROM_CONVERSATIONS', null, { root: true });
+
 				return await AUTH.signOut();
 			} catch (error) {
 				throw error;
@@ -909,11 +918,13 @@ const accounts = {
 
 			}
 
-			if (state.settings.newMessages) {
-				dispatch('conversations/LISTEN_TO_MESSAGES', null, { root: true });
+			// if (state.settings.newMessages) {
+			// 	dispatch('conversations/LISTEN_TO_CONVERSATIONS', null, { root: true });
+			// }
+			if(!rootState.conversations.conversationsSubscriber || !rootState.conversations.messageSubscriber) {
+				dispatch('conversations/LISTEN_TO_CONVERSATIONS', null, { root: true });
 			}
 			//Add unsubscriber here for messages
-
 
 			if (state.settings.deliverySchedules && !rootState.orders.proposed_subscriber) {
 				dispatch('orders/LISTEN_TO_PROPOSED_DELIVERIES', { id: user.uid }, { root: true });
