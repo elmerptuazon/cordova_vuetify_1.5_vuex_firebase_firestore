@@ -17,10 +17,7 @@ const messages = {
 		}
 	},
 	mutations: {
-		UNSUBSCRIBE_FROM_CONVERSATIONS(state) {
-			state.conversationSubscriber();
-			state.messageSubscriber();	
-		}
+		
 	},
 	actions: {
 		LISTEN_TO_CONVERSATIONS({ state, commit, getters, rootGetters, dispatch }, notificationSetting) {
@@ -313,6 +310,16 @@ const messages = {
 				throw error;
 			}
 		},
+
+		UNSUBSCRIBE_FROM_CONVERSATIONS({state}) {
+			if(state.conversationSubscriber) {
+				state.conversationSubscriber();
+			}
+			
+			if(state.messageSubscriber) {
+				state.messageSubscriber();		
+			}
+		}
 
 	}
 }
