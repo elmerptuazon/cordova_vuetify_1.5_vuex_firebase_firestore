@@ -30,14 +30,14 @@
     >
       <span>Orders</span>
       <v-badge
-        :value="ordersBadge"
+        :value="newCustomerOrders"
         color="red"
         right  
         small
       >
         <template v-slot:badge>
-          <span class="pa-1">
-            <v-icon>error_outline</v-icon>
+          <span class="pa-1" v-if="newCustomerOrders > 0">
+            {{ newCustomerOrders }}
           </span>
         </template>
         <v-icon>list</v-icon>
@@ -45,7 +45,20 @@
     </v-btn>
     <v-btn flat color="white" value="messages" class="reduced-width">
       <span>Messages</span>
-      <v-icon>message</v-icon>
+      <v-badge
+        :value="newMessage"
+        color="red"
+        right  
+        small
+      >
+        <template v-slot:badge>
+          <span class="pa-1" v-if="newMessage > 0">
+            {{ newMessage }}
+            <!-- <v-icon>question_answer</v-icon> -->
+          </span>
+        </template>
+        <v-icon>message</v-icon>
+      </v-badge>
     </v-btn>
     <v-btn
       flat
@@ -91,6 +104,9 @@ export default {
     showNav: true,
     width: null,
     ordersBadge: null,
+    messageBadge: null,
+    // newCustomerOrder: 0,
+    // newMessage: 0,
   }),
   async created() {
     const user = this.user;
@@ -103,33 +119,17 @@ export default {
       this.showNav = true;
     }
 
-    this.ordersBadge = false;
-    let response = await this.$store.dispatch("orders/GET_ORDERS_RESELLER_VIEW");
-
-    let customerOrders = [];
-    if(response.length) {
-      customerOrders = response.filter(order => order.status.toLowerCase() === 'placed' || 
-                                                order.status.toLowerCase() === 'on cart'
-                                      );
-    } 
-    console.log("CUSTOMER ORDER", customerOrders);
-
-    if(customerOrders.length) {
-      this.ordersBadge = true;
-    }
+    //display badge notif on orders btn if there are new customer orders
+    // let customerOrders = await this.$store.dispatch("orders/GET_ORDERS_RESELLER_VIEW");
+    // customerOrders = customerOrders.filter((customerOrder) => customerOrder.read === false);
+    // this.newCustomerOrder = customerOrders.length;
     
-    response = await this.$store.dispatch("stock_orders/FIND_ALL");
-    console.log("STOCK_ORDER: ", response);
-    
-    let items = [];
-    if(response.data.length) {
-      items = response.data.filter(item => item.shipmentsToReceive > 0);
-    }
-    console.log("items with shipment", items);
+    // //display badge notif on message btn for new messages
+    // let conversationList = await this.$store.dispatch("conversations/GET_CONVERSATIONS");
+    // conversationList = conversationList.filter((convo) => convo.opened[user.uid] === false);
+    // this.newMessage = conversationList.length;
 
-    if(items.length) {
-      this.ordersBadge = true;
-    }
+
   },
   mounted() {
     this.width = window.innerWidth;
@@ -141,8 +141,19 @@ export default {
   },
   computed: {
     ...mapGetters({
-      user: "accounts/user"
+      user: "accounts/user",
     }),
+
+    newMessage() {
+      const newMessage = this.$store.getters['conversations/GET_CONVERSATION_LIST'];
+      return newMessage.filter((convo) => convo.opened[this.user.uid] === false).length;
+    },
+
+    newCustomerOrders() {
+      const newOrders = this.$store.getters['orders/GET_CUSTOMER_ORDERS'];
+      return newOrders.filter((customerOrder) => customerOrder.read === false).length;
+    },
+
     computedCurrentTab() {
       return this.currentTab;
     }

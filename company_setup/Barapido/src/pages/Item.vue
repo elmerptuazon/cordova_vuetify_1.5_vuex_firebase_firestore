@@ -128,8 +128,7 @@
           round
           block
           depressed
-          color="primary"
-          class="black--text button-font"
+          color="primary" dark
           @click="openItemDialog('Customer')"
         >
           Add to my cart
