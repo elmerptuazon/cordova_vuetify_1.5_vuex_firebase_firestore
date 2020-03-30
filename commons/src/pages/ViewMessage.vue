@@ -64,7 +64,7 @@
 						v-model="text" 
 						placeholder="Type a message..." 
 						outline single-line auto-grow
-						rows="1" full-width
+						rows="1" row-height="1" full-width rounded
 						append-outer-icon="send" 
 						@click:append-outer="sendMessage"
 						:loading="sendLoader"
