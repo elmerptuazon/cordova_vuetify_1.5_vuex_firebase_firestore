@@ -128,7 +128,7 @@
           round
           block
           depressed
-          color="primary"
+          color="primary" dark
           class="black--text button-font"
           @click="openItemDialog('Customer')"
         >
