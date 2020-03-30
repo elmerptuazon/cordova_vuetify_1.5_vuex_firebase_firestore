@@ -30,14 +30,14 @@
     >
       <span>Orders</span>
       <v-badge
-        :value="newCustomerOrder"
+        :value="newCustomerOrders"
         color="red"
         right  
         small
       >
         <template v-slot:badge>
-          <span class="pa-1">
-            {{ newCustomerOrder }}
+          <span class="pa-1" v-if="newCustomerOrders > 0">
+            {{ newCustomerOrders }}
           </span>
         </template>
         <v-icon>list</v-icon>
@@ -52,7 +52,7 @@
         small
       >
         <template v-slot:badge>
-          <span class="pa-1">
+          <span class="pa-1" v-if="newMessage > 0">
             {{ newMessage }}
             <!-- <v-icon>question_answer</v-icon> -->
           </span>
@@ -105,8 +105,8 @@ export default {
     width: null,
     ordersBadge: null,
     messageBadge: null,
-    newCustomerOrder: 0,
-    newMessage: 0,
+    // newCustomerOrder: 0,
+    // newMessage: 0,
   }),
   async created() {
     const user = this.user;
@@ -120,14 +120,14 @@ export default {
     }
 
     //display badge notif on orders btn if there are new customer orders
-    let customerOrders = await this.$store.dispatch("orders/GET_ORDERS_RESELLER_VIEW");
-    customerOrders = customerOrders.filter((customerOrder) => customerOrder.read === false);
-    this.newCustomerOrder = customerOrders.length;
+    // let customerOrders = await this.$store.dispatch("orders/GET_ORDERS_RESELLER_VIEW");
+    // customerOrders = customerOrders.filter((customerOrder) => customerOrder.read === false);
+    // this.newCustomerOrder = customerOrders.length;
     
-    //display badge notif on message btn for new messages
-    let conversationList = await this.$store.dispatch("conversations/GET_CONVERSATIONS");
-    conversationList = conversationList.filter((convo) => convo.opened[user.uid] === false);
-    this.newMessage = conversationList.length;
+    // //display badge notif on message btn for new messages
+    // let conversationList = await this.$store.dispatch("conversations/GET_CONVERSATIONS");
+    // conversationList = conversationList.filter((convo) => convo.opened[user.uid] === false);
+    // this.newMessage = conversationList.length;
 
 
   },
@@ -143,6 +143,16 @@ export default {
     ...mapGetters({
       user: "accounts/user",
     }),
+
+    newMessage() {
+      const newMessage = this.$store.getters['conversations/GET_CONVERSATION_LIST'];
+      return newMessage.filter((convo) => convo.opened[this.user.uid] === false).length;
+    },
+
+    newCustomerOrders() {
+      const newOrders = this.$store.getters['orders/GET_CUSTOMER_ORDERS'];
+      return newOrders.filter((customerOrder) => customerOrder.read === false).length;
+    },
 
     computedCurrentTab() {
       return this.currentTab;

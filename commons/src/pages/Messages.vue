@@ -112,7 +112,7 @@ import NewMessageDialog from "@/components/NewMessageDialog";
 export default {
   data: () => ({
     extended: false,
-    items: [],
+    // items: [],
     conversationsLoaded: false,
     conversationsListener: null,
     messagesListener: null,
@@ -127,60 +127,64 @@ export default {
   },
   async created() {
     this.loading = true;
-    this.listenToConversations();
 
-    try {
-      const conversations = await this.$store.dispatch(
-        "conversations/GET_CONVERSATIONS"
-      );
-
-      this.items = conversations;
+    if(this.items.length) {
       this.conversationsLoaded = true;
-
-      console.log(this.items);
-    } catch (error) {
-      console.log(error);
     }
+    // try {
+    //   const conversations = await this.$store.dispatch(
+    //     "conversations/GET_CONVERSATIONS"
+    //   );
+
+    //   this.items = conversations;
+    //   this.conversationsLoaded = true;
+
+    //   console.log(this.items);
+    // } catch (error) {
+    //   console.log(error);
+    // }
     this.loading = false;
   },
   methods: {
-    listenToConversations() {
-      const user = this.$store.getters["accounts/user"];
+    // listenToConversations() {
+    //   const user = this.$store.getters["accounts/user"];
 
-      this.conversationsListener = COLLECTION.conversations
-        .where("users", "array-contains", user.uid)
-        .onSnapshot(snapshot => {
-          if (!this.conversationsLoaded) {
-            return;
-          }
+    //   this.conversationsListener = COLLECTION.conversations
+    //     .where("users", "array-contains", user.uid)
+    //     .onSnapshot(snapshot => {
+    //       if (!this.conversationsLoaded) {
+    //         return;
+    //       }
 
-          snapshot.docChanges().forEach(async change => {
-            const data = change.doc.data();
-            data.id = change.doc.id;
+    //       snapshot.docChanges().forEach(async change => {
+    //         const data = change.doc.data();
+    //         data.id = change.doc.id;
 
-            if (change.type === "added") {
-              const userIndex = data.users.findIndex(u => u !== user.uid);
-              data.user = await this.$store.dispatch(
-                "accounts/GET_USER",
-                data.users[userIndex]
-              );
-              this.items.push(data);
-            } else if (change.type === "modified") {
-              const conversationIndex = this.items.findIndex(
-                c => c.id === data.id
-              );
-              if (conversationIndex !== -1) {
-                this.items[conversationIndex].updatedAt = data.updatedAt;
-                this.items[conversationIndex].opened = data.opened;
-              }
-            }
-          });
-        });
-    },
+    //         if (change.type === "added") {
+    //           const userIndex = data.users.findIndex(u => u !== user.uid);
+    //           data.user = await this.$store.dispatch(
+    //             "accounts/GET_USER",
+    //             data.users[userIndex]
+    //           );
+    //           this.items.push(data);
+    //         } else if (change.type === "modified") {
+    //           const conversationIndex = this.items.findIndex(
+    //             c => c.id === data.id
+    //           );
+    //           if (conversationIndex !== -1) {
+    //             this.items[conversationIndex].updatedAt = data.updatedAt;
+    //             this.items[conversationIndex].opened = data.opened;
+    //           }
+    //         }
+    //       });
+    //     });
+    // },
+
     findConversation(conversationId) {
       const index = this.items.findIndex(item => item.id === conversationId);
       this.viewConversation(this.items[index]);
     },
+
     viewConversation(item) {
       this.$router.push({
         name: "ViewMessage",
@@ -190,6 +194,7 @@ export default {
         }
       });
     },
+
     openNewMessageDialog() {
       this.newMessageBtnLoading = true;
       this.$refs.NewMessageDialog.show(() => {
@@ -198,9 +203,12 @@ export default {
     }
   },
   beforeDestroy() {
-    this.conversationsListener();
+    // this.conversationsListener();
   },
   computed: {
+    items() {
+      return this.$store.getters['conversations/GET_CONVERSATION_LIST'];
+    },
     userPlaceholder(val) {
       return malePlaceholder;
     },

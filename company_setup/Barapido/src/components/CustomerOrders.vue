@@ -113,11 +113,12 @@
 import MaleDefaultImage from '@/assets/img/male-default.jpg';
 import FemaleDefaultImage from '@/assets/img/female-default.jpg';
 import { date } from '@/mixins/date';
+import { AUTH } from "@/config/firebaseInit";
 
 export default {
 	mixins: [date],
 
-  props: ['items', 'search'],
+  props: ['search'],
 
   data: () => ({
     pagination: {
@@ -150,12 +151,26 @@ export default {
         value: 'total',
         align: 'center'
       }
-    ]
+    ],
+
+    offlineCustomerOrders: [],
   }),
 
+  async created() {
+    this.loading = true;
+    this.offlineCustomerOrders = await this.getOrdersFromOfflineContacts();
+    this.loading = false;
+  },
+
   methods: {
-    viewOrder(item) {
+    async viewOrder(item) {
       console.log(item);
+      this.loading = true;
+      await this.$store.dispatch('orders/UPDATE_ORDER', {
+        orderNo: item.id,
+        object: { read: true },
+      });
+
       if (item.status === 'On Cart' || item.status === 'on cart') {
         this.$router.push({
           name: 'ViewOfflineBasket',
@@ -177,6 +192,7 @@ export default {
           }
         });
       }
+      this.loading = false;
     },
 		
 		changeSort (column) {
@@ -186,10 +202,55 @@ export default {
 				this.pagination.sortBy = column;
 				this.pagination.descending = false;
 			}
-		}
+    },
+    
+    getOrdersFromOfflineContacts() {
+      // GET ALL OFFLINE CONTACTS
+      let offlineContacts = JSON.parse(
+        localStorage.getItem(`${AUTH.currentUser.uid}_offline_contacts`)
+      );
+      if (!offlineContacts) return;
+      // GET OFFLINE CONTACTS WITH BASKET
+      offlineContacts = offlineContacts.map(contact => {
+        const totalPrice = contact.basket.items.reduce((a, b) => {
+          const total = b.attribute.qty * b.product.price;
+          return +a + +total;
+        }, 0);
+        contact.basket.totalPrice = totalPrice;
+        return contact;
+      });
+
+      offlineContacts = offlineContacts.filter(
+        contact => contact.basket.items.length > 0
+      );
+      offlineContacts.forEach(contact => {
+        if (!document.URL.includes("http")) {
+          contact.imageObj.src = contact.imageObj.src.replace("/static/", "");
+        }
+      });
+
+      return offlineContacts.map(contact => {
+        return {
+          contact: contact,
+          id: contact.basket.basketId,
+          total: contact.basket.totalPrice,
+          status: "On Cart",
+          created_at: null,
+          position: 1
+        };
+      });
+    },
 	},
 	
 	computed: {
+    onlineCustomerOrders() {
+      return this.$store.getters['orders/GET_CUSTOMER_ORDERS'];
+    },
+
+    items() {
+      return [...this.onlineCustomerOrders, ...this.offlineCustomerOrders];
+    },
+
 		malePlacecholder () {
 			return MaleDefaultImage;
 		},
