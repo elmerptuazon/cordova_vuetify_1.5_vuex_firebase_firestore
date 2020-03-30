@@ -404,7 +404,7 @@ const orders = {
 				const resellerID = rootState.accounts.user.resellerId;
 				const agentID = await COLLECTION.accounts.doc(resellerID).get();
 				do {
-					const orderNo = generateOrderNumber(agentID.data().agentId)
+					const orderNo = await generateOrderNumber(agentID.data().agentId);
 					const doc = await COLLECTION.orders.doc(orderNo).get()
 					if (doc.exists) {
 						orderNumberExists = true;
@@ -423,10 +423,12 @@ const orders = {
 						}
 						if (rootState.accounts.user.type === 'Customer') {
 							orderDetails.resellerId = rootState.accounts.user.resellerId;
+
 						} else {
 							orderDetails.selfOrder = true;
 						}
 						orderDetails.read = false;
+						console.log('customer checkout: ', orderDetails);
 						await COLLECTION.orders.doc(orderNo).set(orderDetails);
 						orderDetails.orderNo = orderNo;
 					}
@@ -567,6 +569,13 @@ const orders = {
 					
 					if(order.type === 'added') {
 						state.customerOrders.push(order);
+						document.addEventListener('deviceready', function () {
+							cordova.plugins.notification.local.schedule({
+								title: 'New customer order received!',
+								text: `Order #${order.id} - Click to open app`,
+								foreground: true
+							});
+						}, false);
 					
 					} else if(order.type === 'modified') {
 						const index = state.customerOrders.findIndex((customerOrder) => customerOrder.id === order.id);
