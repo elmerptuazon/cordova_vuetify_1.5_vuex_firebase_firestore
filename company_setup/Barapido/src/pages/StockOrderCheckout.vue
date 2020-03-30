@@ -44,10 +44,14 @@
                   min-width="275px"
                 >
                   <v-card-title>
-                    <v-radio :value="logistics.id"></v-radio>
+                    <v-radio 
+                      :value="logistics.id" 
+                      :disabled="logistics.shippingFee === 'error'"
+                    ></v-radio>
                     <span class="subheading">{{
                       logistics.id.toUpperCase()
                     }}</span>
+                    <span v-if="logistics.shippingFee === 'error'" class="font-weight-bold">(CANNOT BE SELECTED)</span>
                   </v-card-title>
                   <v-divider></v-divider>
                   <v-card-text>
@@ -69,6 +73,7 @@
                               " 
                               class="primary--text"
                             > FREE SHIPPING</div>
+                            <div v-else-if="logistics.shippingFee === 'error'">ERROR</div>
                             <div v-else>+ PHP {{ logistics.shippingFee }}</div>
                           </div>
                         </v-card-title>
@@ -312,7 +317,8 @@ export default {
     logisticsID: "pick-up",
     loaderDialogMessage: null,
     inAppBrowserRef: null,
-    stepperCounter: 0
+    stepperCounter: 0,
+
   }),
   mounted() {
     this.cordovaBackButton(this.goBack);
@@ -346,8 +352,36 @@ export default {
           console.log('logistics provider:', this.logisticsProvider);
         })
         .catch(error => {
-          this.loaderDialogMessage = error;
-          this.loaderDialog = true;
+          console.log(error);
+          this.loaderDialogMessage = null;
+          this.loaderDialog = false;
+
+          let msg;
+          
+          if(error.logisticsID === 'barapido') {
+            //print corresponding error messages of barapido api error
+            if(error.response.data === 'Error: itemWeight exceeds the weight limit.') {
+              msg = 'Weight of the Stock Order exceeds the weight delivery requirement';
+          
+            } else if(error.response.data === "Error: TypeError: Cannot read property '0' of undefined") {
+              msg = 'Weight of the Stock Order is invalid.'
+
+            } else {
+              msg = 'An error occured. Please try again...';
+            }
+          }
+          
+          // //remove the logistic provider on the list if it exhibited an error
+          // const index = this.logisticsProvider.findIndex((logistic) => logistic.id === error.logisticsID.toLowerCase());
+          // if(index !== -1) {
+          //   this.logisticsProvider = this.logisticsProvider.splice(index, 1);
+          // }
+
+          this.$refs.modal.show(
+            `${error.logisticsID} Delivery Quotation Error`,
+            msg
+          );
+          
         });
       });
 
