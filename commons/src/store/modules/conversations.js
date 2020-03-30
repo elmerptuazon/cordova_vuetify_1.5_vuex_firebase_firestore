@@ -23,10 +23,8 @@ const messages = {
 		}
 	},
 	actions: {
-		LISTEN_TO_CONVERSATIONS({ state, commit, getters, rootGetters, dispatch }) {
+		LISTEN_TO_CONVERSATIONS({ state, commit, getters, rootGetters, dispatch }, notificationSetting) {
 			const uid = AUTH.currentUser.uid;
-			const settings = rootGetters['accounts/settings'];
-			console.log('settings in convo: ', settings);
 
 			console.log('listening to conversations');
 			
@@ -67,7 +65,7 @@ const messages = {
 						state.conversationList.push(conversationData);
 
 						//create notification if the user turned the new message setting on
-						if (conversationData.opened[uid] === false && settings.newMessages) {
+						if (conversationData.opened[uid] === false && notificationSetting) {
 							notif.title = 'New Message!';
 							notif.text = 'New Message has been received, open the app to see the message!';
 							dispatch('accounts/SEND_PUSH_NOTIFICATION', notif, { root: true });
@@ -85,7 +83,7 @@ const messages = {
 						}
 
 						//create notification if the user turned the new message setting on
-						if (conversationData.opened[uid] === false && settings.newMessages) {
+						if (conversationData.opened[uid] === false && notificationSetting) {
 							notif.title = 'New Message!';
 							notif.text = 'New Message has been received, open the app to see the message!';
 							//console.log("disapatching push notif");

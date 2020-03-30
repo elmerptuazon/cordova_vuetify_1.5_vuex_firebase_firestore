@@ -541,7 +541,7 @@ const accounts = {
 			// if (state.settings.newMessages) {
 			// 	dispatch('conversations/LISTEN_TO_CONVERSATIONS', null, { root: true });
 			// }
-			dispatch('conversations/LISTEN_TO_CONVERSATIONS', null, { root: true });
+			dispatch('conversations/LISTEN_TO_CONVERSATIONS', state.settings.newMessages, { root: true });
 
 			if (state.settings.deliverySchedules) {
 				dispatch('orders/LISTEN_TO_PROPOSED_DELIVERIES', { id: userData.uid }, { root: true });
@@ -922,7 +922,7 @@ const accounts = {
 			// 	dispatch('conversations/LISTEN_TO_CONVERSATIONS', null, { root: true });
 			// }
 			if(!rootState.conversations.conversationsSubscriber || !rootState.conversations.messageSubscriber) {
-				dispatch('conversations/LISTEN_TO_CONVERSATIONS', null, { root: true });
+				dispatch('conversations/LISTEN_TO_CONVERSATIONS', state.settings.newMessages, { root: true });
 			}
 			//Add unsubscriber here for messages
 
