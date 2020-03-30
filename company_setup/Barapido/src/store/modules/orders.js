@@ -499,42 +499,44 @@ const orders = {
 				throw e;
 			}
 		},
-		LISTEN_TO_ORDERS({ commit, state }, data) {
+		
+		// LISTEN_TO_ORDERS({ commit, state }, data) {
 
-			state.subscriber = COLLECTION.orders.where('resellerId', '==', data.id)
-				.onSnapshot((snapshot) => {
+		// 	state.subscriber = COLLECTION.orders.where('resellerId', '==', data.id)
+		// 		.onSnapshot((snapshot) => {
 
-					console.log('Listening to orders...')
+		// 			console.log('Listening to orders...')
 
-					let changes = snapshot.docChanges().filter(c => c.type === 'added');
-					changes = changes.map((change) => {
-						const orderData = change.doc.data();
-						orderData.id = change.doc.id;
-						return orderData;
-					});
+		// 			let changes = snapshot.docChanges().filter(c => c.type === 'added');
+		// 			changes = changes.map((change) => {
+		// 				const orderData = change.doc.data();
+		// 				orderData.id = change.doc.id;
+		// 				return orderData;
+		// 			});
 
-					changes.forEach((change) => {
+		// 			changes.forEach((change) => {
 
-						if (change.offlineContact && change.hasOwnProperty('offlineContact')) {
-							return;
-						}
+		// 				if (change.offlineContact && change.hasOwnProperty('offlineContact')) {
+		// 					return;
+		// 				}
 
-						if (!change.read) {
-							console.log('Unopened order', change);
-							document.addEventListener('deviceready', function () {
-								cordova.plugins.notification.local.schedule({
-									title: 'New order received!',
-									text: `Order #${change.id} - Click to open app`,
-									foreground: true
-								});
-							}, false);
-						}
-					});
-				});
-		},
+		// 				if (!change.read) {
+		// 					console.log('Unopened order', change);
+		// 					document.addEventListener('deviceready', function () {
+		// 						cordova.plugins.notification.local.schedule({
+		// 							title: 'New order received!',
+		// 							text: `Order #${change.id} - Click to open app`,
+		// 							foreground: true
+		// 						});
+		// 					}, false);
+		// 				}
+		// 			});
+		// 		});
+		// },
 
-		LISTEN_TO_CUSTOMER_ORDERS({ state, commit, rootGetters, dispatch}) {
-			const user = AUTH.currentUser
+		LISTEN_TO_CUSTOMER_ORDERS({ state, commit, rootGetters, dispatch}, notificationSetting) {
+			const user = AUTH.currentUser;
+
 			state.customerOrders = [];
 			
 			state.customerSubscriber = COLLECTION.orders.where('resellerId', '==', user.uid)
@@ -569,13 +571,19 @@ const orders = {
 					
 					if(order.type === 'added') {
 						state.customerOrders.push(order);
-						document.addEventListener('deviceready', function () {
-							cordova.plugins.notification.local.schedule({
-								title: 'New customer order received!',
-								text: `Order #${order.id} - Click to open app`,
-								foreground: true
-							});
-						}, false);
+
+						//notify the reseller that they have a new customer order
+						//notify only if the user enabled the new orders notification setting 
+						if(notificationSetting) {
+							document.addEventListener('deviceready', function () {
+								cordova.plugins.notification.local.schedule({
+									title: 'New customer order received!',
+									text: `Order #${order.id} - Click to open app`,
+									foreground: true
+								});
+							}, false);
+						}
+						
 					
 					} else if(order.type === 'modified') {
 						const index = state.customerOrders.findIndex((customerOrder) => customerOrder.id === order.id);
