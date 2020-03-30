@@ -713,7 +713,7 @@ const accounts = {
 				// }
 
 				//UNSUBSCRIBE TO CONVERSATIONS
-				commit('conversations/UNSUBSCRIBE_FROM_CONVERSATIONS', null, { root: true });
+				dispatch('conversations/UNSUBSCRIBE_FROM_CONVERSATIONS', null, { root: true });
 
 				return await AUTH.signOut();
 			} catch (error) {
