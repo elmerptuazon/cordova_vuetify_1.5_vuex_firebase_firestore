@@ -129,7 +129,6 @@
           block
           depressed
           color="primary" dark
-          class="black--text button-font"
           @click="openItemDialog('Customer')"
         >
           Add to my cart
