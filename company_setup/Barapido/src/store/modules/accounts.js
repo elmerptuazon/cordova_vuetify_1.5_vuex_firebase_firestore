@@ -521,7 +521,7 @@ const accounts = {
 					dispatch('providers/ListenToPaymentProvider', null, { root: true })
 					dispatch('providers/ListenToLogisticsProvider', null, { root: true })
 					if (state.settings.newOrders) {
-						dispatch('orders/LISTEN_TO_ORDERS', { id: userData.uid }, { root: true });
+						// dispatch('orders/LISTEN_TO_ORDERS', { id: userData.uid }, { root: true });
 						dispatch('stock_orders/LISTEN_TO_STOCK_ORDERS', null, { root: true });
 					}
 					if (state.settings.catalogueUpdates) {
@@ -538,11 +538,15 @@ const accounts = {
 				}
 			}
 
+			
+			dispatch('orders/LISTEN_TO_CUSTOMER_ORDERS', state.settings.newOrders, { root: true });
+
 			// if (state.settings.newMessages) {
 			// 	dispatch('conversations/LISTEN_TO_CONVERSATIONS', null, { root: true });
 			// }
 			dispatch('conversations/LISTEN_TO_CONVERSATIONS', state.settings.newMessages, { root: true });
 
+			
 			if (state.settings.deliverySchedules) {
 				dispatch('orders/LISTEN_TO_PROPOSED_DELIVERIES', { id: userData.uid }, { root: true });
 			}
@@ -714,6 +718,9 @@ const accounts = {
 
 				//UNSUBSCRIBE TO CONVERSATIONS
 				dispatch('conversations/UNSUBSCRIBE_FROM_CONVERSATIONS', null, { root: true });
+
+				//UNSUBSCRIBE TO CUSTOMER ORDERS
+				dispatch('orders/UNSUBSCRIBE_FROM_CUSTOMER_ORDERS', null, { rooot: true });
 
 				return await AUTH.signOut();
 			} catch (error) {
@@ -906,16 +913,20 @@ const accounts = {
 
 			if (state.user.type === 'Reseller') {
 				if (state.settings.newOrders && !rootState.orders.subscriber) {
-					dispatch('orders/LISTEN_TO_ORDERS', { id: user.uid }, { root: true });
+					// dispatch('orders/LISTEN_TO_ORDERS', { id: user.uid }, { root: true });
 					dispatch('stock_orders/LISTEN_TO_STOCK_ORDERS', null, { root: true });
 				}
 
 				if (!state.settings.newOrders) {
-					dispatch('orders/UNSUBSCRIBE_FROM_ORDERS', true, { root: true });
+					// dispatch('orders/UNSUBSCRIBE_FROM_ORDERS', true, { root: true });
 					dispatch('stock_orders/UNSUBSCRIBE_FROM_STOCK_ORDERS', null, { root: true });
 				}
 
 
+			}
+			
+			if(!rootState.orders.customerSubscriber) {
+				dispatch('orders/LISTEN_TO_CUSTOMER_ORDERS', state.settings.newOrders, { root: true });
 			}
 
 			// if (state.settings.newMessages) {

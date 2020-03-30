@@ -445,9 +445,9 @@ export default {
 		this.order = {...this.$route.params.order};
 		console.log(this.order)
 
-		if (this.order && !this.order.read) {
-			COLLECTION.orders.doc(this.$route.params.order.id).update({read: true});
-		}
+		// if (this.order && !this.order.read) {
+		// 	COLLECTION.orders.doc(this.$route.params.order.id).update({read: true});
+		// }
 
 		if (this.order.discount) {
 			this.discount = Object.assign({}, this.order.discount);
