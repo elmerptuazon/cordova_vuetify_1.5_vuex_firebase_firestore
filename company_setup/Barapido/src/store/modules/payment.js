@@ -6,6 +6,11 @@ import axios from 'axios';
 async function GenerateToken(payload) {
     try {
         let keys = await COLLECTION.keys.doc(process.env.environment).get();
+        
+        let expMonth = parseInt(payload.payment.cardDetails.expiry.split("/")[0]);
+        let expYr = parseInt(payload.payment.cardDetails.expiry.split("/")[1]);
+        if(expYr < 100) expYr += 2000;
+        
         const res = await axios({
             method: 'post',
             url: 'https://api.paymongo.com/v1/tokens',
@@ -16,8 +21,8 @@ async function GenerateToken(payload) {
                 "data": {
                     "attributes": {
                         "number": parseInt(payload.payment.cardDetails.cardNumber.replace(/\s/g, "")).toString(),
-                        "exp_month": parseInt(payload.payment.cardDetails.expiry.split("/")[0]),
-                        "exp_year": parseInt(payload.payment.cardDetails.expiry.split("/")[1]),
+                        "exp_month": expMonth,
+                        "exp_year": expYr,
                         "cvc": payload.payment.cardDetails.CVC,
                         "billing": {
                             "name": payload.userDetails.name,
