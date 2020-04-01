@@ -574,7 +574,7 @@ const orders = {
 
 						//notify the reseller that they have a new customer order
 						//notify only if the user enabled the new orders notification setting 
-						if(notificationSetting) {
+						if(notificationSetting && !order.read) {
 							document.addEventListener('deviceready', function () {
 								cordova.plugins.notification.local.schedule({
 									title: 'New customer order received!',
