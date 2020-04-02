@@ -144,6 +144,10 @@ export default {
       stockOrderReference: stockOrder.stockOrderReference,
       paymentReference: stockOrder.paymentDetails.transactionNumber || null
     };
+
+    if(stockOrder.logisticsDetails.isFreeShipping) {
+      this.order.total = stockOrder.items.reduce((a, b) => a + b.resellerPrice * b.qty, 0);
+    }
   },
   methods: {
     goToOrder() {
