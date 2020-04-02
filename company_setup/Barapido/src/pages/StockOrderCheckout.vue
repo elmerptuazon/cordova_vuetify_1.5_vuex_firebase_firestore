@@ -16,21 +16,72 @@
     <v-stepper v-model="stepperCounter">
       <v-stepper-header>
         <v-stepper-step :complete="stepperCounter > 1" step="1"
-          >Shipment Options</v-stepper-step
+          >Confirm Shipping Address</v-stepper-step
         >
 
         <v-divider></v-divider>
 
         <v-stepper-step :complete="stepperCounter > 2" step="2"
+          >Shipment Options</v-stepper-step
+        >
+
+        <v-divider></v-divider>
+
+        <v-stepper-step :complete="stepperCounter > 3" step="3"
           >Payment Options</v-stepper-step
         >
 
         <v-divider></v-divider>
-        <v-stepper-step step="3">Submit Order</v-stepper-step>
+        <v-stepper-step step="4">Submit Order</v-stepper-step>
       </v-stepper-header>
 
       <v-stepper-items>
         <v-stepper-content step="1">
+          <v-card flat>
+            <v-card-title>
+              <span class="body-2">Confirm Shipping Address</span>
+            </v-card-title>
+            <v-divider></v-divider>
+            <v-container>
+              <v-layout align-center justify-center wrap>
+                <v-flex xs12>
+                  <div class="caption">The stock order will be delivered in this address:</div>
+                </v-flex>
+
+                <v-flex xs12 mt-3>
+                  <div class="primary--text headline font-weight-bold">
+                    {{ userAddress.house }}, {{ userAddress.streetName }}, {{ userAddress.barangay }}, {{ userAddress.citymun }},
+                    {{ userAddress.province }}, {{ userAddress.zipCode }}
+                  </div>
+                </v-flex>
+
+                <v-flex xs12 mt-3>
+                  <div class="font-italic caption">
+                    To change this shipping address, kindly go to your profile page and change your address.
+                    or <b class="body-1 primary--text font-weight-bold" @click="$router.push({name: 'EditProfile'})">CLICK HERE</b> to go to Edit Profile Page.
+                  </div>
+                </v-flex>
+              </v-layout>
+            </v-container>
+
+            <v-container>
+              <v-layout align-center justify-center mt-3>
+                <v-flex xs3>
+                  <v-btn flat color="black" @click="goBack">
+                    CANCEL
+                  </v-btn>
+                </v-flex>
+                <v-flex xs3 offset-xs1>
+                  <v-btn color="primary" depressed @click="startQuotations">
+                    Continue
+                  </v-btn>
+                </v-flex>
+              </v-layout>
+            </v-container>
+          </v-card>
+        </v-stepper-content>
+
+        <v-stepper-content step="2">
           <v-card class="mb-2" flat>
             <v-card-title>
               <span class="body-2">Select shipping option</span>
@@ -74,7 +125,7 @@
                               class="primary--text"
                             > FREE SHIPPING</div>
                             <div v-else-if="logistics.shippingFee === 'error'">ERROR</div>
-                            <div v-else>+ PHP {{ logistics.shippingFee }}</div>
+                            <div v-else>+ {{ logistics.shippingFee | currency('P ') }} </div>
                           </div>
                         </v-card-title>
                       </v-flex>
@@ -84,12 +135,12 @@
 
                 <v-layout align-center justify-end row px-6 mt-4>
                   <v-flex xs4 mr-2>
-                    <v-btn color="black" flat @click="goBack">
+                    <v-btn color="black" flat @click="stepperCounter = 1">
                       BACK
                     </v-btn>
                   </v-flex>
                   <v-flex xs4>
-                    <v-btn color="primary" depressed @click="stepperCounter = 2">
+                    <v-btn color="primary" depressed @click="stepperCounter = 3">
                       Continue
                     </v-btn>
                   </v-flex>
@@ -99,7 +150,7 @@
           </v-card>
         </v-stepper-content>
 
-        <v-stepper-content step="2">
+        <v-stepper-content step="3">
           <v-card>
             <v-card-title>
               <span class="body-2">Breakdown of Orders</span>
@@ -207,10 +258,10 @@
           <v-container class="mt-4 px-3">
             <v-layout align-center justify-end px-6 row>
               <v-flex xs4 mr-2>
-                <v-btn flat @click="stepperCounter = 1">Back</v-btn>
+                <v-btn flat @click="stepperCounter = 2">Back</v-btn>
               </v-flex>
               <v-flex xs4>
-                <v-btn color="primary" depressed @click="stepperCounter = 3">
+                <v-btn color="primary" depressed @click="stepperCounter = 4">
                   Continue
                 </v-btn>
               </v-flex>
@@ -218,7 +269,7 @@
           </v-container>
         </v-stepper-content>
 
-        <v-stepper-content step="3">
+        <v-stepper-content step="4">
           <v-card class="mb-5">
             <v-card-title>
               <span class="body-2">Select Payment Option</span>
@@ -259,7 +310,7 @@
                 Pay and Submit Order
               </span>
             </v-btn>
-            <v-btn flat @click="stepperCounter = 2">Back</v-btn>
+            <v-btn flat @click="stepperCounter = 3">Back</v-btn>
           </div>
         </v-stepper-content>
       </v-stepper-items>
@@ -322,8 +373,6 @@ export default {
   }),
   mounted() {
     this.cordovaBackButton(this.goBack);
-    this.loaderDialog = true;
-    this.loaderDialogMessage = "Please wait";
     
     // const user = this.$store.getters["accounts/user"];
     // if(user.hasOwnProperty('hasNoOrders')) {
@@ -331,7 +380,9 @@ export default {
     // } else {
     //   this.userHasNoOrders = false;  
     // }
-    
+    this.loaderDialogMessage = 'Please Wait...';
+    this.loaderDialog = true;
+
     this.$store
       .dispatch("stock_orders/GET")
       .then(res => {
@@ -339,59 +390,25 @@ export default {
         if (res.success) {
           this.stockOrder = Object.assign({}, res.data);
         }
+        
       })
       .catch(error => {
         console.log(error);
         this.loaderDialogMessage = null;
         this.loaderDialog = false;
-      })
-      .finally(() => {
-        this.invokeShippingCalculation().then(() => {
-          this.loaderDialogMessage = null;
-          this.loaderDialog = false;
-          console.log('logistics provider:', this.logisticsProvider);
-        })
-        .catch(error => {
-          console.log(error);
-          this.loaderDialogMessage = null;
-          this.loaderDialog = false;
-
-          let msg;
-          
-          if(error.logisticsID === 'barapido') {
-            //print corresponding error messages of barapido api error
-            if(error.response.data === 'Error: itemWeight exceeds the weight limit.') {
-              msg = 'Weight of the Stock Order exceeds the weight delivery requirement';
-          
-            } else if(error.response.data === "Error: TypeError: Cannot read property '0' of undefined") {
-              msg = 'Weight of the Stock Order is invalid.'
-
-            } else {
-              msg = 'An error occured. Please try again...';
-            }
-          }
-          
-          // //remove the logistic provider on the list if it exhibited an error
-          // const index = this.logisticsProvider.findIndex((logistic) => logistic.id === error.logisticsID.toLowerCase());
-          // if(index !== -1) {
-          //   this.logisticsProvider = this.logisticsProvider.splice(index, 1);
-          // }
-
-          this.$refs.modal.show(
-            `${error.logisticsID} Delivery Quotation Error`,
-            msg
-          );
-          
-        });
       });
 
     this.$store
       .dispatch('providers/GetFreeDeliveryCutOff')
       .then(res => {
         this.freeDeliveryCutOff = res.cutOffPrice;
+        this.loaderDialogMessage = null;
+        this.loaderDialog = false;
       })
       .catch(error => {
         console.log(error);
+        this.loaderDialogMessage = null;
+        this.loaderDialog = false;
       });
   },
   methods: {
@@ -406,6 +423,51 @@ export default {
           "?"
       );
     },
+    async startQuotations() {
+      this.loaderDialog = true;
+      this.loaderDialogMessage = "Please wait";
+
+      try {
+        const user = this.$store.getters["accounts/user"];
+        await this.$store.dispatch("providers/CalculateShipping", {
+          itemWeight: this.totalWeight,
+          toAddress: user.address
+        });
+
+        this.loaderDialogMessage = null;
+        this.loaderDialog = false;
+        console.log('logistics provider:', this.logisticsProvider);
+        this.stepperCounter = 2;
+      
+      } catch(error) {
+        console.log(error);
+        this.loaderDialogMessage = null;
+        this.loaderDialog = false;
+        this.stepperCounter = 2;
+
+        let msg;
+        
+        if(error.logisticsID === 'barapido') {
+          //print corresponding error messages of barapido api error
+          if(error.response.data === 'Error: itemWeight exceeds the weight limit.') {
+            msg = 'Weight of the Stock Order exceeds the weight delivery requirement';
+        
+          } else if(error.response.data === "Error: TypeError: Cannot read property '0' of undefined") {
+            msg = 'Weight of the Stock Order is invalid.'
+
+          } else {
+            msg = 'An error occured. Please try again...';
+          }
+        }
+
+        this.$refs.modal.show(
+          `${error.logisticsID} Delivery Quotation Error`,
+          msg
+        );
+      }
+
+    },
+    
     async finalizeOrder() {
       this.loaderDialog = true;
       this.loaderDialogMessage = "Submitting orders";
@@ -608,15 +670,6 @@ export default {
         );
       }
     },
-    async invokeShippingCalculation() {
-      //invoke some please wait here
-      const user = this.$store.getters["accounts/user"];
-      await this.$store.dispatch("providers/CalculateShipping", {
-        itemWeight: this.totalWeight,
-        toAddress: user.address
-      });
-      //this.stepperCounter = 2;
-    },
     SetCardDetails(card) {
       this.payment.cardDetails = card;
     }
@@ -686,6 +739,11 @@ export default {
       // }
 
       return logisticsData.shippingFee;
+    },
+
+    userAddress() {
+      const user = this.$store.getters["accounts/user"];
+      return user.address;
     },
     ...mapState("payment", {
       paymentOccured: state => state.paymentOccured
