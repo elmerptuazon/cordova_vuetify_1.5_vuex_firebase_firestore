@@ -3,6 +3,7 @@
     <v-toolbar app color="primary" dark>
       <BasketBadge />
       <v-spacer></v-spacer>
+      <ContactsBadge/>
       <Accounts />
     </v-toolbar>
 
@@ -220,6 +221,7 @@ import Modal from "@/components/Modal";
 import TermsAndConditionsDialog from "@/components/TermsAndConditionsDialog";
 import DataPolicy from "@/components/DataPolicy";
 import MaleDefaultImage from "@/assets/img/male-default.jpg";
+import ContactsBadge from "@/components/ContactsBadge";
 
 export default {
   data: () => ({
@@ -335,7 +337,8 @@ export default {
     BasketBadge,
     Modal,
     TermsAndConditionsDialog,
-    DataPolicy
+    DataPolicy,
+    ContactsBadge
   },
   mixins: [mixins]
 };

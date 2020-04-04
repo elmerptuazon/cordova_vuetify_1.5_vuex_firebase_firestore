@@ -24,6 +24,7 @@
         <v-icon v-else>close</v-icon>
       </v-btn>
       <v-spacer></v-spacer>
+      <ContactsBadge/>
       <Accounts />
     </v-toolbar>
 
@@ -89,6 +90,7 @@ import FemaleDefaultImage from "@/assets/img/female-default.jpg";
 import { AUTH } from "@/config/firebaseInit";
 import CustomerOrders from "@/components/CustomerOrders";
 import OrdersToEverBilena from "@/components/OrdersToEverBilena";
+import ContactsBadge from "@/components/ContactsBadge";
 
 export default {
   data: () => ({
@@ -251,7 +253,8 @@ export default {
   components: {
     BasketBadge,
     CustomerOrders,
-    OrdersToEverBilena
+    OrdersToEverBilena,
+    ContactsBadge
   },
   mixins: [date, mixins],
 
