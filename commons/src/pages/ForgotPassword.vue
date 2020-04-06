@@ -14,6 +14,7 @@
             :rules="basicRules" 
             label="Email address" 
             v-model="email"
+            type="email"
           ></v-text-field>
         </v-flex>
         <div class="px-4">
@@ -41,6 +42,8 @@
       }),
       methods: {
         submit() {
+          this.email = this.email.toLowerCase();
+          
           if(this.$refs.form.validate()) {
             this.Indicator().open()
             this.$store.dispatch('accounts/RESET_PASSWORD', this.email)

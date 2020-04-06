@@ -199,6 +199,7 @@
               append-icon="email"
               label="Email address"
               v-model="placeHolderEmail"
+              type="email"
             ></v-text-field>
           </v-flex>
           <v-flex xs12>

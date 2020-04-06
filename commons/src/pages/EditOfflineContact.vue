@@ -77,6 +77,7 @@
               append-icon="mail"
               label="Email address"
               v-model="userData.email"
+			  type="email"
             ></v-text-field>
           </v-flex>
           <v-flex xs12>
@@ -183,6 +184,7 @@ export default {
 				this.userData.firstName = this.capitalizeFirstLetter(this.userData.firstName);
 				this.userData.lastName = this.capitalizeFirstLetter(this.userData.lastName);
 				this.userData.middleInitial = this.capitalizeFirstLetter(this.userData.middleInitial);
+				this.userData.email = this.userData.email.toLowerCase();
 
 				const errors = {};
 				const offlineContacts = JSON.parse(localStorage.getItem(`${AUTH.currentUser.uid}_offline_contacts`));
