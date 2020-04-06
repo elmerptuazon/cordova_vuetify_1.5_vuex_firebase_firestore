@@ -543,8 +543,7 @@ export default {
           let userDetails = {
             name: `${user.lastName}, ${user.firstName} ${user.middleInitial}`,
             email: user.email,
-            phone: user.contact,
-            address: user.address
+            phone: user.contact
           };
 
           //process payment
@@ -564,7 +563,7 @@ export default {
               paymentStatus: "Paid",
               paymentType: "CC",
               transactionNumber: paymentResult.id,
-              paymentGateway: "Paymongo"
+              paymentGateway: "Magpie"
             };
 
             this.stockOrder.paymentDetails = paymentDetails;
@@ -589,7 +588,7 @@ export default {
               paymentStatus: "Failed",
               paymentType: "CC",
               transactionNumber: paymentResult.id,
-              paymentGateway: "Paymongo"
+              paymentGateway: "Magpie"
             };
           }
           // if (paymentResult.checkout_url) {
