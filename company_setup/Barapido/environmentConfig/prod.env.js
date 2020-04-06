@@ -10,7 +10,7 @@ module.exports = {
   storageCode: '"barapido"',
   webAdminId: '"admin"',
   companyName: '"Barapido"',
-  version: '"0.6.8"',
+  version: '"0.6.9"',
   primaryColor: '"#16A2AF"',
   environment: '"live"',
   callbackURL: '"https://us-central1-barapido-baf1e.cloudfunctions.net/callback/checkPaymentStatus"',
