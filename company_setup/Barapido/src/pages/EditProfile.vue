@@ -557,14 +557,21 @@ export default {
           }
         );
       } catch (error) {
+        let msg;
         if (error.code === "auth/requires-recent-login") {
           this.reAuthDialog = true;
+        
+        } else if(error.message === 'Contact number already exists.') {
+          msg = 'Contact number already exists, please try again.';
+        
         } else {
-          this.$refs.modal.show("Sorry", "Account update error", () => {
-            console.log(error.message);
-            this.viewProfile();
-          });
+          msg = 'Account update error, please try again.';
         }
+
+        this.$refs.modal.show("Sorry", msg, () => {
+          console.log(error.message);
+          this.viewProfile();
+        });
       }
 
       this.updateButtonLoading = false;
