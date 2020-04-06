@@ -520,6 +520,8 @@ const accounts = {
 				if (userData.status === 'approved') {
 					dispatch('providers/ListenToPaymentProvider', null, { root: true })
 					dispatch('providers/ListenToLogisticsProvider', null, { root: true })
+					dispatch('articles/LISTEN_TO_ARTICLES', null, { root: true })
+
 					if (state.settings.newOrders) {
 						// dispatch('orders/LISTEN_TO_ORDERS', { id: userData.uid }, { root: true });
 						dispatch('stock_orders/LISTEN_TO_STOCK_ORDERS', null, { root: true });
@@ -721,6 +723,9 @@ const accounts = {
 
 				//UNSUBSCRIBE TO CUSTOMER ORDERS
 				dispatch('orders/UNSUBSCRIBE_FROM_CUSTOMER_ORDERS', null, { rooot: true });
+
+				//UNSUBSCRIBE TO ARTICLES
+				dispatch('articles/UNSUBSCRIBE_TO_ARTICLES', null, { root: true });
 
 				return await AUTH.signOut();
 			} catch (error) {
@@ -927,6 +932,10 @@ const accounts = {
 			
 			if(!rootState.orders.customerSubscriber) {
 				dispatch('orders/LISTEN_TO_CUSTOMER_ORDERS', state.settings.newOrders, { root: true });
+			}
+
+			if(!rootState.articles.subscriber) {
+				dispatch('articles/LISTEN_TO_ARTICLES', null, { root: true });
 			}
 
 			// if (state.settings.newMessages) {
