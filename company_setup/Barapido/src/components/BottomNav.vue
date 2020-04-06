@@ -78,11 +78,11 @@
       v-if="user.type === 'Reseller'"
       flat
       color="white"
-      value="contacts"
+      value="articles"
       class="reduced-width"
     >
-      <span>Customers</span>
-      <v-icon>people</v-icon>
+      <span>Articles</span>
+      <v-icon>chrome_reader_mode</v-icon>
     </v-btn>
   </v-bottom-nav>
 </template>
@@ -172,8 +172,8 @@ export default {
         this.$router.push({ name: "Catalogue" });
       } else if (val === "basket") {
         this.$router.push({ name: "MyBasket" });
-      } else if (val === "contacts") {
-        this.$router.push({ name: "Contacts" });
+      } else if (val === "articles") {
+        this.$router.push({ name: "Articles" });
       }
     },
 
