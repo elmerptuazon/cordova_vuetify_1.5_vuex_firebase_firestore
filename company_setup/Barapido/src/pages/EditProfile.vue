@@ -33,7 +33,6 @@
                   v-if="user.downloadURL"
                   width="90"
                   :src="user.downloadURL"
-                  class="flipped"
                   alt="avatar"
                   contain
                 >
@@ -42,7 +41,6 @@
                   v-else
                   width="90"
                   :src="user.imageObj.src"
-                  class="flipped"
                   alt="avatar"
                   contain
                 ></v-img>
@@ -71,7 +69,6 @@
                 <v-img
                   width="90"
                   :src="user.proofOfId"
-                  class="flipped"
                   alt="avatar"
                   contain
                 >
@@ -495,6 +492,9 @@ export default {
     }
   },
   created() {
+    console.log("userData:", this.userData);
+    console.log("user:", this.user);
+
     this.userData = Object.assign({}, this.userData, this.user);
     console.log(this.userData);
     this.provinces = provinces;
@@ -505,7 +505,8 @@ export default {
       this.placeHolderEmail = this.userData.email;
     }
 
-    if (!this.userData.resellerData.hasPicture) {
+    if (!this.userData.hasOwnProperty("hasPicture") 
+        ||!this.userData.hasPicture) {
       this.userData.resellerData.downloadURL = MaleDefaultImage;
     }
     console.log(this.userData);
