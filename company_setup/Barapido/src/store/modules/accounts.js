@@ -97,6 +97,7 @@ const accounts = {
 				// 	}
 				// }
 
+				payload.email = payload.email.toLowerCase();
 				const response = await AUTH.createUserWithEmailAndPassword(payload.email, payload.password);
 				delete payload.password;
 				delete payload.confirmPassword;
@@ -395,6 +396,8 @@ const accounts = {
 		},
 		async LOGIN({ commit, dispatch }, payload) {
 			try {
+				payload.email = payload.email.toLowerCase();
+
 				let response = await AUTH.signInWithEmailAndPassword(payload.email, payload.password);
 				console.log(response);
 				console.log(AUTH.currentUser);
@@ -554,7 +557,10 @@ const accounts = {
 		},
 		async UPDATE_ACCOUNT({ commit }, payload) {
 			console.log(payload)
-			const user = AUTH.currentUser
+			const user = AUTH.currentUser;
+			
+			payload.email = payload.email.toLowerCase();
+
 			try {
 
 				const customerPayload = {

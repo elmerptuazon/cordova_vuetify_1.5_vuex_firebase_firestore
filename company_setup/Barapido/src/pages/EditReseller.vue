@@ -114,7 +114,7 @@ export default {
       if (this.$refs.resellerForm.validate()) {
         this.Indicator().open();
         this.$store
-          .dispatch("accounts/FIND_RESELLER", { data: this.resellerSearch })
+          .dispatch("accounts/FIND_RESELLER", { data: this.resellerSearch.toLowerCase() })
           .then(res => {
             console.log(res);
             if (!res.empty) {
