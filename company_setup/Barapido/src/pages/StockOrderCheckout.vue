@@ -558,16 +558,16 @@ export default {
           );
           //check if it has a checkout_URL, if none proceed to regular update
           console.log(paymentResult);
-          if (paymentResult.captured) {
+          if (paymentResult.paymentStatus === 'Paid') {
             let paymentDetails = {
               amount: Number((paymentResult.amount / 100).toFixed(2)),
               paymentStatus: "Paid",
               paymentType: "CC",
-              transactionNumber: paymentResult.id,
+              transactionNumber: paymentResult.transactionNumber,
               paymentGateway: "Paymongo"
             };
 
-            this.stockOrder.paymentDetails = paymentDetails;
+            this.stockOrder.paymentDetails = Object.assign({}, paymentDetails);
 
             console.log(this.stockOrder);
             let result = await this.$store.dispatch(
@@ -588,7 +588,7 @@ export default {
               amount: Number((paymentResult.amount / 100).toFixed(2)),
               paymentStatus: "Failed",
               paymentType: "CC",
-              transactionNumber: paymentResult.id,
+              transactionNumber: paymentResult.transactionNumber,
               paymentGateway: "Paymongo"
             };
           }
