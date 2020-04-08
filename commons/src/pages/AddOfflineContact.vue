@@ -75,6 +75,7 @@
               append-icon="email"
               label="Email address"
               v-model="registerData.email"
+              type="email"
             ></v-text-field>
           </v-flex>
         </v-layout>
@@ -183,6 +184,8 @@ export default {
 			}
 
 			if (this.registerData.email) {
+        this.registerData.email = this.registerData.email.toLowerCase();
+        
 				const i = offlineContacts.findIndex((user) => user.email === this.registerData.email);
 
 				if (i >= 0 && offlineContacts[i].id !== this.registerData.id) {
