@@ -62,7 +62,7 @@
                     <div class="title font-weight-bold">{{ article.title }}</div>
                     <div class="body-1 primary--text mt-2">
                         <v-icon small color="primary">schedule</v-icon>
-                        {{ formatDate(article.publishDate) }}
+                        {{ calculateTime(article.publishDate) }}
                     </div>
                     <div class="caption font-weight-thin mt-3"> {{ summarizeSource(article.source) | uppercase }}</div>
                 </v-flex>
@@ -84,7 +84,7 @@
                         >
                             <v-progress-circular
                                 indeterminate
-                                color="primary lighten-5"
+                                color="primary"
                             ></v-progress-circular>
                         </v-layout>
                     </v-img>
@@ -149,8 +149,18 @@ export default {
             return url.slice(0, firstSlash);
         },
 
-        formatDate(dateTime) {
-            return moment(parseInt(dateTime)).format('MMMM DD YYYY, h:mm a');
+        calculateTime(dateTime) {
+            let verbalizedDateTime = moment(parseInt(dateTime)).calendar();
+
+            if(verbalizedDateTime.includes('Today')) {
+                return moment(parseInt(dateTime)).fromNow();
+            }
+
+            if(verbalizedDateTime.includes('Last') || verbalizedDateTime.includes('Yesterday')) {
+                return verbalizedDateTime;
+            }
+
+            return moment(parseInt(dateTime)).format('MMM D, YYYY @ h:mm a').replace('@', "at");
         },
     },
 
