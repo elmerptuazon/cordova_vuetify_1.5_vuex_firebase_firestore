@@ -683,7 +683,7 @@ export default {
       );
 
       if (registerData.email) {
-        registerData.email = registerData.email.toLowerCase();
+        registerData.email = registerData.toLowerCase();
 
         try {
           const response = await this.$store.dispatch(

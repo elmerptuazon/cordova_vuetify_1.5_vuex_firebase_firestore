@@ -12,6 +12,7 @@
         <v-icon>share</v-icon>
       </v-btn>
       <v-spacer></v-spacer>
+      <ContactsBadge/>
       <Accounts />
     </v-toolbar>
 
@@ -403,6 +404,7 @@ import ContactSelection from "@/components/ContactSelection";
 import BasketBadge from "@/components/BasketBadge";
 import SocialShare from "@/components/SocialShare";
 import Modal from "@/components/Modal";
+import ContactsBadge from "@/components/ContactsBadge";
 const loading = require("../../static/img/spinner.gif");
 const placeholder = require("../../static/img/item-placeholder.png");
 import { AUTH } from "@/config/firebaseInit";
@@ -806,7 +808,8 @@ export default {
     Modal,
     ConfirmationModal,
     Carousel,
-    Slide
+    Slide,
+    ContactsBadge
   }
 };
 </script>
