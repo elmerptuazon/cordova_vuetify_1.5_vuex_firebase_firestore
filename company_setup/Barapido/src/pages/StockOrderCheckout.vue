@@ -287,6 +287,7 @@
                 ></v-radio>
                 <v-divider v-if="payment.paymentType === 'CC'"></v-divider>
                 <creditCardForm
+                  class="mt-2"
                   v-if="payment.paymentType === 'CC'"
                   @cardDetails="SetCardDetails"
                 />
@@ -328,12 +329,37 @@
         </v-card-text>
       </v-card>
     </v-dialog>
+
+    <v-dialog
+      v-model="checkOutDialog"
+      persistent fullscreen
+    >
+      
+      <v-card :height="checkoutHeight" :width="checkoutWidth">
+        <v-card-title class="primary white--text font-weight-bold dark">
+          Authorize Card Access
+          <v-spacer></v-spacer>
+          <v-icon medium color="white" @click="recheckPaymentStatus">close</v-icon>
+        </v-card-title>
+        <v-container>
+          <iframe 
+            ref="checkOutFrame" :src="checkOutURL" 
+            :height="checkoutHeight - 25" :width="checkoutWidth - 25" 
+            frameborder="0" 
+          />
+        </v-container>
+        <v-divider></v-divider>
+        <v-card-actions class="white">
+          <v-spacer></v-spacer>
+          <v-btn color="primary" flat @click="recheckPaymentStatus">CLOSE</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <ConfirmationModal ref="finalizeOrder" @confirmClicked="finalizeOrder" />
     <Modal ref="modal" />
   </div>
 </template>
-
-
 
 
 <script>
@@ -344,6 +370,7 @@ import BasketBadge from "@/components/BasketBadge";
 import ConfirmationModal from "@/components/ConfirmationModal";
 import creditCardForm from "@/components/creditCardForm";
 import Modal from "@/components/Modal";
+
 export default {
   mixins: [mixins],
   data: () => ({
@@ -370,18 +397,23 @@ export default {
     inAppBrowserRef: null,
     stepperCounter: 0,
 
+    checkOutDialog: false,
+    checkOutURL: null,
+    checkoutHeight: null,
+    checkoutWidth: null,
+
+    paymentIntent: {},
+    paymentResult: {},
+
   }),
   mounted() {
     this.cordovaBackButton(this.goBack);
     
-    // const user = this.$store.getters["accounts/user"];
-    // if(user.hasOwnProperty('hasNoOrders')) {
-    //   this.userHasNoOrders = user.hasNoOrders;
-    // } else {
-    //   this.userHasNoOrders = false;  
-    // }
     this.loaderDialogMessage = 'Please Wait...';
     this.loaderDialog = true;
+
+    this.checkoutHeight = window.innerHeight;
+    this.checkoutWidth = window.innerWidth;
 
     this.$store
       .dispatch("stock_orders/GET")
@@ -410,11 +442,22 @@ export default {
         this.loaderDialogMessage = null;
         this.loaderDialog = false;
       });
+    //an event listener for successful 3ds auth
+    window.addEventListener(
+      'message', 
+      ev => {
+        console.log('message was received from the iframe!', ev);
+        this.recheckPaymentStatus();    
+      },
+      false
+    );
+
   },
   methods: {
     goBack() {
       this.$router.go(-1);
     },
+
     submitStockOrder() {
       this.$refs.finalizeOrder.show(
         "Confirm",
@@ -423,6 +466,7 @@ export default {
           "?"
       );
     },
+    
     async startQuotations() {
       this.loaderDialog = true;
       this.loaderDialogMessage = "Please wait";
@@ -467,10 +511,59 @@ export default {
       }
 
     },
+
+    validateCardDetails() {
+      //validate card details
+      if (
+        !this.$cardFormat.validateCardNumber(
+          this.payment.cardDetails.cardNumber
+        )
+      ) {
+        this.loaderDialog = false;
+        this.loaderDialogMessage = null;
+        this.$refs.finalizeOrder.close();
+
+        this.$refs.modal.show(
+          "Card Details",
+          "Please check your card number."
+        );
+        return false;
+      }
+      // validate card expiry
+      if (
+        !this.$cardFormat.validateCardExpiry(
+          this.payment.cardDetails.expiry
+        )
+      ) {
+        this.loaderDialog = false;
+        this.loaderDialogMessage = null;
+        this.$refs.finalizeOrder.close();
+
+        this.$refs.modal.show(
+          "Card Details",
+          "Please check your card expiry."
+        );
+        return false;
+      }
+      // validate card CVC
+      if (!this.$cardFormat.validateCardCVC(this.payment.cardDetails.CVC)) {
+        this.loaderDialog = false;
+        this.loaderDialogMessage = null;
+        this.$refs.finalizeOrder.close();
+
+        this.$refs.modal.show(
+          "Card Details",
+          "Please check your card CVC."
+        );
+        return false;
+      }
+
+      return true;
+    },
     
     async finalizeOrder() {
       this.loaderDialog = true;
-      this.loaderDialogMessage = "Submitting orders";
+      this.loaderDialogMessage = "Submitting orders...";
       let user = this.$store.getters["accounts/user"];
 
       try {
@@ -485,60 +578,16 @@ export default {
         //this a flag that tells the dashboard that this is a new order and hasnt been read by the brand company.
         this.stockOrder.isRead = false;
         
-        
-        // if(this.userHasNoOrders) {
-        //   this.stockOrder.logisticsDetails.isFreeShipping = true;
-        //   user.hasNoOrders = false;
-        //   await this.$store.dispatch('accounts/UPDATE_ACCOUNT', user);
-        // }
-
         if(this.subTotal >= this.freeDeliveryCutOff) {
           this.stockOrder.logisticsDetails.isFreeShipping = true;
         }
 
         //check kung CC or COD
         if (this.payment.paymentType === "CC") {
-          //validate card details
-          if (
-            !this.$cardFormat.validateCardNumber(
-              this.payment.cardDetails.cardNumber
-            )
-          ) {
-            this.loaderDialog = false;
-            this.loaderDialogMessage = null;
-            this.$refs.finalizeOrder.close();
-            this.$refs.modal.show(
-              "Card Details",
-              "Please check your card number."
-            );
-            return;
-          }
-          // validate card expiry
-          if (
-            !this.$cardFormat.validateCardExpiry(
-              this.payment.cardDetails.expiry
-            )
-          ) {
-            this.loaderDialog = false;
-            this.loaderDialogMessage = null;
-            this.$refs.finalizeOrder.close();
-            this.$refs.modal.show(
-              "Card Details",
-              "Please check your card expiry."
-            );
-            return;
-          }
-          // validate card CVC
-          if (!this.$cardFormat.validateCardCVC(this.payment.cardDetails.CVC)) {
-            this.loaderDialog = false;
-            this.loaderDialogMessage = null;
-            this.$refs.finalizeOrder.close();
-            this.$refs.modal.show(
-              "Card Details",
-              "Please check your card CVC."
-            );
-            return;
-          }
+          this.$refs.finalizeOrder.close();
+          const isCardValid = await this.validateCardDetails();
+          this.loaderDialogMessage = "Validating card...";
+          if(!isCardValid) return;
 
           let userDetails = {
             name: `${user.lastName}, ${user.firstName} ${user.middleInitial}`,
@@ -548,6 +597,7 @@ export default {
           };
 
           //process payment
+          this.loaderDialogMessage = "Processing card details...";
           paymentResult = await this.$store.dispatch(
             "payment/PayOrderThruCreditCard",
             {
@@ -556,65 +606,29 @@ export default {
               stockOrder: this.stockOrder
             }
           );
+
           //check if it has a checkout_URL, if none proceed to regular update
           console.log(paymentResult);
-          if (paymentResult.paymentStatus === 'Paid') {
-            let paymentDetails = {
-              amount: Number((paymentResult.amount / 100).toFixed(2)),
-              paymentStatus: "Paid",
-              paymentType: "CC",
-              transactionNumber: paymentResult.transactionNumber,
-              paymentGateway: "Paymongo"
+          if(paymentResult.paymentStatus === 'awaiting_next_action') {
+            this.loaderDialogMessage = "Creating checkout link...";
+            
+            this.paymentIntent = {
+              id: paymentResult.transactionNumber,
+              client_key: paymentResult.client_key
             };
 
-            this.stockOrder.paymentDetails = Object.assign({}, paymentDetails);
+            this.paymentResult = Object.create(paymentResult);
 
-            console.log(this.stockOrder);
-            let result = await this.$store.dispatch(
-              "stock_orders/SUBMIT",
-              this.stockOrder
-            );
-            this.$router.push({
-              name: "StockOrderCheckoutSuccess",
-              params: {
-                stockOrder: this.stockOrder,
-                submittedAt: result.submittedAt
-              }
-            });
+            this.checkOutURL = paymentResult.checkout_url;
+            this.checkOutDialog = true;
 
 
-          } else {
-            let paymentDetails = {
-              amount: Number((paymentResult.amount / 100).toFixed(2)),
-              paymentStatus: "Failed",
-              paymentType: "CC",
-              transactionNumber: paymentResult.transactionNumber,
-              paymentGateway: "Paymongo"
-            };
-          }
-          // if (paymentResult.checkout_url) {
-          //   //save details for logisticsDetails
-          //   this.$store.dispatch("stock_orders/UPDATE_STOCK_ORDER", {
-          //     id: this.stockOrder.id,
-          //     key: "logisticsDetails",
-          //     value: this.stockOrder.logisticsDetails
-          //   });
-          //   //dispatch listener for CC Payment
-          //   //listener for CC Payment should update the stock order based on the details and then push it to stockOrderCheckoutSuccess
-          //   this.$store.dispatch(
-          //     "payment/ListenToPaymentStatus",
-          //     this.stockOrder
-          //   );
-          //   //open the webview for the URL returned
-          //   const url = paymentResult.checkout_url;
-          //   const target = "_blank";
-          //   const options = `location=no,hardwareback=no,footer=yes,closebuttoncaption=DONE,closebuttoncolor=#ffffff,footercolor=${process.env.primaryColor}`;
-          //   this.inAppBrowserRef = cordova.InAppBrowser.open(
-          //     url,
-          //     target,
-          //     options
-          //   );
-          // }
+          } else if (paymentResult.paymentStatus === 'succeeded') {
+            this.paymentResult = paymentResult;
+            this.submitOrder();
+          
+          } 
+          
         } else {
           paymentResult = await this.$store.dispatch(
             "payment/ProcessCODOrder",
@@ -640,37 +654,135 @@ export default {
             }
           });
         }
+
       } catch (error) {
         //add catch for incorrect payment/credit cards.
         console.log(error);
         this.loaderDialog = false;
         this.loaderDialogMessage = null;
         this.$refs.finalizeOrder.close();
-        // switch (error.errors[0].code) {
-        //   case "generic_decline":
-        //     this.$refs.modal.show(
-        //       "Transaction Failed",
-        //       "Your card has been declined, please contact your service provider."
-        //     );
-        //     break;
-        //   case "insufficient_funds":
-        //     this.$refs.modal.show(
-        //       "Transaction Failed",
-        //       "Your card has insufficient funds, please contact your service provider."
-        //     );
-        //     break;
-        //   default:
-        //     this.$refs.modal.show(
-        //       "Transaction Failed",
-        //       "Charging your card unsuccessful, please contact your service provider."
-        //     );
-        // }
+
+        let errorMessage;
+        switch (error.errors[0].sub_code) {
+          case "generic_decline":
+            errorMessage = "Your card has been declined, please contact your service provider.";
+            break;
+          
+          case "card_expired": 
+            errorMessage = "Your card has expired, please contact your service provider.";
+            break;
+
+          case "cvn_invalid": 
+            errorMessage = "Wrong CVC, please re-enter your correct CVC.";
+            break;
+
+          case "processor_unavailable": 
+            errorMessage = "Failed to process your card due to unknown error, please try again later.";
+            break;
+
+          case "insufficient_funds":
+            errorMessage = "Your card has insufficient funds, please contact your service provider.";
+            break;
+
+          default:
+            errorMessage = "Charging your card unsuccessful, please contact your service provider."
+
+        }
+
         this.$refs.modal.show(
           "Transaction Failed",
-          "Charging your card unsuccessful, check the details and try again."
+          errorMessage
         );
       }
     },
+
+    async recheckPaymentStatus() {
+      try {
+        this.checkOutDialog = false;
+
+        console.log('rechecking payment intent status...');
+        this.loaderDialogMessage = "Rechecking payment status...";
+
+        const response = await this.$store.dispatch('payment/checkPaymentStatus', {
+          id: this.paymentIntent.id,
+          client_key: this.paymentIntent.client_key
+        });
+
+        console.log('recheckPaymentStatus finished: ', response);
+
+        if(response.attributes.status === 'succeeded') {
+          this.loaderDialog = false;
+          this.loaderDialogMessage = null;
+          this.$refs.finalizeOrder.close();
+
+          this.$refs.modal.show(
+            "Payment Success!",
+            "Payment was recorded!"
+          );
+
+          this.submitOrder();
+        
+        } else if(response.attributes.status === 'awaiting_next_action') {
+          this.loaderDialog = false;
+          this.loaderDialogMessage = null;
+          this.$refs.finalizeOrder.close();
+          
+          this.$refs.modal.show(
+            "Payment Cancelled!",
+            "Please authenticate this payment transaction."
+          );
+
+        } else if(response.attributes.status === 'awaiting_payment_method') {
+          this.loaderDialog = false;
+          this.loaderDialogMessage = null;
+          this.$refs.finalizeOrder.close();
+          
+          this.$refs.modal.show(
+            "Payment Error!",
+            "Payment was not recorded!" + response.attributes.last_payment_error
+          );
+        }
+      
+      } catch(error) {
+        console.log(error);
+        
+        this.loaderDialog = false;
+        this.loaderDialogMessage = null;
+        this.$refs.finalizeOrder.close();
+
+        this.$refs.modal.show(
+          "Error in Recheck Payment",
+          error
+        );
+      }
+      
+    },
+
+    async submitOrder() {
+      this.stockOrder.paymentDetails = {
+        amount: (this.paymentResult.amount).toFixed(2),
+        paymentStatus: "Paid",
+        paymentType: "CC",
+        transactionNumber: this.paymentResult.transactionNumber,
+        paymentGateway: "Paymongo"
+      };
+
+      console.log(this.stockOrder);
+
+      let result = await this.$store.dispatch(
+        "stock_orders/SUBMIT",
+        this.stockOrder
+      );
+
+      this.$router.push({
+        name: "StockOrderCheckoutSuccess",
+        params: {
+          stockOrder: this.stockOrder,
+          submittedAt: result.submittedAt
+        }
+      });
+    },
+
     SetCardDetails(card) {
       this.payment.cardDetails = card;
     }
@@ -683,11 +795,13 @@ export default {
       );
     },
     totalWeight() {
-      return this.stockOrder.items.reduce(
+      const weight = this.stockOrder.items.reduce(
         (totalWeight, currentItem) =>
           totalWeight + currentItem.weight * currentItem.qty,
         0
       );
+
+      return weight > 0 ? weight : 1;
     },
     discount() {
       let discount;
@@ -706,14 +820,16 @@ export default {
     },
 
     total() {
-      if(this.discount && (this.subTotal >= this.freeDeliveryCutOff)) { 
+      const isFreeDelivery = this.subTotal >= this.freeDeliveryCutOff;
+
+      if(this.discount && isFreeDelivery) { 
         //dont include delivery free if stock order amount exceeds the freeDeliveryCutOff price quota
         return (
           this.subTotal -
           (this.discount / 100) * this.subTotal
         );
 
-      } else if(this.subTotal >= this.freeDeliveryCutOff) {
+      } else if(isFreeDelivery) {
         return this.subTotal;
 
       } else if (this.discount) {
