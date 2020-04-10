@@ -1,6 +1,5 @@
 import { DB, COLLECTION } from '@/config/firebaseInit';
 import axios from 'axios';
-// import providers from './../../../../../src/store/modules/providers';
 
 async function GenerateToken(payload) {
     try {
@@ -86,7 +85,8 @@ async function CreatePaymentIntent(payload) {
     console.log('creating payment intent');
 
     try {
-        const key = await DB.collection('providers').doc('paymongo').collection(process.env.environment).doc('keys').get();
+        const key = await DB.collection('providers').doc('paymongo')
+                    .collection(process.env.environment).doc('keys').get();
 
         const response = await axios({
             method: 'post',
@@ -129,7 +129,8 @@ async function CreatePaymentMethod(payload) {
     try {
         console.log('creating payment method...');
 
-        const key = await DB.collection('providers').doc('paymongo').collection(process.env.environment).doc('keys').get();
+        const key = await DB.collection('providers').doc('paymongo')
+                    .collection(process.env.environment).doc('keys').get();
 
         const response = await axios({
             method: 'post',
@@ -179,12 +180,13 @@ async function CreatePaymentMethod(payload) {
     }
 }
 
-async function attachToPaymentIntent(clientKey, paymentMethodId) {
+async function attachToPaymentIntent(payload) {
     try {
-        const paymentIntentId = clientKey.split('_client')[0];
+        const paymentIntentId = payload.client_key.split('_client')[0];
 
         console.log('attaching payment intent to payment method');
-        const key = await DB.collection('providers').doc('paymongo').collection(process.env.environment).doc('keys').get();
+        const key = await DB.collection('providers').doc('paymongo')
+                    .collection(process.env.environment).doc('keys').get();
 
         const response = await axios({
             method: 'post',
@@ -195,8 +197,9 @@ async function attachToPaymentIntent(clientKey, paymentMethodId) {
             data: {
                 "data": {
                     "attributes": {
-                        "payment_method": paymentMethodId,
-                        "client_key": clientKey
+                        "payment_method": payload.paymentMethodId,
+                        "client_key": payload.client_key,
+                        // "return_url": 'https://appsell.ph/'
                     }
                 }
             },
@@ -216,6 +219,8 @@ async function attachToPaymentIntent(clientKey, paymentMethodId) {
     }
 }
 
+
+
 const payment = {
     namespaced: true,
     state: {
@@ -233,33 +238,41 @@ const payment = {
                 //create ppayment intent
                 let paymentIntent = await CreatePaymentIntent({
                     payment: payload.payment,
-                    userDetails: payload.userDetails
+                    userDetails: payload.userDetails,
+                    stockOrderReference: payload.stockOrder.stockOrderReference
                 });
 
                 let paymentMethod = await CreatePaymentMethod({
                     userDetails: payload.userDetails,
                     payment: payload.payment,
-                    stockOrderReference: payload.stockOrderReference
-                })
+                });
 
-                let attachResponse = await attachToPaymentIntent(
-                    paymentIntent.attributes.client_key, 
-                    paymentMethod.id
-                );
-
+                let attachResponse = await attachToPaymentIntent({
+                    client_key: paymentIntent.attributes.client_key, 
+                    paymentMethodId: paymentMethod.id
+                });
+                
                 if (attachResponse.attributes.status === 'succeeded') {
                     //delete card details
                     if (payload.payment.hasOwnProperty('cardDetails')) {
                         delete payload.payment.cardDetails;
                     }
-                    payload.payment.paymentStatus = 'Paid';
+                    payload.payment.paymentStatus = 'succeeded';
                     payload.payment.transactionNumber = attachResponse.id;
-                }
-                else {
-                    //throw error
-                    //check what kind of error so we can update the code
-                    const error = new Error("payment not successful");
-                    error.code = "others"
+                
+                } else if(attachResponse.attributes.status === 'awaiting_next_action') {
+                    //delete card details
+                    if (payload.payment.hasOwnProperty('cardDetails')) {
+                        delete payload.payment.cardDetails;
+                    }
+                    payload.payment.paymentStatus = 'awaiting_next_action';
+                    payload.payment.checkout_url = attachResponse.attributes.next_action.redirect.url;
+                    payload.payment.transactionNumber = attachResponse.id;
+                    payload.payment.client_key = attachResponse.attributes.client_key;
+                
+                } else if(attachResponse.attributes.status === 'awaiting_payment_method'){
+                    const error = new Error('an error occured');
+                    error.response = attachResponse.attributes.last_payment_error;
                     throw error;
 
                 }
@@ -268,6 +281,31 @@ const payment = {
                 
             } catch (error) {
                 throw error.response.data;
+            }
+        },
+
+        async checkPaymentStatus({ state, commit }, paymentIntent) {
+            try {
+                const key = await DB.collection('providers').doc('paymongo')
+                            .collection(process.env.environment).doc('keys').get();
+
+                const response = await axios({
+                    method: 'get',
+                    url: `https://api.paymongo.com/v1/payment_intents/${ paymentIntent.id }`,
+                    params: {
+                        client_key: paymentIntent.client_key
+                    },
+                    auth: {
+                        username: key.data().public,
+                        password: ''
+                    }
+                });
+
+                return response.data.data;
+
+            } catch(error) {
+                console.log('check payment status error: ', error);
+                throw error;
             }
         },
         
