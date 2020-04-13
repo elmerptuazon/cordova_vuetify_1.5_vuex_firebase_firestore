@@ -1,4 +1,4 @@
-import { DB, COLLECTION } from '@/config/firebaseInit';
+import { DB, COLLECTION, FIRESTORE } from '@/config/firebaseInit';
 import axios from 'axios';
 
 async function GenerateToken(payload) {
@@ -199,7 +199,7 @@ async function attachToPaymentIntent(payload) {
                     "attributes": {
                         "payment_method": payload.paymentMethodId,
                         "client_key": payload.client_key,
-                        // "return_url": 'https://appsell.ph/'
+                        // "return_url"7: 'https://appsell.ph/'
                     }
                 }
             },
@@ -219,6 +219,95 @@ async function attachToPaymentIntent(payload) {
     }
 }
 
+async function GenerateEWalletSource(payload) {
+    const paymentType = payload.payment.paymentType === 'GCash' ? 'gcash' : 'grab_pay';
+
+    try {
+        const key = await DB.collection('providers').doc('paymongo')
+                    .collection(process.env.environment).doc('keys').get();
+
+        const response = await axios({
+            method: 'post',
+            url: 'https://api.paymongo.com/v1/sources',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            data: {
+                "data": {
+                    "attributes": {
+                        "type": paymentType,
+                        "amount": Number(Number(payload.payment.amount).toFixed(2).replace(".", "")),
+                        "currency": "PHP",
+                        "redirect": {
+                            "success": 'https://appsell.ph/paymentSuccess',
+                            "failed": 'https://appsell.ph/paymentFail'
+                        },
+                        "billing": {
+                            "name": payload.userDetails.name,
+                            "email": payload.userDetails.email,
+                            "phone": payload.userDetails.phone,
+                            "address": {
+                                "line1": payload.userDetails.address.house,
+                                "line2": payload.userDetails.address.street,
+                                "city": payload.userDetails.address.citymun,
+                                "state": payload.userDetails.address.province,
+                                "postal_code": payload.userDetails.address.zipCode,
+                                "country": "PH"    
+                            },
+                        },
+                    }
+                }
+            },
+            auth: {
+                username: key.data().secret,
+                password: ''
+            }
+        });
+        
+        return response.data.data;
+
+    } catch(error) {
+        throw error;
+    }
+}
+
+async function CreateEWalletPayment(payload) {
+    try {
+        const key = await DB.collection('providers').doc('paymongo')
+                    .collection(process.env.environment).doc('keys').get();
+        
+        const response = await axios({
+            method: 'post',
+            url: 'https://api.paymongo.com/v1/payments',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            data: {
+                "data": {
+                    "attributes": {
+                        "amount": Number(Number(payload.payment.amount).toFixed(2).replace(".", "")),
+                        "currency": 'PHP',
+                        "description": `Customer Payment for ${payload.stockOrder.stockOrderReference}`,
+                        "statement_descriptor": `BRP-STCKODR ${payload.stockOrder.stockOrderReference}`,
+                        "source": {
+                            "id": payload.stockOrder.source_id,
+                            "type": 'source'
+                        }
+                    }
+                }
+            },
+            auth: {
+                username: key.data().secret,
+                password: ''
+            }
+        });
+
+        return response.data.data;
+        
+    } catch(error) {
+        throw error;
+    }
+}
 
 
 const payment = {
@@ -274,13 +363,87 @@ const payment = {
                     const error = new Error('an error occured');
                     error.response = attachResponse.attributes.last_payment_error;
                     throw error;
-
                 }
 
                 return payload.payment;
                 
             } catch (error) {
                 throw error.response.data;
+            }
+        },
+
+        async CreateEWalletSource({ state, commit, dispatch }, payload) {
+            try {
+
+                const source = await GenerateEWalletSource(payload);
+
+                await dispatch('stock_orders/UPDATE_STOCK_ORDER_DETAILS', {
+                    id: payload.stockOrder.id,
+                    updatedDetails: {
+                        payment_type: source.attributes.type,
+                        source_id: source.id,
+                        status: source.attributes.status
+                    }
+                }, { root: true });
+
+                return source;
+            
+            } catch(error) {
+                console.log('pay thru e-wallet error: ', error);
+                throw error;
+            }
+        },
+
+        ListenToPaymentStatus({ state, commit }, payload) {
+            const subscriber = DB.collection('stock_orders').doc(payload.stockOrderId)
+                .onSnapshot((doc) => {
+                    console.log('listen to payment status of source: ', payload.source_id);
+
+                    let stockOrderDocument = doc.data();
+                    stockOrderDocument.id = doc.id;
+
+                    if(stockOrderDocument.status === 'chargeable') {
+                        console.log('unsubscribing to status changes');
+                        subscriber();
+
+                        // await DB.collection('stock_orders').doc(payload.stockOrder.id).update({
+                        //     payment_type: FIRESTORE.FieldValue.delete(),
+                        //     source_id: FIRESTORE.FieldValue.delete(),
+                        // });
+
+                        return {
+                            isSuccessful: true,
+                        }
+                    
+                    } else {
+                        subscriber();
+
+                        // await DB.collection('stock_orders').doc(payload.stockOrder.id).update({
+                        //     payment_type: FIRESTORE.FieldValue.delete(),
+                        //     source_id: FIRESTORE.FieldValue.delete(),
+                        // });
+                    }
+                });
+
+        },
+
+        async PayOrderThruEWallet({}, payload) {
+            try {
+                const paymentResult = await CreateEWalletPayment(payload);
+                console.log('e-wallet payment obj: ', paymentResult);
+
+                await DB.collection('stock_orders').doc(payload.stockOrder.id).update({
+                    payment_type: FIRESTORE.FieldValue.delete(),
+                    source_id: FIRESTORE.FieldValue.delete(),
+                });
+
+                payload.payment.transactionNumber = paymentResult.id;
+                payload.payment.status = paymentResult.attributes.status;
+
+                return payload.payment;
+            
+            } catch(error) {
+                throw error;
             }
         },
 
@@ -308,46 +471,6 @@ const payment = {
                 throw error;
             }
         },
-        
-        // async PayOrderThruCreditCard({ commit }, payload) {
-        //     try {
-
-        //         //in here you validate the CC and do the payment in the api using axios, code below are the return if api payment is successful.
-        //         let tokenDetails = await GenerateToken({
-        //             payment: payload.payment,
-        //             userDetails: payload.userDetails
-        //         });
-
-        //         let paymentDetails = await CreatePayment({
-        //             tokenDetails: tokenDetails,
-        //             payment: payload.payment,
-        //             stockOrderReference: payload.stockOrderReference
-        //         })
-        //         console.log(paymentDetails);
-
-        //         if (paymentDetails.data.data.attributes.status === "paid") {
-        //             //delete card details
-        //             if (payload.payment.hasOwnProperty('cardDetails')) {
-        //                 delete payload.payment.cardDetails;
-        //             }
-        //             payload.payment.paymentStatus = 'Paid';
-        //             payload.payment.transactionNumber = paymentDetails.data.data.id;
-        //         }
-        //         else {
-        //             //throw error
-        //             //check what kind of error so we can update the code
-        //             const error = new Error("payment not successful");
-        //             error.code = "others"
-        //             throw error;
-
-        //         }
-
-        //         return payload.payment;
-        //         //}
-        //     } catch (error) {
-        //         throw error.response.data;
-        //     }
-        // },
 
         async ProcessCODOrder({ commit }, payload) {
 
