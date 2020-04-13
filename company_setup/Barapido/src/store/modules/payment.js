@@ -382,7 +382,6 @@ const payment = {
                     updatedDetails: {
                         payment_type: source.attributes.type,
                         source_id: source.id,
-                        status: source.attributes.status
                     }
                 }, { root: true });
 
