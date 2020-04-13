@@ -629,6 +629,17 @@ export default {
 			const { id, key, value } = payload;
 
 			await COLLECTION.stock_orders.doc(id).update({ [key]: value });
+		},
+
+		async UPDATE_STOCK_ORDER_DETAILS({ }, payload) {
+			try {
+				const { id, updatedDetails } = payload;
+				await COLLECTION.stock_orders.doc(id).update(updatedDetails);
+
+			} catch(error) {
+				throw error
+			}
+			
 		}
 	}
 }
