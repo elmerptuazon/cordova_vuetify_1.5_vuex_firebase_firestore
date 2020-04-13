@@ -767,37 +767,47 @@ export default {
         this.loaderDialogMessage = null;
         this.$refs.finalizeOrder.close();
 
-        let errorMessage;
+        let errorMessage, errorHeader;
         switch (error.errors[0].sub_code) {
-          case "generic_decline":
+          case "generic_decline": {
+            errorHeader = "Card Declined!";
             errorMessage = "Your card has been declined, please contact your service provider.";
             break;
+          }
           
-          case "card_expired": 
+          case "card_expired": {
+            errorHeader = "Card Expired!";
             errorMessage = "Your card has expired, please contact your service provider.";
             break;
+          } 
 
-          case "cvn_invalid": 
+          case "cvn_invalid": {
+            errorHeader = "Wrong CVC!";
             errorMessage = "Wrong CVC, please re-enter your correct CVC.";
             break;
+          } 
 
-          case "processor_unavailable": 
-            errorMessage = "Failed to process your card due to unknown error, please try again later.";
+          case "processor_unavailable": {
+            errorHeader = "Unavailable Processor!"
+            errorMessage = "Failed to process your card due to unavailable payment processor, please try again later.";
             break;
+          } 
 
-          case "insufficient_funds":
+          case "insufficient_funds": {
+            errorHeader = "Insufficient Funds!"
             errorMessage = "Your card has insufficient funds, please contact your service provider.";
             break;
-
-          default:
-            errorMessage = "Charging your card unsuccessful due to an unknown error, please contact your service provider."
-
+          }
+            
+          default: {
+            errorHeader = "Card Declined!"
+            errorMessage = "Your card has been declined, please contact your service provider."
+            break;
+          }
+            
         }
 
-        this.$refs.modal.show(
-          "Transaction Failed",
-          errorMessage
-        );
+        this.$refs.modal.show(errorHeader, errorMessage);
       }
     },
 
