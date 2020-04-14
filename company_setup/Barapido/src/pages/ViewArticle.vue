@@ -57,7 +57,7 @@
                     <div class="primary--text mt-3">
                         <v-icon small color="primary">schedule</v-icon>
                         {{ calculateTime(article.publishDate)  }} 
-                        <span class="grey--text">| Views: {{ 69 }}</span>
+                        <span class="grey--text">| Views: {{ article.viewedBy.length }}</span>
                     </div>
                 </v-flex>
                 <v-flex xs12 mt-2><v-divider></v-divider></v-flex>
@@ -102,12 +102,12 @@
 </template>
 
 <script>
+import { mixins } from "@/mixins";
 import ContactsBadge from '@/components/ContactsBadge';
 import BasketBadge from "@/components/BasketBadge";
 import BottomNav from "@/components/BottomNav";
 import Accounts from "@/components/Accounts"
 import moment from 'moment';
-import { parse } from 'semver';
 
 export default {
     components: {
@@ -121,17 +121,21 @@ export default {
             this.openBrowser();
             this.article.description = 'this is an article that suppose to open in the in-app browser.';
         }
-    },
 
+    },
+    mounted() {
+        this.cordovaBackButton(this.goBack);
+    },
     data: () => ({
         article: {},
         loaderDialog: false,
         loaderDialogMessage: null,
     }),
-
     methods: {
         goBack() {
-            this.$router.go(-1);
+            this.$router.push({
+                name: 'Articles',
+            });
         },
 
         setLoaderDialog(message, state) {
