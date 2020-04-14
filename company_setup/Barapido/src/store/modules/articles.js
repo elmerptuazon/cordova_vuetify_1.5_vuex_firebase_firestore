@@ -1,13 +1,18 @@
-import {DB, STORAGE} from '@/config/firebaseInit';
+import { AUTH, DB, STORAGE, FIRESTORE } from '@/config/firebaseInit';
+import moment from 'moment';
 
 const articles = {
     namespaced: true,
     state: {
         subscriber: null,
-        articles: []
+        articles: [],
+        badgeNotifState: true,
     },
     getters: {
-        GET_ARTICLES: state => state.articles,
+        GET_ARTICLES(state) {
+            return state.articles.filter(article => article.active);
+        },
+        GET_BADGE_NOTIF_STATE: state => state.badgeNotifState,
     },
     mutations: {
         SET_ARTICLES(state, payload) {
@@ -38,6 +43,8 @@ const articles = {
             console.log('listening to articles');
             commit('SET_ARTICLES', []);
 
+            const dateNow = moment().startOf('day').format('x');
+
             state.subscriber = DB.collection('articles')
                 .orderBy('publishDate', 'desc')
                 .onSnapshot((snapshot) => {
@@ -47,39 +54,62 @@ const articles = {
                         const data = change.doc.data();
                         data.id = change.doc.id;
 
-                        if(change.type === 'added' && !state.articles.length) {
-                            console.log('new article arrived!')
-                            commit('ADD_ARTICLE', data); //push first article to the list, if list is currently empty
-                        
-                        } else if(change.type === 'added' && state.articles.length) {
-                            //ensure that the latest item is not a duplicate of the last article in the list
-                            const lastItem = state.articles[state.articles.length - 1];
-                            if(lastItem.id !== data.id) { 
-                                console.log('new article arrived!')
-                                commit('ADD_ARTICLE', data);
+                        switch(change.type) {
+                            case 'added': {
+                                const articleIsPublishable = data.publishDate <= moment().format('x');
+                                
+                                if(!state.articles.length && articleIsPublishable) {
+                                    state.articles.push(data);
+                                
+                                } else if(articleIsPublishable) {
+                                    //ensure that the latest item is not a duplicate of the last article in the list
+                                    const lastItem = state.articles[state.articles.length - 1];
+                                    if(lastItem.id !== data.id) { 
+                                        console.log('new article arrived!');
+                                        state.articles.push(data);
+
+                                        //activate the articel badge notif
+                                        state.badgeNotifState = true;
+                                    }
+                                }
+
+                                break;
                             }
 
-                        } else if(change.type === 'modified') {
-                            console.log('an article was edited');
-                            console.log('edit article: ', change);
+                            case 'modified': {
+                                const articleIsPublishable = data.publishDate <= moment().format('x');
+                                
+                                if(articleIsPublishable) {
+                                    const oldArticle = state.articles.find(article => article.id === data.id);
+                                    const index = state.articles.findIndex(article => article.id === data.id);
+                                    
+                                    console.log('old article: ', oldArticle);
+                                    console.log('an article was edited');
+                                    console.log('edit article: ', change.doc.data());
+                                    
+                                    if(index !== - 1) {
+                                        state.articles[index] = data;
+                                    }
+                                }
 
-                            const oldArticle = state.articles.find(article => article.id === data.id);
-                            const index = state.articles.findIndex(article => article.id === data.id);
-                            console.log('old article: ', oldArticle);
-
-                            if(oldArticle.active && data.active === false) {
-                                state.articles.splice(index, 1);
-                            
-                            } else {
-                                commit('UPDATE_ARTICLE', data);
+                                break;
                             }
 
-                            
+                            default: {
+                                console.log('change type is not in the option: ', change.type);
+                                break;
+                            }
                         }
 
                     });
 
             })
+        },
+
+        dismissArticleBadgeNotif({state}) {
+            if(state.badgeNotifState) {
+                state.badgeNotifState = false;
+            }
         },
 
         async GET_ARTICLES({state, commit}) {
@@ -111,6 +141,26 @@ const articles = {
                 throw error;
             }
             
+        },
+
+        async ADD_USER_TO_VIEWED_BY({ state, commit }, payload) {
+            const { articleId } = payload;
+            const user = AUTH.currentUser;
+
+            try {
+                const index = state.articles.findIndex(article => article.id === articleId);
+                if(index !== - 1) {
+                    state.articles[index].viewedBy.push(user.uid);
+                }
+                
+                await DB.collection('articles').doc(articleId).update({
+                    viewedBy: FIRESTORE.FieldValue.arrayUnion(user.uid)
+                });
+
+            
+            } catch(error) {
+                throw error;
+            }
         },
 
         async UNSUBSCRIBE_TO_ARTICLES({state, commit}) {
