@@ -768,43 +768,60 @@ export default {
         this.$refs.finalizeOrder.close();
 
         let errorMessage, errorHeader;
-        switch (error.errors[0].sub_code) {
-          case "generic_decline": {
-            errorHeader = "Card Declined!";
-            errorMessage = "Your card has been declined, please contact your service provider.";
-            break;
+
+        if(error.errors[0].code === "parameter_below_minimum") {
+          switch(error.errors[0].code) {
+            case "parameter_below_minimum": {
+              errorHeader = "Invalid Order Amount!";
+              errorMessage = "Your total stock order payment should be no less than PHP 100. Please try again later.";
+              break;
+            }
+
+            default: {
+              console.log('other error code: ', error.errors[0]);
+              break;
+            }
           }
-          
-          case "card_expired": {
-            errorHeader = "Card Expired!";
-            errorMessage = "Your card has expired, please contact your service provider.";
-            break;
-          } 
-
-          case "cvn_invalid": {
-            errorHeader = "Wrong CVC!";
-            errorMessage = "Wrong CVC, please re-enter your correct CVC.";
-            break;
-          } 
-
-          case "processor_unavailable": {
-            errorHeader = "Unavailable Processor!"
-            errorMessage = "Failed to process your card due to unavailable payment processor, please try again later.";
-            break;
-          } 
-
-          case "insufficient_funds": {
-            errorHeader = "Insufficient Funds!"
-            errorMessage = "Your card has insufficient funds, please contact your service provider.";
-            break;
-          }
+        
+        } else {
+          switch (error.errors[0].sub_code) {
+            case "generic_decline": {
+              errorHeader = "Card Declined!";
+              errorMessage = "Your card has been declined, please contact your service provider.";
+              break;
+            }
             
-          default: {
-            errorHeader = "Card Declined!"
-            errorMessage = "Your card has been declined, please contact your service provider."
-            break;
+            case "card_expired": {
+              errorHeader = "Card Expired!";
+              errorMessage = "Your card has expired, please contact your service provider.";
+              break;
+            } 
+
+            case "cvn_invalid": {
+              errorHeader = "Wrong CVC!";
+              errorMessage = "Wrong CVC, please re-enter your correct CVC.";
+              break;
+            } 
+
+            case "processor_unavailable": {
+              errorHeader = "Unavailable Processor!"
+              errorMessage = "Failed to process your card due to unavailable payment processor, please try again later.";
+              break;
+            } 
+
+            case "insufficient_funds": {
+              errorHeader = "Insufficient Funds!"
+              errorMessage = "Your card has insufficient funds, please contact your service provider.";
+              break;
+            }
+              
+            default: {
+              errorHeader = "Card Declined!"
+              errorMessage = "Your card has been declined, please contact your service provider."
+              break;
+            }
+
           }
-            
         }
 
         this.$refs.modal.show(errorHeader, errorMessage);
@@ -933,28 +950,50 @@ export default {
         address: this.userAddress
       };
       
-      this.loaderDialogMessage = `Creating payment source...`
-      this.createdSource = await this.$store.dispatch(
-        "payment/CreateEWalletSource",
-        {
-          payment: this.payment,
-          userDetails: userDetails,
-          stockOrder: this.stockOrder
+      this.loaderDialogMessage = `Creating payment source...`;
+
+      try {
+        this.createdSource = await this.$store.dispatch(
+          "payment/CreateEWalletSource",
+          {
+            payment: this.payment,
+            userDetails: userDetails,
+            stockOrder: this.stockOrder
+          }
+        );
+
+        const url = this.createdSource.attributes.redirect.checkout_url;
+        if(url) {
+          this.checkOutURL = url;
+          this.checkOutDialog = true;
         }
-      );
 
-      const url = this.createdSource.attributes.redirect.checkout_url;
-      if(url) {
-        this.checkOutURL = url;
-        this.checkOutDialog = true;
+        this.loaderDialogMessage = `Waiting for your payment authorization...`;
+        // this.$store.dispatch('payment/ListenToPaymentStatus', {
+        //   stockOrderId: this.stockOrder.id,
+        //   source_id: this.createdSource.id
+        // });
+      
+      } catch(error) {
+        this.loaderDialog = false;
+        this.loaderDialogMessage = null;
+
+        console.log(error);
+        const errorObj = error.response.data;
+        let errorHeader, errorMessage;
+
+        if(errorObj.errors[0].code === 'parameter_below_minimum') {
+          errorHeader = "Invalid Order Amount!";
+          errorMessage = "Your total stock order price should not be less than PHP 100. Please try again later.";
+        
+        } else {
+          errorHeader = "Payment Failed!";
+          errorMessage = "An error occured while processing your payment. Please try again later";
+        }
+
+        this.$refs.modal.show(errorHeader, errorMessage);
       }
-
-      this.loaderDialogMessage = `Waiting for your payment authorization...`;
-      // this.$store.dispatch('payment/ListenToPaymentStatus', {
-      //   stockOrderId: this.stockOrder.id,
-      //   source_id: this.createdSource.id
-      // });
-
+      
     },
 
     async continueEWalletPayment() {
