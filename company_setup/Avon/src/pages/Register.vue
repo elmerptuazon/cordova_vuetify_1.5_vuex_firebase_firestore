@@ -547,6 +547,7 @@ import TrialMessage from "@/components/TrialMessage";
 import Modal from "@/components/Modal";
 import TermsAndConditionsDialog from "@/components/TermsAndConditionsDialog";
 import DataPolicy from "@/components/DataPolicy";
+import MaleDefaultImage from "@/assets/img/male-default.jpg";
 
 export default {
   components: {
@@ -683,7 +684,7 @@ export default {
       );
 
       if (registerData.email) {
-        registerData.email = registerData.toLowerCase();
+        registerData.email = registerData.email.toLowerCase();
 
         try {
           const response = await this.$store.dispatch(
