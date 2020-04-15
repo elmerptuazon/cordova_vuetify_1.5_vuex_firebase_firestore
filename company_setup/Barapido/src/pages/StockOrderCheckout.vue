@@ -284,15 +284,24 @@
                 <v-radio
                   label="Credit Card (Visa and Mastercard Only)"
                   value="CC"
+                  :disabled="totalIsInMinimumPrice"
                 ></v-radio>
                 <v-radio
                   label="GCash"
                   value="GCash"
+                  :disabled="totalIsInMinimumPrice"
                 ></v-radio>
                 <v-radio
                   label="Grab Pay"
                   value="GrabPay"
+                  :disabled="totalIsInMinimumPrice"
                 ></v-radio>
+                <div v-if="totalIsInMinimumPrice" class="mt-1">
+                  <v-divider></v-divider>
+                  <div class="mt-2 body-1 red--text font-italic font-weight-bold">
+                    Online payment is only available for stock order above PHP 100
+                  </div>  
+                </div>
                 <v-divider v-if="payment.paymentType === 'CC'"></v-divider>
                 <creditCardForm
                   class="mt-2"
@@ -1143,6 +1152,10 @@ export default {
       );
 
       return logisticsData.shippingFee;
+    },
+
+    totalIsInMinimumPrice() {
+      return this.total < 100 ? true : false; 
     },
 
     userAddress() {
