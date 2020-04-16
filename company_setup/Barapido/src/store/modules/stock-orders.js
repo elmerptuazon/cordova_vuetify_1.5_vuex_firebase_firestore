@@ -426,6 +426,11 @@ export default {
 				delete item.attributes.quantity;
 				delete item.name;
 				delete item.image;
+
+				if(!item.hasOwnProperty('weight') || item.weight === undefined) {
+					item.weight = 0;
+				}
+				
 				return item;
 			});
 
