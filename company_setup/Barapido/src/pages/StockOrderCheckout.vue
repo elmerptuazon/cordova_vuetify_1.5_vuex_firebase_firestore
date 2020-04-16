@@ -289,17 +289,23 @@
                 <v-radio
                   label="GCash"
                   value="GCash"
-                  :disabled="totalIsInMinimumPrice"
+                  :disabled="totalIsInMinimumPrice || totalIsInMaximumPrice"
                 ></v-radio>
                 <v-radio
                   label="Grab Pay"
                   value="GrabPay"
-                  :disabled="totalIsInMinimumPrice"
+                  :disabled="totalIsInMinimumPrice || totalIsInMaximumPrice"
                 ></v-radio>
                 <div v-if="totalIsInMinimumPrice" class="mt-1">
                   <v-divider></v-divider>
                   <div class="mt-2 body-1 red--text font-italic font-weight-bold">
-                    Online payment is only available for stock order above PHP 100
+                    Online payment is only available for stock order above {{ 100 | currency("PHP ")}}
+                  </div>  
+                </div>
+                <div v-if="totalIsInMaximumPrice" class="mt-1">
+                  <v-divider></v-divider>
+                  <div class="mt-2 body-1 red--text font-italic font-weight-bold">
+                    E-Wallet payments are not available for stock order above {{ 100000 | currency("PHP ")}}
                   </div>  
                 </div>
                 <v-divider v-if="payment.paymentType === 'CC'"></v-divider>
@@ -1156,6 +1162,10 @@ export default {
 
     totalIsInMinimumPrice() {
       return this.total < 100 ? true : false; 
+    },
+
+    totalIsInMaximumPrice() {
+      return this.total > 100000 ? true : false;
     },
 
     userAddress() {
