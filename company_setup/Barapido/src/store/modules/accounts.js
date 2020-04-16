@@ -308,7 +308,6 @@ const accounts = {
 				newCustomer[payload.customerId] = true;
 				if(!payload.hasOwnProperty('customers')) {
 					payload.customers = [];
-					payload.customers.push(newCustomer);
 				}
 				payload.customers.push(newCustomer);
 
