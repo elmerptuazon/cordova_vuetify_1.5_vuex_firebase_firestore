@@ -61,7 +61,7 @@
 
             <v-data-iterator
                 v-else
-                :items="articles" :item-key="id" :search="search"
+                :items="articles" :search="search"
                 row wrap class="mt-2"
                 disable-initial-sort
                 no-data-text="Sorry, no articles posted yet..."
@@ -85,6 +85,7 @@
                         align-start justify-end mt-4 px-2 pb-2 wrap row
                         @click="viewArticle(props.item)" v-ripple
                         :class="[ props.item.isRead === false ? 'grey lighten-3' : '' ]"
+                        v-scroll="onScroll"
                     >
                         <v-flex xs12 align-start justify-baseline align-content-baseline align-self-baseline>
                             <v-divider></v-divider>
@@ -149,6 +150,10 @@ export default {
     components: {
         ContactsBadge, BasketBadge, BottomNav, Accounts
     },
+    created() {
+        this.yLocation = this.$route.params.yLocation || 0;
+        this.$vuetify.goTo(this.yLocation, this.option);
+    },
 
     async mounted() {
         this.cordovaBackButton(this.goBack);
@@ -157,6 +162,12 @@ export default {
     data: () => ({
         loading: false, 
         search: null,
+        yLocation: 0,
+        option: {
+            duration: 0,
+            offset: 0,
+            easing: 'easeInOutCubic'
+        },
 
     }),
 
@@ -167,6 +178,10 @@ export default {
 
         toggleNav(val) {
             this.$refs.BottomNav.toggleNav(val);
+        },
+
+        onScroll(e) {
+            this.yLocation = e.target.scrollingElement.scrollTop;
         },
 
         async viewArticle(article) {
@@ -184,7 +199,8 @@ export default {
             this.$router.push({
                 name: 'ViewArticle',
                 params: {
-                    article
+                    article,
+                    prevYLocation: this.yLocation,
                 }
             });
         },

@@ -110,17 +110,21 @@ import Accounts from "@/components/Accounts"
 import moment from 'moment';
 
 export default {
+    mixins: [mixins],
     components: {
         ContactsBadge, BasketBadge, BottomNav, Accounts
     },
 
     async created() {
         this.article = this.$route.params.article;
+        this.prevYLocation = this.$route.params.prevYLocation;
 
         if(this.article.creationMethod === 'url') {
             this.openBrowser();
             this.article.description = 'this is an article that suppose to open in the in-app browser.';
         }
+
+        this.$vuetify.goTo(0, this.option);
 
     },
     mounted() {
@@ -130,11 +134,20 @@ export default {
         article: {},
         loaderDialog: false,
         loaderDialogMessage: null,
+        option: {
+            duration: 0,
+            offset: 0,
+            easing: 'easeInOutCubic'
+        },
+        prevYLocation: 0,
     }),
     methods: {
         goBack() {
             this.$router.push({
                 name: 'Articles',
+                params: {
+                    yLocation: this.prevYLocation
+                }
             });
         },
 
