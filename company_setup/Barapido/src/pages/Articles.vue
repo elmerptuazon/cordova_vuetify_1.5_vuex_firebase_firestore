@@ -14,16 +14,17 @@
         </v-toolbar>
 
         <v-container fluid>
-            <v-layout align-center justify-start wrap>
+            <v-layout align-center justify-start wrap v-if="!loading">
                 <v-flex xs12>
                     <div class="display-1 primary--text font-weight-bold">Your reads for today...</div>
                 </v-flex>
             </v-layout>
             
-            <v-layout align-center justify-center wrap mt-3>
+            <v-layout align-center justify-center wrap mt-3 v-if="!loading">
                 <v-flex xs12>
                     <v-text-field
                         v-model="search"
+                        clearable
                         rounded placeholder="search for an article..."
                     ></v-text-field>
                 </v-flex>
@@ -33,7 +34,7 @@
                 v-if="loading"
                 align-center justify-center mt-3>
                 <v-progress-circular
-                color="primary"
+                    color="primary"
                     indeterminate
                     width="5"
                     size="150"
@@ -82,7 +83,7 @@
                 <template v-slot:item="props">
                     <v-layout 
                         align-start justify-end mt-4 px-2 pb-2 wrap row
-                        @click="viewArticle(props.item)"
+                        @click="viewArticle(props.item)" v-ripple
                         :class="[ props.item.isRead === false ? 'grey lighten-3' : '' ]"
                     >
                         <v-flex xs12 align-start justify-baseline align-content-baseline align-self-baseline>
@@ -131,7 +132,7 @@
                 </template>
             </v-data-iterator>
         </v-container>
-        <BottomNav currentTab="articles"/>
+        <BottomNav currentTab="articles" ref="BottomNav"/>
     </div>
 </template>
 
@@ -162,6 +163,10 @@ export default {
     methods: {
         goBack() {
             this.$router.go(-1);
+        },
+
+        toggleNav(val) {
+            this.$refs.BottomNav.toggleNav(val);
         },
 
         async viewArticle(article) {
