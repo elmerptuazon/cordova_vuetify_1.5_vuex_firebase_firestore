@@ -74,13 +74,7 @@ export default {
                     values.name = `${this.user.firstName} ${this.user.middleInitial} ${this.user.lastName}`;
                     values.email = this.user.email;
                     values.phone = this.user.contact;
-                
-                } else {
-                    values.name = null;
-                    values.email = null;
-                    values.phone = null;
-                }
-
+                } 
                 this.$emit("accountDetails", {
                     name: values.name,
                     email: values.email,
