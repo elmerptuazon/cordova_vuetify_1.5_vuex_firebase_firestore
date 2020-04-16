@@ -58,78 +58,55 @@
                 </div>
             </v-layout>
 
-            <v-data-iterator
-                v-else
-                :items="articles" :item-key="id" :search="search"
-                row wrap class="mt-2"
-                disable-initial-sort
-                no-data-text="Sorry, no articles posted yet..."
-                no-result-text="Sorry, no article/s related to your search..."
-                :rows-per-page-items="[-1]" hide-actions
+            <v-layout
+                v-else align-start justify-end mt-4 px-2 pb-2 wrap
+                v-for="article in articles" :key="article.id"
+                @click="viewArticle(article)"
+                :class="[ article.isRead === false ? 'grey lighten-3' : '' ]"
             >
-                <template v-slot:no-results>
-                    <div class="red--text font-weight-bold body-1 mt-3">
-                        Sorry, no articles are related to your search...
-                    </div>
-                </template>
+                <v-flex xs12 align-start justify-baseline align-content-baseline align-self-baseline>
+                    <v-divider></v-divider>
+                </v-flex>
 
-                <template v-slot:no-data>
-                    <div class="red--text font-weight-bold body-1 mt-3">
-                        Sorry, no articles are posted yet...
+                <v-flex :xs7="article.headerURL" :xs12="!article.headerURL" mt-2>
+                    <div class="title font-weight-bold">{{ article.title }}</div>
+                    
+                    <div class="body-1 primary--text mt-2">
+                        <v-icon small color="primary">schedule</v-icon>
+                        {{ calculateTime(article.publishDate) }}
                     </div>
-                </template>
-
-                <template v-slot:item="props">
-                    <v-layout 
-                        align-start justify-end mt-4 px-2 pb-2 wrap row
-                        @click="viewArticle(props.item)"
-                        :class="[ props.item.isRead === false ? 'grey lighten-3' : '' ]"
+                    
+                    <div class="body-1 grey--text mt-2">
+                        <v-icon small color="grey">visibility</v-icon> 
+                        {{ article.viewedBy.length }}
+                    </div>
+                    
+                    <div class="caption font-weight-thin mt-3"> {{ summarizeSource(article.source) | uppercase }}</div>
+                </v-flex>
+                <v-flex xs4 offset-xs1 v-if="article.headerURL">
+                    <v-img
+                        v-if="article.headerURL"
+                        height="100px"
+                        width="100px"
+                        :src="article.headerURL"
+                        :alt="article.title"
+                        :lazy-src="require('@/assets/placeholder.png')"
                     >
-                        <v-flex xs12 align-start justify-baseline align-content-baseline align-self-baseline>
-                            <v-divider></v-divider>
-                        </v-flex>
-
-                        <v-flex :xs7="props.item.headerURL" :xs12="!props.item.headerURL" mt-2>
-                            <div class="title font-weight-bold">{{ props.item.title }}</div>
-                            
-                            <div class="body-1 primary--text mt-2">
-                                <v-icon small color="primary">schedule</v-icon>
-                                {{ calculateTime(props.item.publishDate) }}
-                            </div>
-                            
-                            <div class="body-1 grey--text mt-1">
-                                <v-icon small color="grey">visibility</v-icon> 
-                                {{ props.item.viewedBy.length }}
-                            </div>
-                            
-                            <div class="caption font-weight-thin mt-3"> {{ summarizeSource(props.item.source) | uppercase }}</div>
-                        </v-flex>
-                        <v-flex xs4 offset-xs1 v-if="props.item.headerURL">
-                            <v-img
-                                v-if="props.item.headerURL"
-                                height="100px"
-                                width="100px"
-                                :src="props.item.headerURL"
-                                :alt="props.item.title"
-                                :lazy-src="require('@/assets/placeholder.png')"
-                            >
-                                <v-layout
-                                    slot="placeholder"
-                                    fill-height
-                                    align-center
-                                    justify-center
-                                    ma-0
-                                >
-                                    <v-progress-circular
-                                        indeterminate
-                                        color="primary"
-                                    ></v-progress-circular>
-                                </v-layout>
-                            </v-img>
-                        </v-flex>
-                    </v-layout>
-                </template>
-            </v-data-iterator>
+                        <v-layout
+                            slot="placeholder"
+                            fill-height
+                            align-center
+                            justify-center
+                            ma-0
+                        >
+                            <v-progress-circular
+                                indeterminate
+                                color="primary"
+                            ></v-progress-circular>
+                        </v-layout>
+                    </v-img>
+                </v-flex>
+            </v-layout>
         </v-container>
         <BottomNav currentTab="articles"/>
     </div>
@@ -222,29 +199,29 @@ export default {
 
         articles() {
             let articles = this.$store.getters['articles/GET_ARTICLES'];
-            // let keyword = this.search;
+            let keyword = this.search;
             
             articles = articles.map((article) => {
                 article.isRead = article.viewedBy.includes(this.user.uid) ? true : false;
                 return article;
             });
 
-            // if(keyword) {
-            //     keyword = keyword.toLowerCase();
+            if(keyword) {
+                keyword = keyword.toLowerCase();
 
-            //     return articles.filter((article) => {
-            //         const summarizedSource = this.summarizeSource(article.source).toLowerCase();
+                return articles.filter((article) => {
+                    const summarizedSource = this.summarizeSource(article.source).toLowerCase();
 
-            //         //keyword with spaces are not recognized as a keyword
-            //         if(keyword >= " " && keyword <= "                                       ") {
-            //             return article;
-            //         }
+                    //keyword with spaces are not recognized as a keyword
+                    if(keyword >= " " && keyword <= "                                       ") {
+                        return article;
+                    }
 
-            //         if(article.title.toLowerCase().includes(keyword) || summarizedSource.includes(keyword)) {
-            //             return article;
-            //         }
-            //     });    
-            // }
+                    if(article.title.toLowerCase().includes(keyword) || summarizedSource.includes(keyword)) {
+                        return article;
+                    }
+                });    
+            }
             
             return articles;
              
