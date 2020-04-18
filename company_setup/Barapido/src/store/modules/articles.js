@@ -9,9 +9,7 @@ const articles = {
         badgeNotifState: true,
     },
     getters: {
-        GET_ARTICLES(state) {
-            return state.articles.filter(article => article.active);
-        },
+        GET_ARTICLES: state => state.articles,
         GET_BADGE_NOTIF_STATE: state => state.badgeNotifState,
     },
     mutations: {
@@ -43,8 +41,6 @@ const articles = {
             console.log('listening to articles');
             commit('SET_ARTICLES', []);
 
-            const dateNow = moment().startOf('day').format('x');
-
             state.subscriber = DB.collection('articles')
                 .orderBy('publishDate', 'desc')
                 .onSnapshot((snapshot) => {
@@ -57,16 +53,18 @@ const articles = {
                         switch(change.type) {
                             case 'added': {
                                 const articleIsPublishable = data.publishDate <= moment().format('x');
+                                console.log('new article received!')
                                 
                                 if(!state.articles.length && articleIsPublishable) {
                                     state.articles.push(data);
+                                    
+                                    //activate the articel badge notif
+                                    state.badgeNotifState = true;
                                 
                                 } else if(articleIsPublishable) {
-                                    //ensure that the latest item is not a duplicate of the last article in the list
-                                    const lastItem = state.articles[state.articles.length - 1];
-                                    if(lastItem.id !== data.id) { 
-                                        console.log('new article arrived!');
-                                        state.articles.push(data);
+                                    const lastArticle = state.articles[0];
+                                    if(lastArticle.id !== data.id) {
+                                        state.articles.unshift(data);
 
                                         //activate the articel badge notif
                                         state.badgeNotifState = true;
@@ -79,17 +77,52 @@ const articles = {
                             case 'modified': {
                                 const articleIsPublishable = data.publishDate <= moment().format('x');
                                 
-                                if(articleIsPublishable) {
-                                    const oldArticle = state.articles.find(article => article.id === data.id);
-                                    const index = state.articles.findIndex(article => article.id === data.id);
-                                    
-                                    console.log('old article: ', oldArticle);
-                                    console.log('an article was edited');
-                                    console.log('edit article: ', change.doc.data());
-                                    
-                                    if(index !== - 1) {
-                                        state.articles[index] = data;
+                                if(!articleIsPublishable) {
+                                    return;
+                                }
+
+                                const oldArticle = state.articles.find(article => article.id === data.id);
+                                const index = state.articles.findIndex(article => article.id === data.id);
+                                
+                                console.log('an article was edited');
+                                console.log('old article: ', oldArticle);
+                                console.log('edit article: ', change.doc.data());
+
+                                //if an article is not in the list and becomes active, 
+                                //insert article to its respective location based on publish date
+                                if((!oldArticle || oldArticle === undefined) && data.active) {
+                                    let position = 0;
+                                    for(const article of state.articles) {
+                                        if(data.publishDate >= article.publishDate) {
+                                            break;
+                                        }
+                                        position++;
                                     }
+                                    state.articles.splice(position, 0, data);
+
+                                //if an article is in the list and becomes inactive, 
+                                //remove article to the list
+                                } else if(oldArticle.active && !data.active) {
+                                    state.articles.splice(index, 1);
+                                
+                                //if update is not related to the "active" field,
+                                //do regular update
+                                } else {
+                                    state.articles[index] = Object.assign({}, data);
+                                }
+
+                                break;
+                            }
+
+                            case 'removed': {
+                                const index = state.articles.findIndex(article => article.id === data.id);
+                                
+                                console.log('an article is to be deleted');
+                                console.log('delete article: ', change.doc.data());
+                                
+                                if(index !== - 1) {
+                                    state.articles.splice(index, 1);
+                                    console.log('article has been deleted!');
                                 }
 
                                 break;
