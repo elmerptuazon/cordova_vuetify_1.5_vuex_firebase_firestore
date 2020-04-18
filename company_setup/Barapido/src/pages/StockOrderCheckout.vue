@@ -448,6 +448,8 @@ export default {
     paymentResult: {},
     createdSource: {},
 
+    inAppBrowserRef: null,
+
   }),
   mounted() {
     this.cordovaBackButton(this.goBack);
@@ -492,11 +494,9 @@ export default {
       ev => {
         console.log('URL is being loaded in the iframe', ev.url);
         if(ev.url === 'https://appsell.ph/paymentSuccess') {
-          this.checkOutDialog = false;
           console.log('GCASH/Grab Pay has been successful!');
         
         } else if(ev.url === 'https://appsell.ph/paymentFail') {
-          this.checkOutDialog = false;
           console.log('Gcash/Grab Pay had failed!');
         
         } else {
@@ -517,9 +517,19 @@ export default {
     );
 
   },
+  beforeDestroy() {
+    if(this.inAppBrowserRef) {
+      this.inAppBrowserRef.removeEventListener('exit', ev => {console.log('exit event listener removed!')}, false);
+      this.inAppBrowserRef.removeEventListener('loadstart', ev => {console.log('loadstart event listener removed!')}, false);
+    }
+  },
   methods: {
     goBack() {
       this.$router.go(-1);
+    },
+
+    closeInAppBrowser() {
+      this.inAppBrowserRef.close();
     },
 
     submitStockOrder() {
@@ -726,8 +736,21 @@ export default {
 
               this.paymentResult = Object.assign({}, paymentResult);
 
-              this.checkOutURL = paymentResult.checkout_url;
-              this.checkOutDialog = true;
+              //open the webview for the URL returned
+              const url = paymentResult.checkout_url;
+              const target = "_blank";
+              const options = `location=no,clearcache=yes,hardwareback=no,footer=yes,closebuttoncaption=DONE,closebuttoncolor=#ffffff,footercolor=${process.env.primaryColor}`;
+              this.inAppBrowserRef = cordova.InAppBrowser.open(
+                url,
+                target,
+                options
+              );
+              this.inAppBrowserRef.addEventListener('exit', this.recheckPaymentStatus);
+              this.inAppBrowserRef.addEventListener('loadstart', ev => {
+                if(ev.url === 'https://appsell.ph/paymentSuccess') {
+                  this.closeInAppBrowser();
+                }
+              });
 
             } else if (paymentResult.paymentStatus === 'succeeded') {
               this.submitOrder(paymentResult);
@@ -979,8 +1002,22 @@ export default {
 
         const url = this.createdSource.attributes.redirect.checkout_url;
         if(url) {
-          this.checkOutURL = url;
-          this.checkOutDialog = true;
+          //open the webview for the URL returned
+          const url = this.createdSource.attributes.redirect.checkout_url;
+          const target = "_blank";
+          const options = `location=no,clearcache=yes,hardwareback=no,footer=yes,closebuttoncaption=DONE,closebuttoncolor=#ffffff,footercolor=${process.env.primaryColor}`;
+          this.inAppBrowserRef = cordova.InAppBrowser.open(
+            url,
+            target,
+            options
+          );
+
+          this.inAppBrowserRef.addEventListener('exit', this.continueEWalletPayment);
+          this.inAppBrowserRef.addEventListener('loadstart', ev => {
+            if(ev.url === 'https://appsell.ph/paymentSuccess') {
+              this.closeInAppBrowser();
+            }
+          });
         }
 
         this.loaderDialogMessage = `Waiting for your payment authorization...`;
@@ -1062,8 +1099,6 @@ export default {
 
           console.log('e-wallet payment error! ', paymentResult);
         }
-
-        window.removeEventListener('loadstart', ev=> {console.log('loadstart event is removed.')}, false);
       
       } catch(error) {
         const errorResponse = error.response.data.errors[0]
@@ -1083,8 +1118,6 @@ export default {
             "Payment was not successful. Please try again later."
           );
         }
-
-        window.removeEventListener('loadstart', ev=> {console.log('loadstart event is removed.')}, false);
       }
       
     },
