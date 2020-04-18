@@ -199,7 +199,7 @@ async function attachToPaymentIntent(payload) {
                     "attributes": {
                         "payment_method": payload.paymentMethodId,
                         "client_key": payload.client_key,
-                        // "return_url"7: 'https://appsell.ph/'
+                        "return_url": 'https://appsell.ph/paymentSuccess'
                     }
                 }
             },
