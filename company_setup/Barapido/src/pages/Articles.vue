@@ -14,19 +14,16 @@
         </v-toolbar>
 
         <v-container fluid>
-            <v-layout align-center justify-start wrap v-if="!loading">
-                <v-flex xs12>
-                    <div class="display-1 primary--text font-weight-bold">Your reads for today...</div>
-                </v-flex>
-            </v-layout>
-            
-            <v-layout align-center justify-center wrap mt-3 v-if="!loading">
-                <v-flex xs12>
+            <v-layout align-center justify-center wrap mt-2 v-if="!loading">
+                <v-flex xs10>
                     <v-text-field
                         v-model="search"
                         clearable
                         rounded placeholder="search for an article..."
                     ></v-text-field>
+                </v-flex>
+                <v-flex xs1 offset-xs1>
+                    <v-icon color="primary" @click="refreshList">cached</v-icon>
                 </v-flex>
             </v-layout>
 
@@ -63,10 +60,10 @@
                 v-else
                 :items="articles" :search="search"
                 row wrap class="mt-2"
-                disable-initial-sort
                 no-data-text="Sorry, no articles posted yet..."
                 no-result-text="Sorry, no article/s related to your search..."
-                :rows-per-page-items="[-1]" hide-actions
+                hide-actions
+                :pagination.sync="pagination"
             >
                 <template v-slot:no-results>
                     <div class="red--text font-weight-bold body-1 mt-3">
@@ -150,7 +147,7 @@ export default {
     components: {
         ContactsBadge, BasketBadge, BottomNav, Accounts
     },
-    created() {
+    async created() {
         this.yLocation = this.$route.params.yLocation || 0;
         this.$vuetify.goTo(this.yLocation, this.option);
     },
@@ -163,10 +160,17 @@ export default {
         loading: false, 
         search: null,
         yLocation: 0,
+
         option: {
             duration: 0,
             offset: 0,
             easing: 'easeInOutCubic'
+        },
+
+        pagination: {
+            sortBy: "publishDate",
+            descending: true,
+            rowsPerPage: -1
         },
 
     }),
@@ -182,6 +186,12 @@ export default {
 
         onScroll(e) {
             this.yLocation = e.target.scrollingElement.scrollTop;
+        },
+
+        async refreshList() {
+            this.loading = true;
+            await this.$store.dispatch('articles/LISTEN_TO_ARTICLES');
+            this.loading = false;
         },
 
         async viewArticle(article) {
@@ -243,32 +253,11 @@ export default {
 
         articles() {
             let articles = this.$store.getters['articles/GET_ARTICLES'];
-            // let keyword = this.search;
             
-            articles = articles.map((article) => {
+            return articles.map((article) => {
                 article.isRead = article.viewedBy.includes(this.user.uid) ? true : false;
                 return article;
             });
-
-            // if(keyword) {
-            //     keyword = keyword.toLowerCase();
-
-            //     return articles.filter((article) => {
-            //         const summarizedSource = this.summarizeSource(article.source).toLowerCase();
-
-            //         //keyword with spaces are not recognized as a keyword
-            //         if(keyword >= " " && keyword <= "                                       ") {
-            //             return article;
-            //         }
-
-            //         if(article.title.toLowerCase().includes(keyword) || summarizedSource.includes(keyword)) {
-            //             return article;
-            //         }
-            //     });    
-            // }
-            
-            return articles;
-             
         }
     },
 }
