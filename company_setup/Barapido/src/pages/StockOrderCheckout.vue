@@ -284,11 +284,42 @@
                 <v-radio
                   label="Credit Card (Visa and Mastercard Only)"
                   value="CC"
+                  :disabled="totalIsInMinimumPrice"
                 ></v-radio>
+                <v-radio
+                  label="GCash"
+                  value="GCash"
+                  :disabled="totalIsInMinimumPrice || totalIsInMaximumPrice"
+                ></v-radio>
+                <v-radio
+                  label="Grab Pay"
+                  value="GrabPay"
+                  :disabled="totalIsInMinimumPrice || totalIsInMaximumPrice"
+                ></v-radio>
+                <div v-if="totalIsInMinimumPrice" class="mt-1">
+                  <v-divider></v-divider>
+                  <div class="mt-2 body-1 red--text font-italic font-weight-bold">
+                    Online payment is only available for stock order above {{ 100 | currency("PHP ")}}
+                  </div>  
+                </div>
+                <div v-if="totalIsInMaximumPrice" class="mt-1">
+                  <v-divider></v-divider>
+                  <div class="mt-2 body-1 red--text font-italic font-weight-bold">
+                    E-Wallet payments are not available for stock order above {{ 100000 | currency("PHP ")}}
+                  </div>  
+                </div>
                 <v-divider v-if="payment.paymentType === 'CC'"></v-divider>
                 <creditCardForm
+                  class="mt-2"
                   v-if="payment.paymentType === 'CC'"
                   @cardDetails="SetCardDetails"
+                />
+                <v-divider v-if="payment.paymentType === 'GCash' || payment.paymentType === 'GrabPay'"></v-divider>
+                <GCashGrabPayForm
+                  :paymentType="payment.paymentType"
+                  class="mt-2"
+                  v-if="payment.paymentType === 'GCash' || payment.paymentType === 'GrabPay'"
+                  @accountDetails="SetAccountDetails"
                 />
               </v-radio-group>
             </v-container>
@@ -328,12 +359,45 @@
         </v-card-text>
       </v-card>
     </v-dialog>
+
+    <v-dialog
+      v-model="checkOutDialog"
+      persistent fullscreen
+    >
+      <v-card :height="checkoutHeight" :width="checkoutWidth">
+        <v-card-title class="primary">
+          <div v-if="payment.paymentType === 'CC'" 
+            class="white--text font-weight-bold title"
+            >Authorize Card Access
+          </div>
+          <div v-else 
+            class="white--text font-weight-bold title"
+            >Authorize Account Access
+          </div>
+          <v-spacer></v-spacer>
+          <v-icon v-if="payment.paymentType === 'CC'" medium color="white" @click.native="recheckPaymentStatus">close</v-icon>
+          <v-icon v-else medium color="white" @click.native="continueEWalletPayment">close</v-icon>
+        </v-card-title>
+        <v-container>
+          <iframe 
+            ref="checkOutFrame" :src="checkOutURL" 
+            :height="checkoutHeight" :width="checkoutWidth" 
+            frameborder="0" 
+          />
+        </v-container>
+        <v-divider></v-divider>
+        <v-card-actions class="white">
+          <v-spacer></v-spacer>
+          <v-btn v-if="payment.paymentType === 'CC'" color="primary" flat @click.native="recheckPaymentStatus">CLOSE</v-btn>
+          <v-btn v-else color="primary" flat @click.native="continueEWalletPayment">CLOSE</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <ConfirmationModal ref="finalizeOrder" @confirmClicked="finalizeOrder" />
     <Modal ref="modal" />
   </div>
 </template>
-
-
 
 
 <script>
@@ -344,6 +408,8 @@ import BasketBadge from "@/components/BasketBadge";
 import ConfirmationModal from "@/components/ConfirmationModal";
 import creditCardForm from "@/components/creditCardForm";
 import Modal from "@/components/Modal";
+import GCashGrabPayForm from "@/components/GCashGrabPayForm";
+
 export default {
   mixins: [mixins],
   data: () => ({
@@ -357,11 +423,14 @@ export default {
       userId: null,
       createdAt: null
     },
+    
     payment: {
       paymentType: "COD",
       amount: null,
-      cardDetails: null
+      cardDetails: null,
+      accountDetails: null,
     },
+
     userHasNoOrders: '',
     freeDeliveryCutOff: 0.00,
 
@@ -370,18 +439,26 @@ export default {
     inAppBrowserRef: null,
     stepperCounter: 0,
 
+    checkOutDialog: false,
+    checkOutURL: null,
+    checkoutHeight: null,
+    checkoutWidth: null,
+
+    paymentIntent: {},
+    paymentResult: {},
+    createdSource: {},
+
+    inAppBrowserRef: null,
+
   }),
   mounted() {
     this.cordovaBackButton(this.goBack);
     
-    // const user = this.$store.getters["accounts/user"];
-    // if(user.hasOwnProperty('hasNoOrders')) {
-    //   this.userHasNoOrders = user.hasNoOrders;
-    // } else {
-    //   this.userHasNoOrders = false;  
-    // }
     this.loaderDialogMessage = 'Please Wait...';
     this.loaderDialog = true;
+
+    this.checkoutHeight = window.innerHeight;
+    this.checkoutWidth = window.innerWidth;
 
     this.$store
       .dispatch("stock_orders/GET")
@@ -410,11 +487,51 @@ export default {
         this.loaderDialogMessage = null;
         this.loaderDialog = false;
       });
+    
+    //add event listener to exit browser dialog when the success or fail redirect URL are being loaded 
+    window.addEventListener(
+      'loadstart',
+      ev => {
+        console.log('URL is being loaded in the iframe', ev.url);
+        if(ev.url === 'https://appsell.ph/paymentSuccess') {
+          console.log('GCASH/Grab Pay has been successful!');
+        
+        } else if(ev.url === 'https://appsell.ph/paymentFail') {
+          console.log('Gcash/Grab Pay had failed!');
+        
+        } else {
+          console.log('URL being loaded: ', ev);
+        }
+      },
+      false
+    );
+
+    //an event listener for successful 3ds auth
+    window.addEventListener(
+      'message', 
+      ev => {
+        console.log('message was received from the iframe!', ev);
+        this.recheckPaymentStatus();    
+      },
+      false
+    );
+
+  },
+  beforeDestroy() {
+    if(this.inAppBrowserRef) {
+      this.inAppBrowserRef.removeEventListener('exit', ev => {console.log('exit event listener removed!')}, false);
+      this.inAppBrowserRef.removeEventListener('loadstart', ev => {console.log('loadstart event listener removed!')}, false);
+    }
   },
   methods: {
     goBack() {
       this.$router.go(-1);
     },
+
+    closeInAppBrowser() {
+      this.inAppBrowserRef.close();
+    },
+
     submitStockOrder() {
       this.$refs.finalizeOrder.show(
         "Confirm",
@@ -423,6 +540,7 @@ export default {
           "?"
       );
     },
+    
     async startQuotations() {
       this.loaderDialog = true;
       this.loaderDialogMessage = "Please wait";
@@ -467,10 +585,100 @@ export default {
       }
 
     },
+
+    validateCardDetails() {
+      //validate card details
+      if (
+        !this.$cardFormat.validateCardNumber(
+          this.payment.cardDetails.cardNumber
+        )
+      ) {
+        this.loaderDialog = false;
+        this.loaderDialogMessage = null;
+        this.$refs.finalizeOrder.close();
+
+        this.$refs.modal.show(
+          "Card Details Error!",
+          "Please check your card number."
+        );
+        return false;
+      }
+      // validate card expiry
+      if (
+        !this.$cardFormat.validateCardExpiry(
+          this.payment.cardDetails.expiry
+        )
+      ) {
+        this.loaderDialog = false;
+        this.loaderDialogMessage = null;
+        this.$refs.finalizeOrder.close();
+
+        this.$refs.modal.show(
+          "Card Details Error!",
+          "Please check your card expiry."
+        );
+        return false;
+      }
+      // validate card CVC
+      if (!this.$cardFormat.validateCardCVC(this.payment.cardDetails.CVC)) {
+        this.loaderDialog = false;
+        this.loaderDialogMessage = null;
+        this.$refs.finalizeOrder.close();
+
+        this.$refs.modal.show(
+          "Card Details Error!",
+          "Please check your card CVC."
+        );
+        return false;
+      }
+
+      return true;
+    },
+
+    validateAccountDetails() {
+      if(!this.payment.accountDetails.name) {
+        this.loaderDialog = false;
+        this.loaderDialogMessage = null;
+        this.$refs.finalizeOrder.close();
+
+        this.$refs.modal.show(
+          "Account Details Error!",
+          "Please enter a valid fullname."
+        );
+
+        return false;
+      }
+      if(!this.payment.accountDetails.email) {
+        this.loaderDialog = false;
+        this.loaderDialogMessage = null;
+        this.$refs.finalizeOrder.close();
+
+        this.$refs.modal.show(
+          "Account Details Error!",
+          "Please enter a valid email."
+        );
+
+        return false;
+      }
+      if(!this.payment.accountDetails.phone) {
+        this.loaderDialog = false;
+        this.loaderDialogMessage = null;
+        this.$refs.finalizeOrder.close();
+
+        this.$refs.modal.show(
+          "Account Details Error!",
+          "Please enter a valid phone number."
+        );
+
+        return false;
+      }
+
+      return true;
+    },
     
     async finalizeOrder() {
       this.loaderDialog = true;
-      this.loaderDialogMessage = "Submitting orders";
+      this.loaderDialogMessage = "Submitting orders...";
       let user = this.$store.getters["accounts/user"];
 
       try {
@@ -485,194 +693,442 @@ export default {
         //this a flag that tells the dashboard that this is a new order and hasnt been read by the brand company.
         this.stockOrder.isRead = false;
         
-        
-        // if(this.userHasNoOrders) {
-        //   this.stockOrder.logisticsDetails.isFreeShipping = true;
-        //   user.hasNoOrders = false;
-        //   await this.$store.dispatch('accounts/UPDATE_ACCOUNT', user);
-        // }
-
-        if(this.subTotal >= this.freeDeliveryCutOff) {
-          this.stockOrder.logisticsDetails.isFreeShipping = true;
-        }
+        //determine if this shipping is free
+        this.stockOrder.logisticsDetails.isFreeShipping = this.subTotal >= this.freeDeliveryCutOff;
 
         //check kung CC or COD
-        if (this.payment.paymentType === "CC") {
-          //validate card details
-          if (
-            !this.$cardFormat.validateCardNumber(
-              this.payment.cardDetails.cardNumber
-            )
-          ) {
-            this.loaderDialog = false;
-            this.loaderDialogMessage = null;
+        switch(this.payment.paymentType) {
+          
+          case "CC": {
             this.$refs.finalizeOrder.close();
-            this.$refs.modal.show(
-              "Card Details",
-              "Please check your card number."
-            );
-            return;
-          }
-          // validate card expiry
-          if (
-            !this.$cardFormat.validateCardExpiry(
-              this.payment.cardDetails.expiry
-            )
-          ) {
-            this.loaderDialog = false;
-            this.loaderDialogMessage = null;
-            this.$refs.finalizeOrder.close();
-            this.$refs.modal.show(
-              "Card Details",
-              "Please check your card expiry."
-            );
-            return;
-          }
-          // validate card CVC
-          if (!this.$cardFormat.validateCardCVC(this.payment.cardDetails.CVC)) {
-            this.loaderDialog = false;
-            this.loaderDialogMessage = null;
-            this.$refs.finalizeOrder.close();
-            this.$refs.modal.show(
-              "Card Details",
-              "Please check your card CVC."
-            );
-            return;
-          }
+            this.loaderDialogMessage = "Validating card details...";
+            
+            const isCardValid = await this.validateCardDetails();
+            if(!isCardValid) return;
 
-          let userDetails = {
-            name: `${user.lastName}, ${user.firstName} ${user.middleInitial}`,
-            email: user.email,
-            phone: user.contact
-          };
-
-          //process payment
-          paymentResult = await this.$store.dispatch(
-            "payment/PayOrderThruCreditCard",
-            {
-              payment: this.payment,
-              userDetails: userDetails,
-              stockOrder: this.stockOrder
-            }
-          );
-          //check if it has a checkout_URL, if none proceed to regular update
-          console.log(paymentResult);
-          if (paymentResult.captured) {
-            let paymentDetails = {
-              amount: Number((paymentResult.amount / 100).toFixed(2)),
-              paymentStatus: "Paid",
-              paymentType: "CC",
-              transactionNumber: paymentResult.id,
-              paymentGateway: "Magpie"
+            let userDetails = {
+              name: `${user.lastName}, ${user.firstName} ${user.middleInitial}`,
+              email: user.email,
+              phone: user.contact,
+              address: user.address
             };
 
-            this.stockOrder.paymentDetails = paymentDetails;
+            //process payment
+            this.loaderDialogMessage = "Processing card details...";
+            paymentResult = await this.$store.dispatch(
+              "payment/PayOrderThruCreditCard",
+              {
+                payment: this.payment,
+                userDetails: userDetails,
+                stockOrder: this.stockOrder
+              }
+            );
+
+            console.log(paymentResult);
+            //if the card requires 3ds auth, show checkout_url to user
+            if(paymentResult.paymentStatus === 'awaiting_next_action') {
+              this.loaderDialogMessage = "Creating checkout link...";
+              
+              this.paymentIntent = {
+                id: paymentResult.transactionNumber,
+                client_key: paymentResult.client_key
+              };
+
+              this.paymentResult = Object.assign({}, paymentResult);
+
+              //open the webview for the URL returned
+              const url = paymentResult.checkout_url;
+              const target = "_blank";
+              const options = `location=no,clearcache=yes,hardwareback=no,footer=yes,closebuttoncaption=DONE,closebuttoncolor=#ffffff,footercolor=${process.env.primaryColor}`;
+              this.inAppBrowserRef = cordova.InAppBrowser.open(
+                url,
+                target,
+                options
+              );
+              this.inAppBrowserRef.addEventListener('exit', this.recheckPaymentStatus);
+              this.inAppBrowserRef.addEventListener('loadstart', ev => {
+                if(ev.url === 'https://appsell.ph/paymentSuccess') {
+                  this.closeInAppBrowser();
+                }
+              });
+
+            } else if (paymentResult.paymentStatus === 'succeeded') {
+              this.submitOrder(paymentResult);
+            }
+            
+            break;
+          }
+
+          case "GCash": case "GrabPay": {
+            this.$refs.finalizeOrder.close();
+          
+            const isAccountValid = await this.validateAccountDetails();
+            if(!isAccountValid) return;
+
+            this.processEWalletPay();
+
+            break;
+          } 
+
+          case "COD": {
+            this.$refs.finalizeOrder.close();
+            paymentResult = await this.$store.dispatch(
+              "payment/ProcessCODOrder",
+              {
+                payment: this.payment
+              }
+            );
+
+            this.stockOrder.paymentDetails = paymentResult;
 
             console.log(this.stockOrder);
-            let result = await this.$store.dispatch(
-              "stock_orders/SUBMIT",
-              this.stockOrder
-            );
-            this.$router.push({
-              name: "StockOrderCheckoutSuccess",
-              params: {
-                stockOrder: this.stockOrder,
-                submittedAt: result.submittedAt
-              }
-            });
+            //this flow will always result to success, any error should be thrown
+            //and handled in the catch statement
 
+            await this.submitOrder(paymentResult);
 
-          } else {
-            let paymentDetails = {
-              amount: Number((paymentResult.amount / 100).toFixed(2)),
-              paymentStatus: "Failed",
-              paymentType: "CC",
-              transactionNumber: paymentResult.id,
-              paymentGateway: "Magpie"
-            };
+            break;
           }
-          // if (paymentResult.checkout_url) {
-          //   //save details for logisticsDetails
-          //   this.$store.dispatch("stock_orders/UPDATE_STOCK_ORDER", {
-          //     id: this.stockOrder.id,
-          //     key: "logisticsDetails",
-          //     value: this.stockOrder.logisticsDetails
-          //   });
-          //   //dispatch listener for CC Payment
-          //   //listener for CC Payment should update the stock order based on the details and then push it to stockOrderCheckoutSuccess
-          //   this.$store.dispatch(
-          //     "payment/ListenToPaymentStatus",
-          //     this.stockOrder
-          //   );
-          //   //open the webview for the URL returned
-          //   const url = paymentResult.checkout_url;
-          //   const target = "_blank";
-          //   const options = `location=no,hardwareback=no,footer=yes,closebuttoncaption=DONE,closebuttoncolor=#ffffff,footercolor=${process.env.primaryColor}`;
-          //   this.inAppBrowserRef = cordova.InAppBrowser.open(
-          //     url,
-          //     target,
-          //     options
-          //   );
-          // }
-        } else {
-          paymentResult = await this.$store.dispatch(
-            "payment/ProcessCODOrder",
-            {
-              payment: this.payment
-            }
-          );
 
-          this.stockOrder.paymentDetails = paymentResult;
-
-          console.log(this.stockOrder);
-          //this flow will always result to success, any error should be thrown
-          //and handled in the catch statement
-          let result = await this.$store.dispatch(
-            "stock_orders/SUBMIT",
-            this.stockOrder
-          );
-          this.$router.push({
-            name: "StockOrderCheckoutSuccess",
-            params: {
-              stockOrder: this.stockOrder,
-              submittedAt: result.submittedAt
-            }
-          });
+          default: {
+            this.$refs.modal.show(
+              "Payment method error!",
+              "Please select a payment method."
+            );
+          }
         }
+
       } catch (error) {
         //add catch for incorrect payment/credit cards.
         console.log(error);
         this.loaderDialog = false;
         this.loaderDialogMessage = null;
         this.$refs.finalizeOrder.close();
-        // switch (error.errors[0].code) {
-        //   case "generic_decline":
-        //     this.$refs.modal.show(
-        //       "Transaction Failed",
-        //       "Your card has been declined, please contact your service provider."
-        //     );
-        //     break;
-        //   case "insufficient_funds":
-        //     this.$refs.modal.show(
-        //       "Transaction Failed",
-        //       "Your card has insufficient funds, please contact your service provider."
-        //     );
-        //     break;
-        //   default:
-        //     this.$refs.modal.show(
-        //       "Transaction Failed",
-        //       "Charging your card unsuccessful, please contact your service provider."
-        //     );
-        // }
-        this.$refs.modal.show(
-          "Transaction Failed",
-          "Charging your card unsuccessful, check the details and try again."
-        );
+
+        let errorMessage, errorHeader;
+
+        if(error.errors[0].code === "parameter_below_minimum") {
+          switch(error.errors[0].code) {
+            case "parameter_below_minimum": {
+              errorHeader = "Invalid Order Amount!";
+              errorMessage = "Your total stock order payment should be no less than PHP 100. Please try again later.";
+              break;
+            }
+
+            default: {
+              console.log('other error code: ', error.errors[0]);
+              break;
+            }
+          }
+        
+        } else {
+          switch (error.errors[0].sub_code) {
+            case "generic_decline": {
+              errorHeader = "Card Declined!";
+              errorMessage = "Your card has been declined, please contact your service provider.";
+              break;
+            }
+            
+            case "card_expired": {
+              errorHeader = "Card Expired!";
+              errorMessage = "Your card has expired, please contact your service provider.";
+              break;
+            } 
+
+            case "cvn_invalid": {
+              errorHeader = "Wrong CVC!";
+              errorMessage = "Wrong CVC, please re-enter your correct CVC.";
+              break;
+            } 
+
+            case "processor_unavailable": {
+              errorHeader = "Unavailable Processor!"
+              errorMessage = "Failed to process your card due to unavailable payment processor, please try again later.";
+              break;
+            } 
+
+            case "insufficient_funds": {
+              errorHeader = "Insufficient Funds!"
+              errorMessage = "Your card has insufficient funds, please contact your service provider.";
+              break;
+            }
+              
+            default: {
+              errorHeader = "Card Declined!"
+              errorMessage = "Your card has been declined, please contact your service provider."
+              break;
+            }
+
+          }
+        }
+
+        this.$refs.modal.show(errorHeader, errorMessage);
       }
     },
+
+    async recheckPaymentStatus() {
+      try {
+        this.checkOutDialog = false;
+
+        console.log('rechecking payment intent status...');
+        this.loaderDialogMessage = "Rechecking payment status...";
+
+        const response = await this.$store.dispatch('payment/checkPaymentStatus', {
+          id: this.paymentIntent.id,
+          client_key: this.paymentIntent.client_key
+        });
+
+        console.log('recheckPaymentStatus finished: ', response);
+
+        if(response.attributes.status === 'succeeded') {
+          this.loaderDialog = false;
+          this.loaderDialogMessage = null;
+          this.$refs.finalizeOrder.close();
+
+          this.$refs.modal.show(
+            "Payment Success!",
+            "Payment was recorded!"
+          );
+
+          this.submitOrder(this.paymentResult);
+        
+        } else if(response.attributes.status === 'awaiting_next_action') {
+          this.loaderDialog = false;
+          this.loaderDialogMessage = null;
+          this.$refs.finalizeOrder.close();
+          
+          this.$refs.modal.show(
+            "Payment Cancelled!",
+            "Please authenticate this payment transaction."
+          );
+
+        } else if(response.attributes.status === 'awaiting_payment_method') {
+          this.loaderDialog = false;
+          this.loaderDialogMessage = null;
+          this.$refs.finalizeOrder.close();
+
+          console.log(response.attributes.last_payment_error)
+          
+          this.$refs.modal.show(
+            "Payment Error!",
+            "Payment was not recorded!"
+          );
+        }
+
+        window.removeEventListener('message', ev=> {console.log('message event is removed.')}, false);
+      
+      } catch(error) {
+        console.log(error);
+        
+        this.loaderDialog = false;
+        this.loaderDialogMessage = null;
+        this.$refs.finalizeOrder.close();
+
+        this.$refs.modal.show(
+          "Error in Recheck Payment",
+          "Please try again later."
+        );
+
+        window.removeEventListener('message', ev=> {console.log('message event is removed.')}, false);
+      }
+      
+    },
+
+    async submitOrder(paymentResult) {
+      if(this.payment.paymentType === 'CC') {
+        this.stockOrder.paymentDetails = {
+          amount: (paymentResult.amount).toFixed(2),
+          paymentStatus: "Paid",
+          paymentType: "CC",
+          transactionNumber: paymentResult.transactionNumber,
+          paymentGateway: "Paymongo"
+        };
+      
+      } else if(this.payment.paymentType === 'GCash' || this.payment.paymentType === 'GrabPay') {
+        this.stockOrder.paymentDetails = {
+          amount: (paymentResult.amount).toFixed(2),
+          paymentStatus: "Paid",
+          paymentType: this.payment.paymentType,
+          transactionNumber: paymentResult.transactionNumber,
+          paymentGateway: "Paymongo"
+        };
+
+      } else if(this.payment.paymentType === 'COD') {
+        this.stockOrder.paymentDetails = Object.assign({}, paymentResult);
+      }
+
+      console.log(this.stockOrder);
+      this.loaderDialogMessage = 'Submitting your order to the company...';
+
+      let result = await this.$store.dispatch(
+        "stock_orders/SUBMIT",
+        this.stockOrder
+      );
+      
+      this.loaderDialog = false;
+      this.loaderDialogMessage = null;
+
+      this.$router.push({
+        name: "StockOrderCheckoutSuccess",
+        params: {
+          stockOrder: this.stockOrder,
+          submittedAt: result.submittedAt
+        }
+      });
+    },
+
+    async processEWalletPay() {
+      this.loaderDialogMessage = `Processing ${this.payment.paymentType} account details...`
+      const { name, email, phone } = this.payment.accountDetails;
+
+      let userDetails = {
+        name, 
+        email,
+        phone,
+        address: this.userAddress
+      };
+      
+      this.loaderDialogMessage = `Creating payment source...`;
+
+      try {
+        this.createdSource = await this.$store.dispatch(
+          "payment/CreateEWalletSource",
+          {
+            payment: this.payment,
+            userDetails: userDetails,
+            stockOrder: this.stockOrder
+          }
+        );
+
+        const url = this.createdSource.attributes.redirect.checkout_url;
+        if(url) {
+          //open the webview for the URL returned
+          const url = this.createdSource.attributes.redirect.checkout_url;
+          const target = "_blank";
+          const options = `location=no,clearcache=yes,hardwareback=no,footer=yes,closebuttoncaption=DONE,closebuttoncolor=#ffffff,footercolor=${process.env.primaryColor}`;
+          this.inAppBrowserRef = cordova.InAppBrowser.open(
+            url,
+            target,
+            options
+          );
+
+          this.inAppBrowserRef.addEventListener('exit', this.continueEWalletPayment);
+          this.inAppBrowserRef.addEventListener('loadstart', ev => {
+            if(ev.url === 'https://appsell.ph/paymentSuccess') {
+              this.closeInAppBrowser();
+            }
+          });
+        }
+
+        this.loaderDialogMessage = `Waiting for your payment authorization...`;
+        // this.$store.dispatch('payment/ListenToPaymentStatus', {
+        //   stockOrderId: this.stockOrder.id,
+        //   source_id: this.createdSource.id
+        // });
+      
+      } catch(error) {
+        this.loaderDialog = false;
+        this.loaderDialogMessage = null;
+
+        console.log(error);
+        const errorObj = error.response.data;
+        let errorHeader, errorMessage;
+
+        if(errorObj.errors[0].code === 'parameter_below_minimum') {
+          errorHeader = "Invalid Order Amount!";
+          errorMessage = "Your total stock order price should not be less than PHP 100. Please try again later.";
+        
+        } else {
+          errorHeader = "Payment Failed!";
+          errorMessage = "An error occured while processing your payment. Please try again later";
+        }
+
+        this.$refs.modal.show(errorHeader, errorMessage);
+      }
+      
+    },
+
+    async continueEWalletPayment() {
+      this.checkOutURL = null;
+      this.checkOutDialog = false;
+      this.loaderDialogMessage = `Accepting your ${this.payment.paymentType} payment...`;
+
+      const { name, email, phone } = this.payment.accountDetails;
+      let userDetails = {
+        name, 
+        email,
+        phone,
+        address: this.userAddress
+      };
+
+      this.stockOrder.source_id = this.createdSource.id;
+
+      try {
+        const paymentResult = await this.$store.dispatch('payment/PayOrderThruEWallet', {
+          payment: this.payment,
+          userDetails: userDetails,
+          stockOrder: this.stockOrder
+        });
+
+        if(paymentResult.status === 'paid') {
+          this.loaderDialog = false;
+          this.loaderDialogMessage = null;
+
+          // delete paymentResult.accountDetails;
+          // delete paymentResult.cardDetails;
+          
+          this.loaderDialog = false;
+          this.loaderDialogMessage = null;
+
+          this.$refs.modal.show(
+            "Payment Success!",
+            "Payment was successfully received by the company!"
+          );
+
+          console.log('e-wallet payment success! ', paymentResult);
+
+          this.submitOrder(paymentResult);
+        
+        } else {
+          this.loaderDialog = false;
+          this.loaderDialogMessage = null;
+          this.$refs.modal.show(
+            "Payment not Successful!",
+            "You denied the payment. Please try again."
+          );
+
+          console.log('e-wallet payment error! ', paymentResult);
+        }
+      
+      } catch(error) {
+        const errorResponse = error.response.data.errors[0]
+        console.log('e-wallet payment error!', );
+        this.loaderDialog = false;
+        this.loaderDialogMessage = null;
+
+        if(errorResponse.code === 'resource_not_chargeable_state') {
+          this.$refs.modal.show(
+            "Payment Authorization Denied!",
+            "Payment was not successful due to denial of payment authorization. Please try again."
+          );
+        
+        } else {
+          this.$refs.modal.show(
+            "Payment not Successful!",
+            "Payment was not successful. Please try again later."
+          );
+        }
+      }
+      
+    },
+
     SetCardDetails(card) {
       this.payment.cardDetails = card;
-    }
+    },
+
+    SetAccountDetails(account) {
+      this.payment.accountDetails = account;
+    },
   },
   computed: {
     subTotal() {
@@ -682,11 +1138,13 @@ export default {
       );
     },
     totalWeight() {
-      return this.stockOrder.items.reduce(
+      const weight = this.stockOrder.items.reduce(
         (totalWeight, currentItem) =>
           totalWeight + currentItem.weight * currentItem.qty,
         0
       );
+
+      return weight > 0 ? weight : 1;
     },
     discount() {
       let discount;
@@ -705,14 +1163,16 @@ export default {
     },
 
     total() {
-      if(this.discount && (this.subTotal >= this.freeDeliveryCutOff)) { 
+      const isFreeDelivery = this.subTotal >= this.freeDeliveryCutOff;
+
+      if(this.discount && isFreeDelivery) { 
         //dont include delivery free if stock order amount exceeds the freeDeliveryCutOff price quota
         return (
           this.subTotal -
           (this.discount / 100) * this.subTotal
         );
 
-      } else if(this.subTotal >= this.freeDeliveryCutOff) {
+      } else if(isFreeDelivery) {
         return this.subTotal;
 
       } else if (this.discount) {
@@ -730,15 +1190,15 @@ export default {
         logistics => logistics.id === this.logisticsID
       );
 
-      // if(this.userHasNoOrders) {
-      //   return 0.00; //if the reseller hasnt made any orders yet, then they are entitled for a free delivery
-      // }
-
-      // if(this.subTotal >= this.freeDeliveryCutOff) {
-      //   return 0.00;
-      // }
-
       return logisticsData.shippingFee;
+    },
+
+    totalIsInMinimumPrice() {
+      return this.total < 100 ? true : false; 
+    },
+
+    totalIsInMaximumPrice() {
+      return this.total > 100000 ? true : false;
     },
 
     userAddress() {
@@ -774,7 +1234,8 @@ export default {
     BasketBadge,
     ConfirmationModal,
     creditCardForm,
-    Modal
+    Modal,
+    GCashGrabPayForm
   },
 
   watch: {

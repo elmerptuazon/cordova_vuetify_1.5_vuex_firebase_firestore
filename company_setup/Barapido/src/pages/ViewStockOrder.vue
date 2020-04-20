@@ -49,11 +49,17 @@
             <span v-if="stockOrder.paymentDetails.paymentType === 'CC'"
               >Type: Credit Card</span
             >
+            <span v-else-if="stockOrder.paymentDetails.paymentType === 'GCash'"
+              >Type: GCash</span
+            >
+            <span v-else-if="stockOrder.paymentDetails.paymentType === 'GrabPay'"
+              >Type: Grab Pay</span
+            >
             <span v-else>Type: Cash on Delivery</span>
           </div>
           <div>
             Amount Paid:
-            {{ stockOrder.paymentDetails.amount }}
+            {{ stockOrder.paymentDetails.amount | currency("P ") }}
           </div>
           <div>
             Status:
@@ -87,7 +93,7 @@
           <div>
             <span v-if="stockOrder.logisticsDetails.isFreeShipping">Shipping Fee: FREE</span>
             <span v-else-if="stockOrder.logisticsDetails"
-              >Shipping Fee: {{ stockOrder.logisticsDetails.shippingFee }}</span
+              >Shipping Fee: {{ stockOrder.logisticsDetails.shippingFee | currency("P ") }}</span
             >
             <span v-else>Shipping Fee: N/A</span>
           </div>
@@ -364,10 +370,6 @@ export default {
 .basket-table th {
   border: 1px sold #ddd;
   padding: 8px;
-}
-
-.basket-table tr:hover {
-  /*background-color: #ddd;*/
 }
 
 .basket-table td.border-bottom {
