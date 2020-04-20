@@ -29,6 +29,7 @@ async function copyCompanySetUp() {
             { title: 'Fetch', value: 'Fetch' },
             { title: 'Avon', value: 'Avon' },
             { title: 'Babae', value: 'Babae' },
+            { title: 'Mother Nurture', value: 'MotherNurture' },
             { title: 'AppSellTestApp', value: 'AppSellTestApp' },
             { title: 'Ever Bilena', value: 'EverBilena', disabled: true},
             { title: 'Mary Kay', value: 'MaryKay', disabled: true },
