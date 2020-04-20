@@ -133,7 +133,7 @@
       <v-alert border="right" outline color="info" value="true" elevation="2">
         Hello! Your Reseller application is currently pending for review.<br /><br />
         Check back to this page to see if your application has been approved, or
-        you can contact the Barapido Team on Viber at 09284787508.
+        you can contact the Avon Team on Viber at 09123456789.
       </v-alert>
     </div>
 

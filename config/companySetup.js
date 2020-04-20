@@ -24,13 +24,13 @@ async function copyCompanySetUp() {
         name: 'value',
         message: 'Pick a company to SetUp',
         choices: [
-            { title: 'Ever Bilena', value: 'EverBilena' },
+            { title: 'AppSellTestApp', value: 'AppSellTestApp' },            
             { title: 'Barapido', value: 'Barapido' },
             { title: 'Fetch', value: 'Fetch' },
+            { title: 'Avon', value: 'Avon' },
             { title: 'Babae', value: 'Babae' },
-            { title: 'Mother Nurture', value: 'Mother Nurture' },
             { title: 'AppSellTestApp', value: 'AppSellTestApp' },
-            { title: 'Aquitek', value: 'Aquitek' },
+            { title: 'Ever Bilena', value: 'EverBilena', disabled: true},
             { title: 'Mary Kay', value: 'MaryKay', disabled: true },
             { title: 'My Natural', value: 'MyNatural', disabled: true }
         ],

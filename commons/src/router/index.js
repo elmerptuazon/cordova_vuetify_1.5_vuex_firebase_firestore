@@ -44,6 +44,8 @@ import StockOrderCheckoutSuccess from '@/pages/StockOrderCheckoutSuccess';
 import ViewStockOrder from '@/pages/ViewStockOrder';
 import ViewMessage from '@/pages/ViewMessage';
 import NewDistributor from '@/pages/NewDistributor';
+import Articles from '@/pages/Articles';
+import ViewArticle from '@/pages/ViewArticle';
 
 import { AUTH } from '@/config/firebaseInit';
 import store from '@/store';
@@ -85,6 +87,18 @@ let router = new Router({
 		name: 'RegisterSuccess',
 		component: RegisterSuccess,
 		meta: layout('register-success', true)
+	},
+	{
+		path: '/articles',
+		name: 'Articles',
+		component: Articles,
+		meta: layout('articles', true)
+	},
+	{
+		path: '/view-article',
+		name: 'ViewArticle',
+		component: ViewArticle,
+		meta: layout('articles', true)
 	},
 	{
 		path: '/catalogue',

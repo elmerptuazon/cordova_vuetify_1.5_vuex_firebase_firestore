@@ -227,23 +227,17 @@
                           :rules="numberRules"
                           v-model="attribute.quantity"
                           label="Quantity"
-                          type="number"
                         ></v-text-field>
                       </v-flex>
 
                       <v-flex xs2 pa-2>
-                        <v-btn color="primary" icon 
-                          :disabled="attribute.quantity <= 0" 
-                          @click="attribute.quantity = (Number(attribute.quantity) - 1) || 0"
-                        >
+                        <v-btn color="primary" icon :disabled="attribute.quantity <= 0" @click="attribute.quantity -= 1">
                           <v-icon>remove</v-icon>
                         </v-btn>
                       </v-flex>
 
                       <v-flex xs2 pa-2>
-                        <v-btn color="primary" icon 
-                          @click="attribute.quantity = (Number(attribute.quantity) + 1) || 0"
-                        >
+                        <v-btn color="primary" icon @click="attribute.quantity += 1">
                           <v-icon>add</v-icon>
                         </v-btn>
                       </v-flex>
@@ -280,21 +274,17 @@
                     :rules="numberRules"
                     v-model="attribute.quantity"
                     label="Quantity"
-                    type="number"
                   ></v-text-field>
                 </v-flex>
 
                 <v-flex xs2 pa-2>
-                  <v-btn color="primary" 
-                    icon :disabled="attribute.quantity <= 0" 
-                    @click="attribute.quantity = (Number(attribute.quantity) - 1) || 0"
-                  >
+                  <v-btn color="primary" icon :disabled="attribute.quantity <= 0" @click="attribute.quantity -= 1">
                     <v-icon>remove</v-icon>
                   </v-btn>
                 </v-flex>
 
                 <v-flex xs2 pa-2>
-                  <v-btn color="primary" icon @click="attribute.quantity = (Number(attribute.quantity) + 1) || 0">
+                  <v-btn color="primary" icon @click="attribute.quantity += 1">
                     <v-icon>add</v-icon>
                   </v-btn>
                 </v-flex>
@@ -455,7 +445,6 @@ export default {
     },
 
     quantityCounter(operation) {
-      this.orderQTY = Number(this.orderQTY);
       if(operation === '+') {
         this.orderQTY += 1;
         this.attribute["quantity"] = this.orderQTY;
@@ -510,7 +499,7 @@ export default {
       const product = Object.assign({}, this.product);
 
       if (this.attribute["quantity"]) {
-        this.attribute["qty"] = Number(this.attribute["quantity"]);
+        this.attribute["qty"] = this.attribute["quantity"];
         delete this.attribute["quantity"];
       }
 
@@ -522,7 +511,7 @@ export default {
       this.$store.dispatch("basket/ADD_ITEM", item).then(() => {
         this.openBasketConfirmationDialog();
       });
-      this.orderQTY = 0;
+      this.orderQTY = null;
     },
 
     showBasketDialog() {
@@ -541,7 +530,7 @@ export default {
       const product = Object.assign({}, this.product);
 
       if (this.attribute["quantity"]) {
-        this.attribute["qty"] = Number(this.attribute["quantity"]);
+        this.attribute["qty"] = this.attribute["quantity"];
         delete this.attribute["quantity"];
       }
 
@@ -572,7 +561,7 @@ export default {
         );
 
         if (itemIndex !== -1) {
-          data.basket.items[itemIndex].attribute.qty += +Number(item.attribute.qty);
+          data.basket.items[itemIndex].attribute.qty += +item.attribute.qty;
         } else {
           data.basket.items.push(item);
         }
@@ -617,7 +606,7 @@ export default {
       const message = `${this.product.name}\n${this.product.price}\n\n${this.product.description}`;
       const options = {
         message,
-        subject: `From AppSell: Product ${this.product.name}`,
+        subject: `From AppSel: Product ${this.product.name}`,
         files: [], //c.toDataURL()
         url: `http://appsell.com/product?id=${this.product.id}`
         // chooserTitle: 'Pick an app'
@@ -693,7 +682,7 @@ export default {
       this.$store
         .dispatch("inventory/ADD_TO_INVENTORY", {
           attributes: this.attribute,
-          inventory: Number(this.attribute["quantity"]),
+          inventory: this.attribute["quantity"],
           net: 0,
           productId: this.product.id,
           resellerId: null,
@@ -731,8 +720,6 @@ export default {
 
       this.addToStockOrderLoading = true;
 
-      this.attribute.quantity = Number(this.attribute.quantity);
-
       this.$store
         .dispatch("stock_orders/SAVE_ITEM_FROM_INVENTORY", {
           attributes: this.attribute,
@@ -754,13 +741,13 @@ export default {
         .finally(() => {
           this.addToStockOrderLoading = false;
           this.editItemDialog = false;
-          this.orderQTY = 0;
+          this.orderQTY = null;
         });
     },
     cancelEdit() {
       this.editItemDialog = false;
-      this.orderQTY = 0;
-      this.attribute["quantity"] = 0;
+      this.orderQTY = null;
+      this.attribute["quantity"] = null;
     }
   },
   async mounted() {
