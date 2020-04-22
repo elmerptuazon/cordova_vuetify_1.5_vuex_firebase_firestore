@@ -180,7 +180,7 @@
       <v-card-title class="subheading font-weight-medium"
         >Shipments to Receive</v-card-title
       >
-      <ShipmentDetails :stockOrderId="$route.params.id" />
+      <ShipmentDetails :stockOrderId="$route.params.id" :stockOrder="stockOrder"/>
     </v-card>
 
     <!-- <div class="text-xs-center mt-3 mb-3" v-if="!stockOrder.addedToInventory">

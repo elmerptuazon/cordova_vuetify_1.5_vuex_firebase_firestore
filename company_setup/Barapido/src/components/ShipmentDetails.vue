@@ -73,7 +73,7 @@ import { mapState } from "vuex";
 import Modal from "@/components/Modal";
 import { FIRESTORE } from "@/config/firebaseInit";
 export default {
-  props: ["stockOrderId"],
+  props: ["stockOrderId", "stockOrder"],
   data: () => ({
     selectedItem: {},
     buttonLoading: false,
@@ -110,17 +110,21 @@ export default {
           status: "Received",
           isAddedToInventory: false
         };
-        //update counter in stockOrder
-        updatedShipment.stockOrderId = shipment.stockOrder.stockOrderId;
-        updatedShipment.stockOrderUpdate = {
-          shipmentsToReceive: shipmentDecrement
-        };
-
+        
+        if(this.stockOrder.shipmentsToReceive <= 0) {
+          //update counter in stockOrder
+          updatedShipment.stockOrderId = shipment.stockOrder.stockOrderId;
+          updatedShipment.stockOrderUpdate = {
+            shipmentsToReceive: shipmentDecrement
+          };
+        }
+        
         await this.$store.dispatch("shipment/UpdateShipment", updatedShipment);
         this.$refs.modal.show(
           "Success",
           "Shipment has been tagged as Received!"
         );
+        
         this.buttonLoading = false;
       } catch (error) {
         console.log(error);
