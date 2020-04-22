@@ -101,7 +101,6 @@ export default {
     async TagShipmentAsReceived(shipment) {
       this.buttonLoading = true;
       try {
-        const shipmentDecrement = FIRESTORE.FieldValue.increment(-1);
 
         let updatedShipment = {};
         updatedShipment.id = shipment.id;
@@ -111,11 +110,11 @@ export default {
           isAddedToInventory: false
         };
         
-        if(this.stockOrder.shipmentsToReceive <= 0) {
+        if(this.stockOrder.shipmentsToReceive >= 0) {
           //update counter in stockOrder
           updatedShipment.stockOrderId = shipment.stockOrder.stockOrderId;
           updatedShipment.stockOrderUpdate = {
-            shipmentsToReceive: shipmentDecrement
+            shipmentsToReceive: FIRESTORE.FieldValue.increment(-1)
           };
         }
         
@@ -124,7 +123,7 @@ export default {
           "Success",
           "Shipment has been tagged as Received!"
         );
-        
+
         this.buttonLoading = false;
       } catch (error) {
         console.log(error);
