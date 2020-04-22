@@ -110,7 +110,7 @@ export default {
           isAddedToInventory: false
         };
         
-        if(this.stockOrder.shipmentsToReceive >= 0) {
+        if(this.stockOrder.shipmentsToReceive > 0) {
           //update counter in stockOrder
           updatedShipment.stockOrderId = shipment.stockOrder.stockOrderId;
           updatedShipment.stockOrderUpdate = {
