@@ -1,6 +1,5 @@
 import { DB, COLLECTION, FIRESTORE } from '@/config/firebaseInit';
 import axios from 'axios';
-import router from '@/router';
 
 import cryptoJS from 'crypto-js';
 import uuid from 'uuid';
