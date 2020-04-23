@@ -9,6 +9,7 @@
 				<v-icon>border_color</v-icon>
 			</v-btn>
 			<v-spacer></v-spacer>
+			<ContactsBadge/>
 			<Accounts />
 		</v-toolbar>
 
@@ -118,12 +119,13 @@
 import {mapGetters} from 'vuex';
 import moment from 'moment';
 import ProfileHeader from '@/components/ProfileHeader';
+import ContactsBadge from '@/components/ContactsBadge';
 import {mixins} from '@/mixins';
 
 export default {
 	mixins: [mixins],
 	components: {
-		ProfileHeader
+		ProfileHeader, ContactsBadge
 	},
 	computed: {
 		...mapGetters('accounts', [

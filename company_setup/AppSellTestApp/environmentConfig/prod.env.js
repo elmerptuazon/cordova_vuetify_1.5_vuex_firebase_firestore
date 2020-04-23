@@ -11,7 +11,8 @@ module.exports = {
   storageCode: '"AppSellTestApp"',
   webAdminId: '"admin"',
   companyName: '"AppSellTestApp"',
-  version: '"0.6.8"',
+  contactNumber: '"09123456789"',
+  version: '"0.6.9"',
   primaryColor: '"#0E1E38"',
   environment: '"live"',
   callbackURL: '"https://us-central1-appselltestapp.cloudfunctions.net/callback/checkPaymentStatus"'
