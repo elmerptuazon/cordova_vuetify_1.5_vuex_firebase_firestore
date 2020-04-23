@@ -66,7 +66,7 @@ export default {
 
   data: () => ({
     pagination: {
-      sortBy: "status",
+      sortBy: "submittedAt",
       descending: true,
       rowsPerPage: -1
     },

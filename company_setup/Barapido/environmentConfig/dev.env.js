@@ -17,5 +17,7 @@ module.exports = merge(prodEnv, {
   primaryColor: '"#16A2AF"',
   environment: '"test"',
   callbackURL: '"https://us-central1-barapido-dev.cloudfunctions.net/callback/checkPaymentStatus"',
-  barapidoShippingURL: '"https://us-central1-barapido-dev.cloudfunctions.net/barapidoAPI/getQuotation"'
+  barapidoShippingURL: '"https://us-central1-barapido-dev.cloudfunctions.net/barapidoAPI/getQuotation"',
+  lalamoveURL: '"https://sandbox-rest.lalamove.com"',
+  companyAddress: "Inoza Tower, 40th Street, BGC, Taguig City, Metro Manila"
 })

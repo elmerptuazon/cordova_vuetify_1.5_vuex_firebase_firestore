@@ -100,11 +100,15 @@ const providers = {
 
         },
 
-        async CalculateShipping({ state }, payload) {
+        async CalculateShipping({ state, dispatch }, payload) {
 
-
-            for (const logistics of state.logisticsProvider) {
-                if (logistics.id != 'pick-up') {
+            for (let logistics of state.logisticsProvider) {
+                if(logistics.id === 'lalamove' && payload.toAddress.province === 'Metro Manila') {
+                    const res = await dispatch('lalamove/getQuotation', payload, { root: true });
+                    console.log(res);
+                    logistics.shippingFee = res.totalFee ? parseFloat(res.totalFee) : 0.00;
+                } 
+                else if (logistics.id === 'barapido') {
                     //get key
                     //run http call for different url to get quotations per company
                     const res = await axios({
@@ -115,10 +119,19 @@ const providers = {
                             cityMun: payload.toAddress.citymun,
                             itemWeight: payload.itemWeight / 1000
                         }
-
-
                     });
                     logistics.shippingFee = res.data.deliveryFee
+                } 
+                else {
+                    logistics.shippingFee = 0.00;
+                }
+            }
+
+            if(payload.toAddress.province !== 'Metro Manila') {
+                const index = state.logisticsProvider.findIndex(logistic => logistic.id === 'lalamove');
+                
+                if(index != -1) {
+                    state.logisticsProvider.splice(index, 1);
                 }
             }
 

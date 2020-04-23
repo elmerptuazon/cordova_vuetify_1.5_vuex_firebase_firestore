@@ -14,5 +14,7 @@ module.exports = {
   primaryColor: '"#16A2AF"',
   environment: '"live"',
   callbackURL: '"https://us-central1-barapido-baf1e.cloudfunctions.net/callback/checkPaymentStatus"',
-  barapidoShippingURL: '"https://us-central1-barapido-baf1e.cloudfunctions.net/barapidoAPI/getQuotation"'
+  barapidoShippingURL: '"https://us-central1-barapido-baf1e.cloudfunctions.net/barapidoAPI/getQuotation"',
+  lalamoveURL: '" https://rest.lalamove.com"',
+  companyAddress: '"Inoza Tower, 40th Street, Taguig, Metro Manila"'
 }
