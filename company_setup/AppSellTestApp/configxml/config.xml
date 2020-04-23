@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget android-versionCode="1" id="io.cordova.appsell_appselltestapp" ios-CFBundleVersion="1" version="0.6.8" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget android-versionCode="3" id="io.cordova.appsell_AppSellTestApp" ios-CFBundleVersion="1" version="0.6.9" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>AppSell Test App</name>
-    <description>AppSell Test App</description>
+    <description>Appsell test app</description>
     <author email="sorianorobertc@gmail.com" href="https://robertsoriano.com">
       AppSell Team
     </author>

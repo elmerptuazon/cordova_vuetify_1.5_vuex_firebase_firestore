@@ -28,6 +28,20 @@
               <v-flex xs1></v-flex>
             </v-layout>
           </div>
+          <div v-else-if="order.paymentType === 'GCash' || order.paymentType === 'GrabPay'">
+            <v-layout row wrap class="mt-0" justify-space-between>
+              <v-flex xs1></v-flex>
+              <v-flex xs10>
+                <div class="text-xs-center">
+                  <span class="body-1 mt-0 ">
+                    Your E-Wallet payment has been accepted! and your order
+                    has been forwarded to the company.
+                  </span>
+                </div>
+              </v-flex>
+              <v-flex xs1></v-flex>
+            </v-layout>
+          </div>
           <p v-else class="text-xs-center body-1 mt-0">
             Your order has been forwarded to the company.
           </p>
@@ -83,7 +97,7 @@
             </v-flex>
             <v-flex xs6>
               <div class="text-xs-right body-2">
-                {{ order.total | currency("P") }}
+                {{ order.total | currency("P ") }}
               </div>
             </v-flex>
           </v-layout>
@@ -144,6 +158,10 @@ export default {
       stockOrderReference: stockOrder.stockOrderReference,
       paymentReference: stockOrder.paymentDetails.transactionNumber || null
     };
+
+    if(stockOrder.logisticsDetails.isFreeShipping) {
+      this.order.total = stockOrder.items.reduce((a, b) => a + b.resellerPrice * b.qty, 0);
+    }
   },
   methods: {
     goToOrder() {
