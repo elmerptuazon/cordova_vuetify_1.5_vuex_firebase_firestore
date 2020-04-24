@@ -12,6 +12,7 @@
             required
             label="Email address"
             v-model="email"
+            type="email"
           ></v-text-field>
         </v-flex>
 
@@ -73,6 +74,8 @@ export default {
       // this.$refs.form.validate()
 
       if (this.email && this.password) {
+        this.email = this.email.toLowerCase();
+        
         this.loginBtnLoading = true;
 
         this.$store

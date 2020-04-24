@@ -24,6 +24,7 @@
         <v-icon v-else>close</v-icon>
       </v-btn>
       <v-spacer></v-spacer>
+      <ContactsBadge/>
       <Accounts />
     </v-toolbar>
 
@@ -55,7 +56,8 @@
       :style="{ height: height + 'px' }"
     >
       <div class="py-2">
-        <CustomerOrders :items="items" :search="search" ref="CustomerOrders" />
+        <!-- <CustomerOrders :items="items" :search="search" ref="CustomerOrders" /> -->
+        <CustomerOrders :search="search" ref="CustomerOrders" />
       </div>
     </div>
 
@@ -88,6 +90,7 @@ import FemaleDefaultImage from "@/assets/img/female-default.jpg";
 import { AUTH } from "@/config/firebaseInit";
 import CustomerOrders from "@/components/CustomerOrders";
 import OrdersToEverBilena from "@/components/OrdersToEverBilena";
+import ContactsBadge from "@/components/ContactsBadge";
 
 export default {
   data: () => ({
@@ -118,23 +121,23 @@ export default {
       this.items.length = 0;
       if (page === "tab1") {
         this.showLoading("CustomerOrders");
-        const orders = (await this.$store.dispatch(
-          "orders/GET_ORDERS_RESELLER_VIEW"
-        )).map(order => {
-          if (order.status === "placed") {
-            order.position = 2;
-          } else if (order.status === "in progress") {
-            order.position = 3;
-          } else if (order.status === "delivered") {
-            order.position = 4;
-          }
-          order.id = order.orderNo;
-          return order;
-        });
-        const basket = this.getOrdersFromOfflineContacts();
-        this.items = [...orders, ...basket];
-        console.log(this.items);
-        this.$refs.CustomerOrders.loading = false;
+        // const orders = (await this.$store.dispatch(
+        //   "orders/GET_ORDERS_RESELLER_VIEW"
+        // )).map(order => {
+        //   if (order.status === "placed") {
+        //     order.position = 2;
+        //   } else if (order.status === "in progress") {
+        //     order.position = 3;
+        //   } else if (order.status === "delivered") {
+        //     order.position = 4;
+        //   }
+        //   order.id = order.orderNo;
+        //   return order;
+        // });
+        // const basket = this.getOrdersFromOfflineContacts();
+        // this.items = [...orders, ...basket];
+        // console.log(this.items);
+        // this.$refs.CustomerOrders.loading = false;
       } else {
         this.showLoading("OrdersToEverBilena");
         const response = await this.$store.dispatch("stock_orders/FIND_ALL");
@@ -229,6 +232,11 @@ export default {
       GET_ITEMS_LENGTH: "basket/GET_ITEMS_LENGTH",
       user: "accounts/user"
     }),
+    customerOrders() {
+      const basket = this.getOrdersFromOfflineContacts();
+      const orders = this.$store.getters['orders/GET_CUSTOMER_ORDERS']; 
+      return [...orders, ...basket];
+    },
     showBadge() {
       return this.GET_ITEMS_LENGTH > 0 ? true : false;
     },
@@ -245,7 +253,8 @@ export default {
   components: {
     BasketBadge,
     CustomerOrders,
-    OrdersToEverBilena
+    OrdersToEverBilena,
+    ContactsBadge
   },
   mixins: [date, mixins],
 

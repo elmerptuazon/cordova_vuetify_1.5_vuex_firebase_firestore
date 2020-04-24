@@ -20,6 +20,7 @@ import shipment from './modules/shipment';
 import logo from '@/assets/img/header_logo.jpg';
 import payment from './modules/payment';
 import providers from './modules/providers';
+import lalamove from './modules/lalamove';
 
 Vue.use(Vuex);
 
@@ -37,7 +38,6 @@ export default new Vuex.Store({
         companyLogo: logo,
         webAdminId: process.env.webAdminId,
         companyName: process.env.companyName,
-        contactNumber: process.env.contactNumber,
         version: process.env.version,
     },
     getters: {
@@ -55,8 +55,7 @@ export default new Vuex.Store({
         GET_SHOW_TOOLBAR_TITLES: state => state.showToolbarTitles,
         GET_LOGO: state => state.companyLogo,
         GET_VERSION: state => state.version,
-        GET_COMPANY: state => state.companyName,
-        GET_CONTACT_NUMBER: state => state.contactNumber,
+        GET_COMPANY: state => state.companyName
     },
     mutations: {
         SET_TOOLBAR_TITLE(state, payload) {
@@ -93,6 +92,7 @@ export default new Vuex.Store({
         conversations,
         shipment,
         payment,
-        providers
+        providers,
+        lalamove,
     }
 })

@@ -2,6 +2,7 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 
 import accounts from './modules/accounts';
+import articles from './modules/articles'
 import plugins from './modules/plugins';
 import catalogues from './modules/catalogues';
 import products from './modules/products';
@@ -75,6 +76,7 @@ export default new Vuex.Store({
     },
     modules: {
         accounts,
+        articles,
         plugins,
         catalogues,
         products,
@@ -91,6 +93,7 @@ export default new Vuex.Store({
         shipment,
         payment,
         providers,
-        lalamove
+        lalamove,
+
     }
 })

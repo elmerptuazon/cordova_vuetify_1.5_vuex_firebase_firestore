@@ -104,23 +104,40 @@ const providers = {
 
             for (let logistics of state.logisticsProvider) {
                 if(logistics.id === 'lalamove' && payload.toAddress.province === 'Metro Manila') {
-                    const res = await dispatch('lalamove/getQuotation', payload, { root: true });
-                    console.log(res);
-                    logistics.shippingFee = res.totalFee ? parseFloat(res.totalFee) : 0.00;
+                    try {
+                        const res = await dispatch('lalamove/getQuotation', payload, { root: true });
+                        console.log(res);
+                        logistics.shippingFee = res.totalFee ? parseFloat(res.totalFee) : 0.00;
+                    
+                    } catch(error) {
+                        logistics.shippingFee = 'error';
+                        error.logisticsID = logistics.id;
+                        throw error;
+                    }
+                    
                 } 
                 else if (logistics.id === 'barapido') {
                     //get key
                     //run http call for different url to get quotations per company
-                    const res = await axios({
-                        method: 'get',
-                        url: process.env.barapidoShippingURL,
-                        params: {
-                            province: payload.toAddress.province,
-                            cityMun: payload.toAddress.citymun,
-                            itemWeight: payload.itemWeight / 1000
-                        }
-                    });
-                    logistics.shippingFee = res.data.deliveryFee
+                    try {
+                        const res = await axios({
+                            method: 'get',
+                            url: process.env.barapidoShippingURL,
+                            params: {
+                                province: payload.toAddress.province,
+                                cityMun: payload.toAddress.citymun,
+                                itemWeight: payload.itemWeight / 1000
+                            }
+    
+                        });
+
+                        logistics.shippingFee = res.data.deliveryFee;
+                    
+                    } catch(error) {
+                        logistics.shippingFee = 'error';
+                        error.logisticsID = logistics.id;
+                        throw error;
+                    }
                 } 
                 else {
                     logistics.shippingFee = 0.00;
@@ -135,6 +152,17 @@ const providers = {
                 }
             }
 
+        },
+
+        async GetFreeDeliveryCutOff() {
+            try {
+                const response = await DB.collection('providers').doc('settings').get();
+                return response.data();
+            }
+            catch(error) {
+                console.log(error);
+                throw error;
+            }
         }
 
 
