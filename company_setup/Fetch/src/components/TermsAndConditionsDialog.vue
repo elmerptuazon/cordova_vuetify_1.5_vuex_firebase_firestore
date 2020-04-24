@@ -77,10 +77,11 @@ justify;line-height:normal;mso-outline-level:1"
             style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:
 justify;text-indent:35.45pt;line-height:normal;mso-outline-level:1"
           >
-            Whereas, Fetch is a corporation organized and doing business under
-            the laws of the Republic of the Philippines, with principal place of
-            business at Inoza Tower, 40th Street, Taguig, Metro Manila, is
-            engaged in the principal line of business known as direct selling;
+            Whereas, Barapido Inc. is a corporation organized and doing business
+            under the laws of the Republic of the Philippines, with principal
+            place of business at Inoza Tower, 40th Street, Taguig, Metro Manila,
+            is engaged in the principal line of business known as direct
+            selling;
           </p>
 
           <p
@@ -102,7 +103,8 @@ justify;text-indent:35.45pt;line-height:normal;mso-outline-level:1"
             <span style='mso-fareast-font-family:"Times New Roman"'
               >Level 10-1, 25th Street &amp; 5th Avenue, Bonifacio Global City,
               Taguig, 1632, Philippines</span
-            >. APPSELL is the mobile application service provider of Fetch.
+            >. APPSELL is the mobile application service provider of Barapido
+            Inc..
           </p>
 
           <p
@@ -284,7 +286,8 @@ justify;line-height:normal"
             any logos, images, photos, sounds, music, videos, interactive
             features, product descriptions, product information, documents and
             the like, that were originally created by or provided to AppSell by
-            Fetch. Company Content is the sole property of Fetch.
+            Barapido Inc.. Company Content is the sole property of Barapido
+            Inc..
           </p>
 
           <p

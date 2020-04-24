@@ -10,7 +10,7 @@ const providers = {
         logisticsProviderSubscriber: null
     },
     getters: {
-
+        GET_LOGISTICS_PROVIDER: state => state.logisticProvider,
     },
     mutations: {
 
@@ -100,23 +100,11 @@ const providers = {
 
         },
 
-        async CalculateShipping({ state, dispatch }, payload) {
+        async CalculateShipping({ state }, payload) {
 
-            for (let logistics of state.logisticsProvider) {
-                if(logistics.id === 'lalamove' && payload.toAddress.province === 'Metro Manila') {
-                    try {
-                        const res = await dispatch('lalamove/getQuotation', payload, { root: true });
-                        console.log(res);
-                        logistics.shippingFee = res.totalFee ? parseFloat(res.totalFee) : 0.00;
-                    
-                    } catch(error) {
-                        logistics.shippingFee = 'error';
-                        error.logisticsID = logistics.id;
-                        throw error;
-                    }
-                    
-                } 
-                else if (logistics.id === 'barapido') {
+
+            for (const logistics of state.logisticsProvider) {
+                if (logistics.id != 'pick-up') {
                     //get key
                     //run http call for different url to get quotations per company
                     try {
@@ -129,6 +117,7 @@ const providers = {
                                 itemWeight: payload.itemWeight / 1000
                             }
     
+    
                         });
 
                         logistics.shippingFee = res.data.deliveryFee;
@@ -138,17 +127,8 @@ const providers = {
                         error.logisticsID = logistics.id;
                         throw error;
                     }
-                } 
-                else {
-                    logistics.shippingFee = 0.00;
-                }
-            }
-
-            if(payload.toAddress.province !== 'Metro Manila') {
-                const index = state.logisticsProvider.findIndex(logistic => logistic.id === 'lalamove');
-                
-                if(index != -1) {
-                    state.logisticsProvider.splice(index, 1);
+                    
+                    
                 }
             }
 

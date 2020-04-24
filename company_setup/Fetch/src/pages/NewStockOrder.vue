@@ -170,12 +170,16 @@
             ></v-text-field>
             </v-flex>
             <v-flex xs2 pa-2>
-                <v-btn color="primary" icon :disabled="selectedProduct.qty <= 0" @click="selectedProduct.qty -= 1">
+                <v-btn color="primary" icon 
+                  :disabled="selectedProduct.qty <= 0" 
+                  @click="selectedProduct.qty = (Number(selectedProduct.qty) - 1) || 0"
+                >
                   <v-icon>remove</v-icon>
                 </v-btn>
             </v-flex>
             <v-flex xs2 pa-2>
-                <v-btn color="primary" icon @click="selectedProduct.qty += 1">
+                <v-btn color="primary" icon 
+                  @click="selectedProduct.qty = (Number(selectedProduct.qty) + 1) || 0">
                   <v-icon>add</v-icon>
                 </v-btn>
             </v-flex>

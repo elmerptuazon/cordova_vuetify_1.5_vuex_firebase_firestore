@@ -49,11 +49,17 @@
             <span v-if="stockOrder.paymentDetails.paymentType === 'CC'"
               >Type: Credit Card</span
             >
+            <span v-else-if="stockOrder.paymentDetails.paymentType === 'GCash'"
+              >Type: GCash</span
+            >
+            <span v-else-if="stockOrder.paymentDetails.paymentType === 'GrabPay'"
+              >Type: Grab Pay</span
+            >
             <span v-else>Type: Cash on Delivery</span>
           </div>
           <div>
             Amount Paid:
-            {{ stockOrder.paymentDetails.amount }}
+            {{ stockOrder.paymentDetails.amount | currency("P ") }}
           </div>
           <div>
             Status:
@@ -85,11 +91,10 @@
             <span v-else>Provider: N/A</span>
           </div>
           <div>
-            <span v-if="stockOrder.logisticsDetails">
-              Shipping Fee: 
-              <span v-if="stockOrder.logisticsDetails.isFreeShipping">FREE</span>
-              <span v-else>{{ stockOrder.logisticsDetails.shippingFee }}</span>
-            </span>
+            <span v-if="stockOrder.logisticsDetails.isFreeShipping">Shipping Fee: FREE</span>
+            <span v-else-if="stockOrder.logisticsDetails"
+              >Shipping Fee: {{ stockOrder.logisticsDetails.shippingFee | currency("P ") }}</span
+            >
             <span v-else>Shipping Fee: N/A</span>
           </div>
         </v-card-text>
@@ -182,10 +187,7 @@
       <v-card-title class="subheading font-weight-medium"
         >Shipments to Receive</v-card-title
       >
-      <ShipmentDetails 
-        :stockOrderId="$route.params.id" 
-        :logisticProvider="stockOrder.logisticsDetails.logisticProvider"
-      />
+      <ShipmentDetails :stockOrderId="$route.params.id" :stockOrder="stockOrder"/>
     </v-card>
 
     <!-- <div class="text-xs-center mt-3 mb-3" v-if="!stockOrder.addedToInventory">
@@ -247,13 +249,13 @@ export default {
         paymentType: null
       }
     },
-    loaderDialogMessage: null
+    loaderDialogMessage: null,
   }),
   mounted() {
     this.cordovaBackButton(this.goBack);
 
     this.loaderDialog = true;
-    this.loaderDialogMessage = "Please wait";
+    this.loaderDialogMessage = "Please wait...";
     this.$store
       .dispatch("stock_orders/FIND", this.$route.params.id)
       .then(res => {
@@ -368,10 +370,6 @@ export default {
 .basket-table th {
   border: 1px sold #ddd;
   padding: 8px;
-}
-
-.basket-table tr:hover {
-  /*background-color: #ddd;*/
 }
 
 .basket-table td.border-bottom {

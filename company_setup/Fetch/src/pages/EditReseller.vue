@@ -17,6 +17,7 @@
             required
             label="Email address or Membership ID"
             v-model="resellerSearch"
+            type="email"
           ></v-text-field>
           <p 
             class="grey--text text--darken-2 mt-4 subheading text-xs-center" 
@@ -114,7 +115,7 @@ export default {
       if (this.$refs.resellerForm.validate()) {
         this.Indicator().open();
         this.$store
-          .dispatch("accounts/FIND_RESELLER", { data: this.resellerSearch })
+          .dispatch("accounts/FIND_RESELLER", { data: this.resellerSearch.toLowerCase() })
           .then(res => {
             console.log(res);
             if (!res.empty) {

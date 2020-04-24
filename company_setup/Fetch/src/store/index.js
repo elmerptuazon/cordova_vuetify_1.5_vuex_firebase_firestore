@@ -94,6 +94,5 @@ export default new Vuex.Store({
         payment,
         providers,
         lalamove,
-
     }
 })

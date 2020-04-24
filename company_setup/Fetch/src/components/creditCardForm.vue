@@ -8,7 +8,7 @@
           outline
           v-cardformat:formatCardNumber
           v-model="cardDetails.cardNumber"
-          prepend-icon="credit_card"
+          prepend-inner-icon="credit_card"
         >
         </v-text-field>
       </v-flex>
@@ -19,9 +19,9 @@
         <v-text-field
           single-line
           outline
+          placeholder="MM / YYYY"
           v-cardformat:formatCardExpiry
           v-model="cardDetails.expiry"
-          placeholder="MM / YYYY"
         >
         </v-text-field>
       </v-flex>
@@ -46,11 +46,18 @@ export default {
       cardNumber: null,
       expiry: null,
       CVC: null
-    }
+    },
+    cardExp: null,
   }),
   mounted() {},
   methods: {},
   watch: {
+    // cardExp(value) {
+    //   this.cardDetails.expiry = value;
+    //   if(value.length === 7) {
+    //     this.$refs.cvc.focus();
+    //   }
+    // },
     cardDetails: {
       handler(values) {
         this.$emit("cardDetails", values);

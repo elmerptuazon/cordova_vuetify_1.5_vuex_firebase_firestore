@@ -3,6 +3,7 @@
     <v-toolbar app color="primary" dark>
       <BasketBadge />
       <v-spacer></v-spacer>
+      <ContactsBadge/>
       <Accounts />
     </v-toolbar>
 
@@ -130,8 +131,9 @@
       v-if="user.type === 'Reseller' && user.status === 'pending'"
     >
       <v-alert border="right" outline color="info" value="true" elevation="2">
-        Hello! Your Reseller application is still Pending for approval!. >.<br /><br />
-        Check back to this page to see if your application has been approved!.
+        Hello! Your Reseller application is currently pending for review.<br /><br />
+        Check back to this page to see if your application has been approved, or
+        you can contact the {{ $store.getters["GET_COMPANY"] }} Team at {{ $store.getters["GET_CONTACT_NUMBER"] }}.
       </v-alert>
     </div>
 
@@ -219,6 +221,7 @@ import Modal from "@/components/Modal";
 import TermsAndConditionsDialog from "@/components/TermsAndConditionsDialog";
 import DataPolicy from "@/components/DataPolicy";
 import MaleDefaultImage from "@/assets/img/male-default.jpg";
+import ContactsBadge from "@/components/ContactsBadge";
 
 export default {
   data: () => ({
@@ -334,7 +337,8 @@ export default {
     BasketBadge,
     Modal,
     TermsAndConditionsDialog,
-    DataPolicy
+    DataPolicy,
+    ContactsBadge
   },
   mixins: [mixins]
 };
