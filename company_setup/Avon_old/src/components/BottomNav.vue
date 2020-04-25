@@ -82,20 +82,7 @@
       class="reduced-width"
     >
       <span>Articles</span>
-      <v-badge
-        :value="newArticles && articleBadgeNotifState"
-        color="red"
-        right  
-        small
-      >
-        <template v-slot:badge>
-          <span class="pa-1" v-if="newArticles > 0">
-            {{ newArticles }}
-            <!-- <v-icon>question_answer</v-icon> -->
-          </span>
-        </template>
-        <v-icon>chrome_reader_mode</v-icon>
-      </v-badge>
+      <v-icon>chrome_reader_mode</v-icon>
     </v-btn>
   </v-bottom-nav>
 </template>
@@ -118,7 +105,6 @@ export default {
     width: null,
     ordersBadge: null,
     messageBadge: null,
-    visitedArticles: false,
     // newCustomerOrder: 0,
     // newMessage: 0,
   }),
@@ -132,6 +118,17 @@ export default {
     } else {
       this.showNav = true;
     }
+
+    //display badge notif on orders btn if there are new customer orders
+    // let customerOrders = await this.$store.dispatch("orders/GET_ORDERS_RESELLER_VIEW");
+    // customerOrders = customerOrders.filter((customerOrder) => customerOrder.read === false);
+    // this.newCustomerOrder = customerOrders.length;
+    
+    // //display badge notif on message btn for new messages
+    // let conversationList = await this.$store.dispatch("conversations/GET_CONVERSATIONS");
+    // conversationList = conversationList.filter((convo) => convo.opened[user.uid] === false);
+    // this.newMessage = conversationList.length;
+
 
   },
   mounted() {
@@ -157,21 +154,6 @@ export default {
       return newOrders.filter((customerOrder) => customerOrder.read === false).length;
     },
 
-    newArticles() {
-      let newArticles = this.$store.getters['articles/GET_ARTICLES'];
-      
-      newArticles = newArticles.map((article) => {
-        article.isRead = article.viewedBy.includes(this.user.uid) ? true : false;
-        return article;
-      });
-
-      return newArticles.filter((article) => article.isRead === false).length;
-    },
-
-    articleBadgeNotifState() {
-      return this.$store.getters['articles/GET_BADGE_NOTIF_STATE'];
-    },
-
     computedCurrentTab() {
       return this.currentTab;
     }
@@ -191,9 +173,6 @@ export default {
       } else if (val === "basket") {
         this.$router.push({ name: "MyBasket" });
       } else if (val === "articles") {
-        if(this.articleBadgeNotifState) {
-          this.$store.dispatch('articles/dismissArticleBadgeNotif');
-        }
         this.$router.push({ name: "Articles" });
       }
     },

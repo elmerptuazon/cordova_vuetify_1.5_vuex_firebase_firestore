@@ -547,6 +547,7 @@ import TrialMessage from "@/components/TrialMessage";
 import Modal from "@/components/Modal";
 import TermsAndConditionsDialog from "@/components/TermsAndConditionsDialog";
 import DataPolicy from "@/components/DataPolicy";
+import MaleDefaultImage from "@/assets/img/male-default.jpg";
 
 export default {
   components: {

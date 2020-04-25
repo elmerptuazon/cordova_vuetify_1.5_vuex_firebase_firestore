@@ -73,7 +73,7 @@ import { mapState } from "vuex";
 import Modal from "@/components/Modal";
 import { FIRESTORE } from "@/config/firebaseInit";
 export default {
-  props: ["stockOrderId", "stockOrder"],
+  props: ["stockOrderId"],
   data: () => ({
     selectedItem: {},
     buttonLoading: false,
@@ -101,6 +101,7 @@ export default {
     async TagShipmentAsReceived(shipment) {
       this.buttonLoading = true;
       try {
+        const shipmentDecrement = FIRESTORE.FieldValue.increment(-1);
 
         let updatedShipment = {};
         updatedShipment.id = shipment.id;
@@ -109,21 +110,17 @@ export default {
           status: "Received",
           isAddedToInventory: false
         };
-        
-        if(this.stockOrder.shipmentsToReceive > 0) {
-          //update counter in stockOrder
-          updatedShipment.stockOrderId = shipment.stockOrder.stockOrderId;
-          updatedShipment.stockOrderUpdate = {
-            shipmentsToReceive: FIRESTORE.FieldValue.increment(-1)
-          };
-        }
-        
+        //update counter in stockOrder
+        updatedShipment.stockOrderId = shipment.stockOrder.stockOrderId;
+        updatedShipment.stockOrderUpdate = {
+          shipmentsToReceive: shipmentDecrement
+        };
+
         await this.$store.dispatch("shipment/UpdateShipment", updatedShipment);
         this.$refs.modal.show(
           "Success",
           "Shipment has been tagged as Received!"
         );
-
         this.buttonLoading = false;
       } catch (error) {
         console.log(error);

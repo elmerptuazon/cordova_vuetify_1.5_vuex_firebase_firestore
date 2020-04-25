@@ -426,6 +426,11 @@ export default {
 				delete item.attributes.quantity;
 				delete item.name;
 				delete item.image;
+
+				if(!item.hasOwnProperty('weight') || item.weight === undefined) {
+					item.weight = 0;
+				}
+				
 				return item;
 			});
 
@@ -629,6 +634,17 @@ export default {
 			const { id, key, value } = payload;
 
 			await COLLECTION.stock_orders.doc(id).update({ [key]: value });
+		},
+
+		async UPDATE_STOCK_ORDER_DETAILS({ }, payload) {
+			try {
+				const { id, updatedDetails } = payload;
+				await COLLECTION.stock_orders.doc(id).update(updatedDetails);
+
+			} catch(error) {
+				throw error
+			}
+			
 		}
 	}
 }
