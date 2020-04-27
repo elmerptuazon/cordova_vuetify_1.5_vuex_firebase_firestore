@@ -156,6 +156,10 @@ export default {
         this.cordovaBackButton(this.goBack);
     },
 
+    beforeDestroy() {
+        delete this.$route.params.from;
+    },
+
     data: () => ({
         loading: false, 
         search: null,
@@ -190,6 +194,7 @@ export default {
 
         async refreshList() {
             this.loading = true;
+            await this.$store.dispatch('articles/UNSUBSCRIBE_TO_ARTICLES');
             await this.$store.dispatch('articles/LISTEN_TO_ARTICLES');
             this.loading = false;
         },
