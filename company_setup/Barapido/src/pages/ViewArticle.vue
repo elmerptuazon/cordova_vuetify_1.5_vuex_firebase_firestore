@@ -160,7 +160,7 @@ export default {
 
             const url = this.article.source;
             const target = "_blank";
-            const options = `location=no,hardwareback=no,footer=yes,closebuttoncaption="CLOSE",closebuttoncolor=#ffffff,footercolor=${process.env.primaryColor}`;
+            const options = `location=no,hardwareback=no,footer=yes,closebuttoncaption=CLOSE,closebuttoncolor=#ffffff,footercolor=${process.env.primaryColor}`;
             this.inAppBrowserRef = cordova.InAppBrowser.open(
               url,
               target,
