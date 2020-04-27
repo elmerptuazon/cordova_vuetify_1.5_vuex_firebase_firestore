@@ -600,15 +600,15 @@ export default {
 
 					changes.forEach((change) => {
 
-						if ((!change.read && change.status === 'cancelled') || (!change.read && change.status === 'processing')) {
+						if ((!change.read && change.status.toLowerCase() === 'cancelled') || (!change.read && change.status.toLowerCase() === 'processing')) {
 							console.log('Unopened stock order', change);
 							document.addEventListener('deviceready', function () {
 
 								let message;
 
-								if (change.status === 'processing') {
+								if (change.status.toLowerCase() === 'processing') {
 									message = `Thank you for your order! \n your order is currently being processed!`;
-								} else if (change.status === 'cancelled') {
+								} else if (change.status.toLowerCase() === 'cancelled') {
 									message = `One of your orders was cancelled \nplease contact ${rootGetters["GET_COMPANY"]} if you have any questions.`;
 								}
 
