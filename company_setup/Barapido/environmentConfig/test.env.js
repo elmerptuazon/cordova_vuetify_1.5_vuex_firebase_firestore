@@ -13,7 +13,7 @@ module.exports = merge(devEnv, {
   storageCode: '"barapido"',
   webAdminId: '"admin"',
   companyName: '"Barapido"',
-  version: '"0.6.9"',
+  version: '"0.6.10"',
   primaryColor: '"#16A2AF"',
   environment: '"test"',
   callbackURL: '"https://us-central1-barapido-dev.cloudfunctions.net/callback/checkPaymentStatus"',
