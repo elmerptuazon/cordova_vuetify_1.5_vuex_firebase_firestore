@@ -53,19 +53,31 @@
 		</div> -->
 
 			<masonry :cols="2" :gutter="8">
-				<v-card class="mb-2" v-for="c in filterBy(GET_PRODUCTS, search)" :key="c.id" @click="goToProduct(c)">
+				<v-card class="mb-2" v-for="product in filterBy(GET_PRODUCTS, search)" :key="product.id" @click="goToProduct(product)">
 					<div>
-						<v-img contain :src="c.downloadURL" :lazy-src="require('@/assets/placeholder.png')">
+						<v-img contain :src="product.downloadURL" :lazy-src="require('@/assets/placeholder.png')">
 							<v-layout slot="placeholder" fill-height align-center justify-center ma-0>
 								<v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular>
 							</v-layout>
 						</v-img>
 					</div>
 					<div class="card-title pa-2 grey--text text--darken-2">
-						{{c.name}}
-						<br>
-						<div style="font-weight: bold;">{{c.price | currency('P')}}</div>
+						<div>{{product.name}}</div>
+						<div style="font-weight: bold;">{{product.price | currency('P')}}</div>
+
+						<div class="mt-1 body-1">
+							<div v-if="!product.isOutofStock && !isLowInStocks(product)">
+								QTY: {{ product.availableQTY }}
+							</div>
+							<div class="red--text" 
+								v-else-if="!product.isOutofStock && isLowInStocks(product)"
+							>
+								QTY: {{ product.availableQTY }}
+							</div>
+							<div class="font-weight-bold red--text" v-else>OUT OF STOCK</div>
+						</div>
 					</div>
+					
 				</v-card>
 			</masonry>
 
@@ -110,7 +122,10 @@ export default {
 		},
 		goBack () {
 			this.$router.go(-1);
-		}
+		},
+		isLowInStocks(product) {
+			return product.availableQTY <= product.reOrderLevel;
+		},
 	},
 	created () {
 
