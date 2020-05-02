@@ -91,6 +91,21 @@
           <!-- SRP: {{ product.price | currency("&#8369;") }} -->
         </p>
         <p class="product-name pt-0 mb-2">{{ product.name }}</p>
+        
+        <p class="product-qty my-2" v-if="!product.isOutofStock && !isLowInStocks">
+          Available Qty: {{ product.availableQTY | currency("") }}
+        </p>
+
+        <p class="product-qty my-2 red--text" 
+          v-else-if="!product.isOutofStock && isLowInStocks"
+        >
+          Available Qty: {{ product.availableQTY | currency("") }} (low in stocks)
+        </p>
+
+        <p class="font-weight-bold red--text my-2" v-else>
+          OUT OF STOCK
+        </p>
+        
         <div v-if="product.description">
           <p class="product-description" v-if="showMoreDescription">
             {{ product.description }}
@@ -106,7 +121,8 @@
         <v-btn
           v-if="user.type === 'Reseller'"
           @click="openItemDialog('Stock Order')"
-          round
+          :disabled="product.isOutofStock"
+          round 
           depressed
           color="primary"
           dark
@@ -219,9 +235,17 @@
         <v-card-text class="pa-0">
           <v-container fluid>
             <v-form v-model="valid" ref="form" lazy-validation>
+                <v-layout row wrap align-center justify-start>
+                  <v-flex xs12>
+                    <div :class="[ isLowInStocks ? 'subheading red--text' : 'subheading']">
+                      Available QTY: 
+                      <span class="font-weight-bold">{{ product.availableQTY | currency("") }}</span>
+                    </div>
+                  </v-flex>
+                </v-layout>
               	<v-layout row wrap v-if="!product.attributes" mt-3>
 									<v-flex xs12>
-										<v-layout row wrap align-center justify-start>
+										<v-layout row wrap align-center justify-start px-1>
                       <v-flex xs8>
                         <v-text-field
                           :rules="numberRules"
@@ -241,7 +265,14 @@
                       </v-flex>
 
                       <v-flex xs2 pa-2>
-                        <v-btn color="primary" icon 
+                        <v-btn color="primary" icon v-if="user.type === 'Reseller'"
+                          @click="attribute.quantity = (Number(attribute.quantity) + 1) || 0"
+                          :disabled="attribute.quantity >= product.availableQTY"
+                        >
+                          <v-icon>add</v-icon>
+                        </v-btn>
+
+                        <v-btn color="primary" icon v-else
                           @click="attribute.quantity = (Number(attribute.quantity) + 1) || 0"
                         >
                           <v-icon>add</v-icon>
@@ -274,7 +305,7 @@
 								</v-flex> -->
 							</v-layout>
 
-              <v-layout v-else row wrap align-center justify-start mt-3>
+              <v-layout v-else row wrap align-center justify-start mt-3 px-1> 
                 <v-flex xs8>
                   <v-text-field
                     :rules="numberRules"
@@ -286,7 +317,7 @@
 
                 <v-flex xs2 pa-2>
                   <v-btn color="primary" 
-                    icon :disabled="attribute.quantity <= 0" 
+                    icon :disabled="attribute.quantity <= 0"
                     @click="attribute.quantity = (Number(attribute.quantity) - 1) || 0"
                   >
                     <v-icon>remove</v-icon>
@@ -294,7 +325,16 @@
                 </v-flex>
 
                 <v-flex xs2 pa-2>
-                  <v-btn color="primary" icon @click="attribute.quantity = (Number(attribute.quantity) + 1) || 0">
+                  <v-btn color="primary" icon v-if="user.type === 'Reseller'"
+                    @click="attribute.quantity = (Number(attribute.quantity) + 1) || 0"
+                    :disabled="attribute.quantity >= product.availableQTY"
+                  >
+                    <v-icon>add</v-icon>
+                  </v-btn>
+
+                  <v-btn color="primary" icon v-else
+                    @click="attribute.quantity = (Number(attribute.quantity) + 1) || 0"
+                  >
                     <v-icon>add</v-icon>
                   </v-btn>
                 </v-flex>
@@ -384,7 +424,7 @@
                   class="primary white--text"
                   block
                   @click="addToStockOrder"
-                  :disabled="addToStockOrderLoading"
+                  :disabled="addToStockOrderLoading || attribute.quantity > product.availableQTY"
                   :loading="addToStockOrderLoading"
                 >
                   <v-icon left>add</v-icon> Add to my Cart
@@ -766,12 +806,17 @@ export default {
   async mounted() {
     this.product = this.$route.params.product || {};
 
-    if (!this.product.id) {
-      this.product = await this.$store.dispatch(
-        "products/GET_PRODUCT",
-        this.$route.params.id
-      );
-    }
+    this.product = await this.$store.dispatch(
+      "products/GET_PRODUCT",
+      this.$route.params.id
+    );
+
+    // if (!this.product.id) {
+    //   this.product = await this.$store.dispatch(
+    //     "products/GET_PRODUCT",
+    //     this.$route.params.id
+    //   );
+    // }
 
     if (this.product.attributes) {
       const index = this.product.attributes.findIndex(attrib => attrib.name.toLowerCase() === 'quantity');
@@ -790,6 +835,9 @@ export default {
       GET_CURRENT_CATALOGUE: "GET_CURRENT_CATALOGUE",
       user: "accounts/user"
     }),
+    isLowInStocks() {
+      return this.product.availableQTY <= this.product.reOrderLevel;
+    },
     descriptionTemplate() {
       return this.description;
     }
@@ -840,6 +888,10 @@ export default {
 .product-name {
   font-size: 23px;
   font-weight: 380;
+}
+.product-qty {
+  font-size: 18px;
+  font-weight: 400;
 }
 .product-description {
   text-align: justify;
