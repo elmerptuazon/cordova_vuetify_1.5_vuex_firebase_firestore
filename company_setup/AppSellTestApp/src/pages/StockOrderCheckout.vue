@@ -1144,7 +1144,7 @@ export default {
         0
       );
 
-      return weight > 0 ? weight : 1;
+      return weight > 0 ? weight : 1000;
     },
     discount() {
       let discount;
