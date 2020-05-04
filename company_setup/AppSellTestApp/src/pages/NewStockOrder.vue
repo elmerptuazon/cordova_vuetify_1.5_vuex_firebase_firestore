@@ -161,7 +161,17 @@
             </v-avatar>
             <div class="title mt-4">{{ selectedProduct.name }}</div>
           </div>
-          <v-layout row align-center justify-start mt-3>
+          <v-layout row wrap align-center justify-start mt-3>
+            <v-flex xs12>
+              <div v-if="!selectedProduct.isOutofStock" 
+                :class="[ isLowInStocks(selectedProduct) ? 'subheading red--text' : 'subheading']">
+                Available Stock: 
+                <span class="font-weight-bold">{{ selectedProduct.availableQTY }} pcs.</span>
+              </div>
+              <div v-else class="subheading red--text font-weight-bold">
+                OUT OF STOCK
+              </div>
+            </v-flex>
             <v-flex xs8>
               <v-text-field
               type="number"
@@ -179,6 +189,7 @@
             </v-flex>
             <v-flex xs2 pa-2>
                 <v-btn color="primary" icon 
+                  :disabled="selectedProduct.qty >= selectedProduct.availableQTY"
                   @click="selectedProduct.qty = (Number(selectedProduct.qty) + 1) || 0">
                   <v-icon>add</v-icon>
                 </v-btn>
@@ -187,7 +198,7 @@
         </v-card-text>
         <v-card-actions>
           <v-btn
-            :disabled="saveProductButton"
+            :disabled="saveProductButton || selectedProduct.qty > selectedProduct.availableQTY"
             :loading="saveProductButton"
             block
             class="primary white--text"
@@ -234,7 +245,12 @@ export default {
     loaderDialogMessage: null,
     editItemDialog: false,
     selectedProduct: {
-      qty: 0
+      qty: 0,
+      availableQTY: 0,
+      reOrderLevel: 0,
+      allocatedQTY: 0,
+      onHandQTY: 0,
+      isOutofStock: false,
     },
     saveProductButton: false,
     snackbar: false,
@@ -264,6 +280,10 @@ export default {
   methods: {
     goBack() {
       this.$router.go(-1);
+    },
+
+    isLowInStocks(product) {
+      return product.availableQTY <= product.reOrderLevel;
     },
 
     confirmGenerate() {
