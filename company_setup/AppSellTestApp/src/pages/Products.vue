@@ -67,12 +67,12 @@
 
 						<div class="mt-1 body-1">
 							<div v-if="!product.isOutofStock && !isLowInStocks(product)">
-								QTY: {{ product.availableQTY }}
+								{{ product.availableQTY }} pcs.
 							</div>
-							<div class="red--text" 
+							<div class="red--text body-2" 
 								v-else-if="!product.isOutofStock && isLowInStocks(product)"
 							>
-								QTY: {{ product.availableQTY }}
+								{{ product.availableQTY }} pcs.
 							</div>
 							<div class="font-weight-bold red--text" v-else>OUT OF STOCK</div>
 						</div>
