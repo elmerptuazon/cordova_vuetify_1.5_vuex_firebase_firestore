@@ -51,6 +51,9 @@ const products = {
 					//if available stock is already zero, mark the product as out of stock eventhough it is not marked in the dashboard.
 					if(!data.isOutofStock) {
 						data.isOutofStock = data.availableQTY === 0;
+					
+					} else {
+						data.isOutofStock = data.isOutofStock;
 					}
 
 					return data;
@@ -73,6 +76,9 @@ const products = {
 					//if available stock is already zero, mark the product as out of stock eventhough it is not marked in the dashboard.
 					if(!data.isOutofStock) {
 						data.isOutofStock = data.availableQTY === 0;
+					
+					} else {
+						data.isOutofStock = data.isOutofStock;
 					}
 				}
 				return data;
@@ -163,6 +169,16 @@ const products = {
 				allProducts = productSnapshot.docs.map((doc) => {
 					const data = doc.data();
 					data.id = doc.id;
+
+					data.availableQTY = data.onHandQTY - data.allocatedQTY;
+					//if available stock is already zero, mark the product as out of stock eventhough it is not marked in the dashboard.
+					if(!data.isOutofStock) {
+						data.isOutofStock = data.availableQTY === 0;
+					
+					} else {
+						data.isOutofStock = data.isOutofStock;
+					}
+					
 					return data;
 				});
 			}
