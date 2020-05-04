@@ -93,13 +93,13 @@
         <p class="product-name pt-0 mb-2">{{ product.name }}</p>
         
         <p class="product-qty my-2" v-if="!product.isOutofStock && !isLowInStocks">
-          Available Qty: {{ product.availableQTY | currency("") }}
+          Available Stock: {{ product.availableQTY }} pcs.
         </p>
 
         <p class="product-qty my-2 red--text" 
           v-else-if="!product.isOutofStock && isLowInStocks"
         >
-          Available Qty: {{ product.availableQTY | currency("") }} (low in stocks)
+          Available Stock: {{ product.availableQTY }} pcs.
         </p>
 
         <p class="font-weight-bold red--text my-2" v-else>
@@ -238,8 +238,8 @@
                 <v-layout row wrap align-center justify-start>
                   <v-flex xs12>
                     <div :class="[ isLowInStocks ? 'subheading red--text' : 'subheading']">
-                      Available QTY: 
-                      <span class="font-weight-bold">{{ product.availableQTY | currency("") }}</span>
+                      Available Stock: 
+                      <span class="font-weight-bold">{{ product.availableQTY }}</span>
                     </div>
                   </v-flex>
                 </v-layout>
