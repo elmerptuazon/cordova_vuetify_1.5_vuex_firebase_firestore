@@ -1,4 +1,4 @@
-import { DB, AUTH, STORAGE, COLLECTION } from '@/config/firebaseInit';
+import { DB, AUTH, STORAGE, COLLECTION, FIRESTORE } from '@/config/firebaseInit';
 
 function GenerateStockOrderNumber(resellerID) {
 	var refNumber = `SO-${BigInt(resellerID).toString(36).toUpperCase()}${BigInt(Date.now()).toString(36).toUpperCase()}`;
@@ -59,6 +59,18 @@ export default {
 							product.name = productData.name;
 							product.unique = product.productId + unique;
 							product.weight = productData.weight;
+
+							product.onHandQTY = productData.onHandQTY;
+							product.allocatedQTY = productData.allocatedQTY;
+							product.reOrderLevel = productData.reOrderLevel;
+							product.availableQTY = parseInt(productData.onHandQTY) - parseInt(productData.allocatedQTY);
+
+							if(!productData.isOutofStock) {
+								product.isOutofStock = product.availableQTY === 0;
+							
+							} else {
+								product.isOutofStock = productData.isOutofStock;
+							}
 
 						}
 
@@ -148,6 +160,14 @@ export default {
 							item.image = productData.downloadURL;
 							item.name = productData.name;
 
+							item.availableQTY = parseInt(productData.onHandQTY) - parseInt(productData.allocatedQTY);
+							//if available stock is already zero, mark the product as out of stock eventhough it is not marked in the dashboard.
+							if(!item.isOutofStock) {
+								item.isOutofStock = item.availableQTY === 0;
+							
+							} else {
+								item.isOutofStock = productData.isOutofStock;
+							}
 						}
 
 					}
@@ -200,6 +220,15 @@ export default {
 							item.price = productData.price;
 							item.image = productData.downloadURL;
 							item.name = productData.name;
+
+							item.availableQTY = parseInt(productData.onHandQTY) - parseInt(productData.allocatedQTY);
+							//if available stock is already zero, mark the product as out of stock eventhough it is not marked in the dashboard.
+							if(!item.isOutofStock) {
+								item.isOutofStock = item.availableQTY === 0;
+							
+							} else {
+								item.isOutofStock = productData.isOutofStock;
+							}
 
 						}
 
@@ -419,9 +448,25 @@ export default {
 		},
 
 		async SUBMIT({ commit }, stockOrder) {
+			// stockOrder.items = stockOrder.items.map((item) => {
+			// 	delete item.attributes.qty;
+			// 	delete item.attributes.quantity;
+			// 	delete item.name;
+			// 	delete item.image;
 
+			// 	if(!item.hasOwnProperty('weight') || item.weight === undefined) {
+			// 		item.weight = 0;
+			// 	}
+				
+			// 	return item;
+			// });
 
-			stockOrder.items = stockOrder.items.map((item) => {
+			for(let item of stockOrder.items) {
+
+				await DB.collection('products').doc(item.productId).update({
+					allocatedQTY: FIRESTORE.FieldValue.increment(item.attributes.qty || item.attributes.quantity),
+				});
+
 				delete item.attributes.qty;
 				delete item.attributes.quantity;
 				delete item.name;
@@ -430,9 +475,7 @@ export default {
 				if(!item.hasOwnProperty('weight') || item.weight === undefined) {
 					item.weight = 0;
 				}
-				
-				return item;
-			});
+			}
 
 			commit('SET_BASKET_COUNT', 0);
 
@@ -467,6 +510,18 @@ export default {
 					product.resellerPrice = productData.resellerPrice;
 					product.price = productData.price;
 					product.weight = productData.weight;
+
+					product.onHandQTY = productData.onHandQTY;
+					product.allocatedQTY = productData.allocatedQTY;
+					product.reOrderLevel = productData.reOrderLevel;
+					product.availableQTY = parseInt(productData.onHandQTY) - parseInt(productData.allocatedQTY);
+
+					if(!productData.isOutofStock) {
+						product.isOutofStock = product.availableQTY <= product.reOrderLevel;
+					
+					} else {
+						product.isOutofStock = productData.isOutofStock;
+					}
 				}
 
 			}
@@ -566,6 +621,18 @@ export default {
 						product.price = productData.price;
 						product.image = productData.downloadURL;
 						product.name = productData.name;
+
+						product.onHandQTY = productData.onHandQTY;
+						product.allocatedQTY = productData.allocatedQTY;
+						product.reOrderLevel = productData.reOrderLevel;
+						product.availableQTY = parseInt(productData.onHandQTY) - parseInt(productData.allocatedQTY);
+
+						if(!productData.isOutofStock) {
+							product.isOutofStock = product.availableQTY <= product.reOrderLevel;
+						
+						} else {
+							product.isOutofStock = productData.isOutofStock;
+						}
 
 					}
 
