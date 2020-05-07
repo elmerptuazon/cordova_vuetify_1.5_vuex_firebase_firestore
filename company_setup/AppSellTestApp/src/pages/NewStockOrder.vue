@@ -604,12 +604,6 @@ export default {
         return;
       }
 
-      await this.$store.dispatch('stock_orders/UPDATE_STOCK_ORDER', {
-        id: this.stockOrder.id,
-        key: 'items',
-        value: this.stockOrder.items
-      });
-
       this.$router.push({
         name: "StockOrderCheckout"
       });
