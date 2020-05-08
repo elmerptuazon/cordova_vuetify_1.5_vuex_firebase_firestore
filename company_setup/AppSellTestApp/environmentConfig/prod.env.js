@@ -12,8 +12,8 @@ module.exports = {
   webAdminId: '"admin"',
   companyName: '"AppSellTestApp"',
   contactNumber: '"09123456789"',
-  version: '"0.6.9"',
+  version: '"0.6.10"',
   primaryColor: '"#0E1E38"',
   environment: '"live"',
-  callbackURL: '"https://us-central1-appselltestapp.cloudfunctions.net/callback/checkPaymentStatus"'
+  callbackURL: '"https://us-central1-appselltestapp.cloudfunctions.net/callback"'
 }
