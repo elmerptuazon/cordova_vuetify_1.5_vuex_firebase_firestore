@@ -53,23 +53,23 @@ export default {
 									unique += `_${key}:${product.attributes[key]}`;
 								}
 							});
-							product.resellerPrice = productData.resellerPrice;
-							product.price = productData.price;
+							// product.resellerPrice = productData.resellerPrice;
+							// product.price = productData.price;
 							product.image = productData.downloadURL;
 							product.name = productData.name;
 							product.unique = product.productId + unique;
-							product.weight = productData.weight;
+							// product.weight = productData.weight;
 
-							product.onHandQTY = productData.onHandQTY;
-							product.allocatedQTY = productData.allocatedQTY;
-							product.reOrderLevel = productData.reOrderLevel;
-							product.availableQTY = parseInt(productData.onHandQTY) - parseInt(productData.allocatedQTY);
+							const variantRef = await DB.collection('products').doc('details').collection('variants')
+							.doc(product.variantId)
+							.get();
 
-							if(!productData.isOutofStock) {
-								product.isOutofStock = product.availableQTY === 0;
-							
-							} else {
-								product.isOutofStock = productData.isOutofStock;
+							if(variantRef.exists) {
+								const variantData = variantRef.data();
+
+								product.resellerPrice = variantData.price;
+								product.price = variantData.price;
+								product.weight = variantData.weight; 
 							}
 
 						}
@@ -159,15 +159,6 @@ export default {
 							item.price = productData.price;
 							item.image = productData.downloadURL;
 							item.name = productData.name;
-
-							item.availableQTY = parseInt(productData.onHandQTY) - parseInt(productData.allocatedQTY);
-							//if available stock is already zero, mark the product as out of stock eventhough it is not marked in the dashboard.
-							if(!item.isOutofStock) {
-								item.isOutofStock = item.availableQTY === 0;
-							
-							} else {
-								item.isOutofStock = productData.isOutofStock;
-							}
 						}
 
 					}
@@ -287,6 +278,9 @@ export default {
 					if (index !== -1) {
 
 						currentStockOrder.items[index].qty += payload.attributes.quantity;
+						currentStockOrder.items[index].variantId = payload.variant.id;
+						currentStockOrder.items[index].variantName = payload.variant.name;
+						currentStockOrder.items[index].sku = payload.variant.sku;
 
 					} else {
 
@@ -294,7 +288,10 @@ export default {
 							attributes: payload.attributes,
 							productId: payload.productId,
 							qty: payload.attributes.quantity,
-							unique: unique
+							unique: unique,
+							variantId: payload.variant.id,
+							variantName: payload.variant.name,
+							sku: payload.variant.sku,
 						}
 
 						currentStockOrder.items.push(item);
@@ -334,7 +331,10 @@ export default {
 						attributes: payload.attributes,
 						productId: payload.productId,
 						qty: payload.attributes.quantity,
-						unique: unique
+						unique: unique,
+						variantId: payload.variant.id,
+						variantName: payload.variant.name,
+						sku: payload.variant.sku,
 					});
 
 					commit('SET_BASKET_COUNT', 1);
@@ -378,7 +378,6 @@ export default {
 					if (index !== -1) {
 
 						currentStockOrder.items[index].qty = payload.qty;
-
 					}
 
 					await COLLECTION.stock_orders.doc(currentStockOrder.id).update({ items: currentStockOrder.items });
@@ -448,23 +447,13 @@ export default {
 		},
 
 		async SUBMIT({ commit }, stockOrder) {
-			// stockOrder.items = stockOrder.items.map((item) => {
-			// 	delete item.attributes.qty;
-			// 	delete item.attributes.quantity;
-			// 	delete item.name;
-			// 	delete item.image;
-
-			// 	if(!item.hasOwnProperty('weight') || item.weight === undefined) {
-			// 		item.weight = 0;
-			// 	}
-				
-			// 	return item;
-			// });
 
 			for(let item of stockOrder.items) {
 
-				await DB.collection('products').doc(item.productId).update({
-					allocatedQTY: FIRESTORE.FieldValue.increment(item.attributes.qty || item.attributes.quantity),
+				await DB.collection('products').doc('details')
+				.collection('variants').doc(item.variantId)
+				.update({
+					allocatedQTY: FIRESTORE.FieldValue.increment(item.qty),
 				});
 
 				delete item.attributes.qty;
@@ -490,8 +479,6 @@ export default {
 				isRead: stockOrder.isRead,
 			});
 
-
-
 			return {
 				success: true,
 				submittedAt
@@ -510,18 +497,6 @@ export default {
 					product.resellerPrice = productData.resellerPrice;
 					product.price = productData.price;
 					product.weight = productData.weight;
-
-					product.onHandQTY = productData.onHandQTY;
-					product.allocatedQTY = productData.allocatedQTY;
-					product.reOrderLevel = productData.reOrderLevel;
-					product.availableQTY = parseInt(productData.onHandQTY) - parseInt(productData.allocatedQTY);
-
-					if(!productData.isOutofStock) {
-						product.isOutofStock = product.availableQTY <= product.reOrderLevel;
-					
-					} else {
-						product.isOutofStock = productData.isOutofStock;
-					}
 				}
 
 			}
@@ -621,18 +596,6 @@ export default {
 						product.price = productData.price;
 						product.image = productData.downloadURL;
 						product.name = productData.name;
-
-						product.onHandQTY = productData.onHandQTY;
-						product.allocatedQTY = productData.allocatedQTY;
-						product.reOrderLevel = productData.reOrderLevel;
-						product.availableQTY = parseInt(productData.onHandQTY) - parseInt(productData.allocatedQTY);
-
-						if(!productData.isOutofStock) {
-							product.isOutofStock = product.availableQTY <= product.reOrderLevel;
-						
-						} else {
-							product.isOutofStock = productData.isOutofStock;
-						}
 
 					}
 
