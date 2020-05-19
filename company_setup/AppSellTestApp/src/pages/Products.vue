@@ -64,18 +64,6 @@
 					<div class="card-title pa-2 grey--text text--darken-2">
 						<div>{{product.name}}</div>
 						<div style="font-weight: bold;">{{product.price | currency('P')}}</div>
-
-						<div class="mt-1 body-1">
-							<div v-if="!product.isOutofStock && !isLowInStocks(product)">
-								{{ product.availableQTY }} pcs.
-							</div>
-							<div class="red--text body-2" 
-								v-else-if="!product.isOutofStock && isLowInStocks(product)"
-							>
-								{{ product.availableQTY }} pcs.
-							</div>
-							<div class="font-weight-bold red--text" v-else>OUT OF STOCK</div>
-						</div>
 					</div>
 					
 				</v-card>
