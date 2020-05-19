@@ -47,14 +47,6 @@ const products = {
 						src: data.downloadURL,
 						loading: loader
 					}
-					data.availableQTY = data.onHandQTY - data.allocatedQTY;
-					//if available stock is already zero, mark the product as out of stock eventhough it is not marked in the dashboard.
-					if(!data.isOutofStock) {
-						data.isOutofStock = data.availableQTY === 0;
-					
-					} else {
-						data.isOutofStock = data.isOutofStock;
-					}
 
 					return data;
 				})
@@ -71,15 +63,6 @@ const products = {
 				if (doc.exists) {
 					data = doc.data();
 					data.id = doc.id;
-
-					data.availableQTY = data.onHandQTY - data.allocatedQTY;
-					//if available stock is already zero, mark the product as out of stock eventhough it is not marked in the dashboard.
-					if(!data.isOutofStock) {
-						data.isOutofStock = data.availableQTY === 0;
-					
-					} else {
-						data.isOutofStock = data.isOutofStock;
-					}
 				}
 				return data;
 			} catch (error) {
@@ -187,6 +170,40 @@ const products = {
 			}
 
 			commit('SET_SEARCHED_PRODUCTS', allProducts);
+		},
+
+		async GET_PRODUCT_VARIANT({}, payload) {
+			const { variantName, productId } = payload;
+			try {
+				const variantSnapshot = await DB.collectionGroup('variants')
+					.where('name', '==', variantName)
+					.where('productId', '==', productId)
+					.get();
+
+				if(!variantSnapshot.empty) {
+					const data = variantSnapshot.docs.map(doc => {
+						const data = doc.data();
+
+						data.availableQTY = parseInt(data.onHandQTY) - parseInt(data.allocatedQTY);
+						
+						if(!data.isOutofStock && data.availableQTY === 0) {	
+							data.isOutofStock = true;
+						}
+						
+						data.id = doc.id;
+						return  data;
+					});
+					console.log('variants retrieved: ', data);
+					return data[0];
+
+				} else {
+					throw new Error('no variant exists!');
+				}
+
+			} catch(error) {
+				console.log('error in get_product_variant: ', error);
+				throw error;
+			}
 		}
 	}
 }
