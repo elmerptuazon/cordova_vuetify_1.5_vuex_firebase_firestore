@@ -1242,7 +1242,7 @@ export default {
       let str = "";
 
       keys.forEach(key => {
-        str += `${key}:${attributes[key]}`;
+        str += `${key.toUpperCase()}:${attributes[key]}\n`;
       });
 
       return str;
