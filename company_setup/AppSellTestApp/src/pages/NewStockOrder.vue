@@ -283,7 +283,7 @@
         </v-card-text>
         <v-card-actions>
           <v-btn
-            :disabled="saveProductButton || selectedProduct.qty > selectedProduct.availableQTY"
+            :disabled="saveProductButton || selectedProduct.qty > selectedProduct.availableQTY || selectedProduct.qty <= 0"
             :loading="saveProductButton"
             block
             class="primary white--text"
@@ -343,26 +343,47 @@ export default {
     snackbar: false,
     snackbarMessage: null
   }),
-  created() {
+  async created() {
     this.cordovaBackButton(this.goBack);
 
     this.loader = true;
-    this.loaderDialogMessage = "Getting current stock orders";
-    this.$store
-      .dispatch("stock_orders/GET")
-      .then(res => {
-        console.log(res.data);
-        if (res.success) {
-          this.stockOrder = Object.assign({}, res.data);
+    this.loaderDialogMessage = "Getting current stock orders...";
+
+    try {
+      const response = await this.$store.dispatch("stock_orders/GET");
+      console.log('stock order: ', response.data);
+      this.stockOrder = Object.assign({}, response.data);
+
+      for(let item of this.stockOrder.items) {
+        const variant = await this.$store.dispatch('products/GET_PRODUCT_VARIANT', {
+          variantName: item.variantName,
+          productId: item.productId
+        });
+
+        item.sku = variant.sku;
+        item.allocatedQTY = variant.allocatedQTY;
+        item.onHandQTY = variant.onHandQTY;
+        item.reOrderLevel = variant.reOrderLevel;
+        item.availableQTY = parseInt(item.onHandQTY) - parseInt(item.allocatedQTY);
+        item.weight = variant.weight;
+        item.price = variant.price;
+        item.resellerPrice = variant.price;
+        item.isOutofStock = variant.isOutofStock;
+
+        if(!item.isOutofStock && item.availableQTY === 0) {
+          item.isOutofStock = true;
         }
-      })
-      .catch(error => {
-        console.log(error);
-      })
-      .finally(() => {
-        this.loaderDialogMessage = null;
-        this.loader = false;
-      });
+      }
+
+      this.loaderDialogMessage = null;
+      this.loader = false;
+    } catch(error) {
+      console.log(error);
+      this.loaderDialogMessage = null;
+      this.loader = false;
+      throw error;
+    }
+
   },
   methods: {
     goBack() {
@@ -371,7 +392,7 @@ export default {
 
     showQTYDescription() {
       this.warningDialog = true;
-      this.warningDialogMessage = `This is the available quantity of the product in ${$store.getters["GET_COMPANY"]}'s warehouse.`
+      this.warningDialogMessage = `This is the available quantity of the product in ${this.$store.getters["GET_COMPANY"]}'s warehouse.`
     },  
 
     showWarning() {
@@ -673,7 +694,7 @@ export default {
       let str = "";
 
       keys.forEach(key => {
-        str += `${key}:${attributes[key]}`;
+        str += `${key.toUpperCase()}:${attributes[key]}\n`;
       });
 
       return str;
