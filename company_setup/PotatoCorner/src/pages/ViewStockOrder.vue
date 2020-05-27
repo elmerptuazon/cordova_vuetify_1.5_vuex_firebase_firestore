@@ -145,7 +145,7 @@
           </td>
           <td class="caption text-xs-right border-bottom">{{ item.qty }}</td>
           <td class="caption text-xs-right border-bottom">
-            {{ (item.qty * item.resellerPrice) | currency("P") }}
+            {{ (item.qty * item.price) | currency("P") }}
           </td>
         </tr>
         <tr>
@@ -247,6 +247,10 @@ export default {
         amount: null,
         paymentStatus: null,
         paymentType: null
+      },
+      logisticsDetails: {
+        isFreeShipping: false,
+        logisticProvider: 'pick-up'
       }
     },
     loaderDialogMessage: null,
@@ -298,7 +302,7 @@ export default {
   computed: {
     subTotal() {
       return this.stockOrder.items.reduce(
-        (a, b) => a + b.resellerPrice * b.qty,
+        (a, b) => a + b.price * b.qty,
         0
       );
     },
