@@ -9,7 +9,7 @@
 
     <v-container fluid grid-list-lg v-if="user.type === 'Reseller'">
       <ProfileHeader :hasRating="false" />
-      <div v-if="user.referredBy">
+      <!-- <div v-if="user.referredBy">
         <v-list two-line class="transparent mt-3" dense>
           <v-list-tile avatar ripple @click="viewReseller">
             <v-list-tile-avatar>
@@ -34,8 +34,8 @@
             </v-list-tile-content>
           </v-list-tile>
         </v-list>
-      </div>
-      <div v-else class="mt-3">
+      </div> -->
+      <!-- <div v-else class="mt-3">
         No Referred By...
         <a
           style="text-decoration: none;"
@@ -44,7 +44,7 @@
           "
           >Add one?</a
         >
-      </div>
+      </div> -->
     </v-container>
     <v-container fluid grid-list-lg v-else-if="user.type === 'Customer'">
       <ProfileHeader />
