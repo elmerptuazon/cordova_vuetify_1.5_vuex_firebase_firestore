@@ -536,9 +536,9 @@ const accounts = {
 						dispatch('catalogues/LISTEN_TO_NEW_CATALOGUES', null, { root: true });
 					}
 				}
-				if (userData.status && !state.approvalSubscriber && userData.status === 'pending') {
-					dispatch('LISTEN_TO_APPROVAL');
-				}
+				// if (userData.status && !state.approvalSubscriber && userData.status === 'pending') {
+				// 	dispatch('LISTEN_TO_APPROVAL');
+				// }
 			}
 			else {
 				if (state.settings.catalogueUpdates) {
@@ -547,7 +547,7 @@ const accounts = {
 			}
 
 			
-			dispatch('orders/LISTEN_TO_CUSTOMER_ORDERS', state.settings.newOrders, { root: true });
+			// dispatch('orders/LISTEN_TO_CUSTOMER_ORDERS', state.settings.newOrders, { root: true });
 
 			// if (state.settings.newMessages) {
 			// 	dispatch('conversations/LISTEN_TO_CONVERSATIONS', null, { root: true });
@@ -555,9 +555,9 @@ const accounts = {
 			dispatch('conversations/LISTEN_TO_CONVERSATIONS', state.settings.newMessages, { root: true });
 
 			
-			if (state.settings.deliverySchedules) {
-				dispatch('orders/LISTEN_TO_PROPOSED_DELIVERIES', { id: userData.uid }, { root: true });
-			}
+			// if (state.settings.deliverySchedules) {
+			// 	dispatch('orders/LISTEN_TO_PROPOSED_DELIVERIES', { id: userData.uid }, { root: true });
+			// }
 
 		},
 		async UPDATE_ACCOUNT({ commit }, payload) {
@@ -710,7 +710,7 @@ const accounts = {
 				commit('catalogues/SET_LOADED', false, { root: true });
 				// UNSUBSCRIBE TO ORDERS
 				if (rootState.orders.subscriber && state.settings.newOrders) {
-					dispatch('orders/UNSUBSCRIBE_FROM_ORDERS', {}, { root: true });
+					// dispatch('orders/UNSUBSCRIBE_FROM_ORDERS', {}, { root: true });
 					dispatch('stock_orders/UNSUBSCRIBE_FROM_STOCK_ORDERS', {}, { root: true });
 				}
 				// UNSUBSCRIBE TO CATALOGUES
@@ -731,7 +731,7 @@ const accounts = {
 				dispatch('conversations/UNSUBSCRIBE_FROM_CONVERSATIONS', null, { root: true });
 
 				//UNSUBSCRIBE TO CUSTOMER ORDERS
-				dispatch('orders/UNSUBSCRIBE_FROM_CUSTOMER_ORDERS', null, { rooot: true });
+				// dispatch('orders/UNSUBSCRIBE_FROM_CUSTOMER_ORDERS', null, { rooot: true });
 
 				//UNSUBSCRIBE TO ARTICLES
 				dispatch('articles/UNSUBSCRIBE_TO_ARTICLES', null, { root: true });
@@ -936,12 +936,11 @@ const accounts = {
 					dispatch('stock_orders/UNSUBSCRIBE_FROM_STOCK_ORDERS', null, { root: true });
 				}
 
-
 			}
 			
-			if(!rootState.orders.customerSubscriber) {
-				dispatch('orders/LISTEN_TO_CUSTOMER_ORDERS', state.settings.newOrders, { root: true });
-			}
+			// if(!rootState.orders.customerSubscriber) {
+			// 	dispatch('orders/LISTEN_TO_CUSTOMER_ORDERS', state.settings.newOrders, { root: true });
+			// }
 
 			if(!rootState.articles.subscriber) {
 				dispatch('articles/LISTEN_TO_ARTICLES', null, { root: true });
@@ -959,9 +958,9 @@ const accounts = {
 				dispatch('orders/LISTEN_TO_PROPOSED_DELIVERIES', { id: user.uid }, { root: true });
 			}
 
-			if (!state.settings.deliverySchedules && rootState.orders.proposed_subscriber) {
-				dispatch('orders/UNSUBSCRIBE_FROM_ORDERS', false, { root: true });
-			}
+			// if (!state.settings.deliverySchedules && rootState.orders.proposed_subscriber) {
+			// 	dispatch('orders/UNSUBSCRIBE_FROM_ORDERS', false, { root: true });
+			// }
 
 			if (state.settings.catalogueUpdates && !rootState.catalogues.subscriber) {
 				dispatch('catalogues/LISTEN_TO_NEW_CATALOGUES', null, { root: true });
