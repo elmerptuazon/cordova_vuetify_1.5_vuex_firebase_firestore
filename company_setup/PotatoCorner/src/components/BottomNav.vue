@@ -60,7 +60,7 @@
         <v-icon>message</v-icon>
       </v-badge>
     </v-btn>
-    <v-btn
+    <!-- <v-btn
       flat
       color="white"
       value="msa"
@@ -69,7 +69,7 @@
     >
       <span>Organizer</span>
       <v-icon>insert_chart</v-icon>
-    </v-btn>
+    </v-btn> -->
     <!-- <v-btn flat color="white" value="more" class="reduced-width">
       <span>Account</span>
       <v-icon>account_circle</v-icon>
