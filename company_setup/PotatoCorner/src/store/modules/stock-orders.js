@@ -418,6 +418,18 @@ export default {
 			}
 		},
 
+		async DELETE_ALL_ITEMS({ commit }, stockOrderId) {
+			try {
+				await COLLECTION.stock_orders.doc(stockOrderId).update({ items: [] });
+				commit('SET_BASKET_COUNT', 0);
+
+			} catch(error) {
+				console.log(error);
+				throw error;
+			}
+
+		},	
+
 		async SUBMIT({ commit }, stockOrder) {
 
 
