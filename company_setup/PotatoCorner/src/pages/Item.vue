@@ -82,12 +82,12 @@
 
         <p class="grey--text text--darken-2 product-price pb-0 mb-2">
           SRP: {{ product.price | currency("&#8369;") }}
-          <span v-show="user.type === 'Reseller'"
+          <!-- <span v-show="user.type === 'Reseller'"
             >&nbsp;&nbsp; Distr. Price:
             {{
               product.resellerPrice || product.price | currency("&#8369;")
             }}</span
-          >
+          > -->
           <!-- SRP: {{ product.price | currency("&#8369;") }} -->
         </p>
         <p class="product-name pt-0 mb-2">{{ product.name }}</p>
@@ -114,7 +114,7 @@
           >Order from {{ $store.getters["GET_COMPANY"] }}
         </v-btn>
         <div class="my-2"></div>
-        <v-btn
+        <!-- <v-btn
           v-if="user.type === 'Reseller'"
           @click="openItemDialog('Customer')"
           round
@@ -123,8 +123,8 @@
           dark
           block
           >Record a Customer Order
-        </v-btn>
-        <v-btn
+        </v-btn> -->
+        <!-- <v-btn
           v-else
           round
           block
@@ -133,7 +133,7 @@
           @click="openItemDialog('Customer')"
         >
           Add to my cart
-        </v-btn>
+        </v-btn> -->
         <!-- <div class="my-2"></div>
 					<v-btn @click="openItemDialog('Inventory')" round depressed color="pink accent-1 white--text" block>Add to Personal Inventory </v-btn> -->
       </v-container>
