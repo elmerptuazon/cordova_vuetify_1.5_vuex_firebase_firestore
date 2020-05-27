@@ -35,13 +35,13 @@
       slider-color="white"
       @change="change"
     >
-      <v-tab
+      <!-- <v-tab
         :class="[tab !== 'tab1' ? 'grey lighten-2' : '']"
         :transition="false"
         href="#tab1"
         >My Customer <br />
         Orders</v-tab
-      >
+      > -->
       <v-tab
         :class="[tab !== 'tab2' ? 'grey lighten-2' : '']"
         :transition="false"
@@ -102,12 +102,14 @@ export default {
     height: null
   }),
   created() {
-    if (this.$route.query.hasOwnProperty("tab")) {
-      this.tab = "tab2";
-      this.change("tab2");
-    } else {
-      this.change("tab1");
-    }
+    this.tab = 'tab2';
+    this.change('tab2');
+    // if (this.$route.query.hasOwnProperty("tab")) {
+    //   this.tab = "tab2";
+    //   this.change("tab2");
+    // } else {
+    //   this.change("tab1");
+    // }
 
     this.$nextTick(() => {
       this.height = window.innerHeight - (56 + 56);
