@@ -57,7 +57,7 @@
             <br />
           </v-card>
         </v-flex>
-        <v-flex xs6 v-if="userData.type === 'Reseller'">
+        <!-- <v-flex xs6 v-if="userData.type === 'Reseller'">
           <v-card tiles>
             <v-card-title>
               <div>
@@ -85,7 +85,7 @@
             </div>
             <br />
           </v-card>
-        </v-flex>
+        </v-flex> -->
       </v-layout>
 
       <v-form v-model="valid" ref="form" lazy-validation>
@@ -149,6 +149,8 @@
               <v-icon left>add</v-icon> Add your reseller
             </v-btn>
           </v-flex>
+          <v-flex xs12 my-2><v-divider class="primary"></v-divider></v-flex>
+          <v-flex xs12 class="font-weight-bold">Branch Manager Name</v-flex>
           <v-flex xs12>
             <v-text-field
               :rules="basicRules"
@@ -173,7 +175,8 @@
               v-model="userData.lastName"
             ></v-text-field>
           </v-flex>
-          <v-flex xs12>
+          <!-- <v-flex xs12 my-1><v-divider class="primary"></v-divider></v-flex> -->
+          <!-- <v-flex xs12>
             <v-text-field
               label="Birthday"
               append-icon="date_range"
@@ -193,7 +196,7 @@
               <v-radio label="Male" value="Male" color="primary"></v-radio>
               <v-radio label="Female" value="Female" color="pink"></v-radio>
             </v-radio-group>
-          </v-flex>
+          </v-flex> -->
           <v-flex xs12>
             <v-text-field
               append-icon="email"
@@ -212,9 +215,10 @@
               v-model="userData.contact"
             ></v-text-field>
           </v-flex>
+          <!-- <v-flex xs12 my-1><v-divider class="primary"></v-divider></v-flex> -->
           <v-flex xs12>
             <v-text-field
-              label="House Number"
+              label="Lot Number / Bldg."
               v-model="userData.address.house"
             ></v-text-field>
           </v-flex>
@@ -261,6 +265,7 @@
               v-model="userData.address.zipCode"
             ></v-text-field>
           </v-flex>
+          <!-- <v-flex xs12 my-1><v-divider class="primary"></v-divider></v-flex> -->
           <v-flex xs12>
             <v-text-field
               :rules="basicRules"
@@ -358,9 +363,18 @@
     <v-dialog v-model="changePasswordDialog">
       <v-card>
         <v-card-title>
-          <div class="headline mx-auto grey--text text--darken-3">
-            Change Password
-          </div>
+          <v-layout wrap align-center justify-start px-auto>
+            <v-flex xs10>
+              <div class="headline text-xs-left grey--text text--darken-3">
+                Change Password
+              </div>
+            </v-flex>
+            <v-flex xs1>
+              <v-btn icon medium @click="changePasswordDialog = !changePasswordDialog">
+                <v-icon medium color="primary">close</v-icon>
+              </v-btn>
+            </v-flex>
+          </v-layout>
         </v-card-title>
         <v-card-text>
           <v-text-field
@@ -370,28 +384,32 @@
             v-model="passwords.old"
           ></v-text-field>
           <v-text-field
-            label="Password"
+            label="New Password"
             type="password"
             append-icon="lock"
             v-model="passwords.password"
           ></v-text-field>
           <v-text-field
-            label="Confirm Password"
+            label="Confirm New Password"
             type="password"
             append-icon="lock"
             v-model="passwords.confirm"
           ></v-text-field>
         </v-card-text>
         <v-card-actions>
-          <v-btn
-            block
-            depressed
-            color="primary"
-            @click="updatePassword"
-            :loading="updatePasswordButtonLoading"
-            :disabled="updatePasswordButtonLoading"
-            >Submit</v-btn
-          >
+          <v-layout wrap align-center justify-center>
+            <v-flex xs12>
+              <v-btn
+                block
+                depressed
+                color="primary"
+                @click="updatePassword"
+                :loading="updatePasswordButtonLoading"
+                :disabled="updatePasswordButtonLoading"
+                >Submit</v-btn
+              >
+            </v-flex>
+          </v-layout>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -451,6 +469,8 @@ import { mapGetters } from "vuex";
 import provinces from "@/assets/provinces.json";
 import Modal from "@/components/Modal";
 import MaleDefaultImage from "@/assets/img/male-default.jpg";
+import defaultBranchPic from '@/assets/img/DefaultBranchPic.png';
+
 export default {
   data: () => ({
     userData: {
@@ -508,7 +528,7 @@ export default {
 
     if (!this.userData.hasOwnProperty("hasPicture") 
         ||!this.userData.hasPicture) {
-      this.userData.resellerData.downloadURL = MaleDefaultImage;
+      this.userData.resellerData.downloadURL = defaultBranchPic;
     }
     console.log(this.userData);
     // this.reAuthDialog = true;
