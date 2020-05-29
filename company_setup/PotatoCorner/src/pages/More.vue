@@ -191,6 +191,65 @@
     <Modal ref="modal" />
 
     <div>
+      <v-dialog v-model="changePasswordDialog">
+        <v-card>
+          <v-card-title>
+            <v-layout wrap align-center justify-start px-auto>
+              <v-flex xs10>
+                <div class="headline text-xs-left grey--text text--darken-3">
+                  Change Password
+                </div>
+              </v-flex>
+              <v-flex xs1>
+                <v-btn icon medium @click="changePasswordDialog = !changePasswordDialog">
+                  <v-icon medium color="primary">close</v-icon>
+                </v-btn>
+              </v-flex>
+            </v-layout>
+          </v-card-title>
+          <v-card-text>
+            <v-text-field
+              label="Old Password"
+              type="password"
+              append-icon="lock"
+              v-model="passwords.old"
+            ></v-text-field>
+            <v-text-field
+              label="New Password"
+              type="password"
+              append-icon="lock"
+              v-model="passwords.password"
+            ></v-text-field>
+            <v-text-field
+              label="Confirm New Password"
+              type="password"
+              append-icon="lock"
+              v-model="passwords.confirm"
+            ></v-text-field>
+          </v-card-text>
+          <v-card-actions>
+            <v-layout wrap align-center justify-center>
+              <v-flex xs12>
+                <v-btn
+                  block
+                  depressed
+                  color="primary"
+                  @click="updatePassword"
+                  :loading="updatePasswordButtonLoading"
+                  :disabled="updatePasswordButtonLoading"
+                  >Submit</v-btn
+                >
+              </v-flex>
+            </v-layout>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+
+      <v-snackbar bottom v-model="snackbar">
+        {{ snackbarMessage }}
+      </v-snackbar>
+    </div>
+    <div>
       <v-dialog v-model="logoutDialog" persistent>
         <v-card>
           <v-card-title class="subheading font-weight-bold primary white--text"
@@ -251,6 +310,12 @@ export default {
         both: true
       },
       {
+        icon: "phonelink_lock",
+        name: "Change Password",
+        type: "Reseller",
+        both: true
+      },
+      {
         icon: "exit_to_app",
         name: "Log out",
         type: "Reseller",
@@ -261,7 +326,17 @@ export default {
     resellerData: {},
     loading: false,
     MaleDefaultImage: MaleDefaultImage,
-    logoutDialog: false
+    logoutDialog: false,
+    snackbar: false,
+    snackbarMessage: null,
+    passwords: {
+      old: null,
+      password: null,
+      confirm: null
+    },
+    updatePasswordButtonLoading: false,
+    changePasswordDialog: false,
+    userData: {}
   }),
   methods: {
     logoutUser() {
@@ -292,6 +367,62 @@ export default {
         this.$refs.DataPolicy.show();
       } else if (name === "Terms & Conditions") {
         this.$refs.TermsAndConditionsDialog.show();
+      } else if (name === "Change Password"){
+        this.changePasswordDialog = true;
+      }
+    },
+    
+    updatePassword() {
+      if (this.passwords.password !== this.passwords.confirm) {
+        this.snackbarMessage = "Passwords did not match.";
+        this.snackbar = true;
+      } else if (
+        !this.passwords.password ||
+        !this.passwords.confirm ||
+        !this.passwords.old
+      ) {
+        this.snackbarMessage = "All fields are required.";
+        this.snackbar = true;
+      } else {
+        this.updatePasswordButtonLoading = true;
+        this.$store
+          .dispatch("accounts/RE_AUTHENTICATE_USER", this.passwords.old)
+          .then(() => {
+            console.log("RE-AUTHENTICATION SUCCESS!");
+            return this.$store.dispatch(
+              "accounts/UPDATE_PASSWORD",
+              this.passwords.password
+            );
+          })
+          .then(() => {
+            this.passwords = {
+              old: null,
+              password: null,
+              confirm: null
+            };
+            this.updatePasswordButtonLoading = false;
+            this.changePasswordDialog = false;
+            this.$events.$emit("SET_DIALOG", {
+              status: true,
+              title: "Success",
+              message: "You password has been updated."
+            });
+          })
+          //catch block for RE-AUTH action
+          .catch(e => {
+            this.updatePasswordButtonLoading = false;
+
+            let errMessage;
+            if (e.code === "auth/wrong-password")
+              errMessage = '"Old Password" is incorrect, please try again...';
+            else errMessage = e.message;
+
+            this.$events.$emit("SET_DIALOG", {
+              status: true,
+              title: "Sorry",
+              message: errMessage
+            });
+          });
       }
     },
 
