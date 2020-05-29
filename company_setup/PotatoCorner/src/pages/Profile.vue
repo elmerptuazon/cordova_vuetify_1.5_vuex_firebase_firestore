@@ -17,7 +17,7 @@
 			<v-layout row fill-height>
 				<v-flex xs6>
 					<div class="text-xs-center">
-						<v-avatar size="90px" tile>
+						<v-avatar size="90px" class="elevation-5" tile>
 							<v-img
 								v-if="user.downloadURL"
 								width="90"
@@ -38,7 +38,9 @@
 								class="overlayImage"
 								width="30"
 								@click="sheet = true"
+								v-if="!loading"
 							></v-img>
+							<v-progress-circular v-else color="primary lighten-2" class="overlayImage" indeterminate></v-progress-circular>
 						</v-avatar>
 					</div>
 					<br />
@@ -185,6 +187,7 @@ export default {
 	data: () => ({
 		userData: {},
 		sheet: false,
+		loading: false,
 	}),
 
 	created() {
@@ -208,30 +211,34 @@ export default {
 			this.$router.push({name: 'EditProfile'})
 		},
 		takePicture(selected) {
-		this.$store
-			.dispatch("plugins/TAKE_PHOTO_FOR_REGISTRATION", selected)
-			.then(res => {
-			this.sheet = false;
-			if (res) {
-				this.$store
-				.dispatch("accounts/UPDATE_PROFILE_PHOTO", res)
-				.then(() => {
-					this.createFakeImage(this.user.imageObj.src).then(data => {
-					this.profileImage = {
-						height: data.height + "px",
-						width: data.width + "px"
-					};
-					});
+			this.loading = true;
+			this.$store
+				.dispatch("plugins/TAKE_PHOTO_FOR_REGISTRATION", selected)
+				.then(res => {
+					this.sheet = false;
+					if (res) {
+						this.$store
+							.dispatch("accounts/UPDATE_PROFILE_PHOTO", res)
+							.then(() => {
+								this.createFakeImage(res).then(data => {
+								this.profileImage = {
+									height: data.height + "px",
+									width: data.width + "px"
+								};
+								this.loading = false;
+							});
+						})
+						.catch(e => {
+							console.error(e);
+							this.loading = false;
+						});
+					}
 				})
-				.catch(e => {
-					console.error(e);
+				.catch(error => {
+					this.sheet = false;
+					this.loading = false;
+					alert(error);
 				});
-			}
-			})
-			.catch(error => {
-			this.sheet = false;
-			alert(error);
-			});
 		}
 	},
 
