@@ -360,7 +360,7 @@
       </v-card>
     </v-dialog>
     -->
-    <v-dialog v-model="changePasswordDialog">
+    <!-- <v-dialog v-model="changePasswordDialog">
       <v-card>
         <v-card-title>
           <v-layout wrap align-center justify-start px-auto>
@@ -416,11 +416,11 @@
 
     <v-snackbar bottom v-model="snackbar">
       {{ snackbarMessage }}
-    </v-snackbar>
+    </v-snackbar> -->
 
     <Dialog />
 
-    <v-bottom-sheet full-width v-model="sheet">
+    <!-- <v-bottom-sheet full-width v-model="sheet">
       <v-list>
         <v-subheader v-if="!user.downloadURL">Add using</v-subheader>
         <v-subheader v-else>Update using</v-subheader>
@@ -437,7 +437,7 @@
           <v-list-tile-title>Gallery</v-list-tile-title>
         </v-list-tile>
       </v-list>
-    </v-bottom-sheet>
+    </v-bottom-sheet> -->
     <v-bottom-sheet full-width v-model="proofOfIdSheet">
       <v-list>
         <v-subheader>Update using</v-subheader>
@@ -473,29 +473,29 @@ import defaultBranchPic from '@/assets/img/DefaultBranchPic.png';
 
 export default {
   data: () => ({
-    userData: {
-      social: {
-        facebook: null,
-        instagram: null,
-        twitter: null
-      }
-    },
+    // userData: {
+    //   social: {
+    //     facebook: null,
+    //     instagram: null,
+    //     twitter: null
+    //   }
+    // },
     reAuthDialog: false,
     reAuthPassword: null,
-    snackbar: false,
-    snackbarMessage: null,
+    // snackbar: false,
+    // snackbarMessage: null,
     reAuthButtonLoading: false,
     updateButtonLoading: false,
     updatePwordButtonLoading: false,
     valid: true,
-    updatePasswordButtonLoading: false,
-    changePasswordDialog: false,
-    passwords: {
-      old: null,
-      password: null,
-      confirm: null
-    },
-    sheet: false,
+    // updatePasswordButtonLoading: false,
+    // changePasswordDialog: false,
+    // passwords: {
+    //   old: null,
+    //   password: null,
+    //   confirm: null
+    // },
+    // sheet: false,
     proofOfIdSheet: false,
     profileImage: {
       width: null,
@@ -513,10 +513,10 @@ export default {
     }
   },
   created() {
-    console.log("userData:", this.userData);
-    console.log("user:", this.user);
+    // console.log("userData:", this.userData);
+    // console.log("user:", this.user);
 
-    this.userData = Object.assign({}, this.userData, this.user);
+    // this.userData = Object.assign({}, this.userData, this.user);
     console.log(this.userData);
     this.provinces = provinces;
 
@@ -526,10 +526,10 @@ export default {
       this.placeHolderEmail = this.userData.email;
     }
 
-    if (!this.userData.hasOwnProperty("hasPicture") 
-        ||!this.userData.hasPicture) {
-      this.userData.resellerData.downloadURL = defaultBranchPic;
-    }
+    // if (!this.userData.hasOwnProperty("hasPicture") 
+    //     ||!this.userData.hasPicture) {
+    //   this.userData.resellerData.downloadURL = defaultBranchPic;
+    // }
     console.log(this.userData);
     // this.reAuthDialog = true;
   },
@@ -678,86 +678,86 @@ export default {
         });
     },
 
-    updatePassword() {
-      if (this.passwords.password !== this.passwords.confirm) {
-        this.snackbarMessage = "Passwords did not match.";
-        this.snackbar = true;
-      } else if (
-        !this.passwords.password ||
-        !this.passwords.confirm ||
-        !this.passwords.old
-      ) {
-        this.snackbarMessage = "All fields are required.";
-        this.snackbar = true;
-      } else {
-        this.updatePasswordButtonLoading = true;
-        this.$store
-          .dispatch("accounts/RE_AUTHENTICATE_USER", this.passwords.old)
-          .then(() => {
-            console.log("RE-AUTHENTICATION SUCCESS!");
-            return this.$store.dispatch(
-              "accounts/UPDATE_PASSWORD",
-              this.passwords.password
-            );
-          })
-          .then(() => {
-            this.passwords = {
-              old: null,
-              password: null,
-              confirm: null
-            };
-            this.updatePasswordButtonLoading = false;
-            this.changePasswordDialog = false;
-            this.$events.$emit("SET_DIALOG", {
-              status: true,
-              title: "Success",
-              message: "You password has been updated."
-            });
-          })
-          //catch block for RE-AUTH action
-          .catch(e => {
-            this.updatePasswordButtonLoading = false;
+    // updatePassword() {
+    //   if (this.passwords.password !== this.passwords.confirm) {
+    //     this.snackbarMessage = "Passwords did not match.";
+    //     this.snackbar = true;
+    //   } else if (
+    //     !this.passwords.password ||
+    //     !this.passwords.confirm ||
+    //     !this.passwords.old
+    //   ) {
+    //     this.snackbarMessage = "All fields are required.";
+    //     this.snackbar = true;
+    //   } else {
+    //     this.updatePasswordButtonLoading = true;
+    //     this.$store
+    //       .dispatch("accounts/RE_AUTHENTICATE_USER", this.passwords.old)
+    //       .then(() => {
+    //         console.log("RE-AUTHENTICATION SUCCESS!");
+    //         return this.$store.dispatch(
+    //           "accounts/UPDATE_PASSWORD",
+    //           this.passwords.password
+    //         );
+    //       })
+    //       .then(() => {
+    //         this.passwords = {
+    //           old: null,
+    //           password: null,
+    //           confirm: null
+    //         };
+    //         this.updatePasswordButtonLoading = false;
+    //         this.changePasswordDialog = false;
+    //         this.$events.$emit("SET_DIALOG", {
+    //           status: true,
+    //           title: "Success",
+    //           message: "You password has been updated."
+    //         });
+    //       })
+    //       //catch block for RE-AUTH action
+    //       .catch(e => {
+    //         this.updatePasswordButtonLoading = false;
 
-            let errMessage;
-            if (e.code === "auth/wrong-password")
-              errMessage = '"Old Password" is incorrect, please try again...';
-            else errMessage = e.message;
+    //         let errMessage;
+    //         if (e.code === "auth/wrong-password")
+    //           errMessage = '"Old Password" is incorrect, please try again...';
+    //         else errMessage = e.message;
 
-            this.$events.$emit("SET_DIALOG", {
-              status: true,
-              title: "Sorry",
-              message: errMessage
-            });
-          });
-      }
-    },
+    //         this.$events.$emit("SET_DIALOG", {
+    //           status: true,
+    //           title: "Sorry",
+    //           message: errMessage
+    //         });
+    //       });
+    //   }
+    // },
 
-    takePicture(selected) {
-      this.$store
-        .dispatch("plugins/TAKE_PHOTO_FOR_REGISTRATION", selected)
-        .then(res => {
-          this.sheet = false;
-          if (res) {
-            this.$store
-              .dispatch("accounts/UPDATE_PROFILE_PHOTO", res)
-              .then(() => {
-                this.createFakeImage(this.user.imageObj.src).then(data => {
-                  this.profileImage = {
-                    height: data.height + "px",
-                    width: data.width + "px"
-                  };
-                });
-              })
-              .catch(e => {
-                console.error(e);
-              });
-          }
-        })
-        .catch(error => {
-          this.sheet = false;
-          alert(error);
-        });
-    },
+    // takePicture(selected) {
+    //   this.$store
+    //     .dispatch("plugins/TAKE_PHOTO_FOR_REGISTRATION", selected)
+    //     .then(res => {
+    //       this.sheet = false;
+    //       if (res) {
+    //         this.$store
+    //           .dispatch("accounts/UPDATE_PROFILE_PHOTO", res)
+    //           .then(() => {
+    //             this.createFakeImage(this.user.imageObj.src).then(data => {
+    //               this.profileImage = {
+    //                 height: data.height + "px",
+    //                 width: data.width + "px"
+    //               };
+    //             });
+    //           })
+    //           .catch(e => {
+    //             console.error(e);
+    //           });
+    //       }
+    //     })
+    //     .catch(error => {
+    //       this.sheet = false;
+    //       alert(error);
+    //     });
+    // },
     takeProofOfIdPicture(selected) {
       this.$store
         .dispatch("plugins/TAKE_PHOTO_FOR_REGISTRATION", selected)
@@ -839,8 +839,8 @@ export default {
 .icon {
   display: inline-flex !important;
 }
-.overlayImage {
+/* .overlayImage {
   position: absolute;
   z-index: 1;
-}
+} */
 </style>

@@ -5,16 +5,66 @@
 			<v-btn icon @click="backToMain">
 				<v-icon>arrow_back</v-icon>
 			</v-btn>
-			<v-btn icon @click="editProfile">
+			<!-- <v-btn icon @click="editProfile">
 				<v-icon>border_color</v-icon>
-			</v-btn>
+			</v-btn> -->
 			<v-spacer></v-spacer>
 			<ContactsBadge/>
 			<Accounts />
 		</v-toolbar>
 
 		<v-container fluid grid-list-lg>
-			<ProfileHeader :hasViewProfile="false" :hasRating="false" />
+			<v-layout row fill-height>
+				<v-flex xs6>
+					<div class="text-xs-center">
+						<v-avatar size="90px" class="elevation-5" tile>
+							<v-img
+								v-if="user.downloadURL"
+								width="90"
+								:src="user.downloadURL"
+								alt="avatar"
+								contain
+							></v-img>
+							<v-img
+								v-else
+								width="90"
+								:src="user.imageObj.src"
+								alt="avatar"
+								contain
+							></v-img>
+							<v-img
+								contain
+								:src="require('./../../static/img/camera-icon.png')"
+								class="overlayImage"
+								width="30"
+								@click="sheet = true"
+								v-if="!loading"
+							></v-img>
+							<v-progress-circular v-else color="primary lighten-2" class="overlayImage" indeterminate></v-progress-circular>
+						</v-avatar>
+					</div>
+					<br />
+				</v-flex>
+				<ProfileHeader :hasViewProfile="false" :hasRating="false" :displayProfilePicture="false" />
+			</v-layout>
+			<v-bottom-sheet full-width v-model="sheet">
+				<v-list>
+					<v-subheader v-if="!user.downloadURL">Add using</v-subheader>
+					<v-subheader v-else>Update using</v-subheader>
+					<v-list-tile @click="takePicture('camera')">
+						<v-list-tile-avatar>
+							<v-icon>camera_alt</v-icon>
+						</v-list-tile-avatar>
+						<v-list-tile-title>Camera</v-list-tile-title>
+					</v-list-tile>
+					<v-list-tile @click="takePicture('photo_library')">
+						<v-list-tile-avatar>
+							<v-icon>photo_library</v-icon>
+						</v-list-tile-avatar>
+						<v-list-tile-title>Gallery</v-list-tile-title>
+					</v-list-tile>
+				</v-list>
+			</v-bottom-sheet>
 			<div :class="[user.type === 'Customer' ? 'mt-3' : 'mt-4']">
 				<v-layout row wrap>
 					<v-flex xs4>
@@ -30,7 +80,7 @@
 						<p class="body-1 header-text grey--text text--darken-2">{{user.branchName || 'Your Branch Name'}}</p>
 					</v-flex> -->
 					<v-flex xs4>
-						<p class="grey--text header-text">Branch Manager Name</p>
+						<p class="grey--text header-text">Branch Manager</p>
 					</v-flex>
 					<v-flex xs8>
 						<p class="body-1 header-text grey--text text--darken-2">{{user.firstName}} {{user.middleInitial}} {{user.lastName}}</p>
@@ -133,19 +183,65 @@ export default {
 	components: {
 		ProfileHeader, ContactsBadge
 	},
-	computed: {
-		...mapGetters('accounts', [
-			'user'
-			])
+
+	data: () => ({
+		userData: {},
+		sheet: false,
+		loading: false,
+	}),
+
+	created() {
+		console.log("userData:", this.userData);
+		console.log("user:", this.user);
+
+		this.userData = Object.assign({}, this.userData, this.user);
 	},
+		
+	computed: {
+		...mapGetters({
+			user: "accounts/user"
+		})
+	},
+
 	methods: {
 		backToMain() {
 			this.$router.go(-1);
 		},
 		editProfile () {
 			this.$router.push({name: 'EditProfile'})
+		},
+		takePicture(selected) {
+			this.loading = true;
+			this.$store
+				.dispatch("plugins/TAKE_PHOTO_FOR_REGISTRATION", selected)
+				.then(res => {
+					this.sheet = false;
+					if (res) {
+						this.$store
+							.dispatch("accounts/UPDATE_PROFILE_PHOTO", res)
+							.then(() => {
+								this.createFakeImage(res).then(data => {
+								this.profileImage = {
+									height: data.height + "px",
+									width: data.width + "px"
+								};
+								this.loading = false;
+							});
+						})
+						.catch(e => {
+							console.error(e);
+							this.loading = false;
+						});
+					}
+				})
+				.catch(error => {
+					this.sheet = false;
+					this.loading = false;
+					alert(error);
+				});
 		}
 	},
+
 	filters: {
 		birthdayFormat (val) {
 			return moment(val).format('MMMM DD, YYYY')
@@ -158,6 +254,10 @@ export default {
 <style scoped>
 .header-text {
   font-size: 11px;
+}
+.overlayImage {
+  position: absolute;
+  z-index: 1;
 }
 </style>
 
