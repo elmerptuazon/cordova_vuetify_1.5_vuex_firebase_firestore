@@ -1,6 +1,8 @@
 <template>
   <v-layout row wrap>
-    <v-flex xs3>
+    <v-flex xs3
+      v-if="displayProfilePicture"
+    >
       <v-img
         :src="user.downloadURL"
         class="mt-2 elevation-1"
@@ -52,6 +54,9 @@ import defaultBranchPic from '@/assets/img/DefaultBranchPic.png';
 export default {
   props: {
     hasViewProfile: {
+      default: true
+    },
+    displayProfilePicture: {
       default: true
     }
   },
