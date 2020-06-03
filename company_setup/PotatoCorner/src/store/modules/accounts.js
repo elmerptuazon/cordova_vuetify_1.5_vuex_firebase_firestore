@@ -922,7 +922,7 @@ const accounts = {
 						text: `Your Branch Account has been removed. Please contact ${rootGetters['GET_COMPANY']} if you think this is done by mistake.`
 					};
 					dispatch('SEND_PUSH_NOTIFICATION', notif);
-					await dispatch('LOG_OUT');
+					dispatch('LOG_OUT');
 				}
 			})
 		},
