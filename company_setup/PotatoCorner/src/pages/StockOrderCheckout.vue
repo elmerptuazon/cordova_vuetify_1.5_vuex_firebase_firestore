@@ -55,12 +55,12 @@
                   </div>
                 </v-flex>
 
-                <v-flex xs12 mt-3>
+                <!-- <v-flex xs12 mt-3>
                   <div class="font-italic caption">
                     To change this shipping address, kindly go to your profile page and change your address.
                     or <b class="body-1 primary--text font-weight-bold" @click="$router.push({name: 'EditProfile'})">CLICK HERE</b> to go to Edit Profile Page.
                   </div>
-                </v-flex>
+                </v-flex> -->
               </v-layout>
             </v-container>
 
@@ -487,34 +487,6 @@ export default {
         this.loaderDialogMessage = null;
         this.loaderDialog = false;
       });
-    
-    //add event listener to exit browser dialog when the success or fail redirect URL are being loaded 
-    window.addEventListener(
-      'loadstart',
-      ev => {
-        console.log('URL is being loaded in the iframe', ev.url);
-        if(ev.url === 'https://appsell.ph/paymentSuccess') {
-          console.log('GCASH/Grab Pay has been successful!');
-        
-        } else if(ev.url === 'https://appsell.ph/paymentFail') {
-          console.log('Gcash/Grab Pay had failed!');
-        
-        } else {
-          console.log('URL being loaded: ', ev);
-        }
-      },
-      false
-    );
-
-    //an event listener for successful 3ds auth
-    window.addEventListener(
-      'message', 
-      ev => {
-        console.log('message was received from the iframe!', ev);
-        this.recheckPaymentStatus();    
-      },
-      false
-    );
 
   },
   beforeDestroy() {
