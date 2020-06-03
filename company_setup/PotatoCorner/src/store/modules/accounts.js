@@ -31,7 +31,8 @@ const accounts = {
 			calendarSync: true,
 			contactsSortBy: 'first'
 		},
-		approvalSubscriber: null
+		approvalSubscriber: null,
+		removalSubscriber: null,
 	},
 	getters: {
 		user: state => state.user,
@@ -880,7 +881,9 @@ const accounts = {
 
 		LISTEN_TO_APPROVAL({ state, commit, dispatch }) {
 			const uid = AUTH.currentUser.uid;
-			console.log('Listening to approvals')
+			console.log('Listening to approvals');
+
+			dispatch('LISTEN_TO_ACCOUNT_REMOVAL');
 
 			state.approvalSubscriber = COLLECTION.accounts.doc(uid).onSnapshot(function (doc) {
 				const data = doc.data();
@@ -908,6 +911,20 @@ const accounts = {
 
 				commit('UPDATE_USER_KEY', { key: 'status', value: data.status });
 			});
+		},
+
+		LISTEN_TO_ACCOUNT_REMOVAL({state, rootGetters, dispatch }) {
+			const uid = AUTH.currentUser.uid;
+			state.removalSubscriber = COLLECTION.accounts.doc(uid).onSnapshot((doc) => {
+				if(doc.type === 'removed') {
+					const notif = {
+						title: 'Sorry',
+						text: `Your Branch Account has been removed. Please contact ${rootGetters['GET_COMPANY']} if you think this is done by mistake.`
+					};
+					dispatch('SEND_PUSH_NOTIFICATION', notif);
+					await dispatch('LOG_OUT');
+				}
+			})
 		},
 
 		SEND_PUSH_NOTIFICATION({ }, payload) {
@@ -977,7 +994,7 @@ const accounts = {
 			dispatch('CHECK_OBSERVERS');
 			const uid = AUTH.currentUser.uid;
 			localStorage.setItem(`${uid}_settings`, JSON.stringify(payload));
-		}
+		},
 	}
 }
 
