@@ -754,6 +754,7 @@ const accounts = {
 
 		async RELOAD_USER_DATA({ commit, dispatch }, payload) {
 			console.log('user data being reloaded...');
+			dispatch('LISTEN_TO_ACCOUNT_REMOVAL');
 			try {
 				// GET USER DATA WHEN RELOADED, AND ALSO HIS RESELLER DATA
 				const user = await COLLECTION.accounts.doc(payload).get();
@@ -913,16 +914,23 @@ const accounts = {
 			});
 		},
 
-		LISTEN_TO_ACCOUNT_REMOVAL({state, rootGetters, dispatch }) {
+		async LISTEN_TO_ACCOUNT_REMOVAL({state, rootGetters, dispatch }) {
 			const uid = AUTH.currentUser.uid;
-			state.removalSubscriber = COLLECTION.accounts.doc(uid).onSnapshot((doc) => {
-				if(doc.type === 'removed') {
+			const currentUserRef = await COLLECTION.accounts.doc(uid).get();
+			const agentId = currentUserRef.data().agentId;
+
+			console.log('listening to account removal...')
+			state.removalSubscriber = COLLECTION.accounts.where('agentId', '==', agentId).onSnapshot((snapshot) => {
+				let doc = snapshot.docChanges();
+
+				if(doc[0].type === 'removed') {
+					console.log('account has been removed!')
 					const notif = {
 						title: 'Sorry',
 						text: `Your Branch Account has been removed. Please contact ${rootGetters['GET_COMPANY']} if you think this is done by mistake.`
 					};
-					dispatch('SEND_PUSH_NOTIFICATION', notif);
-					dispatch('LOG_OUT');
+					await dispatch('SEND_PUSH_NOTIFICATION', notif);
+					await dispatch('LOG_OUT');
 				}
 			})
 		},
