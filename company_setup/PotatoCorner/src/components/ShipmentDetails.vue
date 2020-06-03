@@ -47,7 +47,7 @@
               :disabled="buttonLoading"
               >TAG THIS SHIPMENT AS RECEIVED</v-btn
             >
-            <v-btn
+            <!-- <v-btn
               v-else-if="
                 !shipment.isAddedToInventory && shipment.status === 'Received'
               "
@@ -59,7 +59,7 @@
             >
             <v-btn v-else class="primary" :disabled="true"
               >ITEM/s ALREADY IN THE INVENTORY</v-btn
-            >
+            > -->
           </v-card-actions>
         </v-card>
       </v-flex>
