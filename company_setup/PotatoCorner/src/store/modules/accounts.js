@@ -554,6 +554,7 @@ const accounts = {
 			// 	dispatch('conversations/LISTEN_TO_CONVERSATIONS', null, { root: true });
 			// }
 			dispatch('conversations/LISTEN_TO_CONVERSATIONS', state.settings.newMessages, { root: true });
+			dispatch('LISTEN_TO_ACCOUNT_REMOVAL');
 
 			
 			// if (state.settings.deliverySchedules) {
@@ -920,7 +921,7 @@ const accounts = {
 			const agentId = currentUserRef.data().agentId;
 
 			console.log('listening to account removal...')
-			state.removalSubscriber = COLLECTION.accounts.where('agentId', '==', agentId).onSnapshot((snapshot) => {
+			state.removalSubscriber = COLLECTION.accounts.where('agentId', '==', agentId).onSnapshot(async (snapshot) => {
 				let doc = snapshot.docChanges();
 
 				if(doc[0].type === 'removed') {
