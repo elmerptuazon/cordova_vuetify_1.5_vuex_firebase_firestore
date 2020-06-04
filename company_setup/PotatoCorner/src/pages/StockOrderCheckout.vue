@@ -1105,7 +1105,7 @@ export default {
   computed: {
     subTotal() {
       return this.stockOrder.items.reduce(
-        (a, b) => a + b.price * b.qty,
+        (a, b) => a + Number(b.price) * Number(b.qty),
         0
       );
     },
@@ -1154,7 +1154,7 @@ export default {
           this.shippingFee
         );
       } else {
-        return this.subTotal + this.shippingFee;
+        return Number(this.subTotal) + Number(this.shippingFee);
       }
     },
     shippingFee() {
