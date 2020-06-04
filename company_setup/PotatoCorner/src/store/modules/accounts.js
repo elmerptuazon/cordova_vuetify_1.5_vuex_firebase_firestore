@@ -11,6 +11,8 @@ import malePlaceholder from '@/assets/img/male-default.jpg';
 import femalePlaceholder from '@/assets/img/female-default.jpg';
 const profPicStorageRef = STORAGE.ref('appsell').child('profile-pictures');
 
+import router from '@/router';
+
 function validateEmail(email) {
 	const re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 	return re.test(email)
@@ -710,15 +712,19 @@ const accounts = {
 				commit('catalogues/SET_LIST', [], { root: true });
 				// SET CATALOGUE LOADED STATUS TO FALSE
 				commit('catalogues/SET_LOADED', false, { root: true });
+				
 				// UNSUBSCRIBE TO ORDERS
-				if (rootState.orders.subscriber && state.settings.newOrders) {
-					// dispatch('orders/UNSUBSCRIBE_FROM_ORDERS', {}, { root: true });
-					dispatch('stock_orders/UNSUBSCRIBE_FROM_STOCK_ORDERS', {}, { root: true });
-				}
+				dispatch('stock_orders/UNSUBSCRIBE_FROM_STOCK_ORDERS', {}, { root: true });
+				// if (rootState.orders.subscriber && state.settings.newOrders) {
+				// 	// dispatch('orders/UNSUBSCRIBE_FROM_ORDERS', {}, { root: true });
+				// 	dispatch('stock_orders/UNSUBSCRIBE_FROM_STOCK_ORDERS', {}, { root: true });
+				// }
+				
 				// UNSUBSCRIBE TO CATALOGUES
-				if (state.settings.catalogueUpdates) {
-					dispatch('catalogues/UNSUBSCRIBE_FROM_CATALOGUES', {}, { root: true });
-				}
+				dispatch('catalogues/UNSUBSCRIBE_FROM_CATALOGUES', {}, { root: true });
+				// if (state.settings.catalogueUpdates) {
+				// 	dispatch('catalogues/UNSUBSCRIBE_FROM_CATALOGUES', {}, { root: true });
+				// }
 				//UNSUBSCRIBE TO PROVIDERS
 				if (user.type === 'Reseller' && user.status === 'approved') {
 					commit('providers/UnsubscribeToPaymentSubscriber', null, { root: true })
@@ -921,7 +927,7 @@ const accounts = {
 			const agentId = currentUserRef.data().agentId;
 
 			console.log('listening to account removal...')
-			state.removalSubscriber = COLLECTION.accounts.where('agentId', '==', agentId).onSnapshot(async (snapshot) => {
+			state.removalSubscriber = COLLECTION.accounts.where('agentId', '==', agentId).onSnapshot((snapshot) => {
 				let doc = snapshot.docChanges();
 
 				if(doc[0].type === 'removed') {
@@ -930,8 +936,9 @@ const accounts = {
 						title: 'Sorry',
 						text: `Your Branch Account has been removed. Please contact ${rootGetters['GET_COMPANY']} if you think this is done by mistake.`
 					};
-					await dispatch('SEND_PUSH_NOTIFICATION', notif);
-					await dispatch('LOG_OUT');
+					dispatch('SEND_PUSH_NOTIFICATION', notif);
+					dispatch('LOG_OUT');
+					router.push('/');
 				}
 			})
 		},
