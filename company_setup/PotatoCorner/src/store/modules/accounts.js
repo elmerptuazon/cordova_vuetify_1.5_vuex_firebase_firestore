@@ -936,9 +936,10 @@ const accounts = {
 						title: 'Sorry',
 						text: `Your Branch Account has been removed. Please contact ${rootGetters['GET_COMPANY']} if you think this is done by mistake.`
 					};
+					
+					router.push('/');
 					dispatch('SEND_PUSH_NOTIFICATION', notif);
 					dispatch('LOG_OUT');
-					router.push('/');
 				}
 			})
 		},
