@@ -927,19 +927,21 @@ const accounts = {
 			const agentId = currentUserRef.data().agentId;
 
 			console.log('listening to account removal...')
-			state.removalSubscriber = COLLECTION.accounts.where('agentId', '==', agentId).onSnapshot((snapshot) => {
+			state.removalSubscriber = COLLECTION.accounts.where('agentId', '==', agentId).onSnapshot(async (snapshot) => {
 				let doc = snapshot.docChanges();
 
 				if(doc[0].type === 'removed') {
 					console.log('account has been removed!')
+					
 					const notif = {
 						title: 'Sorry',
 						text: `Your Branch Account has been removed. Please contact ${rootGetters['GET_COMPANY']} if you think this is done by mistake.`
 					};
-					
+
+					await dispatch('SEND_PUSH_NOTIFICATION', notif); 
+					await dispatch('LOG_OUT');
 					router.push('/');
-					dispatch('SEND_PUSH_NOTIFICATION', notif);
-					dispatch('LOG_OUT');
+
 				}
 			})
 		},
