@@ -53,7 +53,7 @@ export default {
 									unique += `_${key}:${product.attributes[key]}`;
 								}
 							});
-							product.resellerPrice = productData.resellerPrice;
+							// product.resellerPrice = productData.resellerPrice;
 							product.price = productData.price;
 							product.image = productData.downloadURL;
 							product.name = productData.name;
@@ -418,6 +418,18 @@ export default {
 			}
 		},
 
+		async DELETE_ALL_ITEMS({ commit }, stockOrderId) {
+			try {
+				await COLLECTION.stock_orders.doc(stockOrderId).update({ items: [] });
+				commit('SET_BASKET_COUNT', 0);
+
+			} catch(error) {
+				console.log(error);
+				throw error;
+			}
+
+		},	
+
 		async SUBMIT({ commit }, stockOrder) {
 
 
@@ -464,7 +476,7 @@ export default {
 				if (productRef.exists) {
 
 					const productData = productRef.data();
-					product.resellerPrice = productData.resellerPrice;
+					// product.resellerPrice = productData.resellerPrice;
 					product.price = productData.price;
 					product.weight = productData.weight;
 				}
@@ -530,7 +542,7 @@ export default {
 				data.forEach((d) => {
 					d.items.forEach((item) => {
 						item.total = item.price * item.qty;
-						item.resellerTotal = item.resellerPrice * item.qty;
+						item.resellerTotal = item.price * item.qty;
 					});
 				});
 

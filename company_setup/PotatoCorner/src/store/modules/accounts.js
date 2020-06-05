@@ -11,6 +11,8 @@ import malePlaceholder from '@/assets/img/male-default.jpg';
 import femalePlaceholder from '@/assets/img/female-default.jpg';
 const profPicStorageRef = STORAGE.ref('appsell').child('profile-pictures');
 
+import router from '@/router';
+
 function validateEmail(email) {
 	const re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 	return re.test(email)
@@ -31,7 +33,8 @@ const accounts = {
 			calendarSync: true,
 			contactsSortBy: 'first'
 		},
-		approvalSubscriber: null
+		approvalSubscriber: null,
+		removalSubscriber: null,
 	},
 	getters: {
 		user: state => state.user,
@@ -536,9 +539,9 @@ const accounts = {
 						dispatch('catalogues/LISTEN_TO_NEW_CATALOGUES', null, { root: true });
 					}
 				}
-				if (userData.status && !state.approvalSubscriber && userData.status === 'pending') {
-					dispatch('LISTEN_TO_APPROVAL');
-				}
+				// if (userData.status && !state.approvalSubscriber && userData.status === 'pending') {
+				// 	dispatch('LISTEN_TO_APPROVAL');
+				// }
 			}
 			else {
 				if (state.settings.catalogueUpdates) {
@@ -547,17 +550,18 @@ const accounts = {
 			}
 
 			
-			dispatch('orders/LISTEN_TO_CUSTOMER_ORDERS', state.settings.newOrders, { root: true });
+			// dispatch('orders/LISTEN_TO_CUSTOMER_ORDERS', state.settings.newOrders, { root: true });
 
 			// if (state.settings.newMessages) {
 			// 	dispatch('conversations/LISTEN_TO_CONVERSATIONS', null, { root: true });
 			// }
 			dispatch('conversations/LISTEN_TO_CONVERSATIONS', state.settings.newMessages, { root: true });
+			dispatch('LISTEN_TO_ACCOUNT_REMOVAL');
 
 			
-			if (state.settings.deliverySchedules) {
-				dispatch('orders/LISTEN_TO_PROPOSED_DELIVERIES', { id: userData.uid }, { root: true });
-			}
+			// if (state.settings.deliverySchedules) {
+			// 	dispatch('orders/LISTEN_TO_PROPOSED_DELIVERIES', { id: userData.uid }, { root: true });
+			// }
 
 		},
 		async UPDATE_ACCOUNT({ commit }, payload) {
@@ -708,15 +712,19 @@ const accounts = {
 				commit('catalogues/SET_LIST', [], { root: true });
 				// SET CATALOGUE LOADED STATUS TO FALSE
 				commit('catalogues/SET_LOADED', false, { root: true });
+				
 				// UNSUBSCRIBE TO ORDERS
-				if (rootState.orders.subscriber && state.settings.newOrders) {
-					dispatch('orders/UNSUBSCRIBE_FROM_ORDERS', {}, { root: true });
-					dispatch('stock_orders/UNSUBSCRIBE_FROM_STOCK_ORDERS', {}, { root: true });
-				}
+				dispatch('stock_orders/UNSUBSCRIBE_FROM_STOCK_ORDERS', {}, { root: true });
+				// if (rootState.orders.subscriber && state.settings.newOrders) {
+				// 	// dispatch('orders/UNSUBSCRIBE_FROM_ORDERS', {}, { root: true });
+				// 	dispatch('stock_orders/UNSUBSCRIBE_FROM_STOCK_ORDERS', {}, { root: true });
+				// }
+				
 				// UNSUBSCRIBE TO CATALOGUES
-				if (state.settings.catalogueUpdates) {
-					dispatch('catalogues/UNSUBSCRIBE_FROM_CATALOGUES', {}, { root: true });
-				}
+				dispatch('catalogues/UNSUBSCRIBE_FROM_CATALOGUES', {}, { root: true });
+				// if (state.settings.catalogueUpdates) {
+				// 	dispatch('catalogues/UNSUBSCRIBE_FROM_CATALOGUES', {}, { root: true });
+				// }
 				//UNSUBSCRIBE TO PROVIDERS
 				if (user.type === 'Reseller' && user.status === 'approved') {
 					commit('providers/UnsubscribeToPaymentSubscriber', null, { root: true })
@@ -731,7 +739,7 @@ const accounts = {
 				dispatch('conversations/UNSUBSCRIBE_FROM_CONVERSATIONS', null, { root: true });
 
 				//UNSUBSCRIBE TO CUSTOMER ORDERS
-				dispatch('orders/UNSUBSCRIBE_FROM_CUSTOMER_ORDERS', null, { rooot: true });
+				// dispatch('orders/UNSUBSCRIBE_FROM_CUSTOMER_ORDERS', null, { rooot: true });
 
 				//UNSUBSCRIBE TO ARTICLES
 				dispatch('articles/UNSUBSCRIBE_TO_ARTICLES', null, { root: true });
@@ -753,6 +761,7 @@ const accounts = {
 
 		async RELOAD_USER_DATA({ commit, dispatch }, payload) {
 			console.log('user data being reloaded...');
+			dispatch('LISTEN_TO_ACCOUNT_REMOVAL');
 			try {
 				// GET USER DATA WHEN RELOADED, AND ALSO HIS RESELLER DATA
 				const user = await COLLECTION.accounts.doc(payload).get();
@@ -880,7 +889,9 @@ const accounts = {
 
 		LISTEN_TO_APPROVAL({ state, commit, dispatch }) {
 			const uid = AUTH.currentUser.uid;
-			console.log('Listening to approvals')
+			console.log('Listening to approvals');
+
+			dispatch('LISTEN_TO_ACCOUNT_REMOVAL');
 
 			state.approvalSubscriber = COLLECTION.accounts.doc(uid).onSnapshot(function (doc) {
 				const data = doc.data();
@@ -910,6 +921,31 @@ const accounts = {
 			});
 		},
 
+		async LISTEN_TO_ACCOUNT_REMOVAL({state, rootGetters, dispatch }) {
+			const uid = AUTH.currentUser.uid;
+			const currentUserRef = await COLLECTION.accounts.doc(uid).get();
+			const agentId = currentUserRef.data().agentId;
+
+			console.log('listening to account removal...')
+			state.removalSubscriber = COLLECTION.accounts.where('agentId', '==', agentId).onSnapshot(async (snapshot) => {
+				let doc = snapshot.docChanges();
+
+				if(doc[0].type === 'removed') {
+					console.log('account has been removed!')
+					
+					const notif = {
+						title: 'Sorry',
+						text: `Your Branch Account has been removed. Please contact ${rootGetters['GET_COMPANY']} if you think this is done by mistake.`
+					};
+
+					await dispatch('SEND_PUSH_NOTIFICATION', notif); 
+					await dispatch('LOG_OUT');
+					router.push('/');
+
+				}
+			})
+		},
+
 		SEND_PUSH_NOTIFICATION({ }, payload) {
 			document.addEventListener('deviceready', function () {
 				cordova.plugins.notification.local.schedule({
@@ -936,12 +972,11 @@ const accounts = {
 					dispatch('stock_orders/UNSUBSCRIBE_FROM_STOCK_ORDERS', null, { root: true });
 				}
 
-
 			}
 			
-			if(!rootState.orders.customerSubscriber) {
-				dispatch('orders/LISTEN_TO_CUSTOMER_ORDERS', state.settings.newOrders, { root: true });
-			}
+			// if(!rootState.orders.customerSubscriber) {
+			// 	dispatch('orders/LISTEN_TO_CUSTOMER_ORDERS', state.settings.newOrders, { root: true });
+			// }
 
 			if(!rootState.articles.subscriber) {
 				dispatch('articles/LISTEN_TO_ARTICLES', null, { root: true });
@@ -959,9 +994,9 @@ const accounts = {
 				dispatch('orders/LISTEN_TO_PROPOSED_DELIVERIES', { id: user.uid }, { root: true });
 			}
 
-			if (!state.settings.deliverySchedules && rootState.orders.proposed_subscriber) {
-				dispatch('orders/UNSUBSCRIBE_FROM_ORDERS', false, { root: true });
-			}
+			// if (!state.settings.deliverySchedules && rootState.orders.proposed_subscriber) {
+			// 	dispatch('orders/UNSUBSCRIBE_FROM_ORDERS', false, { root: true });
+			// }
 
 			if (state.settings.catalogueUpdates && !rootState.catalogues.subscriber) {
 				dispatch('catalogues/LISTEN_TO_NEW_CATALOGUES', null, { root: true });
@@ -978,7 +1013,7 @@ const accounts = {
 			dispatch('CHECK_OBSERVERS');
 			const uid = AUTH.currentUser.uid;
 			localStorage.setItem(`${uid}_settings`, JSON.stringify(payload));
-		}
+		},
 	}
 }
 

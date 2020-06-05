@@ -104,7 +104,7 @@ const providers = {
 
 
             for (const logistics of state.logisticsProvider) {
-                if (logistics.id != 'pick-up') {
+                if (logistics.id === 'barapido') {
                     //get key
                     //run http call for different url to get quotations per company
                     try {
@@ -116,8 +116,6 @@ const providers = {
                                 cityMun: payload.toAddress.citymun,
                                 itemWeight: payload.itemWeight / 1000
                             }
-    
-    
                         });
 
                         logistics.shippingFee = res.data.deliveryFee;
@@ -127,8 +125,6 @@ const providers = {
                         error.logisticsID = logistics.id;
                         throw error;
                     }
-                    
-                    
                 }
             }
 

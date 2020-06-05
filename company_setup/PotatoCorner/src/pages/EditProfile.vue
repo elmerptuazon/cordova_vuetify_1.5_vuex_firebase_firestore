@@ -57,7 +57,7 @@
             <br />
           </v-card>
         </v-flex>
-        <v-flex xs6 v-if="userData.type === 'Reseller'">
+        <!-- <v-flex xs6 v-if="userData.type === 'Reseller'">
           <v-card tiles>
             <v-card-title>
               <div>
@@ -85,7 +85,7 @@
             </div>
             <br />
           </v-card>
-        </v-flex>
+        </v-flex> -->
       </v-layout>
 
       <v-form v-model="valid" ref="form" lazy-validation>
@@ -149,6 +149,8 @@
               <v-icon left>add</v-icon> Add your reseller
             </v-btn>
           </v-flex>
+          <v-flex xs12 my-2><v-divider class="primary"></v-divider></v-flex>
+          <v-flex xs12 class="font-weight-bold">Branch Manager Name</v-flex>
           <v-flex xs12>
             <v-text-field
               :rules="basicRules"
@@ -173,7 +175,8 @@
               v-model="userData.lastName"
             ></v-text-field>
           </v-flex>
-          <v-flex xs12>
+          <!-- <v-flex xs12 my-1><v-divider class="primary"></v-divider></v-flex> -->
+          <!-- <v-flex xs12>
             <v-text-field
               label="Birthday"
               append-icon="date_range"
@@ -193,7 +196,7 @@
               <v-radio label="Male" value="Male" color="primary"></v-radio>
               <v-radio label="Female" value="Female" color="pink"></v-radio>
             </v-radio-group>
-          </v-flex>
+          </v-flex> -->
           <v-flex xs12>
             <v-text-field
               append-icon="email"
@@ -212,9 +215,10 @@
               v-model="userData.contact"
             ></v-text-field>
           </v-flex>
+          <!-- <v-flex xs12 my-1><v-divider class="primary"></v-divider></v-flex> -->
           <v-flex xs12>
             <v-text-field
-              label="House Number"
+              label="Lot Number / Bldg."
               v-model="userData.address.house"
             ></v-text-field>
           </v-flex>
@@ -261,6 +265,7 @@
               v-model="userData.address.zipCode"
             ></v-text-field>
           </v-flex>
+          <!-- <v-flex xs12 my-1><v-divider class="primary"></v-divider></v-flex> -->
           <v-flex xs12>
             <v-text-field
               :rules="basicRules"
@@ -355,12 +360,21 @@
       </v-card>
     </v-dialog>
     -->
-    <v-dialog v-model="changePasswordDialog">
+    <!-- <v-dialog v-model="changePasswordDialog">
       <v-card>
         <v-card-title>
-          <div class="headline mx-auto grey--text text--darken-3">
-            Change Password
-          </div>
+          <v-layout wrap align-center justify-start px-auto>
+            <v-flex xs10>
+              <div class="headline text-xs-left grey--text text--darken-3">
+                Change Password
+              </div>
+            </v-flex>
+            <v-flex xs1>
+              <v-btn icon medium @click="changePasswordDialog = !changePasswordDialog">
+                <v-icon medium color="primary">close</v-icon>
+              </v-btn>
+            </v-flex>
+          </v-layout>
         </v-card-title>
         <v-card-text>
           <v-text-field
@@ -370,39 +384,43 @@
             v-model="passwords.old"
           ></v-text-field>
           <v-text-field
-            label="Password"
+            label="New Password"
             type="password"
             append-icon="lock"
             v-model="passwords.password"
           ></v-text-field>
           <v-text-field
-            label="Confirm Password"
+            label="Confirm New Password"
             type="password"
             append-icon="lock"
             v-model="passwords.confirm"
           ></v-text-field>
         </v-card-text>
         <v-card-actions>
-          <v-btn
-            block
-            depressed
-            color="primary"
-            @click="updatePassword"
-            :loading="updatePasswordButtonLoading"
-            :disabled="updatePasswordButtonLoading"
-            >Submit</v-btn
-          >
+          <v-layout wrap align-center justify-center>
+            <v-flex xs12>
+              <v-btn
+                block
+                depressed
+                color="primary"
+                @click="updatePassword"
+                :loading="updatePasswordButtonLoading"
+                :disabled="updatePasswordButtonLoading"
+                >Submit</v-btn
+              >
+            </v-flex>
+          </v-layout>
         </v-card-actions>
       </v-card>
     </v-dialog>
 
     <v-snackbar bottom v-model="snackbar">
       {{ snackbarMessage }}
-    </v-snackbar>
+    </v-snackbar> -->
 
     <Dialog />
 
-    <v-bottom-sheet full-width v-model="sheet">
+    <!-- <v-bottom-sheet full-width v-model="sheet">
       <v-list>
         <v-subheader v-if="!user.downloadURL">Add using</v-subheader>
         <v-subheader v-else>Update using</v-subheader>
@@ -419,7 +437,7 @@
           <v-list-tile-title>Gallery</v-list-tile-title>
         </v-list-tile>
       </v-list>
-    </v-bottom-sheet>
+    </v-bottom-sheet> -->
     <v-bottom-sheet full-width v-model="proofOfIdSheet">
       <v-list>
         <v-subheader>Update using</v-subheader>
@@ -451,31 +469,33 @@ import { mapGetters } from "vuex";
 import provinces from "@/assets/provinces.json";
 import Modal from "@/components/Modal";
 import MaleDefaultImage from "@/assets/img/male-default.jpg";
+import defaultBranchPic from '@/assets/img/DefaultBranchPic.png';
+
 export default {
   data: () => ({
-    userData: {
-      social: {
-        facebook: null,
-        instagram: null,
-        twitter: null
-      }
-    },
+    // userData: {
+    //   social: {
+    //     facebook: null,
+    //     instagram: null,
+    //     twitter: null
+    //   }
+    // },
     reAuthDialog: false,
     reAuthPassword: null,
-    snackbar: false,
-    snackbarMessage: null,
+    // snackbar: false,
+    // snackbarMessage: null,
     reAuthButtonLoading: false,
     updateButtonLoading: false,
     updatePwordButtonLoading: false,
     valid: true,
-    updatePasswordButtonLoading: false,
-    changePasswordDialog: false,
-    passwords: {
-      old: null,
-      password: null,
-      confirm: null
-    },
-    sheet: false,
+    // updatePasswordButtonLoading: false,
+    // changePasswordDialog: false,
+    // passwords: {
+    //   old: null,
+    //   password: null,
+    //   confirm: null
+    // },
+    // sheet: false,
     proofOfIdSheet: false,
     profileImage: {
       width: null,
@@ -493,10 +513,10 @@ export default {
     }
   },
   created() {
-    console.log("userData:", this.userData);
-    console.log("user:", this.user);
+    // console.log("userData:", this.userData);
+    // console.log("user:", this.user);
 
-    this.userData = Object.assign({}, this.userData, this.user);
+    // this.userData = Object.assign({}, this.userData, this.user);
     console.log(this.userData);
     this.provinces = provinces;
 
@@ -506,10 +526,10 @@ export default {
       this.placeHolderEmail = this.userData.email;
     }
 
-    if (!this.userData.hasOwnProperty("hasPicture") 
-        ||!this.userData.hasPicture) {
-      this.userData.resellerData.downloadURL = MaleDefaultImage;
-    }
+    // if (!this.userData.hasOwnProperty("hasPicture") 
+    //     ||!this.userData.hasPicture) {
+    //   this.userData.resellerData.downloadURL = defaultBranchPic;
+    // }
     console.log(this.userData);
     // this.reAuthDialog = true;
   },
@@ -658,86 +678,86 @@ export default {
         });
     },
 
-    updatePassword() {
-      if (this.passwords.password !== this.passwords.confirm) {
-        this.snackbarMessage = "Passwords did not match.";
-        this.snackbar = true;
-      } else if (
-        !this.passwords.password ||
-        !this.passwords.confirm ||
-        !this.passwords.old
-      ) {
-        this.snackbarMessage = "All fields are required.";
-        this.snackbar = true;
-      } else {
-        this.updatePasswordButtonLoading = true;
-        this.$store
-          .dispatch("accounts/RE_AUTHENTICATE_USER", this.passwords.old)
-          .then(() => {
-            console.log("RE-AUTHENTICATION SUCCESS!");
-            return this.$store.dispatch(
-              "accounts/UPDATE_PASSWORD",
-              this.passwords.password
-            );
-          })
-          .then(() => {
-            this.passwords = {
-              old: null,
-              password: null,
-              confirm: null
-            };
-            this.updatePasswordButtonLoading = false;
-            this.changePasswordDialog = false;
-            this.$events.$emit("SET_DIALOG", {
-              status: true,
-              title: "Success",
-              message: "You password has been updated."
-            });
-          })
-          //catch block for RE-AUTH action
-          .catch(e => {
-            this.updatePasswordButtonLoading = false;
+    // updatePassword() {
+    //   if (this.passwords.password !== this.passwords.confirm) {
+    //     this.snackbarMessage = "Passwords did not match.";
+    //     this.snackbar = true;
+    //   } else if (
+    //     !this.passwords.password ||
+    //     !this.passwords.confirm ||
+    //     !this.passwords.old
+    //   ) {
+    //     this.snackbarMessage = "All fields are required.";
+    //     this.snackbar = true;
+    //   } else {
+    //     this.updatePasswordButtonLoading = true;
+    //     this.$store
+    //       .dispatch("accounts/RE_AUTHENTICATE_USER", this.passwords.old)
+    //       .then(() => {
+    //         console.log("RE-AUTHENTICATION SUCCESS!");
+    //         return this.$store.dispatch(
+    //           "accounts/UPDATE_PASSWORD",
+    //           this.passwords.password
+    //         );
+    //       })
+    //       .then(() => {
+    //         this.passwords = {
+    //           old: null,
+    //           password: null,
+    //           confirm: null
+    //         };
+    //         this.updatePasswordButtonLoading = false;
+    //         this.changePasswordDialog = false;
+    //         this.$events.$emit("SET_DIALOG", {
+    //           status: true,
+    //           title: "Success",
+    //           message: "You password has been updated."
+    //         });
+    //       })
+    //       //catch block for RE-AUTH action
+    //       .catch(e => {
+    //         this.updatePasswordButtonLoading = false;
 
-            let errMessage;
-            if (e.code === "auth/wrong-password")
-              errMessage = '"Old Password" is incorrect, please try again...';
-            else errMessage = e.message;
+    //         let errMessage;
+    //         if (e.code === "auth/wrong-password")
+    //           errMessage = '"Old Password" is incorrect, please try again...';
+    //         else errMessage = e.message;
 
-            this.$events.$emit("SET_DIALOG", {
-              status: true,
-              title: "Sorry",
-              message: errMessage
-            });
-          });
-      }
-    },
+    //         this.$events.$emit("SET_DIALOG", {
+    //           status: true,
+    //           title: "Sorry",
+    //           message: errMessage
+    //         });
+    //       });
+    //   }
+    // },
 
-    takePicture(selected) {
-      this.$store
-        .dispatch("plugins/TAKE_PHOTO_FOR_REGISTRATION", selected)
-        .then(res => {
-          this.sheet = false;
-          if (res) {
-            this.$store
-              .dispatch("accounts/UPDATE_PROFILE_PHOTO", res)
-              .then(() => {
-                this.createFakeImage(this.user.imageObj.src).then(data => {
-                  this.profileImage = {
-                    height: data.height + "px",
-                    width: data.width + "px"
-                  };
-                });
-              })
-              .catch(e => {
-                console.error(e);
-              });
-          }
-        })
-        .catch(error => {
-          this.sheet = false;
-          alert(error);
-        });
-    },
+    // takePicture(selected) {
+    //   this.$store
+    //     .dispatch("plugins/TAKE_PHOTO_FOR_REGISTRATION", selected)
+    //     .then(res => {
+    //       this.sheet = false;
+    //       if (res) {
+    //         this.$store
+    //           .dispatch("accounts/UPDATE_PROFILE_PHOTO", res)
+    //           .then(() => {
+    //             this.createFakeImage(this.user.imageObj.src).then(data => {
+    //               this.profileImage = {
+    //                 height: data.height + "px",
+    //                 width: data.width + "px"
+    //               };
+    //             });
+    //           })
+    //           .catch(e => {
+    //             console.error(e);
+    //           });
+    //       }
+    //     })
+    //     .catch(error => {
+    //       this.sheet = false;
+    //       alert(error);
+    //     });
+    // },
     takeProofOfIdPicture(selected) {
       this.$store
         .dispatch("plugins/TAKE_PHOTO_FOR_REGISTRATION", selected)
@@ -819,8 +839,8 @@ export default {
 .icon {
   display: inline-flex !important;
 }
-.overlayImage {
+/* .overlayImage {
   position: absolute;
   z-index: 1;
-}
+} */
 </style>

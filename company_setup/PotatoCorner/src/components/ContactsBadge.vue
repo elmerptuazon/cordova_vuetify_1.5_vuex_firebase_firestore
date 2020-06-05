@@ -29,7 +29,8 @@ export default {
         },
 
         isApproved() {
-            return this.$store.getters["accounts/isApproved"];
+            return false;
+            // return this.$store.getters["accounts/isApproved"];
         }
     }
 }

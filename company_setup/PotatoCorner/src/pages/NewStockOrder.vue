@@ -6,7 +6,10 @@
       </v-btn>
       <v-spacer v-if="$store.state.rightAlignToolbarIcons"></v-spacer>
       <!-- <BasketBadge tabName="msa" /> -->
-      <v-btn icon @click="confirmGenerate" v-show="stockOrder.items.length > 0">
+      <!-- <v-btn icon @click="confirmGenerate" v-show="stockOrder.items.length > 0">
+        <v-icon>refresh</v-icon>
+      </v-btn> -->
+      <v-btn icon @click="confirmClearBasket" v-show="stockOrder.items.length > 0">
         <v-icon>refresh</v-icon>
       </v-btn>
       <v-spacer></v-spacer>
@@ -57,7 +60,7 @@
           </td>
           <td class="caption text-xs-right border-bottom">{{ item.qty }}</td>
           <td class="caption text-xs-right border-bottom">
-            {{ (item.qty * item.resellerPrice) | currency("P") }}
+            {{ (item.qty * item.price) | currency("P") }}
             <br />
             <a @click="editItem(item)">
               <v-icon class="caption blue--text">border_color</v-icon> Edit</a
@@ -200,10 +203,15 @@
 
     <v-snackbar bottom v-model="snackbar">{{ snackbarMessage }}</v-snackbar>
     <BottomNav />
-    <ConfirmationModal
+    <!-- <ConfirmationModal
       ref="ConfirmationModal"
       confirmText="Continue"
       @confirmClicked="generateStockOrder"
+    /> -->
+    <ConfirmationModal
+      ref="ConfirmationModal"
+      confirmText="Continue"
+      @confirmClicked="clearStockOrderList"
     />
   </div>
 </template>
@@ -266,11 +274,48 @@ export default {
       this.$router.go(-1);
     },
 
-    confirmGenerate() {
+    // confirmGenerate() {
+    //   this.$refs.ConfirmationModal.show(
+    //     "Confirm",
+    //     "Refreshing this page will remove items you have manually added to this shopping cart, Do you wish to continue?"
+    //   );
+    // },
+
+    confirmClearBasket() {
       this.$refs.ConfirmationModal.show(
         "Confirm",
         "Refreshing this page will remove items you have manually added to this shopping cart, Do you wish to continue?"
       );
+    }, 
+
+    async clearStockOrderList() {
+      console.log('clearing stock order basket...');
+      this.$refs.ConfirmationModal.close();
+      this.loaderDialogMessage = 'Clearing your stock order basket...';
+      this.loader = true;
+      
+      try {
+        await this.$store.dispatch("stock_orders/DELETE_ALL_ITEMS", this.stockOrder.id);
+        this.stockOrder = {
+          id: null,
+          items: [],
+          userId: null,
+          createdAt: null
+        };
+        
+        this.loader = false;
+        this.loaderDialogMessage = null;
+        this.snackbarMessage = 'Success!';
+        this.snackbar = true;
+
+      } catch(error) {
+        console.log('error in clearStockOrderList: ', error);
+        this.loader = false;
+        this.loaderDialogMessage = null;
+        this.snackbarMessage = 'Error!';
+        this.snackbar = true;
+      }
+      
     },
 
     generateStockOrder() {
@@ -477,7 +522,7 @@ export default {
     subTotal() {
       console.log(this.stockOrder);
       return this.stockOrder.items.reduce(
-        (a, b) => a + b.resellerPrice * b.qty,
+        (a, b) => a + b.price * b.qty,
         0
       );
     },

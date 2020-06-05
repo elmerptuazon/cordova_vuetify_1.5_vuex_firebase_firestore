@@ -28,7 +28,7 @@
         >
           <div>Login</div>
         </v-btn>
-        <v-btn
+        <!-- <v-btn
           depressed
           color="white primary--text"
           block
@@ -36,7 +36,7 @@
           class="mt-3"
           @click="register"
           >Not Yet Registered?</v-btn
-        >
+        > -->
       </div>
     </v-layout>
     <TrialMessage ref="trial" />

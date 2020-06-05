@@ -346,9 +346,9 @@ router.beforeEach((to, from, next) => {
 				query: {
 					redirecT: to.fullPath
 				}
-			})
+			});
 		} else {
-			next()
+			next();
 		}
 	} else if(to.matched.some(record => !record.meta.requiresAuth)) {
 		if(AUTH.currentUser) {
@@ -375,10 +375,10 @@ router.beforeEach((to, from, next) => {
 				});
 			}
 		} else {
-			next()
+			next();
 		}
 	} else {
-		next()
+		next();
 	}
 })
 

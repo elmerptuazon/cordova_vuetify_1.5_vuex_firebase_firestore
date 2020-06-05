@@ -152,7 +152,7 @@ export default {
       createdAt: stockOrder.createdAt,
       submittedAt: submittedAt,
       total:
-        stockOrder.items.reduce((a, b) => a + b.resellerPrice * b.qty, 0) +
+        stockOrder.items.reduce((a, b) => a + b.price * b.qty, 0) +
         stockOrder.logisticsDetails.shippingFee,
       paymentType: stockOrder.paymentDetails.paymentType,
       stockOrderReference: stockOrder.stockOrderReference,
@@ -160,7 +160,7 @@ export default {
     };
 
     if(stockOrder.logisticsDetails.isFreeShipping) {
-      this.order.total = stockOrder.items.reduce((a, b) => a + b.resellerPrice * b.qty, 0);
+      this.order.total = stockOrder.items.reduce((a, b) => a + b.price * b.qty, 0);
     }
   },
   methods: {
