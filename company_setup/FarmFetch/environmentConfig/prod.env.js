@@ -12,7 +12,7 @@ module.exports = {
   companyName: '"Farm Fetch"',
   contactNumber: '"09123456789"',
   version: '"0.6.10"',
-  primaryColor: '"#90C83E"',
+  primaryColor: '"#f2d5bb"',
   environment: '"live"',
   callbackURL: '"https://us-central1-appselltestapp.cloudfunctions.net/callback/checkPaymentStatus"'
 }
