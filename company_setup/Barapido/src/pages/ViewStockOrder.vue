@@ -247,11 +247,11 @@ export default {
         amount: null,
         paymentStatus: null,
         paymentType: null,
-        logisticsDetails: {
-          logisticProvider: 'pick-up',
-          isFreeShipping: false,
-          shippingFee: 0
-        }
+      },
+      logisticsDetails: {
+        logisticProvider: 'pick-up',
+        isFreeShipping: false,
+        shippingFee: 0
       }
     },
     loaderDialogMessage: null,
