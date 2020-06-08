@@ -677,10 +677,19 @@ export default {
         //       "Charging your card unsuccessful, please contact your service provider."
         //     );
         // }
-        this.$refs.modal.show(
-          "Transaction Failed",
-          "Charging your card unsuccessful, check the details and try again."
-        );
+        if(error.message) {
+          this.$refs.modal.show(
+            "Transaction Failed",
+            error.message
+          );  
+        
+        } else {
+          this.$refs.modal.show(
+            "Transaction Failed",
+            "Charging your card unsuccessful, check the details and try again."
+          );
+        }
+        
       }
     },
     SetCardDetails(card) {
