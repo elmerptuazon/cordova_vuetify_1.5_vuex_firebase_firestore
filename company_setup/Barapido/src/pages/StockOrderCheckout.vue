@@ -590,8 +590,11 @@ export default {
               transactionNumber: paymentResult.id,
               paymentGateway: "Magpie"
             };
-            const paymentLog = Object.assign({ stockOrder: this.stockOrder }, paymentDetails);
-            await this.$store.dispatch('payment/RecordPaymentToLogs', paymentLog);
+            
+            await this.$store.dispatch('payment/RecordPaymentToLogs', {
+              paymentDetails,
+              stockOrder: this.stockOrder
+            });
 
           }
           // if (paymentResult.checkout_url) {
