@@ -15,7 +15,7 @@ module.exports = merge(prodEnv, {
   companyName: '"Farm Fetch"',
   contactNumber: '"09123456789"',
   version: '"0.6.10"',
-  primaryColor: '"#e0c5ad"',
+  primaryColor: '"#bfa893"',
   // primaryColor: '"#d9bea7"',
   environment: '"test"',
   callbackURL: '"https://us-central1-appselltestapp.cloudfunctions.net/callback/checkPaymentStatus"'
