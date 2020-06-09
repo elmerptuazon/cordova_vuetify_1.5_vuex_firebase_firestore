@@ -246,7 +246,12 @@ export default {
       paymentDetails: {
         amount: null,
         paymentStatus: null,
-        paymentType: null
+        paymentType: null,
+      },
+      logisticsDetails: {
+        logisticProvider: 'pick-up',
+        isFreeShipping: false,
+        shippingFee: 0
       }
     },
     loaderDialogMessage: null,

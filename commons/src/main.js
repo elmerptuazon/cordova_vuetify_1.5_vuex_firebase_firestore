@@ -36,7 +36,7 @@ Vue.prototype.$moment = moment;
 
 import router from './router';
 import store from './store';
-import { AUTH } from './config/firebaseInit';
+import { AUTH, DB } from './config/firebaseInit';
 
 // if ('addEventListener' in document) {
 // 	document.addEventListener('DOMContentLoaded', function() {
@@ -103,7 +103,7 @@ AUTH.onAuthStateChanged(async (user) => {
 
 			document.addEventListener('deviceready', () => {
 				navigator.splashscreen.hide();
-			}, false)
+			}, false);
 
 			if (user) {
 
