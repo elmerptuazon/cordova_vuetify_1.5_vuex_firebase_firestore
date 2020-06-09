@@ -1,7 +1,7 @@
 <template>
   <v-container fluid>
     <div class="text-xs-center" style="margin:0 auto; width:250px;">
-      <v-img :src="require('@/assets/img/header_logo.jpg')" contain></v-img>
+      <v-img :src="require('@/assets/img/header_logo.png')" contain></v-img>
     </div>
     <v-form v-model="valid" ref="form" lazy-validation @submit.prevent="submit">
       <v-layout column style="margin-top: 6%;">
