@@ -31,7 +31,7 @@ async function copyCompanySetUp() {
             { title: 'Babae', value: 'Babae' },
             { title: 'Mother Nurture', value: 'MotherNurture' },
             { title: 'Potato Corner', value: 'PotatoCorner' },
-            { title: 'Bente Silog', value: 'Bente Silog' },
+            { title: 'Bente Silog', value: 'BenteSilog' },
             { title: 'Ever Bilena', value: 'EverBilena', disabled: true},
             { title: 'Mary Kay', value: 'MaryKay', disabled: true },
             { title: 'My Natural', value: 'MyNatural', disabled: true }
