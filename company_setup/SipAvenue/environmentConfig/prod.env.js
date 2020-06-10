@@ -9,10 +9,10 @@ module.exports = {
   appId: '"1:846971526982:web:027bf465e5be6cc53e8f47"',
   storageCode: '"PotatoCorner"',
   webAdminId: '"admin"',
-  companyName: '"Potato Corner"',
+  companyName: '"Sip Avenue"',
   contactNumber: '"09123456789"',
   version: '"0.6.10"',
-  primaryColor: '"#119247"',
+  primaryColor: '"#f7a978"',
   environment: '"live"',
   callbackURL: '"https://us-central1-appselltestapp.cloudfunctions.net/callback/checkPaymentStatus"'
 }
