@@ -17,7 +17,7 @@ import stock_orders from './modules/stock-orders';
 import support from './modules/support';
 import conversations from './modules/conversations';
 import shipment from './modules/shipment';
-import logo from '@/assets/img/header_logo.jpg';
+import logo from '@/assets/img/header_logo.png';
 import payment from './modules/payment';
 import providers from './modules/providers';
 
