@@ -139,9 +139,6 @@ const providers = {
                         throw error;
                     }
                 } 
-                else {
-                    logistics.shippingFee = 0.00;
-                }
             }
 
             if(payload.toAddress.province !== 'Metro Manila') {
