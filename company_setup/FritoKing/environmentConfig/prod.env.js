@@ -15,5 +15,5 @@ module.exports = {
   version: '"0.6.10"',
   primaryColor: '"#c11515"',
   environment: '"live"',
-  callbackURL: '"https://us-central1-appselltestapp.cloudfunctions.net/callback/checkPaymentStatus"'
+  callbackURL: '"https://us-central1-my-natural-dev.cloudfunctions.net/callback/checkPaymentStatus"'
 }
