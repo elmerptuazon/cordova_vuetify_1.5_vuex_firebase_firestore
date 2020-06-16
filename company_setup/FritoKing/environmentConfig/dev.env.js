@@ -17,5 +17,5 @@ module.exports = merge(prodEnv, {
   version: '"0.6.10"',
   primaryColor: '"#c11515"',
   environment: '"test"',
-  callbackURL: '"https://us-central1-fritoking-dev.cloudfunctions.net/callback"',
+  callbackURL: '"https://us-central1-fritoking-dev.cloudfunctions.net/callback/checkPaymentStatus"',
 })
