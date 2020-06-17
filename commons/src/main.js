@@ -36,7 +36,7 @@ Vue.prototype.$moment = moment;
 
 import router from './router';
 import store from './store';
-import { AUTH } from './config/firebaseInit';
+import { AUTH, DB } from './config/firebaseInit';
 
 // if ('addEventListener' in document) {
 // 	document.addEventListener('DOMContentLoaded', function() {
@@ -91,8 +91,23 @@ window.addEventListener("orientationchange", function () {
 	screen.lockOrientation('portrait');
 });
 
+function forceExitApp() {
+	cordova.plugins.backgroundMode.moveToBackground();
+	navigator.app.exitApp();
+}
+
 document.addEventListener('deviceready', () => {
 	navigator.splashscreen.show();
+	
+	document.addEventListener('offline', () => {
+		navigator.notification.alert(
+			'Please connect to the internet to use this app.',
+			forceExitApp,
+			"No internet connection!",
+			'Ok'
+		)
+	}, false);
+
 }, false);
 
 let app;
@@ -103,7 +118,7 @@ AUTH.onAuthStateChanged(async (user) => {
 
 			document.addEventListener('deviceready', () => {
 				navigator.splashscreen.hide();
-			}, false)
+			}, false);
 
 			if (user) {
 

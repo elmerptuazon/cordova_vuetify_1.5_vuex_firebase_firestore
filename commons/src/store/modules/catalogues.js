@@ -59,7 +59,7 @@ const catalogues = {
 				throw error;
 			}
 		},
-		LISTEN_TO_NEW_CATALOGUES({ rootState, state }) {
+		LISTEN_TO_NEW_CATALOGUES({ rootState, state, dispatch }) {
 			const storageCode = rootState.storageCode;
 			state.subscriber = COLLECTION.catalogues.onSnapshot((snapshot) => {
 				let changes = snapshot.docChanges().filter(c => c.type === 'added');
@@ -86,14 +86,13 @@ const catalogues = {
 						category_ids.push(change.id);
 						// set storage again to new category_ids array
 						localStorage.setItem(storagePath, JSON.stringify(category_ids));
-						document.addEventListener('deviceready', () => {
-							cordova.plugins.notification.local.schedule({
-								title: 'New category has been added!',
-								text: `Category name: ${change.name || ''}`,
-								foreground: true,
-								vibrate: true
-							});
-						}, false);
+						const notif = {
+							title: 'New Category has been added!',
+							text: `Category name: ${change.name || ''}\nClick this to open the app.`,
+							redirectURL: '/catalogue',
+						};
+
+						dispatch('accounts/SEND_PUSH_NOTIFICATION', notif, { root: true });
 					}
 				});
 			});
