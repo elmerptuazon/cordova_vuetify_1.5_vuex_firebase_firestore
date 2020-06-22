@@ -343,7 +343,7 @@ export default {
     snackbar: false,
     snackbarMessage: null
   }),
-  async created() {
+  async mounted() {
     this.cordovaBackButton(this.goBack);
 
     this.loader = true;
@@ -355,10 +355,8 @@ export default {
       this.stockOrder = Object.assign({}, response.data);
 
       for(let item of this.stockOrder.items) {
-        const variant = await this.$store.dispatch('products/GET_PRODUCT_VARIANT', {
-          variantName: item.variantName,
-          productId: item.productId
-        });
+
+        const variant = this.variantList.find(variant => (variant.name.toLowerCase() === item.variantName.toLowerCase()) && (variant.productId === item.productId));
 
         item.sku = variant.sku;
         item.allocatedQTY = variant.allocatedQTY;
@@ -367,7 +365,7 @@ export default {
         item.availableQTY = parseInt(item.onHandQTY) - parseInt(item.allocatedQTY);
         item.weight = variant.weight;
         item.price = variant.price;
-        item.resellerPrice = variant.price;
+        item.resellerPrice = variant.resellerPrice;
         item.isOutofStock = variant.isOutofStock;
 
         if(!item.isOutofStock && item.availableQTY === 0) {
@@ -524,6 +522,19 @@ export default {
                 active: true
               };
 
+              obj.items.forEach(item => {
+                if(item.attributes.hasOwnProperty('qty')) {
+                  delete item.attributes.qty;
+                }
+
+                for(const [key, value] of Object.entries(item.attributes)) {
+                  const variant = this.variantList.find(variant => variant.name.toLowerCase() === value.toLowerCase());
+                  item.variantName = variant.name;
+                  item.sku = variant.sku;
+                  item.variantId = variant.id;
+                }
+              });
+              
               this.$store
                 .dispatch("stock_orders/SAVE", obj)
                 .then(res => {
@@ -607,16 +618,6 @@ export default {
         });
     },
     async ProceedToCheckout() {
-      //remove products that is currently out of stock in the stockOrder.items
-      if(this.outOfStockItems.length) {
-        for(let outOfStockItem of this.outOfStockItems) {
-          const index = this.stockOrder.items.findIndex(item => outOfStockItem.productId === item.productId);
-          if(index !== -1) {
-            this.stockOrder.items.splice(index, 1);
-          }
-        }
-      }
-
       //warn the user that there are items that has a quantity greater than the available quantity
       if(this.itemsWithLowQTY.length) {
         this.warningDialog = true;
@@ -630,9 +631,12 @@ export default {
       });
     }
   },
+  watch: {
+    
+  },
   computed: {
     subTotal() {
-      console.log(this.stockOrder);
+      // console.log(this.stockOrder);
       return this.stockOrder.items.reduce(
         (a, b) => a + b.resellerPrice * b.qty,
         0
@@ -681,7 +685,11 @@ export default {
       }
 
       return outOfStockItems;
-    }
+    },
+
+    ...mapGetters({
+      variantList: "variants/GET_VARIANTS"
+    }),
   },
   filters: {
     joinAttributes(val) {
@@ -694,7 +702,7 @@ export default {
       let str = "";
 
       keys.forEach(key => {
-        str += `${key.toUpperCase()}:${attributes[key]}\n`;
+        str += `${key.toUpperCase()}: ${attributes[key].name}\n`;
       });
 
       return str;
