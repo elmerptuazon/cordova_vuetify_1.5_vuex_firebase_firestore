@@ -32,7 +32,7 @@
       </div>
       <div v-if="user.type === 'Reseller'">
         <div class="grey--text" v-if="$store.getters['accounts/isApproved']">
-          Member since {{ user.createdAt | memberSince }}
+          Distributor since {{ user.createdAt | memberSince }}
         </div>
         <div class="grey--text" v-if="$store.getters['accounts/isApproved']">
           Branch ID Number: {{ user.agentId }}

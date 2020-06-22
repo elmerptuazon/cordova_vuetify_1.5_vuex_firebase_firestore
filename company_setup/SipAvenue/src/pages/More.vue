@@ -116,7 +116,7 @@
                     {{ resellerData.contact }}
                   </p>
                   <p class="grey--text">
-                    Member since {{ resellerData.createdAt | memberSince }}
+                    Distributor since {{ resellerData.createdAt | memberSince }}
                   </p>
                 </v-flex>
               </v-layout>
