@@ -1,4 +1,4 @@
-import { DB, AUTH, STORAGE, COLLECTION } from '@/config/firebaseInit';
+import { DB, AUTH, STORAGE, COLLECTION, FIRESTORE } from '@/config/firebaseInit';
 
 function GenerateStockOrderNumber(resellerID) {
 	var refNumber = `SO-${BigInt(resellerID).toString(36).toUpperCase()}${BigInt(Date.now()).toString(36).toUpperCase()}`;
@@ -53,12 +53,28 @@ export default {
 									unique += `_${key}:${product.attributes[key]}`;
 								}
 							});
-							product.resellerPrice = productData.resellerPrice;
-							product.price = productData.price;
+							// product.resellerPrice = productData.resellerPrice;
+							// product.price = productData.price;
 							product.image = productData.downloadURL;
 							product.name = productData.name;
 							product.unique = product.productId + unique;
-							product.weight = productData.weight;
+							// product.weight = productData.weight;
+
+							const variantRef = await DB.collection('products').doc('details').collection('variants')
+							.doc(product.variantId)
+							.get();
+
+							if(variantRef.exists) {
+								const variantData = variantRef.data();
+
+								product.isOutofStock = variantData.isOutofStock;
+								product.onHandQTY = variantData.onHandQTY;
+								product.allocatedQTY = variantData.allocatedQTY;
+								product.availableQTY = Number(variantData.onHandQTY) - Number(variantData.allocatedQTY)
+								product.resellerPrice = variantData.resellerPrice;
+								product.price = variantData.price;
+								product.weight = variantData.weight; 
+							}
 
 						}
 
@@ -147,7 +163,6 @@ export default {
 							item.price = productData.price;
 							item.image = productData.downloadURL;
 							item.name = productData.name;
-
 						}
 
 					}
@@ -200,6 +215,15 @@ export default {
 							item.price = productData.price;
 							item.image = productData.downloadURL;
 							item.name = productData.name;
+
+							item.availableQTY = parseInt(productData.onHandQTY) - parseInt(productData.allocatedQTY);
+							//if available stock is already zero, mark the product as out of stock eventhough it is not marked in the dashboard.
+							if(!item.isOutofStock) {
+								item.isOutofStock = item.availableQTY === 0;
+							
+							} else {
+								item.isOutofStock = productData.isOutofStock;
+							}
 
 						}
 
@@ -258,6 +282,9 @@ export default {
 					if (index !== -1) {
 
 						currentStockOrder.items[index].qty += payload.attributes.quantity;
+						currentStockOrder.items[index].variantId = payload.variant.id;
+						currentStockOrder.items[index].variantName = payload.variant.name;
+						currentStockOrder.items[index].sku = payload.variant.sku;
 
 					} else {
 
@@ -265,7 +292,10 @@ export default {
 							attributes: payload.attributes,
 							productId: payload.productId,
 							qty: payload.attributes.quantity,
-							unique: unique
+							unique: unique,
+							variantId: payload.variant.id,
+							variantName: payload.variant.name,
+							sku: payload.variant.sku,
 						}
 
 						currentStockOrder.items.push(item);
@@ -305,7 +335,10 @@ export default {
 						attributes: payload.attributes,
 						productId: payload.productId,
 						qty: payload.attributes.quantity,
-						unique: unique
+						unique: unique,
+						variantId: payload.variant.id,
+						variantName: payload.variant.name,
+						sku: payload.variant.sku,
 					});
 
 					commit('SET_BASKET_COUNT', 1);
@@ -349,7 +382,6 @@ export default {
 					if (index !== -1) {
 
 						currentStockOrder.items[index].qty = payload.qty;
-
 					}
 
 					await COLLECTION.stock_orders.doc(currentStockOrder.id).update({ items: currentStockOrder.items });
@@ -420,8 +452,14 @@ export default {
 
 		async SUBMIT({ commit }, stockOrder) {
 
+			for(let item of stockOrder.items) {
 
-			stockOrder.items = stockOrder.items.map((item) => {
+				await DB.collection('products').doc('details')
+				.collection('variants').doc(item.variantId)
+				.update({
+					allocatedQTY: FIRESTORE.FieldValue.increment(item.qty),
+				});
+
 				delete item.attributes.qty;
 				delete item.attributes.quantity;
 				delete item.name;
@@ -430,9 +468,7 @@ export default {
 				if(!item.hasOwnProperty('weight') || item.weight === undefined) {
 					item.weight = 0;
 				}
-				
-				return item;
-			});
+			}
 
 			commit('SET_BASKET_COUNT', 0);
 
@@ -446,8 +482,6 @@ export default {
 				logisticsDetails: stockOrder.logisticsDetails,
 				isRead: stockOrder.isRead,
 			});
-
-
 
 			return {
 				success: true,

@@ -466,6 +466,24 @@ export default {
         console.log(res.data);
         if (res.success) {
           this.stockOrder = Object.assign({}, res.data);
+
+          const itemsToRemove = this.stockOrder.items.filter((item) => {
+            //get items that are currently out of stock
+            if(item.isOutofStock) {
+              return item;
+            }
+            //get items that are way too much from the available qty
+            if(item.qty > item.availableQTY) {
+              return item;
+            }
+          });
+
+          for(const item of itemsToRemove) {
+            const index = this.stockOrder.items.findIndex(stockOrderItem => item.productId === stockOrderItem.productId);
+            if(index !== -1) {
+              this.stockOrder.items.splice(index, 1);
+            }
+          }
         }
         
       })
@@ -1144,7 +1162,7 @@ export default {
         0
       );
 
-      return weight > 0 ? weight : 1;
+      return weight > 0 ? weight : 1000;
     },
     discount() {
       let discount;
@@ -1224,7 +1242,7 @@ export default {
       let str = "";
 
       keys.forEach(key => {
-        str += `${key}:${attributes[key]}`;
+        str += `${key.toUpperCase()}: ${attributes[key].name}\n`;
       });
 
       return str;

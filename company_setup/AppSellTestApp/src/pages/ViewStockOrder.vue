@@ -249,10 +249,10 @@ export default {
         paymentType: null
       },
       logisticsDetails: {
-        logisticProvider: 'pick-up',
         isFreeShipping: false,
+        logisticProvider: 'pick-up',
         shippingFee: 0
-      }
+      },
     },
     loaderDialogMessage: null,
   }),
@@ -343,7 +343,7 @@ export default {
       let str = "";
 
       keys.forEach(key => {
-        str += `${key}:${attributes[key]}`;
+        str += `${key.toUpperCase()}:${attributes[key]}\n`;
       });
 
       return str;
