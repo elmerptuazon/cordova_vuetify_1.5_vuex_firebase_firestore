@@ -530,6 +530,7 @@ const accounts = {
 					dispatch('providers/ListenToPaymentProvider', null, { root: true })
 					dispatch('providers/ListenToLogisticsProvider', null, { root: true })
 					dispatch('articles/LISTEN_TO_ARTICLES', null, { root: true })
+					dispatch('variants/LISTEN_TO_VARIANTS', null, { root: true });
 
 					if (state.settings.newOrders) {
 						// dispatch('orders/LISTEN_TO_ORDERS', { id: userData.uid }, { root: true });
@@ -539,29 +540,16 @@ const accounts = {
 						dispatch('catalogues/LISTEN_TO_NEW_CATALOGUES', null, { root: true });
 					}
 				}
-				// if (userData.status && !state.approvalSubscriber && userData.status === 'pending') {
-				// 	dispatch('LISTEN_TO_APPROVAL');
-				// }
+				
 			}
 			else {
 				if (state.settings.catalogueUpdates) {
 					dispatch('catalogues/LISTEN_TO_NEW_CATALOGUES', null, { root: true });
 				}
 			}
-
 			
-			// dispatch('orders/LISTEN_TO_CUSTOMER_ORDERS', state.settings.newOrders, { root: true });
-
-			// if (state.settings.newMessages) {
-			// 	dispatch('conversations/LISTEN_TO_CONVERSATIONS', null, { root: true });
-			// }
 			dispatch('conversations/LISTEN_TO_CONVERSATIONS', state.settings.newMessages, { root: true });
 			dispatch('LISTEN_TO_ACCOUNT_REMOVAL');
-
-			
-			// if (state.settings.deliverySchedules) {
-			// 	dispatch('orders/LISTEN_TO_PROPOSED_DELIVERIES', { id: userData.uid }, { root: true });
-			// }
 
 		},
 		async UPDATE_ACCOUNT({ commit }, payload) {
@@ -743,6 +731,9 @@ const accounts = {
 
 				//UNSUBSCRIBE TO ARTICLES
 				dispatch('articles/UNSUBSCRIBE_TO_ARTICLES', null, { root: true });
+
+				//UNSUSBSCRIBE TO VARIANT CHANGES
+				dispatch('variants/UNSUBSCRIBE_TO_VARIANTS', null, { root: true });
 
 				return await AUTH.signOut();
 			} catch (error) {
@@ -980,6 +971,10 @@ const accounts = {
 
 			if(!rootState.articles.subscriber) {
 				dispatch('articles/LISTEN_TO_ARTICLES', null, { root: true });
+			}
+
+			if(!rootState.variants.subscriber) {
+				dispatch('variants/LISTEN_TO_VARIANTS', null, { root: true });
 			}
 
 			// if (state.settings.newMessages) {
