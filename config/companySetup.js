@@ -33,7 +33,7 @@ async function copyCompanySetUp() {
             { title: 'Farm Fetch', value: 'FarmFetch' },
             { title: 'Potato Corner', value: 'PotatoCorner' },
             { title: 'Bente Silog', value: 'BenteSilog' },
-            { title: 'Frito King', value: 'Frito King' },
+            { title: 'Frito King', value: 'FritoKing' },
             { title: 'PickUp Sticks', value: 'PickUpSticks' },
             { title: 'Sip Avenue', value: 'SipAvenue' },
             
