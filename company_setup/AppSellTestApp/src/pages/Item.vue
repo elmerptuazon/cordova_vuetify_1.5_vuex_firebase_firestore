@@ -225,16 +225,16 @@
                   <div class="title font-weight-bold">Variant Details</div>
                 </v-flex>
                 
-                <v-flex xs12 mt-2 v-if="attribLoading || !variant || !variant.hasOwnProperty('availableQTY')">
+                <v-flex xs12 mt-2 v-if="!variant.hasOwnProperty('name') || attribLoading || !variant ">
                   <div v-if="attribLoading">
                     <v-progress-circular indeterminate color="primary"></v-progress-circular>
                   </div>
-                  <div v-else class="font-italic caption pl-2">Please select product attributes...</div>
+                  <div v-else class="font-italic caption pl-2">Please select a variant...</div>
                 </v-flex>
                 
                 <div v-else class="mt-2 pl-2">
                   <v-flex xs12>
-                    <div :class="[ variant.availableQTY <= variant.reOrderLevel ? 'red--text' : '']">
+                    <div :class="[ Number(variant.availableQTY) <= Number(variant.reOrderLevel) ? 'red--text' : '']">
                       Available Stock: 
                       <span class="font-weight-bold" v-if="variant.availableQTY"> {{ variant.availableQTY }} pcs.</span>
                       <span class="font-weight-bold" v-else>N/A</span>
@@ -250,7 +250,7 @@
                 </div>
               </v-layout>
 
-              <v-layout row wrap v-if="product.attributes.length" mt-4>
+              <v-layout row wrap v-if="product.attributes.length" my-3>
                 <v-flex xs12>
                   <v-divider class="black"></v-divider>
                   <div class="mt-3 font-weight-bold body-1">Variant Selection</div>
@@ -264,6 +264,8 @@
                     v-model="attribute[a.name.toLowerCase()]"
                     :items="a.items"
                     :label="a.name"
+                    item-text="name"
+                    return-object
                     :rules="basicRules"
                     @change="fetchVariant"
                     single-line required
@@ -294,7 +296,7 @@
                 <v-flex xs2 pa-2>
                   <v-btn color="primary" icon v-if="user.type === 'Reseller'"
                     @click="attribute.quantity = (Number(attribute.quantity) + 1) || 0"
-                    :disabled="attribute.quantity >= variant.availableQTY"
+                    :disabled="attribute.quantity >= Number(variant.availableQTY)"
                   >
                     <v-icon>add</v-icon>
                   </v-btn>
@@ -339,7 +341,7 @@
                   class="primary white--text"
                   block
                   @click="addToStockOrder"
-                  :disabled="addToStockOrderLoading || attribute.quantity > variant.availableQTY || attribute.quantity <= 0"
+                  :disabled="addToStockOrderLoading || attribute.quantity > Number(variant.availableQTY)|| attribute.quantity <= 0"
                   :loading="addToStockOrderLoading"
                 >
                   <v-icon left>add</v-icon> Add to my Cart
@@ -427,10 +429,7 @@ export default {
     
     } else {
       //retreive the single variant of the current product being viewed
-      this.variant = await this.$store.dispatch('products/GET_PRODUCT_VARIANT', {
-        variantName: this.product.name.toLowerCase(),
-        productId: this.product.id,
-      });
+      this.variant = this.variantList.find(variant => variant.productId === this.product.id);
 
       console.log("product's single variant: ", this.variant);
     }
@@ -674,7 +673,7 @@ export default {
     async fetchVariant() {
       this.attribLoading = true;
       let variantName = '';
-      for(const [key, value] of Object.entries(this.attribute)) {
+      for(const [key, variant] of Object.entries(this.attribute)) {
         
         if(key.toLowerCase() === "quantity" || key.toLowerCase() === "qty") {
           console.log('key that disqualifies: ', key);
@@ -682,37 +681,25 @@ export default {
 
         } else {
           console.log('key that qualified: ', key)
-          variantName += `${value}-`;
+          variantName += `${variant.name}`;
         }
         
       }
 
       variantName = variantName.toLowerCase();
-      //if a product contains multiple attributes, dont fetch the variants yet while the attributes are not filled completely
-      if(variantName.includes("-null")) {
-        this.attribLoading = false;
-        return;
-      }
-
-      const charToRemove = variantName.lastIndexOf('-');
-      if(charToRemove !== -1) {
-        variantName = variantName.substring(0, charToRemove);
-      }
-
+      
       console.log('variant name generated: ', variantName);
-      try {
-        this.variant = await this.$store.dispatch('products/GET_PRODUCT_VARIANT', {
-          variantName,
-          productId: this.product.id,
-        });
+      const variant = this.variantList.find(variant => (variant.productId === this.product.id) && (variant.name.toLowerCase() === variantName));
+      this.variant = Object.assign({}, variant);
+      console.log('selected variant: ', this.variant)
+      
+      if(this.variant.hasOwnProperty('sku')) {
         this.attribLoading = false;
-        
-      } catch(error) {
-        console.log('error from fetch variants: ', error);
+      
+      } else {
         this.attribLoading = false;
         this.snackbar = true;
         this.snackbarMessage = "No variant associated...";
-        throw error;
       }
       
     },
@@ -801,10 +788,16 @@ export default {
       this.attribute["quantity"] = 0;
     },
   },
+  
+  watch: {
+    
+  },
+
   computed: {
     ...mapGetters({
       GET_PRODUCTS: "products/GET_PRODUCTS",
       GET_CURRENT_CATALOGUE: "GET_CURRENT_CATALOGUE",
+      variantList: "variants/GET_VARIANTS",
       user: "accounts/user"
     }),
     descriptionTemplate() {
