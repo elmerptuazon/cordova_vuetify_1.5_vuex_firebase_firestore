@@ -505,13 +505,23 @@ export default {
 
 			}
 
-			stockOrder.items = stockOrder.items.map((item) => {
+			for(let item of stockOrder.items) {
+
+				await DB.collection('products').doc('details')
+				.collection('variants').doc(item.variantId)
+				.update({
+					allocatedQTY: FIRESTORE.FieldValue.increment(item.qty),
+				});
+
 				delete item.attributes.qty;
 				delete item.attributes.quantity;
 				delete item.name;
 				delete item.image;
-				return item;
-			});
+
+				if(!item.hasOwnProperty('weight') || item.weight === undefined) {
+					item.weight = 0;
+				}
+			}
 
 			commit('SET_BASKET_COUNT', 0);
 
