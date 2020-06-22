@@ -67,7 +67,11 @@ export default {
 							if(variantRef.exists) {
 								const variantData = variantRef.data();
 
-								product.resellerPrice = variantData.price;
+								product.isOutofStock = variantData.isOutofStock;
+								product.onHandQTY = variantData.onHandQTY;
+								product.allocatedQTY = variantData.allocatedQTY;
+								product.availableQTY = Number(variantData.onHandQTY) - Number(variantData.allocatedQTY)
+								product.resellerPrice = variantData.resellerPrice;
 								product.price = variantData.price;
 								product.weight = variantData.weight; 
 							}
