@@ -64,7 +64,8 @@ const messages = {
 						//create notification if the user turned the new message setting on
 						if (conversationData.opened[uid] === false && notificationSetting) {
 							notif.title = 'New Message!';
-							notif.text = 'New Message has been received, open the app to see the message!';
+							notif.text = `New Message has been received,\nClick this to open the app!`;
+							notif.redirectURL = '/messages';
 							dispatch('accounts/SEND_PUSH_NOTIFICATION', notif, { root: true });
 						}
 					}
@@ -82,8 +83,8 @@ const messages = {
 						//create notification if the user turned the new message setting on
 						if (conversationData.opened[uid] === false && notificationSetting) {
 							notif.title = 'New Message!';
-							notif.text = 'New Message has been received, open the app to see the message!';
-							//console.log("disapatching push notif");
+							notif.text = `New Message has been received,\nClick this to open the app!`;
+							notif.redirectURL = '/messages';
 							dispatch('accounts/SEND_PUSH_NOTIFICATION', notif, { root: true });
 						}
 					}

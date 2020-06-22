@@ -615,7 +615,7 @@ export default {
 			}
 		},
 
-		LISTEN_TO_STOCK_ORDERS({ state, rootGetters }) {
+		LISTEN_TO_STOCK_ORDERS({ state, rootGetters, dispatch }) {
 
 			const user = AUTH.currentUser;
 
@@ -636,22 +636,29 @@ export default {
 
 						if ((!change.read && change.status === 'cancelled') || (!change.read && change.status === 'processing')) {
 							console.log('Unopened stock order', change);
-							document.addEventListener('deviceready', function () {
+							let message;
+							let titleHeader;
 
-								let message;
+							if (change.status === 'processing') {
+								titleHeader = "Processing Stock Order";
+								message = `Thank you for your order!\nYour order ${change.stockOrderReference} is currently being processed!`;
+							} else if (change.status === 'cancelled') {
+								titleHeader = "Cancelled Stock Order";
+								message = `One of your orders was cancelled.\nPlease contact ${rootGetters["GET_COMPANY"]} if you have any questions.`;
+							}
 
-								if (change.status === 'processing') {
-									message = `Thank you for your order! \n your order is currently being processed!`;
-								} else if (change.status === 'cancelled') {
-									message = `One of your orders was cancelled \nplease contact ${rootGetters["GET_COMPANY"]} if you have any questions.`;
-								}
+							const notif = {
+								title: titleHeader,
+								text: message,
+								redirectURL: {
+									name: 'ViewStockOrder',
+									params: {
+										id: change.id 
+									}
+								},
+							};
 
-								cordova.plugins.notification.local.schedule({
-									title: 'Order Status',
-									text: message,
-									foreground: true
-								});
-							}, false);
+							dispatch('accounts/SEND_PUSH_NOTIFICATION', notif, { root: true });
 						}
 					});
 

@@ -30,10 +30,13 @@ async function copyCompanySetUp() {
             { title: 'Avon', value: 'Avon' },
             { title: 'Babae', value: 'Babae' },
             { title: 'Mother Nurture', value: 'MotherNurture' },
-            { title: 'AppSellTestApp', value: 'AppSellTestApp' },
-            { title: 'Ever Bilena', value: 'EverBilena', disabled: true},
-            { title: 'Mary Kay', value: 'MaryKay', disabled: true },
-            { title: 'My Natural', value: 'MyNatural', disabled: true }
+            { title: 'Farm Fetch', value: 'FarmFetch' },
+            { title: 'Potato Corner', value: 'PotatoCorner' },
+            { title: 'Bente Silog', value: 'BenteSilog' },
+            { title: 'Frito King', value: 'FritoKing' },
+            { title: 'PickUp Sticks', value: 'PickUpSticks' },
+            { title: 'Sip Avenue', value: 'SipAvenue' },
+            
         ],
         initial: 0
     }
