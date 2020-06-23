@@ -350,7 +350,7 @@ export default {
 
       for(let item of this.stockOrder.items) {
 
-        const variant = this.variantList.find(variant => (variant.name.toLowerCase() === item.variantName.toLowerCase()) && (variant.productId === item.productId));
+        const variant = this.variantList.find(variant => (variant.sku === item.sku) && (variant.productId === item.productId));
 
         item.sku = variant.sku;
         item.allocatedQTY = variant.allocatedQTY;
