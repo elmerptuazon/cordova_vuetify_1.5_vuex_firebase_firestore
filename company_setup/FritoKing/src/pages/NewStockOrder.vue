@@ -339,6 +339,13 @@ export default {
     try {
       const response = await this.$store.dispatch("stock_orders/GET");
       console.log('stock order: ', response.data);
+
+      if(!response.data ||!response.data.hasOwnProperty('id')) {
+        this.loader = false;
+        this.loaderDialogMessage = null;
+        return;
+      }
+
       this.stockOrder = Object.assign({}, response.data);
 
       for(let item of this.stockOrder.items) {

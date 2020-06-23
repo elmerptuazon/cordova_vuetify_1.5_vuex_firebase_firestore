@@ -674,14 +674,12 @@ export default {
       
       console.log('selected variant: ', this.variant)
       
-      if(this.variant.hasOwnProperty('sku')) {
-        this.attribLoading = false;
-      
-      } else {
-        this.attribLoading = false;
+      if(!this.variant || !this.variant.hasOwnProperty('sku')) {
         this.snackbar = true;
         this.snackbarMessage = "No variant associated...";
-      }
+      } 
+
+      this.attribLoading = false;
     },
 
     addToInventory() {
