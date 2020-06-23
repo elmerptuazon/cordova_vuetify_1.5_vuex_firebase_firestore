@@ -199,6 +199,7 @@
                   <div v-if="attribLoading">
                     <v-progress-circular indeterminate color="primary"></v-progress-circular>
                   </div>
+                  <div v-else-if="!product.attributes.length" class="font-italic caption pl-2">no variant details...</div>
                   <div v-else class="font-italic caption pl-2">Please select a variant...</div>
                 </v-flex>
                 
@@ -388,14 +389,14 @@ export default {
   async mounted() {
     this.product = this.$route.params.product || {};
 
-    if (!this.product.id) {
+    if (!this.product.hasOwnProperty('id')) {
       this.product = await this.$store.dispatch(
         "products/GET_PRODUCT",
         this.$route.params.id
       );
     }
 
-    if (this.product.attributes) {
+    if (this.product.attributes.length) {
       const index = this.product.attributes.findIndex(attrib => attrib.name.toLowerCase() === 'quantity');
       if(index != -1) this.product.attributes.splice(index, 1);
       
@@ -405,8 +406,8 @@ export default {
     
     } else {
       //retreive the single variant of the current product being viewed
-      this.variant = this.variantList.find(variant => variant.productId === this.product.id);
-
+      const variant = this.variantList.find(variant => variant.productId === this.product.id); 
+      this.variant = Object.assign({}, variant);
       console.log("product's single variant: ", this.variant);
     }
 
