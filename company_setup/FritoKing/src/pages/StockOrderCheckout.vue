@@ -37,8 +37,8 @@
           >Payment Options</v-stepper-step
         >
 
-        <v-divider></v-divider>
-        <v-stepper-step step="4">Submit Order</v-stepper-step>
+        <!-- <v-divider></v-divider> -->
+        <!-- <v-stepper-step step="4">Submit Order</v-stepper-step> -->
       </v-stepper-header>
 
       <v-stepper-items>
@@ -466,12 +466,13 @@ export default {
           this.stockOrder = Object.assign({}, res.data);
 
           const itemsToRemove = this.stockOrder.items.filter((item) => {
+            const variant = this.variantList.find(variant => (variant.sku === item.sku) && (variant.productId === item.productId));
             //get items that are currently out of stock
-            if(item.isOutofStock) {
+            if(variant.isOutofStock) {
               return item;
             }
             //get items that are way too much from the available qty
-            if(item.qty > item.availableQTY) {
+            if(item.qty > variant.availableQTY) {
               return item;
             }
           });
@@ -1195,6 +1196,11 @@ export default {
       const user = this.$store.getters["accounts/user"];
       return user.address;
     },
+
+    variantList() {
+      return this.$store.getters['variants/GET_VARIANTS'];
+    },
+
     ...mapState("payment", {
       paymentOccured: state => state.paymentOccured
     }),
