@@ -407,7 +407,10 @@ export default {
     } else {
       //retreive the single variant of the current product being viewed
       const variant = this.variantList.find(variant => variant.productId === this.product.id); 
+      variant.availableQTY = Number(variant.onHandQTY) - Number(variant.allocatedQTY);
+
       this.variant = Object.assign({}, variant);
+      
       console.log("product's single variant: ", this.variant);
     }
 
@@ -666,7 +669,9 @@ export default {
       
       console.log('variant name generated: ', variantName);
       const variant = this.variantList.find(variant => (variant.productId === this.product.id) && (variant.name.toLowerCase() === variantName));
+      variant.availableQTY = Number(variant.onHandQTY) - Number(variant.allocatedQTY);
       this.variant = Object.assign({}, variant);
+      
       console.log('selected variant: ', this.variant)
       
       if(this.variant.hasOwnProperty('sku')) {
