@@ -498,6 +498,12 @@ export default {
 
 			for (let product of stockOrder.items) {
 
+				await DB.collection('products').doc('details')
+				.collection('variants').doc(product.variantId)
+				.update({
+					allocatedQTY: FIRESTORE.FieldValue.increment(product.qty),
+				});
+
 				const productRef = await COLLECTION.products.doc(product.productId).get();
 
 				if (productRef.exists) {
