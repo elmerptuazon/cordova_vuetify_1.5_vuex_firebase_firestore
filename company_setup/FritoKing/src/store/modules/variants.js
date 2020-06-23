@@ -21,6 +21,7 @@ const variants = {
             const index = state.variants.findIndex((variant) => variant.id === variant.id);
             if(index !== -1) {
                 state.variants[index] = Object.assign({}, payload);
+                state.variants = [...state.variants];
             }
         },
         RemoveVariant(state, payload) {
