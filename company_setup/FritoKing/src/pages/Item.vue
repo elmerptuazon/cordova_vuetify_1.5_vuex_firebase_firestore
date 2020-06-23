@@ -208,7 +208,7 @@
                     <div :class="[ Number(variant.availableQTY) <= Number(variant.reOrderLevel) ? 'red--text' : '']">
                       Available Stock: 
                       <span class="font-weight-bold" v-if="variant.availableQTY"> {{ variant.availableQTY }} pcs.</span>
-                      <span class="font-weight-bold" v-else>N/A</span>
+                      <span class="font-weight-bold" v-else>OUT OF STOCK</span>
                     </div>
                   </v-flex>
                   <v-flex xs12 mt-1>
@@ -310,13 +310,7 @@
                   class="primary white--text"
                   block
                   @click="addToStockOrder"
-                  :disabled="
-                    addToStockOrderLoading || 
-                    attribute.quantity > Number(variant.availableQTY)|| 
-                    attribute.quantity <= 0 ||
-                    Number(variant.availableQTY) === 0 ||
-                    variant.isOutofStock
-                  "
+                  :disabled="disableAddToCart"
                   :loading="addToStockOrderLoading"
                 >
                   <v-icon left>add</v-icon> Add to my Cart
@@ -774,6 +768,15 @@ export default {
     }),
     descriptionTemplate() {
       return this.description;
+    },
+    disableAddToCart() {
+      if(this.variant.isOutofStock) return true;
+      if(this.addToStockOrderLoading) return true;
+      if(Number(this.variant.availableQTY) === 0) return true;
+      if(Number(this.attribute.quantity) > Number(this.variant.availableQTY)) return true; 
+      if(Number(this.attribute.quantity) <= 0) return true;
+      
+      return false;
     }
   },
   filters: {
