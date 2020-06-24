@@ -530,7 +530,7 @@ const accounts = {
 					dispatch('providers/ListenToPaymentProvider', null, { root: true })
 					dispatch('providers/ListenToLogisticsProvider', null, { root: true })
 					dispatch('articles/LISTEN_TO_ARTICLES', null, { root: true })
-					dispatch('variants/LISTEN_TO_VARIANTS', null, { root: true });
+					// dispatch('variants/LISTEN_TO_VARIANTS', null, { root: true });
 
 					if (state.settings.newOrders) {
 						// dispatch('orders/LISTEN_TO_ORDERS', { id: userData.uid }, { root: true });
@@ -733,7 +733,7 @@ const accounts = {
 				dispatch('articles/UNSUBSCRIBE_TO_ARTICLES', null, { root: true });
 
 				//UNSUSBSCRIBE TO VARIANT CHANGES
-				dispatch('variants/UNSUBSCRIBE_TO_VARIANTS', null, { root: true });
+				// dispatch('variants/UNSUBSCRIBE_TO_VARIANTS', null, { root: true });
 
 				return await AUTH.signOut();
 			} catch (error) {
@@ -973,9 +973,9 @@ const accounts = {
 				dispatch('articles/LISTEN_TO_ARTICLES', null, { root: true });
 			}
 
-			if(!rootState.variants.subscriber) {
-				dispatch('variants/LISTEN_TO_VARIANTS', null, { root: true });
-			}
+			// if(!rootState.variants.subscriber) {
+			// 	dispatch('variants/LISTEN_TO_VARIANTS', null, { root: true });
+			// }
 
 			// if (state.settings.newMessages) {
 			// 	dispatch('conversations/LISTEN_TO_CONVERSATIONS', null, { root: true });

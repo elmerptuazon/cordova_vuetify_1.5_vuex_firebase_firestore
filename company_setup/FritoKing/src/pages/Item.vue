@@ -191,9 +191,9 @@
           <v-container fluid>
             <v-form v-model="valid" ref="form" lazy-validation>
               <v-layout row wrap align-center justify-start v-if="user.type === 'Reseller'"> 
-                <v-flex xs12>
+                <!-- <v-flex xs12>
                   <div class="title font-weight-bold">Variant Details</div>
-                </v-flex>
+                </v-flex> -->
                 
                 <v-flex xs12 mt-2 v-if="!variant.hasOwnProperty('name') || attribLoading || !variant ">
                   <div v-if="attribLoading">
@@ -222,10 +222,10 @@
               </v-layout>
 
               <v-layout row wrap v-if="product.attributes.length" my-3>
-                <v-flex xs12>
+                <!-- <v-flex xs12>
                   <v-divider class="black"></v-divider>
                   <div class="mt-3 font-weight-bold body-1">Variant Selection</div>
-                </v-flex>
+                </v-flex> -->
                 <v-flex
                   xs12
                   v-for="(a, index) in product.attributes"
@@ -400,9 +400,12 @@ export default {
     
     } else {
       //retreive the single variant of the current product being viewed
-      const variant = this.variantList.find(variant => variant.productId === this.product.id); 
-      variant.availableQTY = Number(variant.onHandQTY) - Number(variant.allocatedQTY);
-
+      // const variant = this.variantList.find(variant => variant.productId === this.product.id); 
+      // variant.availableQTY = Number(variant.onHandQTY) - Number(variant.allocatedQTY);
+      const variant = await this.$store.dispatch('variants/GET_VARIANT', {
+        sku: this.product.code,
+        productId: this.product.id
+      });
       this.variant = Object.assign({}, variant);
       
       console.log("product's single variant: ", this.variant);
@@ -658,12 +661,15 @@ export default {
         }
         
       }
-
-      variantName = variantName.toLowerCase();
       
       console.log('variant name generated: ', variantName);
-      const variant = this.variantList.find(variant => (variant.productId === this.product.id) && (variant.name.toLowerCase() === variantName));
-      variant.availableQTY = Number(variant.onHandQTY) - Number(variant.allocatedQTY);
+      // const variant = this.variantList.find(variant => (variant.productId === this.product.id) && (variant.name.toLowerCase() === variantName));
+      // variant.availableQTY = Number(variant.onHandQTY) - Number(variant.allocatedQTY);
+      const variant = await this.$store.dispatch('variants/GET_VARIANT', {
+        name: variantName,
+        productId: this.product.id
+      });
+      
       this.variant = Object.assign({}, variant);
       
       console.log('selected variant: ', this.variant)

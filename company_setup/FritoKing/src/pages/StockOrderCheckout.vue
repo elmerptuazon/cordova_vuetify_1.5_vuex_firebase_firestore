@@ -449,7 +449,7 @@ export default {
     inAppBrowserRef: null,
 
   }),
-  mounted() {
+  async mounted() {
     this.cordovaBackButton(this.goBack);
     
     this.loaderDialogMessage = 'Please Wait...';
@@ -457,53 +457,53 @@ export default {
 
     this.checkoutHeight = window.innerHeight;
     this.checkoutWidth = window.innerWidth;
+    
+    let stockOrder;
+    try {
+      stockOrder = await this.$store.dispatch("stock_orders/GET"); 
+    } catch(error) {
+      console.log(error);
+      this.loaderDialogMessage = null;
+      this.loaderDialog = false;
+    }
+    
+    if(!stockOrder.success) {
+      this.loaderDialogMessage = null;
+      this.loaderDialog = false;
+      return;
+    }
 
-    this.$store
-      .dispatch("stock_orders/GET")
-      .then(res => {
-        console.log(res.data);
-        if (res.success) {
-          this.stockOrder = Object.assign({}, res.data);
+    this.stockOrder = Object.assign({}, stockOrder.data);
 
-          const itemsToRemove = this.stockOrder.items.filter((item) => {
-            const variant = this.variantList.find(variant => (variant.sku === item.sku) && (variant.productId === item.productId));
-            //get items that are currently out of stock
-            if(variant.isOutofStock) {
-              return item;
-            }
-            //get items that are way too much from the available qty
-            if(item.qty > variant.availableQTY) {
-              return item;
-            }
-          });
-
-          for(const item of itemsToRemove) {
-            const index = this.stockOrder.items.findIndex(stockOrderItem => item.productId === stockOrderItem.productId);
-            if(index !== -1) {
-              this.stockOrder.items.splice(index, 1);
-            }
-          }
-        }
-        
-      })
-      .catch(error => {
-        console.log(error);
-        this.loaderDialogMessage = null;
-        this.loaderDialog = false;
+    let itemsToRemove = [];
+    for(const item of this.stockOrder.items) {
+      const variant = await this.$store.dispatch('variants/GET_VARIANT', {
+        sku: item.sku,
+        productId: item.productId
       });
 
-    this.$store
-      .dispatch('providers/GetFreeDeliveryCutOff')
-      .then(res => {
-        this.freeDeliveryCutOff = res.cutOffPrice;
-        this.loaderDialogMessage = null;
-        this.loaderDialog = false;
-      })
-      .catch(error => {
-        console.log(error);
-        this.loaderDialogMessage = null;
-        this.loaderDialog = false;
-      });
+      if(variant.isOutofStock) itemsToRemove.push(item);
+      else if(item.qty > variant.availableQTY) itemsToRemove.push(items);
+    }
+
+    for(const item of itemsToRemove) {
+      const index = this.stockOrder.items.findIndex(stockOrderItem => item.productId === stockOrderItem.productId);
+      if(index !== -1) {
+        this.stockOrder.items.splice(index, 1);
+      }
+    }
+
+    try {
+      const freeDelivery = await this.$store.dispatch('providers/GetFreeDeliveryCutOff');
+      this.freeDeliveryCutOff = freeDelivery.cutOffPrice;
+      this.loaderDialogMessage = null;
+      this.loaderDialog = false;
+
+    } catch(error) {
+      console.log(error);
+      this.loaderDialogMessage = null;
+      this.loaderDialog = false;
+    }
 
   },
   beforeDestroy() {
