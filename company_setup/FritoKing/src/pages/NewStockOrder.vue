@@ -248,7 +248,7 @@
             </v-flex>
             <v-flex xs2 pa-2>
                 <v-btn color="primary" icon 
-                  :disabled="selectedProduct.qty <= 0" 
+                  :disabled="selectedProduct.qty <= 0 || selectedProduct.qty <= Number(selectedProduct.minimumOrder)" 
                   @click="selectedProduct.qty = (Number(selectedProduct.qty) - 1) || 0"
                 >
                   <v-icon>remove</v-icon>
@@ -256,7 +256,7 @@
             </v-flex>
             <v-flex xs2 pa-2>
                 <v-btn color="primary" icon 
-                  :disabled="selectedProduct.qty >= selectedProduct.availableQTY"
+                  :disabled="selectedProduct.qty >= Number(selectedProduct.availableQTY)"
                   @click="selectedProduct.qty = (Number(selectedProduct.qty) + 1) || 0">
                   <v-icon>add</v-icon>
                 </v-btn>
@@ -265,7 +265,7 @@
         </v-card-text>
         <v-card-actions>
           <v-btn
-            :disabled="saveProductButton || selectedProduct.qty > selectedProduct.availableQTY || selectedProduct.qty <= 0"
+            :disabled="disableSaveButton"
             :loading="saveProductButton"
             block
             class="primary white--text"
@@ -365,6 +365,7 @@ export default {
         item.price = variant.price;
         item.resellerPrice = variant.resellerPrice;
         item.isOutofStock = variant.isOutofStock;
+        item.minimumOrder = variant.minimumOrder;
 
         if(!item.isOutofStock && item.availableQTY === 0) {
           item.isOutofStock = true;
@@ -660,6 +661,15 @@ export default {
     }
   },
   computed: {
+    disableSaveButton() {
+      if(this.saveProductButton) return true;
+      if(Number(this.selectedProduct.qty) <= Number(this.selectedProduct.minimumOrder)) return true;
+      if(Number(this.selectedProduct.qty) > Number(this.selectedProduct.availableQTY)) return true;
+      if(Number(this.selectedProduct.qty) <= 0) return true;
+
+      return false;
+    },
+
     subTotal() {
       console.log(this.stockOrder);
       return this.stockOrder.items.reduce(

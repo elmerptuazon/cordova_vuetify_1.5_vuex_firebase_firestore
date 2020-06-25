@@ -257,7 +257,7 @@
 
                 <v-flex xs2 pa-2>
                   <v-btn color="primary" 
-                    icon :disabled="attribute.quantity <= 0"
+                    icon :disabled="attribute.quantity <= 0 || Number(attribute.quantity) <= Number(variant.minimumOrder)"
                     @click="attribute.quantity = (Number(attribute.quantity) - 1) || 0"
                   >
                     <v-icon>remove</v-icon>
@@ -407,6 +407,7 @@ export default {
         productId: this.product.id
       });
       this.variant = Object.assign({}, variant);
+      this.attribute['quantity'] = this.variant.minimumOrder;
       
       console.log("product's single variant: ", this.variant);
     }
@@ -671,6 +672,7 @@ export default {
       });
       
       this.variant = Object.assign({}, variant);
+      this.attribute['quantity'] = this.variant.minimumOrder;
       
       console.log('selected variant: ', this.variant)
       
@@ -761,7 +763,6 @@ export default {
     cancelEdit() {
       this.editItemDialog = false;
       this.orderQTY = 0;
-      this.attribute["quantity"] = 0;
     }
   },
   
@@ -779,6 +780,7 @@ export default {
       if(this.variant.isOutofStock) return true;
       if(this.addToStockOrderLoading) return true;
       if(Number(this.variant.availableQTY) === 0) return true;
+      if(Number(this.attribute.quantity) < Number(this.variant.minimumOrder)) return true;
       if(Number(this.attribute.quantity) > Number(this.variant.availableQTY)) return true; 
       if(Number(this.attribute.quantity) <= 0) return true;
       
