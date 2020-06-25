@@ -213,8 +213,15 @@
                   </v-flex>
                   <v-flex xs12 mt-1>
                     <div>
-                      Variant Price: 
+                      Price: 
                       <span class="font-weight-bold" v-if="variant.price"> {{ variant.price | currency("&#8369;") }}</span>
+                      <span class="font-weight-bold" v-else>N/A</span>
+                    </div>
+                  </v-flex>
+                  <v-flex xs12 mt-1>
+                    <div>
+                      Minimum Order: 
+                      <span class="font-weight-bold" v-if="attribute.quantity"> {{ attribute.quantity}} pcs.</span>
                       <span class="font-weight-bold" v-else>N/A</span>
                     </div>
                   </v-flex>
