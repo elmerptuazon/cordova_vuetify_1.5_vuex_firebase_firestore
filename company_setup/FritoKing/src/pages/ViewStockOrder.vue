@@ -34,7 +34,12 @@
                 ]"
                 text-color="white"
               >
-                {{ stockOrder.status }}
+                <span v-if="
+                    stockOrder.status.toLowerCase() === 'shipped' &&
+                    stockOrder.shipmentsToReceive > 0
+                  "
+                >scheduled for shipping</span>
+                <span v-else>{{ stockOrder.status }}</span>
               </v-chip>
             </div>
           </div>
@@ -251,7 +256,9 @@ export default {
       logisticsDetails: {
         isFreeShipping: false,
         logisticProvider: 'pick-up'
-      }
+      },
+      status: '',
+      shipmentsToReceive: 0
     },
     loaderDialogMessage: null,
   }),
@@ -342,7 +349,7 @@ export default {
       let str = "";
 
       keys.forEach(key => {
-        str += `${key}:${attributes[key]}`;
+        str += `${key.toUpperCase()}: ${attributes[key]}`;
       });
 
       return str;

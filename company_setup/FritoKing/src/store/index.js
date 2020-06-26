@@ -20,6 +20,7 @@ import shipment from './modules/shipment';
 import logo from '@/assets/img/header_logo.png';
 import payment from './modules/payment';
 import providers from './modules/providers';
+import variants from './modules/variants';
 
 Vue.use(Vuex);
 
@@ -93,6 +94,7 @@ export default new Vuex.Store({
         conversations,
         shipment,
         payment,
-        providers
+        providers,
+        variants
     }
 })

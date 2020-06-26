@@ -14,10 +14,14 @@
       >
         <v-card class="mt-2" color="white">
           <v-card-title class="subheading">
-            Shipment Tracking Number: {{ shipment.trackingNumber }}
+            Shipment Tracking Number: <span class="font-weight-bold">{{ shipment.trackingNumber }}</span>
           </v-card-title>
           <v-card-text>
             <v-layout align-center justify-space-around row wrap>
+              <v-flex xs12>
+                <span class="body-1">Shipping Date: </span>
+                <span class="body-2 font-weight-bold">{{ $moment(new Date(shipment.pickupDate)).format("DD-MMM-YYYY") }}</span>
+              </v-flex>
               <v-flex xs12>
                 <v-data-table
                   hide-actions
@@ -72,7 +76,10 @@
 import { mapState } from "vuex";
 import Modal from "@/components/Modal";
 import { FIRESTORE } from "@/config/firebaseInit";
+import { mixins } from '@/mixins';
+
 export default {
+  mixins: [mixins],
   props: ["stockOrderId", "stockOrder"],
   data: () => ({
     selectedItem: {},

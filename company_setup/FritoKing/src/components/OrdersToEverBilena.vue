@@ -40,7 +40,15 @@
           </v-badge>
         </td>
         <td class="text-xs-center">{{ props.item.stockOrderReference }}</td>
-        <td class="text-xs-center">{{ props.item.status | uppercase }}</td>
+        <td class="text-xs-center">
+          <span v-if="
+            props.item.status.toLowerCase() === 'shipped' && 
+            props.item.shipmentsToReceive > 0"
+            >SCHEDULED FOR SHIPPING
+          </span>
+          
+          <span v-else>{{ props.item.status | uppercase }}</span>
+        </td>
         <td class="text-xs-center">
           {{ props.item.submittedAt | momentify("DD-MMM-YYYY") }}
         </td>
