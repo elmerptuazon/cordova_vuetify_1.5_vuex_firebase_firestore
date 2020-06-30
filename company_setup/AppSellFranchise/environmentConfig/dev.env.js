@@ -3,13 +3,13 @@ var prodEnv = require('./prod.env')
 
 module.exports = merge(prodEnv, {
   NODE_ENV: '"development"',
-  projectId: '"fritoking-dev"',
-  appId: '"1:200493591511:web:086dcbfe7f53d720aef992"',
-  databaseURL: '"https://fritoking-dev.firebaseio.com"',
-  storageBucket: '"fritoking-dev.appspot.com"',
-  apiKey: '"AIzaSyAKjz6J06tTgQHM4kqnTod45eOkXR9_NOQ"',
-  authDomain: '"fritoking-dev.firebaseapp.com"',
-  messagingSenderId: '"200493591511"',
+  projectId: '"appsellfranchise"',
+  appId: '"1:1069219513340:web:640e8dbeaebfecf8ee2879"',
+  databaseURL: '"https://appsellfranchise.firebaseio.com"',
+  storageBucket: '"appsellfranchise.appspot.com"',
+  apiKey: '"AIzaSyBp7LvQJL0PjA1mtrDGk7SvN_OUAK9RJqQ"',
+  authDomain: '"appsellfranchise.firebaseapp.com"',
+  messagingSenderId: '"1069219513340"',
   storageCode: '"AppSellFranchise"',
   webAdminId: '"admin"',
   companyName: '"AppSell Franchise"',
@@ -17,5 +17,5 @@ module.exports = merge(prodEnv, {
   version: '"0.6.10"',
   primaryColor: '"#d66807"',
   environment: '"test"',
-  callbackURL: '"https://us-central1-fritoking-dev.cloudfunctions.net/callback/checkPaymentStatus"',
+  callbackURL: '"https://us-central1-appsellfranchise.cloudfunctions.net/callback/checkPaymentStatus"',
 })
