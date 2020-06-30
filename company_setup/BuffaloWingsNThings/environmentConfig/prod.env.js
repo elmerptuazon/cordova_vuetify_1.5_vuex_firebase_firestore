@@ -12,7 +12,7 @@ module.exports = {
   companyName: '"Buffalo\'s Wings N Things"',
   contactNumber: '"09123456789"',
   version: '"0.6.10"',
-  primaryColor: '"#003784"',
+  primaryColor: '"#0099ff"',
   environment: '"live"',
   callbackURL: '"https://us-central1-buffalowings-dev.cloudfunctions.net/callback/checkPaymentStatus"',
 }
