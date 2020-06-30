@@ -40,7 +40,7 @@ function executeCommand(cmd) {
 		const answer = true;
 		if (answer) {
 			console.log('Building apk. Please wait...');
-			await executeCommand('cordova build android');
+			await executeCommand('cordova build ios');
 			console.log('APK generated.');
 			//await executeCommand(String.raw`start platforms\android\app\build\outputs\apk\debug`);
 		}
