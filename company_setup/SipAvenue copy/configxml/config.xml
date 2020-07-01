@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget android-versionCode="3" id="io.cordova.appsell_SipAvenue" ios-CFBundleVersion="1" version="0.6.10" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <name>Sip Avenue Test App</name>
-    <description>Sip Avenue test app</description>
+<widget android-versionCode="3" id="io.cordova.appsell_BuffaloWingsNThings" ios-CFBundleVersion="1" version="0.6.10" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>Buffalo's Wings N Things Test App</name>
+    <description>Buffalo's Wings N Things test app</description>
     <author email="sorianorobertc@gmail.com" href="https://robertsoriano.com">
       AppSell Team
     </author>
