@@ -663,7 +663,7 @@ export default {
   computed: {
     disableSaveButton() {
       if(this.saveProductButton) return true;
-      if(Number(this.selectedProduct.qty) <= Number(this.selectedProduct.minimumOrder)) return true;
+      if(Number(this.selectedProduct.qty) < Number(this.selectedProduct.minimumOrder)) return true;
       if(Number(this.selectedProduct.qty) > Number(this.selectedProduct.availableQTY)) return true;
       if(Number(this.selectedProduct.qty) <= 0) return true;
 

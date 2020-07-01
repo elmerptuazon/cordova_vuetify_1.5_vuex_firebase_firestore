@@ -48,13 +48,6 @@
                 </v-layout>
               </v-img>
             </div>
-            <!-- <v-carousel v-else>
-						<v-carousel-item
-						v-for="(src, i) in product.photos"
-						:key="i"
-						:src="src"
-						></v-carousel-item>
-					</v-carousel> -->
 
             <carousel
               v-else
@@ -191,10 +184,6 @@
           <v-container fluid>
             <v-form v-model="valid" ref="form" lazy-validation>
               <v-layout row wrap align-center justify-start v-if="user.type === 'Reseller'"> 
-                <!-- <v-flex xs12>
-                  <div class="title font-weight-bold">Variant Details</div>
-                </v-flex> -->
-                
                 <v-flex xs12 mt-2 v-if="!variant.hasOwnProperty('name') || attribLoading || !variant ">
                   <div v-if="attribLoading">
                     <v-progress-circular indeterminate color="primary"></v-progress-circular>
@@ -221,7 +210,7 @@
                   <v-flex xs12 mt-1>
                     <div>
                       Minimum Order: 
-                      <span class="font-weight-bold" v-if="attribute.quantity"> {{ attribute.quantity}} pcs.</span>
+                      <span class="font-weight-bold" v-if="variant.minimumOrder"> {{ variant.minimumOrder }} pcs.</span>
                       <span class="font-weight-bold" v-else>N/A</span>
                     </div>
                   </v-flex>
@@ -229,10 +218,6 @@
               </v-layout>
 
               <v-layout row wrap v-if="product.attributes.length" my-3>
-                <!-- <v-flex xs12>
-                  <v-divider class="black"></v-divider>
-                  <div class="mt-3 font-weight-bold body-1">Variant Selection</div>
-                </v-flex> -->
                 <v-flex
                   xs12
                   v-for="(a, index) in product.attributes"
@@ -263,8 +248,9 @@
                 </v-flex>
 
                 <v-flex xs2 pa-2>
-                  <v-btn color="primary" 
-                    icon :disabled="attribute.quantity <= 0 || Number(attribute.quantity) <= Number(variant.minimumOrder)"
+                  <v-btn 
+                    color="primary" icon 
+                    :disabled="attribute.quantity <= 0 || Number(attribute.quantity) <= Number(variant.minimumOrder)"
                     @click="attribute.quantity = (Number(attribute.quantity) - 1) || 0"
                   >
                     <v-icon>remove</v-icon>
@@ -407,8 +393,6 @@ export default {
     
     } else {
       //retreive the single variant of the current product being viewed
-      // const variant = this.variantList.find(variant => variant.productId === this.product.id); 
-      // variant.availableQTY = Number(variant.onHandQTY) - Number(variant.allocatedQTY);
       const variant = await this.$store.dispatch('variants/GET_VARIANT', {
         sku: this.product.code,
         productId: this.product.id
@@ -671,8 +655,6 @@ export default {
       }
       
       console.log('variant name generated: ', variantName);
-      // const variant = this.variantList.find(variant => (variant.productId === this.product.id) && (variant.name.toLowerCase() === variantName));
-      // variant.availableQTY = Number(variant.onHandQTY) - Number(variant.allocatedQTY);
       const variant = await this.$store.dispatch('variants/GET_VARIANT', {
         name: variantName,
         productId: this.product.id

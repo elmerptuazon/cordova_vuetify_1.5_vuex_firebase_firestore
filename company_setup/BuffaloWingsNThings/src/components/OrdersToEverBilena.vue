@@ -42,7 +42,7 @@
         <td class="text-xs-center">{{ props.item.stockOrderReference }}</td>
         <td class="text-xs-center">
           <span v-if="
-            props.item.status.toLowerCase() === 'shipped' && 
+            (props.item.status.toLowerCase() === 'shipped' ||  props.item.status.toLowerCase() === 'partially shipped') && 
             props.item.shipmentsToReceive > 0"
             >SCHEDULED FOR SHIPPING
           </span>
@@ -52,9 +52,6 @@
         <td class="text-xs-center">
           {{ props.item.submittedAt | momentify("DD-MMM-YYYY") }}
         </td>
-        <!-- <td class="text-xs-center">
-          {{ props.item.discountedTotal | currency("P") }}
-        </td> -->
       </tr>
     </template>
   </v-data-table>
