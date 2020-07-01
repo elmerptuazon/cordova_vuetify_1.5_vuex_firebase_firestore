@@ -36,7 +36,7 @@ async function copyCompanySetUp() {
             { title: 'Frito King', value: 'FritoKing' },
             { title: 'PickUp Sticks', value: 'PickUpSticks' },
             { title: 'Sip Avenue', value: 'SipAvenue' },
-            { title: 'AppSell Franchise', value: 'AppSellFranchise' },
+            { title: 'Buffalo\'s Wings N Things', value: 'BuffaloWingsNThings' },
             
         ],
         initial: 0
