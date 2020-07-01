@@ -12,7 +12,7 @@ module.exports = {
   companyName: '"Sip Avenue"',
   contactNumber: '"09123456789"',
   version: '"0.6.10"',
-  primaryColor: '"#f7a978"',
+  primaryColor: '"#ff6001"',
   environment: '"live"',
   callbackURL: '"https://us-central1-sipavenue-dev.cloudfunctions.net/callback/checkPaymentStatus"'
 }
