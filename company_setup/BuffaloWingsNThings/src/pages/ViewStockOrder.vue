@@ -35,7 +35,7 @@
                 text-color="white"
               >
                 <span v-if="
-                    stockOrder.status.toLowerCase() === 'shipped' &&
+                    (stockOrder.status.toLowerCase() === 'shipped' || stockOrder.status.toLowerCase() === 'shipped') &&
                     stockOrder.shipmentsToReceive > 0
                   "
                 >scheduled for shipping</span>
@@ -156,22 +156,7 @@
         <tr>
           <td colspan="3"></td>
         </tr>
-        <!-- <tr>
-          <td class="caption text-xs-right" colspan="2">
-            Subtotal
-          </td>
-          <td class="caption text-xs-right">
-            {{ subTotal | currency("P") }}
-          </td>
-        </tr>
-        <tr>
-          <td class="caption text-xs-right" colspan="2">
-            Discount
-          </td>
-          <td class="caption text-xs-right">
-            <span v-if="discount">{{ discount }}%</span>
-          </td>
-        </tr> -->
+        
         <tr>
           <td class="caption text-xs-right" colspan="2">
             Total
@@ -185,8 +170,8 @@
 
     <v-card
       v-if="
-        stockOrder.status === 'shipped' ||
-          stockOrder.status === 'partially shipped'
+        stockOrder.status.toLowerCase() === 'shipped' ||
+          stockOrder.status.toLowerCase() === 'partially shipped'
       "
     >
       <v-card-title class="subheading font-weight-medium"
@@ -194,22 +179,6 @@
       >
       <ShipmentDetails :stockOrderId="$route.params.id" :stockOrder="stockOrder"/>
     </v-card>
-
-    <!-- <div class="text-xs-center mt-3 mb-3" v-if="!stockOrder.addedToInventory">
-      <v-btn
-        :loading="loading"
-        :disabled="loading"
-        @click="addToInventory"
-        depressed
-        large
-        class="primary white--text"
-        v-if="
-          stockOrder.status === 'delivered' || stockOrder.status === 'collected'
-        "
-      >
-        <v-icon left>check_circle</v-icon> Add Stock to Inventory
-      </v-btn>
-    </div> -->
 
     <v-dialog v-model="loaderDialog" hide-overlay persistent width="300">
       <v-card color="primary" dark>
@@ -255,7 +224,8 @@ export default {
       },
       logisticsDetails: {
         isFreeShipping: false,
-        logisticProvider: 'pick-up'
+        logisticProvider: 'pick-up',
+        shippingFee: 0
       },
       status: '',
       shipmentsToReceive: 0
@@ -277,8 +247,8 @@ export default {
           console.log(this.stockOrder);
           if (
             (!this.stockOrder.read &&
-              this.stockOrder.status === "processing") ||
-            (!this.stockOrder.read && this.stockOrder.status === "cancelled")
+              this.stockOrder.status.toLowerCase() === "processing") ||
+            (!this.stockOrder.read && this.stockOrder.status.toLowerCase() === "cancelled")
           ) {
             this.$store.dispatch("stock_orders/UPDATE_STOCK_ORDER", {
               id: this.stockOrder.id,

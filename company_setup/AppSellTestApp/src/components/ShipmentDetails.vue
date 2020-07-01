@@ -19,6 +19,10 @@
           <v-card-text>
             <v-layout align-center justify-space-around row wrap>
               <v-flex xs12>
+                <span class="body-1">Shipping / Pick-Up Date: </span>
+                <span class="body-2 font-weight-bold">{{ $moment(new Date(shipment.pickupDate)).format("DD-MMM-YYYY") }}</span>
+              </v-flex>
+              <v-flex xs12>
                 <v-data-table
                   hide-actions
                   :headers="headers"
@@ -119,6 +123,12 @@ export default {
         }
         
         await this.$store.dispatch("shipment/UpdateShipment", updatedShipment);
+        await this.$store.dispatch("stock_orders/UPDATE_STOCK_ORDER", {
+          id: shipment.stockOrder.stockOrderId,
+          key: 'isQTYDeducted',
+          value: false
+        });
+        
         this.$refs.modal.show(
           "Success",
           "Shipment has been tagged as Received!"

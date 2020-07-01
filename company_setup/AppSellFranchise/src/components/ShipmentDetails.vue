@@ -126,6 +126,12 @@ export default {
         }
         
         await this.$store.dispatch("shipment/UpdateShipment", updatedShipment);
+        await this.$store.dispatch("stock_orders/UPDATE_STOCK_ORDER", {
+          id: shipment.stockOrder.stockOrderId,
+          key: 'isQTYDeducted',
+          value: false
+        });
+        
         this.$refs.modal.show(
           "Success",
           "Shipment has been tagged as Received!"

@@ -21,8 +21,14 @@
 
         <v-divider></v-divider>
 
-        <v-stepper-step :complete="stepperCounter > 2" step="2"
+        <!-- <v-stepper-step :complete="stepperCounter > 2" step="2"
           >Shipment Options</v-stepper-step
+        >
+
+        <v-divider></v-divider> -->
+
+        <v-stepper-step :complete="stepperCounter > 2" step="2"
+          >Breakdown of Orders</v-stepper-step
         >
 
         <v-divider></v-divider>
@@ -31,8 +37,8 @@
           >Payment Options</v-stepper-step
         >
 
-        <v-divider></v-divider>
-        <v-stepper-step step="4">Submit Order</v-stepper-step>
+        <!-- <v-divider></v-divider> -->
+        <!-- <v-stepper-step step="4">Submit Order</v-stepper-step> -->
       </v-stepper-header>
 
       <v-stepper-items>
@@ -72,7 +78,7 @@
                   </v-btn>
                 </v-flex>
                 <v-flex xs3 offset-xs1>
-                  <v-btn color="primary" depressed @click="startQuotations">
+                  <v-btn color="primary" depressed @click="stepperCounter += 1">
                     Continue
                   </v-btn>
                 </v-flex>
@@ -81,7 +87,7 @@
           </v-card>
         </v-stepper-content>
 
-        <v-stepper-content step="2">
+        <!-- <v-stepper-content step="2">
           <v-card class="mb-2" flat>
             <v-card-title>
               <span class="body-2">Select shipping option</span>
@@ -148,9 +154,9 @@
               </v-radio-group>
             </v-container>
           </v-card>
-        </v-stepper-content>
+        </v-stepper-content> -->
 
-        <v-stepper-content step="3">
+        <v-stepper-content step="2">
           <v-card>
             <v-card-title>
               <span class="body-2">Breakdown of Orders</span>
@@ -225,14 +231,6 @@
                   </tr>
                   <!-- <tr>
                     <td class="caption text-xs-right" colspan="2">
-                      Discount
-                    </td>
-                    <td class="caption text-xs-right">
-                      <span v-if="discount">{{ discount }}%</span>
-                    </td>
-                  </tr> -->
-                  <tr>
-                    <td class="caption text-xs-right" colspan="2">
                       Shipping Fee
                     </td>
                     <td class="caption text-xs-right">
@@ -242,7 +240,7 @@
                       >FREE</span>
                       <span v-else>{{ shippingFee | currency("P") }}</span>
                     </td>
-                  </tr>
+                  </tr> -->
                   <tr>
                     <td class="caption text-xs-right" colspan="2">
                       Total
@@ -258,10 +256,10 @@
           <v-container class="mt-4 px-3">
             <v-layout align-center justify-end px-6 row>
               <v-flex xs4 mr-2>
-                <v-btn flat @click="stepperCounter = 2">Back</v-btn>
+                <v-btn flat @click="stepperCounter -= 1">Back</v-btn>
               </v-flex>
               <v-flex xs4>
-                <v-btn color="primary" depressed @click="stepperCounter = 4">
+                <v-btn color="primary" depressed @click="stepperCounter += 1">
                   Continue
                 </v-btn>
               </v-flex>
@@ -269,7 +267,7 @@
           </v-container>
         </v-stepper-content>
 
-        <v-stepper-content step="4">
+        <v-stepper-content step="3">
           <v-card class="mb-5">
             <v-card-title>
               <span class="body-2">Select Payment Option</span>
@@ -341,7 +339,7 @@
                 Pay and Submit Order
               </span>
             </v-btn>
-            <v-btn flat @click="stepperCounter = 3">Back</v-btn>
+            <v-btn flat @click="stepperCounter -= 1">Back</v-btn>
           </div>
         </v-stepper-content>
       </v-stepper-items>
@@ -434,10 +432,10 @@ export default {
     userHasNoOrders: '',
     freeDeliveryCutOff: 0.00,
 
-    logisticsID: "pick-up",
+    logisticsID: "delivery",
     loaderDialogMessage: null,
     inAppBrowserRef: null,
-    stepperCounter: 0,
+    stepperCounter: 1,
 
     checkOutDialog: false,
     checkOutURL: null,
@@ -451,7 +449,7 @@ export default {
     inAppBrowserRef: null,
 
   }),
-  mounted() {
+  async mounted() {
     this.cordovaBackButton(this.goBack);
     
     this.loaderDialogMessage = 'Please Wait...';
@@ -459,34 +457,53 @@ export default {
 
     this.checkoutHeight = window.innerHeight;
     this.checkoutWidth = window.innerWidth;
+    
+    let stockOrder;
+    try {
+      stockOrder = await this.$store.dispatch("stock_orders/GET"); 
+    } catch(error) {
+      console.log(error);
+      this.loaderDialogMessage = null;
+      this.loaderDialog = false;
+    }
+    
+    if(!stockOrder.success) {
+      this.loaderDialogMessage = null;
+      this.loaderDialog = false;
+      return;
+    }
 
-    this.$store
-      .dispatch("stock_orders/GET")
-      .then(res => {
-        console.log(res.data);
-        if (res.success) {
-          this.stockOrder = Object.assign({}, res.data);
-        }
-        
-      })
-      .catch(error => {
-        console.log(error);
-        this.loaderDialogMessage = null;
-        this.loaderDialog = false;
+    this.stockOrder = Object.assign({}, stockOrder.data);
+
+    let itemsToRemove = [];
+    for(const item of this.stockOrder.items) {
+      const variant = await this.$store.dispatch('variants/GET_VARIANT', {
+        sku: item.sku,
+        productId: item.productId
       });
 
-    this.$store
-      .dispatch('providers/GetFreeDeliveryCutOff')
-      .then(res => {
-        this.freeDeliveryCutOff = res.cutOffPrice;
-        this.loaderDialogMessage = null;
-        this.loaderDialog = false;
-      })
-      .catch(error => {
-        console.log(error);
-        this.loaderDialogMessage = null;
-        this.loaderDialog = false;
-      });
+      if(variant.isOutofStock) itemsToRemove.push(item);
+      else if(item.qty > variant.availableQTY) itemsToRemove.push(items);
+    }
+
+    for(const item of itemsToRemove) {
+      const index = this.stockOrder.items.findIndex(stockOrderItem => item.productId === stockOrderItem.productId);
+      if(index !== -1) {
+        this.stockOrder.items.splice(index, 1);
+      }
+    }
+
+    try {
+      const freeDelivery = await this.$store.dispatch('providers/GetFreeDeliveryCutOff');
+      this.freeDeliveryCutOff = freeDelivery.cutOffPrice;
+      this.loaderDialogMessage = null;
+      this.loaderDialog = false;
+
+    } catch(error) {
+      console.log(error);
+      this.loaderDialogMessage = null;
+      this.loaderDialog = false;
+    }
 
   },
   beforeDestroy() {
@@ -666,7 +683,8 @@ export default {
         this.stockOrder.isRead = false;
         
         //determine if this shipping is free
-        this.stockOrder.logisticsDetails.isFreeShipping = this.subTotal >= this.freeDeliveryCutOff;
+        // this.stockOrder.logisticsDetails.isFreeShipping = this.subTotal >= this.freeDeliveryCutOff;
+        this.stockOrder.logisticsDetails.isFreeShipping = true;
 
         //check kung CC or COD
         switch(this.payment.paymentType) {
@@ -1135,7 +1153,8 @@ export default {
     },
 
     total() {
-      const isFreeDelivery = this.subTotal >= this.freeDeliveryCutOff;
+      // const isFreeDelivery = this.subTotal >= this.freeDeliveryCutOff;
+      const isFreeDelivery = true;
 
       if(this.discount && isFreeDelivery) { 
         //dont include delivery free if stock order amount exceeds the freeDeliveryCutOff price quota
@@ -1177,6 +1196,11 @@ export default {
       const user = this.$store.getters["accounts/user"];
       return user.address;
     },
+
+    variantList() {
+      return this.$store.getters['variants/GET_VARIANTS'];
+    },
+
     ...mapState("payment", {
       paymentOccured: state => state.paymentOccured
     }),
@@ -1196,7 +1220,7 @@ export default {
       let str = "";
 
       keys.forEach(key => {
-        str += `${key}:${attributes[key]}`;
+        str += `${key.toUpperCase()}: ${attributes[key]}`;
       });
 
       return str;
