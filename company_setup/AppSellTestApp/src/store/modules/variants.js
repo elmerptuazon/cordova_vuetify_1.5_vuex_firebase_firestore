@@ -115,6 +115,50 @@ const variants = {
             }
         },
 
+        async GET_VARIANT({}, payload) {
+			const { productId } = payload;
+			try {
+                let variantSnapshot;
+
+				if(payload.hasOwnProperty('sku')) {
+                    variantSnapshot = await DB.collectionGroup('variants')
+					    .where('sku', '==', payload.sku)
+					    .where('productId', '==', productId)
+					    .get();
+                
+                } else if(payload.hasOwnProperty('name')) {
+                    variantSnapshot = await DB.collectionGroup('variants')
+					    .where('name', '==', payload.name)
+					    .where('productId', '==', productId)
+					    .get();
+                }
+
+				if(!variantSnapshot.empty) {
+					const data = variantSnapshot.docs.map(doc => {
+						const data = doc.data();
+
+						data.availableQTY = parseInt(data.onHandQTY) - parseInt(data.allocatedQTY);
+						
+						if(!data.isOutofStock && data.availableQTY === 0) {	
+							data.isOutofStock = true;
+						}
+						
+						data.id = doc.id;
+						return  data;
+					});
+					console.log('variants retrieved: ', data);
+					return data[0];
+
+				} else {
+					throw new Error('no variant exists!');
+				}
+
+			} catch(error) {
+				console.log('error in get_product_variant: ', error);
+				throw error;
+			}
+        },
+
     }
 };
 

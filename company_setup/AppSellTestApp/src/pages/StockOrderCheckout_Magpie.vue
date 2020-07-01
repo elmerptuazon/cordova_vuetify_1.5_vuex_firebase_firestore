@@ -372,62 +372,60 @@ export default {
 
   }),
   mounted() {
-    this.cordovaBackButton(this.goBack);
+   this.cordovaBackButton(this.goBack);
     
-    // const user = this.$store.getters["accounts/user"];
-    // if(user.hasOwnProperty('hasNoOrders')) {
-    //   this.userHasNoOrders = user.hasNoOrders;
-    // } else {
-    //   this.userHasNoOrders = false;  
-    // }
     this.loaderDialogMessage = 'Please Wait...';
     this.loaderDialog = true;
 
-    this.$store
-      .dispatch("stock_orders/GET")
-      .then(res => {
-        console.log(res.data);
-        if (res.success) {
-          this.stockOrder = Object.assign({}, res.data);
+    this.checkoutHeight = window.innerHeight;
+    this.checkoutWidth = window.innerWidth;
+    
+    let stockOrder;
+    try {
+      stockOrder = await this.$store.dispatch("stock_orders/GET"); 
+    } catch(error) {
+      console.log(error);
+      this.loaderDialogMessage = null;
+      this.loaderDialog = false;
+    }
+    
+    if(!stockOrder.success) {
+      this.loaderDialogMessage = null;
+      this.loaderDialog = false;
+      return;
+    }
 
-          const itemsToRemove = this.stockOrder.items.filter((item) => {
-            //get items that are currently out of stock
-            if(item.isOutofStock) {
-              return item;
-            }
-            //get items that are way too much from the available qty
-            if(item.qty > item.availableQTY) {
-              return item;
-            }
-          });
+    this.stockOrder = Object.assign({}, stockOrder.data);
 
-          for(const item of itemsToRemove) {
-            const index = this.stockOrder.items.findIndex(stockOrderItem => item.productId === stockOrderItem.productId);
-            if(index !== -1) {
-              this.stockOrder.items.splice(index, 1);
-            }
-          }
-        }
-        
-      })
-      .catch(error => {
-        console.log(error);
-        this.loaderDialogMessage = null;
-        this.loaderDialog = false;
+    let itemsToRemove = [];
+    for(const item of this.stockOrder.items) {
+      const variant = await this.$store.dispatch('variants/GET_VARIANT', {
+        sku: item.sku,
+        productId: item.productId
       });
 
-    this.$store
-      .dispatch('providers/GetFreeDeliveryCutOff')
-      .then(res => {
-        this.freeDeliveryCutOff = res.cutOffPrice;
-        this.loaderDialogMessage = null;
-        this.loaderDialog = false;
-      })
-      .catch(error => {
-        console.log(error);
-        this.loaderDialogMessage = null;
-        this.loaderDialog = false;
-      });
+      if(variant.isOutofStock) itemsToRemove.push(item);
+      else if(item.qty > variant.availableQTY) itemsToRemove.push(items);
+    }
+
+    for(const item of itemsToRemove) {
+      const index = this.stockOrder.items.findIndex(stockOrderItem => item.productId === stockOrderItem.productId);
+      if(index !== -1) {
+        this.stockOrder.items.splice(index, 1);
+      }
+    }
+
+    try {
+      const freeDelivery = await this.$store.dispatch('providers/GetFreeDeliveryCutOff');
+      this.freeDeliveryCutOff = freeDelivery.cutOffPrice;
+      this.loaderDialogMessage = null;
+      this.loaderDialog = false;
+
+    } catch(error) {
+      console.log(error);
+      this.loaderDialogMessage = null;
+      this.loaderDialog = false;
+    }
   },
   methods: {
     goBack() {
