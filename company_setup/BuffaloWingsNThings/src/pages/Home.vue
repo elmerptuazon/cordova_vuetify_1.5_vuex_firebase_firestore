@@ -10,7 +10,7 @@
         ></mt-spinner>
         <transition name="fade">
           <div class="mb-3" style="margin:0 auto; width:250px;">
-            <v-avatar size="250px">
+            <v-avatar size="250px" tile>
               <v-img
                 :src="require('@/assets/img/header_logo.png')"
                 contain
