@@ -26,7 +26,7 @@
       ></v-text-field>
     </v-toolbar>
 
-    <v-container fluid>
+    <v-container id="scroll-target" style="max-height: 85vh;" class="scroll-y" fluid>
       <div class="text-xs-center mt-5" v-if="loading">
         <v-progress-circular
           :size="100"
@@ -36,7 +36,14 @@
         ></v-progress-circular>
       </div>
 
-      <v-layout row wrap v-if="search">
+      <v-layout
+        row 
+        wrap 
+        v-if="search"
+        v-scroll:#scroll-target="onScroll"
+        column
+        style="height: 85vh;"
+      >
         <div
           v-if="!searchedProducts.length"
           class="title grey--text lighten-2 text-xs-center"
@@ -84,6 +91,7 @@
           </v-card>
         </masonry>
       </v-layout>
+
 
       <masonry v-else :cols="1" :gutter="8">
         <v-card
@@ -141,7 +149,8 @@ export default {
     isLoading: false,
     snackbar: false,
     message: null,
-    loading: false
+    loading: false,
+    offsetTop: 0,
     //searchedProducts: [],
   }),
   created() {
@@ -220,7 +229,10 @@ export default {
         price: 24,
         created_at: Date.now
       });
-    }
+    },
+    onScroll (e) {
+		this.offsetTop = e.target.scrollTop
+		},
   },
   computed: {
     ...mapGetters({
