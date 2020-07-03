@@ -83,22 +83,6 @@
             >
           </td>
         </tr>
-        <!-- <tr>
-          <td class="caption text-xs-right" colspan="2">
-            Subtotal
-          </td>
-          <td class="caption text-xs-right">
-            {{ subTotal | currency("P") }}
-          </td>
-        </tr>
-        <tr>
-          <td class="caption text-xs-right" colspan="2">
-            Discount
-          </td>
-          <td class="caption text-xs-right">
-            <span v-if="discount">{{ discount }}%</span>
-          </td>
-        </tr> -->
         <tr>
           <td class="caption text-xs-right" colspan="3">
             Total
@@ -135,14 +119,9 @@
         <v-icon @click="showWarning"
         >help_outline</v-icon>
       </div>
-      <!-- <div v-else>
-				<v-btn @click="generateStockOrder" depressed large color="primary" class="white--text">
-					<span>Generate From Inventory</span>
-				</v-btn>
-			</div> -->
     </div>
 
-     <v-divider class="mt-5" v-if="outOfStockItems.length"></v-divider>
+    <v-divider class="mt-5" v-if="outOfStockItems.length"></v-divider>
 
     <div class="mt-2 px-2" v-if="outOfStockItems.length">
       <v-layout align-center justify-start row wrap>
@@ -189,19 +168,10 @@
               </v-layout>
             </td>
             <td class="caption text-xs-right border-bottom font-weight-bold">OUT OF STOCK</td>
-            <!-- <td class="caption text-xs-right border-bottom">{{ item.qty }}</td>
-            <td class="caption text-xs-right border-bottom">
-              {{ (item.qty * item.resellerPrice) | currency("P") }}
-              <br />
-              <a @click="editItem(item)">
-                <v-icon class="caption blue--text">border_color</v-icon> Edit</a
-              >
-            </td> -->
           </tr>
         </tbody>
       </table>
     </div>
-
 
     <v-dialog v-model="loaderDialog" hide-overlay persistent width="300">
       <v-card color="primary" dark>
@@ -283,7 +253,7 @@
         </v-card-text>
         <v-card-actions>
           <v-btn
-            :disabled="saveProductButton || selectedProduct.qty > selectedProduct.availableQTY || selectedProduct.qty <= 0"
+            :disabled="disableSaveButton"
             :loading="saveProductButton"
             block
             class="primary white--text"
@@ -352,11 +322,21 @@ export default {
     try {
       const response = await this.$store.dispatch("stock_orders/GET");
       console.log('stock order: ', response.data);
+
+      if(!response.data ||!response.data.hasOwnProperty('id')) {
+        this.loader = false;
+        this.loaderDialogMessage = null;
+        return;
+      }
+
       this.stockOrder = Object.assign({}, response.data);
 
       for(let item of this.stockOrder.items) {
-
-        const variant = this.variantList.find(variant => (variant.name.toLowerCase() === item.variantName.toLowerCase()) && (variant.productId === item.productId));
+        
+        const variant = await this.$store.dispatch('variants/GET_VARIANT', {
+          sku: item.sku,
+          productId: item.productId
+        });
 
         item.sku = variant.sku;
         item.allocatedQTY = variant.allocatedQTY;
@@ -367,6 +347,7 @@ export default {
         item.price = variant.price;
         item.resellerPrice = variant.resellerPrice;
         item.isOutofStock = variant.isOutofStock;
+        item.minimumOrder = variant.minimumOrder;
 
         if(!item.isOutofStock && item.availableQTY === 0) {
           item.isOutofStock = true;
@@ -635,6 +616,15 @@ export default {
     
   },
   computed: {
+    disableSaveButton() {
+      if(this.saveProductButton) return true;
+      // if(Number(this.selectedProduct.qty) < Number(this.selectedProduct.minimumOrder)) return true;
+      if(Number(this.selectedProduct.qty) > Number(this.selectedProduct.availableQTY)) return true;
+      if(Number(this.selectedProduct.qty) <= 0) return true;
+
+      return false;
+    },
+
     subTotal() {
       // console.log(this.stockOrder);
       return this.stockOrder.items.reduce(
@@ -702,7 +692,7 @@ export default {
       let str = "";
 
       keys.forEach(key => {
-        str += `${key.toUpperCase()}: ${attributes[key].name}\n`;
+        str += `${key.toUpperCase()}: ${attributes[key]}\n`;
       });
 
       return str;

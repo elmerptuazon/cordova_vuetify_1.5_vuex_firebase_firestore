@@ -1,4 +1,4 @@
-import { DB, AUTH, STORAGE, COLLECTION } from '@/config/firebaseInit';
+import { DB, AUTH, STORAGE, COLLECTION, FIRESTORE } from '@/config/firebaseInit';
 
 function GenerateStockOrderNumber(resellerID) {
 	var refNumber = `SO-${BigInt(resellerID).toString(36).toUpperCase()}${BigInt(Date.now()).toString(36).toUpperCase()}`;
@@ -54,6 +54,20 @@ export default {
 								}
 							});
 							// product.resellerPrice = productData.resellerPrice;
+
+							const variantRef = await DB.collection('products').doc('details').collection('variants')
+							.doc(product.variantId)
+							.get();
+
+							if(variantRef.exists) {
+								const variantData = variantRef.data();
+
+								product.isOutofStock = variantData.isOutofStock;
+								product.onHandQTY = variantData.onHandQTY;
+								product.allocatedQTY = variantData.allocatedQTY;
+								product.availableQTY = Number(variantData.onHandQTY) - Number(variantData.allocatedQTY)
+							}
+
 							product.price = productData.price;
 							product.image = productData.downloadURL;
 							product.name = productData.name;
@@ -258,6 +272,9 @@ export default {
 					if (index !== -1) {
 
 						currentStockOrder.items[index].qty += payload.attributes.quantity;
+						currentStockOrder.items[index].variantId = payload.variant.id;
+						currentStockOrder.items[index].variantName = payload.variant.name;
+						currentStockOrder.items[index].sku = payload.variant.sku;
 
 					} else {
 
@@ -265,7 +282,10 @@ export default {
 							attributes: payload.attributes,
 							productId: payload.productId,
 							qty: payload.attributes.quantity,
-							unique: unique
+							unique: unique,
+							variantId: payload.variant.id,
+							variantName: payload.variant.name,
+							sku: payload.variant.sku,
 						}
 
 						currentStockOrder.items.push(item);
@@ -305,7 +325,10 @@ export default {
 						attributes: payload.attributes,
 						productId: payload.productId,
 						qty: payload.attributes.quantity,
-						unique: unique
+						unique: unique,
+						variantId: payload.variant.id,
+						variantName: payload.variant.name,
+						sku: payload.variant.sku,
 					});
 
 					commit('SET_BASKET_COUNT', 1);
@@ -432,8 +455,14 @@ export default {
 
 		async SUBMIT({ commit }, stockOrder) {
 
+			for(let item of stockOrder.items) {
 
-			stockOrder.items = stockOrder.items.map((item) => {
+				await DB.collection('products').doc('details')
+				.collection('variants').doc(item.variantId)
+				.update({
+					allocatedQTY: FIRESTORE.FieldValue.increment(item.qty),
+				});
+
 				delete item.attributes.qty;
 				delete item.attributes.quantity;
 				delete item.name;
@@ -442,9 +471,7 @@ export default {
 				if(!item.hasOwnProperty('weight') || item.weight === undefined) {
 					item.weight = 0;
 				}
-				
-				return item;
-			});
+			}
 
 			commit('SET_BASKET_COUNT', 0);
 
@@ -470,6 +497,12 @@ export default {
 		async SUBMIT_CALLBACK({ commit }, stockOrder) {
 
 			for (let product of stockOrder.items) {
+
+				await DB.collection('products').doc('details')
+				.collection('variants').doc(product.variantId)
+				.update({
+					allocatedQTY: FIRESTORE.FieldValue.increment(product.qty),
+				});
 
 				const productRef = await COLLECTION.products.doc(product.productId).get();
 

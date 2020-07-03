@@ -221,14 +221,11 @@
           <v-container fluid>
             <v-form v-model="valid" ref="form" lazy-validation>
               <v-layout row wrap align-center justify-start v-if="user.type === 'Reseller'"> 
-                <v-flex xs12>
-                  <div class="title font-weight-bold">Variant Details</div>
-                </v-flex>
-                
                 <v-flex xs12 mt-2 v-if="!variant.hasOwnProperty('name') || attribLoading || !variant ">
                   <div v-if="attribLoading">
                     <v-progress-circular indeterminate color="primary"></v-progress-circular>
                   </div>
+                  <div v-else-if="!product.attributes.length" class="font-italic caption pl-2">no variant details...</div>
                   <div v-else class="font-italic caption pl-2">Please select a variant...</div>
                 </v-flex>
                 
@@ -237,13 +234,20 @@
                     <div :class="[ Number(variant.availableQTY) <= Number(variant.reOrderLevel) ? 'red--text' : '']">
                       Available Stock: 
                       <span class="font-weight-bold" v-if="variant.availableQTY"> {{ variant.availableQTY }} pcs.</span>
+                      <span class="font-weight-bold" v-else>OUT OF STOCK</span>
+                    </div>
+                  </v-flex>
+                  <v-flex xs12 mt-1>
+                    <div>
+                      Price: 
+                      <span class="font-weight-bold" v-if="variant.price"> {{ variant.price | currency("&#8369;") }}</span>
                       <span class="font-weight-bold" v-else>N/A</span>
                     </div>
                   </v-flex>
                   <v-flex xs12 mt-1>
                     <div>
-                      Variant Price: 
-                      <span class="font-weight-bold" v-if="variant.price"> {{ variant.price | currency("&#8369;") }}</span>
+                      Minimum Order: 
+                      <span class="font-weight-bold" v-if="variant.minimumOrder"> {{ variant.minimumOrder }} pcs.</span>
                       <span class="font-weight-bold" v-else>N/A</span>
                     </div>
                   </v-flex>
@@ -251,10 +255,6 @@
               </v-layout>
 
               <v-layout row wrap v-if="product.attributes.length" my-3>
-                <v-flex xs12>
-                  <v-divider class="black"></v-divider>
-                  <div class="mt-3 font-weight-bold body-1">Variant Selection</div>
-                </v-flex>
                 <v-flex
                   xs12
                   v-for="(a, index) in product.attributes"
@@ -265,7 +265,7 @@
                     :items="a.items"
                     :label="a.name"
                     item-text="name"
-                    return-object
+                    item-value="name"
                     :rules="basicRules"
                     @change="fetchVariant"
                     single-line required
@@ -285,8 +285,18 @@
                 </v-flex>
 
                 <v-flex xs2 pa-2>
-                  <v-btn color="primary" 
-                    icon :disabled="attribute.quantity <= 0"
+                  <v-btn 
+                    v-if="user.type === 'Reseller'"
+                    color="primary" icon 
+                    :disabled="attribute.quantity <= 0 || Number(attribute.quantity) <= Number(variant.minimumOrder)"
+                    @click="attribute.quantity = (Number(attribute.quantity) - 1) || 0"
+                  >
+                    <v-icon>remove</v-icon>
+                  </v-btn>
+                  <v-btn 
+                    v-else 
+                    color="primary" icon 
+                    :disabled="attribute.quantity <= 0"
                     @click="attribute.quantity = (Number(attribute.quantity) - 1) || 0"
                   >
                     <v-icon>remove</v-icon>
@@ -308,7 +318,6 @@
                   </v-btn>
                 </v-flex>
               </v-layout>
-              
             </v-form>
 
             <div>
@@ -341,7 +350,7 @@
                   class="primary white--text"
                   block
                   @click="addToStockOrder"
-                  :disabled="addToStockOrderLoading || attribute.quantity > Number(variant.availableQTY)|| attribute.quantity <= 0"
+                  :disabled="disableAddToCart"
                   :loading="addToStockOrderLoading"
                 >
                   <v-icon left>add</v-icon> Add to my Cart
@@ -427,10 +436,15 @@ export default {
         this.attribute[attrib.name.toLowerCase()] = null;
       });
     
-    } else {
+    } else if(this.user.type === 'Reseller') {
       //retreive the single variant of the current product being viewed
-      this.variant = this.variantList.find(variant => variant.productId === this.product.id);
-
+      const variant = await this.$store.dispatch('variants/GET_VARIANT', {
+        sku: this.product.code,
+        productId: this.product.id
+      });
+      this.variant = Object.assign({}, variant);
+      this.attribute['quantity'] = this.variant.minimumOrder;
+      
       console.log("product's single variant: ", this.variant);
     }
 
@@ -681,26 +695,28 @@ export default {
 
         } else {
           console.log('key that qualified: ', key)
-          variantName += `${variant.name}`;
+          variantName += `${variant}`;
         }
         
       }
-
-      variantName = variantName.toLowerCase();
       
       console.log('variant name generated: ', variantName);
-      const variant = this.variantList.find(variant => (variant.productId === this.product.id) && (variant.name.toLowerCase() === variantName));
+      const variant = await this.$store.dispatch('variants/GET_VARIANT', {
+        name: variantName,
+        productId: this.product.id
+      });
+      
       this.variant = Object.assign({}, variant);
+      this.attribute['quantity'] = this.variant.minimumOrder;
+      
       console.log('selected variant: ', this.variant)
       
-      if(this.variant.hasOwnProperty('sku')) {
-        this.attribLoading = false;
-      
-      } else {
-        this.attribLoading = false;
+      if(!this.variant || !this.variant.hasOwnProperty('sku')) {
         this.snackbar = true;
         this.snackbarMessage = "No variant associated...";
-      }
+      } 
+
+      this.attribLoading = false;
       
     },
 
@@ -802,6 +818,16 @@ export default {
     }),
     descriptionTemplate() {
       return this.description;
+    },
+    disableAddToCart() {
+      if(this.variant.isOutofStock) return true;
+      if(this.addToStockOrderLoading) return true;
+      if(Number(this.variant.availableQTY) === 0) return true;
+      if(Number(this.attribute.quantity) < Number(this.variant.minimumOrder)) return true;
+      if(Number(this.attribute.quantity) > Number(this.variant.availableQTY)) return true; 
+      if(Number(this.attribute.quantity) <= 0) return true;
+      
+      return false;
     }
   },
   filters: {

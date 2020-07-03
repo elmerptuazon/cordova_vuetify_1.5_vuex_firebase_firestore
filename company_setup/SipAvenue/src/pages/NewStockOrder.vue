@@ -29,6 +29,12 @@
           </th>
           <th
             class="border-bottom text-xs-right header-size grey--text text--darken-1"
+            @click="showQTYDescription"
+          >
+            QTY Available
+          </th>
+          <th
+            class="border-bottom text-xs-right header-size grey--text text--darken-1"
           >
             COST
           </th>
@@ -41,15 +47,16 @@
             search
           )"
           :key="i"
+          :class="[ item.qty > item.availableQTY ? 'red lighten-4' : '']"
         >
           <td class="border-bottom">
             <v-layout row>
-              <v-flex xs4>
+              <v-flex xs3>
                 <v-avatar tile size="35px">
                   <v-img :src="item.image" :alt="item.name" contain></v-img>
                 </v-avatar>
               </v-flex>
-              <v-flex xs8>
+              <v-flex xs8 offset-xs1>
                 <span v-html="item.name" class="caption"></span>
                 <br />
                 <span class="caption">
@@ -59,6 +66,7 @@
             </v-layout>
           </td>
           <td class="caption text-xs-right border-bottom">{{ item.qty }}</td>
+          <td class="caption text-xs-right border-bottom">{{ item.availableQTY }}</td>
           <td class="caption text-xs-right border-bottom">
             {{ (item.qty * item.price) | currency("P") }}
             <br />
@@ -68,7 +76,7 @@
           </td>
         </tr>
         <tr>
-          <td colspan="3" class="text-xs-right">
+          <td colspan="4" class="text-xs-right">
             <v-btn
               small
               color="primary"
@@ -78,24 +86,8 @@
             >
           </td>
         </tr>
-        <!-- <tr>
-          <td class="caption text-xs-right" colspan="2">
-            Subtotal
-          </td>
-          <td class="caption text-xs-right">
-            {{ subTotal | currency("P") }}
-          </td>
-        </tr>
         <tr>
-          <td class="caption text-xs-right" colspan="2">
-            Discount
-          </td>
-          <td class="caption text-xs-right">
-            <span v-if="discount">{{ discount }}%</span>
-          </td>
-        </tr> -->
-        <tr>
-          <td class="caption text-xs-right" colspan="2">
+          <td class="caption text-xs-right" colspan="3">
             Total
           </td>
           <td class="caption text-xs-right">
@@ -121,7 +113,7 @@
           large
           color="primary"
           class="white--text"
-          :disabled="stockOrder.items.length < 1"
+          :disabled="stockOrder.items.length <= 0 || itemsWithLowQTY.length > 0"
         >
           <span>Proceed to Checkout </span>
         </v-btn>
@@ -131,6 +123,66 @@
 					<span>Generate From Inventory</span>
 				</v-btn>
 			</div> -->
+    </div>
+
+    <v-divider class="mt-5" v-if="outOfStockItems.length"></v-divider>
+
+    <div class="mt-2 px-2" v-if="outOfStockItems.length">
+      <v-layout align-center justify-start row wrap>
+        <v-flex xs10>
+          <div class="text-xs-left font-weight-bold">Items that are <span class="font-weight-bold red--text">OUT OF STOCK</span></div>
+        </v-flex>
+      </v-layout>
+      <table class="basket-table mt-2" v-show="!loader">
+        <thead>
+          <tr>
+            <th class="border-bottom header-size grey--text text--darken-1">
+              NAME
+            </th>
+            <th
+              class="border-bottom text-xs-right header-size grey--text text--darken-1"
+            >
+              
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="(item, i) in filterBy(
+              orderBy(outOfStockItems, 'created_at', -1),
+              search
+            )"
+            :key="i"
+            class="red lighten-3"
+          >
+            <td class="border-bottom">
+              <v-layout row>
+                <v-flex xs4>
+                  <v-avatar tile size="35px">
+                    <v-img :src="item.image" :alt="item.name" contain></v-img>
+                  </v-avatar>
+                </v-flex>
+                <v-flex xs8>
+                  <span v-html="item.name" class="caption"></span>
+                  <br />
+                  <span class="caption">
+                    {{ item.attributes | joinAttributes }}
+                  </span>
+                </v-flex>
+              </v-layout>
+            </td>
+            <td class="caption text-xs-right border-bottom font-weight-bold">OUT OF STOCK</td>
+            <!-- <td class="caption text-xs-right border-bottom">{{ item.qty }}</td>
+            <td class="caption text-xs-right border-bottom">
+              {{ (item.qty * item.resellerPrice) | currency("P") }}
+              <br />
+              <a @click="editItem(item)">
+                <v-icon class="caption blue--text">border_color</v-icon> Edit</a
+              >
+            </td> -->
+          </tr>
+        </tbody>
+      </table>
     </div>
 
     <v-dialog v-model="loaderDialog" hide-overlay persistent width="300">
@@ -143,6 +195,18 @@
             class="mb-0"
           ></v-progress-linear>
         </v-card-text>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="warningDialog" persistent width="300">
+      <v-card>
+        <v-card-text>
+          {{ warningDialogMessage }}
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" @click="warningDialog = false">OK</v-btn>
+        </v-card-actions>
       </v-card>
     </v-dialog>
 
@@ -164,7 +228,17 @@
             </v-avatar>
             <div class="title mt-4">{{ selectedProduct.name }}</div>
           </div>
-          <v-layout row align-center justify-start mt-3>
+          <v-layout row wrap align-center justify-start mt-3>
+            <v-flex xs12>
+              <div v-if="!selectedProduct.isOutofStock" 
+                :class="[ isLowInStocks(selectedProduct) ? 'subheading red--text' : 'subheading']">
+                Available Stock: 
+                <span class="font-weight-bold">{{ selectedProduct.availableQTY }} pcs.</span>
+              </div>
+              <div v-else class="subheading red--text font-weight-bold">
+                OUT OF STOCK
+              </div>
+            </v-flex>
             <v-flex xs8>
               <v-text-field
               type="number"
@@ -174,7 +248,7 @@
             </v-flex>
             <v-flex xs2 pa-2>
                 <v-btn color="primary" icon 
-                  :disabled="selectedProduct.qty <= 0" 
+                  :disabled="selectedProduct.qty <= 0 || selectedProduct.qty <= Number(selectedProduct.minimumOrder)" 
                   @click="selectedProduct.qty = (Number(selectedProduct.qty) - 1) || 0"
                 >
                   <v-icon>remove</v-icon>
@@ -182,6 +256,7 @@
             </v-flex>
             <v-flex xs2 pa-2>
                 <v-btn color="primary" icon 
+                  :disabled="selectedProduct.qty >= Number(selectedProduct.availableQTY)"
                   @click="selectedProduct.qty = (Number(selectedProduct.qty) + 1) || 0">
                   <v-icon>add</v-icon>
                 </v-btn>
@@ -190,7 +265,7 @@
         </v-card-text>
         <v-card-actions>
           <v-btn
-            :disabled="saveProductButton"
+            :disabled="disableSaveButton"
             :loading="saveProductButton"
             block
             class="primary white--text"
@@ -233,6 +308,8 @@ export default {
     loading: false,
     loader: false,
     loaderDialog: false,
+    warningDialog: false,
+    warningDialogMessage: '',
     stockOrder: {
       id: null,
       items: [],
@@ -242,49 +319,93 @@ export default {
     loaderDialogMessage: null,
     editItemDialog: false,
     selectedProduct: {
-      qty: 0
+      qty: 0,
+      availableQTY: 0,
+      reOrderLevel: 0,
+      allocatedQTY: 0,
+      onHandQTY: 0,
+      isOutofStock: false,
     },
     saveProductButton: false,
     snackbar: false,
     snackbarMessage: null
   }),
-  created() {
+  async mounted() {
     this.cordovaBackButton(this.goBack);
 
     this.loader = true;
-    this.loaderDialogMessage = "Getting current stock orders";
-    this.$store
-      .dispatch("stock_orders/GET")
-      .then(res => {
-        console.log(res.data);
-        if (res.success) {
-          this.stockOrder = Object.assign({}, res.data);
-        }
-      })
-      .catch(error => {
-        console.log(error);
-      })
-      .finally(() => {
-        this.loaderDialogMessage = null;
+    this.loaderDialogMessage = "Getting current stock orders...";
+
+    try {
+      const response = await this.$store.dispatch("stock_orders/GET");
+      console.log('stock order: ', response.data);
+
+      if(!response.data ||!response.data.hasOwnProperty('id')) {
         this.loader = false;
-      });
+        this.loaderDialogMessage = null;
+        return;
+      }
+
+      this.stockOrder = Object.assign({}, response.data);
+
+      for(let item of this.stockOrder.items) {
+
+        // const variant = this.variantList.find(variant => (variant.sku === item.sku) && (variant.productId === item.productId));
+        const variant = await this.$store.dispatch('variants/GET_VARIANT', {
+          sku: item.sku,
+          productId: item.productId
+        });
+
+        item.sku = variant.sku;
+        item.allocatedQTY = variant.allocatedQTY;
+        item.onHandQTY = variant.onHandQTY;
+        item.reOrderLevel = variant.reOrderLevel;
+        item.availableQTY = parseInt(item.onHandQTY) - parseInt(item.allocatedQTY);
+        item.weight = variant.weight;
+        item.price = variant.price;
+        item.resellerPrice = variant.resellerPrice;
+        item.isOutofStock = variant.isOutofStock;
+        item.minimumOrder = variant.minimumOrder;
+
+        if(!item.isOutofStock && item.availableQTY === 0) {
+          item.isOutofStock = true;
+        }
+      }
+
+      this.loaderDialogMessage = null;
+      this.loader = false;
+    } catch(error) {
+      console.log(error);
+      this.loaderDialogMessage = null;
+      this.loader = false;
+      throw error;
+    }
+
   },
   methods: {
     goBack() {
       this.$router.go(-1);
     },
 
-    // confirmGenerate() {
-    //   this.$refs.ConfirmationModal.show(
-    //     "Confirm",
-    //     "Refreshing this page will remove items you have manually added to this shopping cart, Do you wish to continue?"
-    //   );
-    // },
+    showQTYDescription() {
+      this.warningDialog = true;
+      this.warningDialogMessage = `This is the available quantity of the product in ${this.$store.getters["GET_COMPANY"]}'s warehouse.`
+    },  
+
+    showWarning() {
+      this.warningDialog = true;
+      this.warningDialogMessage = "There are items in your order that has a quantity greater than the available quantity in the warehouse. " + 
+      "Please edit the quantity of the item, or remove it.";
+    },
+
+    isLowInStocks(product) {
+      return product.availableQTY <= product.reOrderLevel;
+    },
 
     confirmClearBasket() {
       this.$refs.ConfirmationModal.show(
         "Confirm",
-        "Refreshing this page will remove items you have manually added to this shopping cart, Do you wish to continue?"
+        "Refreshing this page will remove all items you have manually added to this shopping cart, Do you wish to continue?"
       );
     }, 
 
@@ -321,7 +442,7 @@ export default {
     generateStockOrder() {
       this.$refs.ConfirmationModal.close();
       this.loaderDialog = true;
-      this.loaderDialogMessage = "Generating stock order";
+      this.loaderDialogMessage = "Generating stock order...";
       const includeSelfOrders = false;
       this.$store
         .dispatch("orders/GET_RESELLER_ORDERS", includeSelfOrders)
@@ -430,6 +551,19 @@ export default {
                 active: true
               };
 
+              obj.items.forEach(item => {
+                if(item.attributes.hasOwnProperty('qty')) {
+                  delete item.attributes.qty;
+                }
+
+                for(const [key, value] of Object.entries(item.attributes)) {
+                  const variant = this.variantList.find(variant => variant.name.toLowerCase() === value.toLowerCase());
+                  item.variantName = variant.name;
+                  item.sku = variant.sku;
+                  item.variantId = variant.id;
+                }
+              });
+              
               this.$store
                 .dispatch("stock_orders/SAVE", obj)
                 .then(res => {
@@ -513,12 +647,29 @@ export default {
         });
     },
     ProceedToCheckout() {
+      //warn the user that there are items that has a quantity greater than the available quantity
+      if(this.itemsWithLowQTY.length) {
+        this.warningDialog = true;
+        this.warningDialogMessage = "There are items in your order that has a quantity greater than the available quantity in the warehouse. " + 
+        "Please edit the quantity of the item, or remove it.";
+        return;
+      }
+
       this.$router.push({
         name: "StockOrderCheckout"
       });
     }
   },
   computed: {
+    disableSaveButton() {
+      if(this.saveProductButton) return true;
+      if(Number(this.selectedProduct.qty) < Number(this.selectedProduct.minimumOrder)) return true;
+      if(Number(this.selectedProduct.qty) > Number(this.selectedProduct.availableQTY)) return true;
+      if(Number(this.selectedProduct.qty) <= 0) return true;
+
+      return false;
+    },
+
     subTotal() {
       console.log(this.stockOrder);
       return this.stockOrder.items.reduce(
@@ -549,7 +700,31 @@ export default {
       } else {
         return this.subTotal;
       }
-    }
+    },
+
+    itemsWithLowQTY() {
+      const items = this.stockOrder.items;
+      return items.filter(item => item.qty > item.availableQTY) || [];
+    },
+
+    outOfStockItems() {
+      const items = this.stockOrder.items;
+      const outOfStockItems = items.filter(item => item.isOutofStock);
+
+      //remove product with OUT OF STOCK flag in the stock order items
+      for(let invalidItem of outOfStockItems) {
+        const index = items.findIndex(item => item.productId === invalidItem.productId);
+        if(index !== -1) {
+          this.stockOrder.items.splice(index, 1);  
+        }
+      }
+
+      return outOfStockItems;
+    },
+
+    ...mapGetters({
+      variantList: "variants/GET_VARIANTS"
+    }),
   },
   filters: {
     joinAttributes(val) {
@@ -562,7 +737,7 @@ export default {
       let str = "";
 
       keys.forEach(key => {
-        str += `${key}:${attributes[key]}`;
+        str += `${key.toUpperCase()}: ${attributes[key]}`;
       });
 
       return str;
