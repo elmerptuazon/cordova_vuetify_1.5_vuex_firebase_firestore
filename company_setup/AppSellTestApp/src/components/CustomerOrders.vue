@@ -1,4 +1,10 @@
 <template>
+  <v-container id="scroll-target" style="max-height: 85vh;" class="scroll-y pa-0 pt-2 ma-0" grid-list-xs fluid>
+      <v-layout
+        v-scroll:#scroll-target="onScroll"
+        column
+        style="height: 85vh;"
+      >
   <v-data-table
     :headers="headers"
     :items="items"
@@ -107,6 +113,8 @@
       </tr>
     </template>
   </v-data-table>
+  </v-layout>
+  </v-container>
 </template>
 
 <script>
@@ -154,6 +162,7 @@ export default {
     ],
 
     offlineCustomerOrders: [],
+    offsetTop: 0,
   }),
 
   async created() {
@@ -241,6 +250,9 @@ export default {
         };
       });
     },
+    onScroll (e) {
+		this.offsetTop = e.target.scrollTop
+		},
 	},
 	
 	computed: {
