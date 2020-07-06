@@ -80,7 +80,12 @@
       <Accounts />
     </v-toolbar>
 
-    <v-container class="pa-0">
+    <v-container id="scroll-target" style="max-height: 85vh;" class="scroll-y" fluid>
+      <v-layout
+        v-scroll:#scroll-target="onScroll"
+        column
+        style="height: 85vh;"
+      >
       <v-data-table
         :headers="headers"
         :items="GET_ORDERS"
@@ -105,6 +110,7 @@
           </tr>
         </template>
       </v-data-table>
+      </v-layout>
     </v-container>
 
     <BottomNav currentTab="basket" />
@@ -127,7 +133,8 @@ export default {
       { text: "Order No.", value: "orderNo", align: "left" },
       { text: "Date", value: "created_at", align: "center" },
       { text: "Total", value: "total", align: "center" }
-    ]
+    ],
+    offsetTop: 0, 
   }),
   created() {
     this.loader = true;
@@ -170,7 +177,10 @@ export default {
           }
         });
       });
-    }
+    },
+    onScroll (e) {
+		this.offsetTop = e.target.scrollTop
+		},
   },
   computed: {
     ...mapGetters({

@@ -26,7 +26,12 @@
       <Accounts />
     </v-toolbar>
 
-    <v-container class="pa-0 pt-2 ma-0" grid-list-xs fluid>
+    <v-container id="scroll-target" style="max-height: 85vh;" class="scroll-y pa-0 pt-2 ma-0" grid-list-xs fluid>
+      <v-layout
+        v-scroll:#scroll-target="onScroll"
+        column
+        style="height: 85vh;"
+      >
       <div>
         <div class="px-3 pt-1 mb-2">
           <v-layout row wrap>
@@ -264,6 +269,7 @@
           </v-expansion-panel-content>
         </v-expansion-panel>
       </div>
+      </v-layout>
     </v-container>
 
     <v-bottom-sheet v-model="deliveryScheduleSheet" persistent>
@@ -346,7 +352,8 @@ export default {
     unsubscribeToOrders: null,
     deliveryScheduleSheet: false,
     disableButton: false,
-    resellerData: {}
+    resellerData: {},
+    offsetTop: 0, 
   }),
   async created() {
     this.resellerData = await this.$store.dispatch("accounts/GET_USER", this.GET_ORDER.resellerId);
@@ -428,7 +435,10 @@ export default {
           this.disableButton = false;
           console.error(e);
         });
-    }
+    },
+    onScroll (e) {
+		this.offsetTop = e.target.scrollTop
+		},
   },
   computed: {
     ...mapGetters({
