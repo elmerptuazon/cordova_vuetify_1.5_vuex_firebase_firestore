@@ -69,7 +69,7 @@
               <v-list-tile-title
                 :class="[!i.opened[userId] ? 'blue--text strong-text' : '']"
                 >{{ i.user.firstName }} {{ i.user.middleInitial || "" }}
-                {{ i.user.lastName }} {{'sdf'}}</v-list-tile-title
+                {{ i.user.lastName }}</v-list-tile-title
               >
             </v-list-tile-content>
 
