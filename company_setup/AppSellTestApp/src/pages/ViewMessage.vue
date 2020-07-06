@@ -28,7 +28,12 @@
 		<div class="text-xs-center mt-5" v-if="loading">
 			<v-progress-circular :size="100" :width="5" color="primary" indeterminate></v-progress-circular>
 		</div>
-		
+		<v-container id="scroll-target" style="max-height: 85vh;" class="scroll-y" fluid>
+		<v-layout
+			v-scroll:#scroll-target="onScroll"
+		column
+		style="height: 85vh;"
+		>
 		<div id="messages-container" v-show="!loading" class="pa-2" :style="{ height: `${height}px` }">
 			<div 
 				v-for="m in filterBy(orderBy(messages, 'created'), search)" 
@@ -53,6 +58,8 @@
 				</v-card>
 			</div>
 		</div>
+		</v-layout>
+		</v-container>
 		
 		<v-layout wrap>
 			<v-flex xs12>
@@ -127,6 +134,7 @@
 			innerHeight: null,
 			sheet: false,
 			conversationId: '',
+			offsetTop: 0, 
 		}),
 		async created () {
 			this.loading = true;
@@ -312,7 +320,10 @@
 					const totalHeight = messagesWindow.scrollHeight;
 					messagesWindow.scrollTo(0, totalHeight);
 				}, 250)
-			}
+			},
+			onScroll (e) {
+			this.offsetTop = e.target.scrollTop
+			},
 		},
 		beforeDestroy () {
 			// this.conversationsListener();

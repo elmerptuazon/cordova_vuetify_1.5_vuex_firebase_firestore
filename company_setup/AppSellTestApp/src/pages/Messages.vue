@@ -22,7 +22,8 @@
       <Accounts />
     </v-toolbar>
 
-    <v-container class="pa-0">
+    <v-container id="scroll-target" style="max-height: 85vh;" class="scroll-y" fluid>
+      
       <div class="text-xs-center mt-5" v-if="loading">
         <v-progress-circular
           :size="100"
@@ -31,7 +32,11 @@
           indeterminate
         ></v-progress-circular>
       </div>
-
+      <v-layout
+        v-scroll:#scroll-target="onScroll"
+        column
+        style="height: 85vh;"
+        >
       <v-list class="pa-0" v-show="!loading">
         <template
           v-for="i in filterBy(orderBy(items, 'updatedAt', -1), search)"
@@ -64,7 +69,7 @@
               <v-list-tile-title
                 :class="[!i.opened[userId] ? 'blue--text strong-text' : '']"
                 >{{ i.user.firstName }} {{ i.user.middleInitial || "" }}
-                {{ i.user.lastName }}</v-list-tile-title
+                {{ i.user.lastName }} {{'sdf'}}</v-list-tile-title
               >
             </v-list-tile-content>
 
@@ -74,6 +79,7 @@
           </v-list-tile>
         </template>
       </v-list>
+      </v-layout>
     </v-container>
 
     <v-btn
@@ -120,7 +126,8 @@ export default {
     messagesListener: null,
     loading: false,
     search: null,
-    newMessageBtnLoading: false
+    newMessageBtnLoading: false,
+    offsetTop: 0,
   }),
   mounted() {
     // this.$refs.modal.show('Sorry', 'Feature not yet available.', () => {
@@ -202,7 +209,10 @@ export default {
       this.$refs.NewMessageDialog.show(() => {
         this.newMessageBtnLoading = false;
       });
-    }
+    },
+    onScroll (e) {
+		this.offsetTop = e.target.scrollTop
+		},
   },
   beforeDestroy() {
     // this.conversationsListener();
