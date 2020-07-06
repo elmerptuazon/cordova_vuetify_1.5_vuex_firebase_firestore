@@ -13,7 +13,12 @@
             <Accounts />
         </v-toolbar>
 
-        <v-container fluid>
+        <v-container id="scroll-target" style="max-height: 85vh;" class="scroll-y" fluid>
+             <v-layout
+                v-scroll:#scroll-target="onScroll"
+                column
+                style="height: 85vh;"
+            >
             <v-layout align-center justify-center wrap mt-2 v-if="!loading">
                 <v-flex xs10>
                     <v-text-field
@@ -129,6 +134,7 @@
                     </v-layout>
                 </template>
             </v-data-iterator>
+             </v-layout>
         </v-container>
         <BottomNav currentTab="articles" ref="BottomNav"/>
     </div>
