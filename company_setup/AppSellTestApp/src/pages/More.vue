@@ -161,12 +161,6 @@
       </v-btn>
     </div>
 
-  <v-container id="scroll-target" style="max-height: 85vh;" class="scroll-y" fluid>
-    <v-layout
-        v-scroll:#scroll-target="onScroll"
-      column
-      style="height: 85vh;"
-    >
     <v-list class="transparent">
       <v-list-tile
         avatar
@@ -189,8 +183,6 @@
         </v-list-tile-action>
       </v-list-tile>
     </v-list>
-    </v-layout>
-  </v-container>
 
     <TermsAndConditionsDialog ref="TermsAndConditionsDialog" />
     <DataPolicy ref="DataPolicy" />
@@ -270,7 +262,6 @@ export default {
     loading: false,
     MaleDefaultImage: MaleDefaultImage,
     logoutDialog: false,
-    offsetTop: 0, 
   }),
   methods: {
     logoutUser() {
@@ -329,9 +320,6 @@ export default {
       // this.loading = false;
       this.$router.push({ name: "EditProfile" });
     },
-    onScroll (e) {
-		this.offsetTop = e.target.scrollTop
-		},
   },
   computed: {
     ...mapGetters("accounts", ["user"]),

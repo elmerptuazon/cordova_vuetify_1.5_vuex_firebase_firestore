@@ -17,8 +17,6 @@
 			<Accounts />
 		</v-toolbar>
 
-		<v-container id="scroll-target" style="max-height: 85vh;" class="scroll-y" fluid>
-
 			<div class="text-xs-center mt-5" v-if="loader">
 				<v-progress-circular :size="100" :width="5" color="primary" indeterminate></v-progress-circular>
 			</div>
@@ -52,11 +50,6 @@
 			</div>
 		</div> -->
 
-		<v-layout
-          v-scroll:#scroll-target="onScroll"
-		  column
-		  style="height: 85vh;"
-        >
 			<masonry :cols="2" :gutter="8">
 				<v-card class="mb-2" v-for="product in filterBy(GET_PRODUCTS, search)" :key="product.id" @click="goToProduct(product)">
 					<div>
@@ -73,8 +66,6 @@
 					
 				</v-card>
 			</masonry>
-		</v-layout>
-	</v-container>
 	<BottomNav currentTab="categories" />
 </div>
 </template>
@@ -100,7 +91,6 @@ export default {
 		loader: false,
 		items: [],
 		noItemsMessage: false,
-		offsetTop: 0,
 	}),
 	watch: {
 		GET_PRODUCTS (val) {
@@ -119,9 +109,6 @@ export default {
 		},
 		isLowInStocks(product) {
 			return product.availableQTY <= product.reOrderLevel;
-		},
-		onScroll (e) {
-		this.offsetTop = e.target.scrollTop
 		},
 	},
 	created () {

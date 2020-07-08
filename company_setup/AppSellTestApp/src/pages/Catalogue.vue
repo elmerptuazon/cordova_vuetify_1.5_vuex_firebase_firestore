@@ -26,7 +26,7 @@
       ></v-text-field>
     </v-toolbar>
 
-    <v-container id="scroll-target" style="max-height: 85vh;" class="scroll-y" fluid>
+    <v-container fluid>
       <div class="text-xs-center mt-5" v-if="loading">
         <v-progress-circular
           :size="100"
@@ -40,9 +40,6 @@
         row 
         wrap 
         v-if="search"
-        v-scroll:#scroll-target="onScroll"
-        column
-        style="height: 85vh;"
       >
         <div
           v-if="!searchedProducts.length"
@@ -150,7 +147,6 @@ export default {
     snackbar: false,
     message: null,
     loading: false,
-    offsetTop: 0,
     //searchedProducts: [],
   }),
   created() {
@@ -230,9 +226,6 @@ export default {
         created_at: Date.now
       });
     },
-    onScroll (e) {
-		this.offsetTop = e.target.scrollTop
-		},
   },
   computed: {
     ...mapGetters({
