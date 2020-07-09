@@ -1286,7 +1286,7 @@ export default {
       else 
         newShippingFee = this.shippingFee - ((Number(amount) / 100) * this.shippingFee);
 
-      return newShippingFee;
+      return newShippingFee > 0 ? newShippingFee : 0;
     },
 
     totalIsInMinimumPrice() {
