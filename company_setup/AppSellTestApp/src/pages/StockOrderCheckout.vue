@@ -752,6 +752,8 @@ export default {
           this.stockOrder.logisticsDetails.resellersShippingFee = this.discountedShippingFee;
           this.stockOrder.logisticsDetails.shippingFee = this.shippingFee;
           this.stockOrder.logisticsDetails.isDiscountedDelivery = true;
+          this.stockOrder.logisticsDetails.discountType = this.deliveryDiscount.type;
+          this.stockOrder.logisticsDetails.discountAmount = this.deliveryDiscount.amount;
         }
 
         //check kung CC or COD
