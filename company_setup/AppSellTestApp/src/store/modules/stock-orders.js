@@ -61,19 +61,6 @@ export default {
 							product.unique = product.productId + unique;
 							product.weight = productData.weight;
 
-							const variantRef = await DB.collection('products').doc('details').collection('variants')
-							.doc(product.variantId)
-							.get();
-
-							if(variantRef.exists) {
-								const variantData = variantRef.data();
-
-								product.isOutofStock = variantData.isOutofStock;
-								product.onHandQTY = variantData.onHandQTY;
-								product.allocatedQTY = variantData.allocatedQTY;
-								product.availableQTY = Number(variantData.onHandQTY) - Number(variantData.allocatedQTY); 
-							}
-
 						}
 
 					}
@@ -159,6 +146,7 @@ export default {
 							const productData = productRef.data();
 
 							item.price = productData.price;
+							item.resellerPrice = productData.resellerPrice;
 							item.image = productData.downloadURL;
 							item.name = productData.name;
 						}
@@ -211,6 +199,7 @@ export default {
 							const productData = productRef.data();
 
 							item.price = productData.price;
+							item.resellerPrice = productData.resellerPrice;
 							item.image = productData.downloadURL;
 							item.name = productData.name;
 						}
