@@ -1,10 +1,10 @@
 <template>
   <v-app>
     <v-content>
-      <v-container id="scroll-target" style="max-height: 100vh;" class="scroll-y" fluid>
+      <v-container id="scroll-target" style="max-height: 80vh;" class="scroll-y" fluid>
         <v-layout
           column
-          style="height: 100vh;"
+          style="height: 80vh;"
         >
         <router-view></router-view>
         </v-layout>
