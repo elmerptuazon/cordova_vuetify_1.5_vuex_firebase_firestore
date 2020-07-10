@@ -385,7 +385,7 @@ export default {
       try {
         this.stockOrder.paymentDetails = {
           amount: Number(this.total),
-          paymentStatus: null,
+          paymentStatus: '-',
           paymentType: 'payment receipt',
           proofOfPayment: null,
         };
