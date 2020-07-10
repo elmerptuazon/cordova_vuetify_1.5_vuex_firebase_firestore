@@ -50,6 +50,9 @@
           <span v-else>{{ props.item.status | uppercase }}</span>
         </td>
         <td class="text-xs-center">
+          <span>{{ props.item.paymentDetails.paymentStatus | uppercase }}</span>
+        </td>
+        <td class="text-xs-center">
           {{ props.item.submittedAt | momentify("DD-MMM-YYYY") }}
         </td>
       </tr>
@@ -89,15 +92,15 @@ export default {
         align: "center"
       },
       {
-        text: "Status",
+        text: "Shipment Status",
         value: "status",
         align: "center"
       },
-      // {
-      //   text: "Cost",
-      //   value: "total",
-      //   align: "center"
-      // }
+      {
+        text: "Payment Status",
+        value: "paymentDetails.paymentStatus",
+        align: "center"
+      },
       {
         text: "Date Submitted",
         value: "submittedAt",
