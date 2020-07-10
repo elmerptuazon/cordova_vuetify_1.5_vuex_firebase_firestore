@@ -47,7 +47,7 @@
         </v-card-title>
         <v-divider></v-divider>
         <v-card-text>
-          <v-layout row align-start justify-start>
+          <v-layout row align-start justify-start mt-2>
             <v-flex xs12>
               Status:
               <v-chip
@@ -70,7 +70,7 @@
             </v-flex>
           </v-layout>
 
-          <v-layout row align-center justify-center wrap mt-3>
+          <v-layout row align-center justify-center wrap mt-4>
             <v-avatar tile size="200">
               <v-img
                 v-if="stockOrder.paymentDetails.proofOfPayment"
@@ -161,10 +161,10 @@
                 stockOrder.logisticsDetails.logisticProvider | uppercase
               }}</span
             >
-            <span v-else>Provider: N/A</span>
+            <span v-else>Provider: - </span>
           </div>
           <div>
-            <span v-if="stockOrder.logisticsDetails.logisticProvider === 'pick-up'">Shipping Fee: N/A</span>
+            <span v-if="stockOrder.logisticsDetails.logisticProvider === 'pick-up'">Shipping Fee: - </span>
             <span v-else>
               Shipping Fee: {{ stockOrder.logisticsDetails.shippingFee | currency("&#8369; ") }}
             </span>
@@ -504,7 +504,7 @@ export default {
       if (this.discount) {
         return this.subTotal - (this.discount / 100) * this.subTotal;
       } else {
-        return this.subTotal;
+        return this.subTotal + this.stockOrder.logisticsDetails.shippingFee;
       }
     },
 
