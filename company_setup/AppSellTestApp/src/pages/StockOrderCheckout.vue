@@ -118,14 +118,8 @@
                         <v-card-title primary-title>
                           <div>
                             <div class="subheading">Shipping Fee:</div>
-                            <div 
-                              v-if="subTotal >= freeDeliveryCutOff && 
-                                logistics.id !== 'pick-up'
-                              " 
-                              class="primary--text"
-                            > FREE SHIPPING</div>
-                            <div v-else-if="logistics.shippingFee === 'error'">ERROR</div>
-                            <div v-else>+ {{ logistics.shippingFee | currency('P ') }} </div>
+                            <div v-if="logistics.shippingFee === 'error'">ERROR</div>
+                            <div v-else>+ {{ logistics.shippingFee | currency('&#8369; ') }} </div>
                           </div>
                         </v-card-title>
                       </v-flex>
@@ -209,7 +203,7 @@
                       {{ item.qty }}
                     </td>
                     <td class="caption text-xs-right border-bottom">
-                      {{ (item.qty * item.resellerPrice) | currency("P") }}
+                      {{ (item.qty * item.resellerPrice) | currency('&#8369;') }}
                     </td>
                   </tr>
 
@@ -222,7 +216,7 @@
                       Subtotal
                     </td>
                     <td class="caption text-xs-right">
-                      {{ subTotal | currency("P") }}
+                      {{ subTotal | currency('&#8369;') }}
                     </td>
                   </tr>
 
@@ -231,21 +225,17 @@
                       Shipping Fee
                     </td>
                     <td class="caption text-xs-right">
-                      <span 
-                        v-if="subTotal >= freeDeliveryCutOff" 
-                        class="primary--text"
-                      >FREE</span>
-                      <span v-else>{{ shippingFee | currency("P") }}</span>
+                      <span>{{ shippingFee | currency('&#8369;') }}</span>
                     </td>
                   </tr>
 
-                  <tr v-if="deliveryDiscount">
+                  <tr v-if="isDeliveryDiscounted">
                     <td class="caption text-xs-right" colspan="2">
                       Shipping Fee Discount
                     </td>
                     <td class="caption text-xs-right">
                       <span v-if="deliveryDiscount.type === 'amount'"> 
-                        {{ deliveryDiscount.amount | currency("P") }}
+                        {{ deliveryDiscount.amount | currency('&#8369;') }}
                       </span>
                       <span v-else>
                         {{ deliveryDiscount.amount + ' %' }}
@@ -253,12 +243,12 @@
                     </td>
                   </tr>
 
-                  <tr v-if="deliveryDiscount">
+                  <tr v-if="isDeliveryDiscounted">
                     <td class="caption text-xs-right" colspan="2">
                       New Shipping Fee
                     </td>
                     <td class="caption text-xs-right">
-                      <span>{{ discountedShippingFee | currency("P") }}</span>
+                      <span>{{ discountedShippingFee | currency('&#8369;') }}</span>
                     </td>
                   </tr>
 
@@ -267,7 +257,7 @@
                       Total
                     </td>
                     <td class="caption text-xs-right">
-                      <strong>{{ total | currency("P") }}</strong>
+                      <strong>{{ total | currency('&#8369;') }}</strong>
                     </td>
                   </tr>
                 </tbody>
@@ -318,13 +308,13 @@
                 <div v-if="totalIsInMinimumPrice" class="mt-1">
                   <v-divider></v-divider>
                   <div class="mt-2 body-1 red--text font-italic font-weight-bold">
-                    Online payment is only available for stock order above {{ 100 | currency("PHP ")}}
+                    Online payment is only available for stock order above {{ 100 | currency('&#8369;') }}
                   </div>  
                 </div>
                 <div v-if="totalIsInMaximumPrice" class="mt-1">
                   <v-divider></v-divider>
                   <div class="mt-2 body-1 red--text font-italic font-weight-bold">
-                    E-Wallet payments are not available for stock order above {{ 100000 | currency("PHP ")}}
+                    E-Wallet payments are not available for stock order above {{ 100000 | currency('&#8369; ') }}
                   </div>  
                 </div>
                 <v-divider v-if="payment.paymentType === 'CC'"></v-divider>
@@ -452,8 +442,6 @@ export default {
       accountDetails: null,
     },
 
-    userHasNoOrders: '',
-    freeDeliveryCutOff: 0.00,
     deliveryDiscountList: [],
 
     logisticsID: "pick-up",
@@ -519,9 +507,6 @@ export default {
     }
 
     try {
-      const freeDelivery = await this.$store.dispatch('providers/GetFreeDeliveryCutOff');
-      this.freeDeliveryCutOff = freeDelivery.cutOffPrice;
-
       this.deliveryDiscountList = await this.$store.dispatch('providers/GetDeliveryDiscounts');
       
       this.loaderDialogMessage = null;
@@ -732,23 +717,16 @@ export default {
         this.payment.amount = this.total;
         this.stockOrder.logisticsDetails = {
           logisticProvider: this.logisticsID,
-          shippingFee: this.shippingFee, 
+          shippingFee: this.shippingFee, //this will show the original shipping fee to the dashboard
           resellersShippingFee: this.shippingFee,
-          isFreeShipping: false
+          isDiscountedDelivery: false
         };
 
         //this a flag that tells the dashboard that this is a new order and hasnt been read by the brand company.
         this.stockOrder.isRead = false;
-        
-        //if sotck order price is greater than or equal to the free delivery cut-off price
-        //make shipping fee FREE, but show to the company the original shipping fee
-        if(this.subTotal >= this.freeDeliveryCutOff) {
-          this.stockOrder.logisticsDetails.isFreeShipping = true;
-          this.stockOrder.logisticsDetails.resellersShippingFee = 0.00;
-          this.stockOrder.logisticsDetails.shippingFee = this.shippingFee;
-        
+         
         //if the stock order has delivery discount, show the original shipping fee to the company
-        } else if(this.deliveryDiscount) {
+        if(this.isDeliveryDiscounted) {
           this.stockOrder.logisticsDetails.resellersShippingFee = this.discountedShippingFee;
           this.stockOrder.logisticsDetails.shippingFee = this.shippingFee;
           this.stockOrder.logisticsDetails.isDiscountedDelivery = true;
@@ -1208,12 +1186,7 @@ export default {
     },
 
     total() {
-      const isFreeDelivery = this.subTotal >= this.freeDeliveryCutOff;
-
-      if(isFreeDelivery) {
-        return this.subTotal;
-
-      } else if (this.deliveryDiscount) {
+      if(this.isDeliveryDiscounted) {
         return this.subTotal + this.discountedShippingFee;
 
       } else {
@@ -1229,11 +1202,9 @@ export default {
       return Number(logisticsData.shippingFee);
     },
 
+    //this will find a delivery discount based on the reseller's location
     deliveryDiscount() {
       if(this.logisticsID === 'pick-up') {
-        return null;
-
-      } else if(this.subTotal >= this.freeDeliveryCutOff) {
         return null;
       }
 
@@ -1269,14 +1240,20 @@ export default {
       });
       console.log("region discount", regionBasedDiscount)
       if(regionBasedDiscount) return regionBasedDiscount;
+
+      return null;
+    },
+
+    isDeliveryDiscounted() {
+      if(!this.deliveryDiscount) return false;
+      
+      return this.subTotal >= this.deliveryDiscount.stockOrderPrice;
     },
 
     discountedShippingFee() {
-      if(this.subTotal >= this.freeDeliveryCutOff) {
-        return this.shippingFee;
-      }
-
-      if(!this.deliveryDiscount) {
+      //if the amount of the stock order doesnt reach the free delivery quota price from the retrieved delivery discount
+      //then this stock order is not eligeable for delivery discount 
+      if(!this.isDeliveryDiscounted) {
         return this.shippingFee;
       }
 
