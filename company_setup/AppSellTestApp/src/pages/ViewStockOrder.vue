@@ -64,7 +64,7 @@
           </div>
           <div>
             Amount Paid:
-            {{ stockOrder.paymentDetails.amount | currency("P ") }}
+            {{ stockOrder.paymentDetails.amount | currency('&#8369;') }}
           </div>
           <div>
             Status:
@@ -96,10 +96,9 @@
             <span v-else>Provider: N/A</span>
           </div>
           <div>
-            <span v-if="stockOrder.logisticsDetails.isFreeShipping">Shipping Fee: FREE</span>
-            <span v-else-if="stockOrder.logisticsDetails">
+            <span v-if="stockOrder.logisticsDetails">
               Shipping Fee: {{ 
-                (stockOrder.logisticsDetails.resellersShippingFee || stockOrder.logisticsDetails.shippingFee) | currency("P ") 
+                (stockOrder.logisticsDetails.resellersShippingFee || stockOrder.logisticsDetails.shippingFee) | currency('&#8369;') 
               }}
             </span>
             <span v-else>Shipping Fee: N/A</span>
@@ -152,7 +151,7 @@
           </td>
           <td class="caption text-xs-right border-bottom">{{ item.qty }}</td>
           <td class="caption text-xs-right border-bottom">
-            {{ (item.qty * item.resellerPrice) | currency("P") }}
+            {{ (item.qty * item.resellerPrice) | currency('&#8369;') }}
           </td>
         </tr>
         <tr>
@@ -179,7 +178,7 @@
             Total
           </td>
           <td class="caption text-xs-right">
-            <strong>{{ total | currency("P") }}</strong>
+            <strong>{{ total | currency('&#8369;') }}</strong>
           </td>
         </tr>
       </tbody>
