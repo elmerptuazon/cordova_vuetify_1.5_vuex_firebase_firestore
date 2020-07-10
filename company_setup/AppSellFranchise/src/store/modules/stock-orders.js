@@ -690,6 +690,54 @@ export default {
 				throw error
 			}
 			
+		},
+
+		async TEMP_UPLOAD_PROOF_OF_PAYMENT({ }, payload) {
+			try {
+				const { picture, stockOrderReference } = payload;
+				const uploadedPic = await STORAGE.ref('appsell')
+					.child('proof-of-payment')
+					.child(stockOrderReference)
+					.putString(picture, 'data_url');
+				
+				return await uploadedPic.ref.getDownloadURL();
+
+			} catch(error) {
+				throw error;
+			}
+		},
+
+		async REMOVE_PROOF_OF_PAYMENT({ }, stockOrderReference) {
+			try {
+
+				await STORAGE.ref('appsell')
+					.child('proof-of-payment')
+					.child(stockOrderReference)
+					.delete();
+				
+				return { success: true };
+
+			} catch(error) {
+				throw error;
+			}
+		},
+
+		async UPLOAD_PROOF_OF_PAYMENT({ }, payload) {
+			const { id, paymentDetails } = payload;
+
+			try {
+				paymentDetails.paymentStatus = 'pending';
+
+				await COLLECTION.stock_orders.doc(id).update({ 
+					isRead: false,
+					paymentDetails 
+				});
+
+				return paymentDetails;
+			} catch(error) {
+				throw error;
+			}
 		}
+
 	}
 }
