@@ -79,8 +79,8 @@
                 v-if="stockOrder.paymentDetails.proofOfPayment"
                 :src="stockOrder.paymentDetails.proofOfPayment"
                 :lazy-src="Placeholder"
-                max-height="240px"
-                max-width="240px" 
+                max-height="250px"
+                max-width="250px" 
                 style="border: solid 1px;"
                 @click="enlargeImage"
               >
@@ -102,8 +102,8 @@
                 v-else
                 :src="Placeholder" 
                 :lazy-src="Placeholder"
-                max-height="240px"
-                max-width="240px" 
+                max-height="250px"
+                max-width="250px" 
                 style="border: solid 1px;"
               ></v-img>
 
@@ -125,6 +125,7 @@
           <v-layout row align-center justify-center wrap mt-3>
             <v-flex xs10 class="text-xs-center" 
               v-if="
+                  stockOrder.paymentDetails.proofOfPayment ||
                   stockOrder.paymentDetails.paymentStatus === '-' || 
                   stockOrder.paymentDetails.paymentStatus === 'denied'
                 "
@@ -572,6 +573,15 @@ export default {
 
 .overlayImage {
   position: absolute;
+  top: 38%;
+  left: 18%;
+  z-index: 1;
+}
+
+.overlayImageNoImg {
+  position: absolute;
+  top: 32%;
+  left: 28%;
   z-index: 1;
 }
 
