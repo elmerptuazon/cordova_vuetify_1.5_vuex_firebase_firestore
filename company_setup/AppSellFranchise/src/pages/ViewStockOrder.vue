@@ -60,6 +60,9 @@
                     : '',
                   stockOrder.paymentDetails.paymentStatus.toLowerCase() === 'paid'
                     ? 'green'
+                    : '',
+                  stockOrder.paymentDetails.paymentStatus.toLowerCase() === 'denied'
+                    ? 'red darken-2'
                     : ''
                 ]"
                 text-color="white"
@@ -78,7 +81,7 @@
                 :lazy-src="Placeholder"
                 max-height="240px"
                 max-width="240px" 
-                contain
+                style="border: solid 1px;"
                 @click="enlargeImage"
               >
                 <v-layout
@@ -90,7 +93,7 @@
                 >
                   <v-progress-circular
                     indeterminate
-                    color="grey lighten-5"
+                    color="grey darken-2"
                   ></v-progress-circular>
                 </v-layout>
               </v-img>
@@ -101,10 +104,14 @@
                 :lazy-src="Placeholder"
                 max-height="240px"
                 max-width="240px" 
+                style="border: solid 1px;"
               ></v-img>
 
               <v-btn
-                v-if="stockOrder.paymentDetails.paymentStatus === '-'"
+                v-if="
+                  stockOrder.paymentDetails.paymentStatus === '-' || 
+                  stockOrder.paymentDetails.paymentStatus === 'denied'
+                "
                 class="overlayImage"
                 @click="sheet = true"
                 depressed color="primary" dark small
@@ -116,7 +123,12 @@
             </v-avatar>
           </v-layout>
           <v-layout row align-center justify-center wrap mt-3>
-            <v-flex xs10 class="text-xs-center" v-if="stockOrder.paymentDetails.paymentStatus === '-'">
+            <v-flex xs10 class="text-xs-center" 
+              v-if="
+                  stockOrder.paymentDetails.paymentStatus === '-' || 
+                  stockOrder.paymentDetails.paymentStatus === 'denied'
+                "
+            >
               <v-btn 
                 outline 
                 color="black" 
@@ -126,7 +138,13 @@
                 VIEW IMAGE
               </v-btn>
             </v-flex>
-            <v-flex xs10 class="text-xs-center" v-if="stockOrder.paymentDetails.paymentStatus === '-'">
+            <v-flex 
+              xs10 class="text-xs-center" 
+              v-if="
+                  stockOrder.paymentDetails.paymentStatus === '-' || 
+                  stockOrder.paymentDetails.paymentStatus === 'denied'
+                "
+            >
               <v-btn  
                 color="red" outline 
                 @click="removeProofOfPayment"
@@ -136,7 +154,13 @@
                 Remove Proof of Payment
               </v-btn>
             </v-flex>
-            <v-flex xs10 class="text-xs-center" v-if="stockOrder.paymentDetails.paymentStatus === '-'">
+            <v-flex 
+              xs10 class="text-xs-center" 
+              v-if="
+                  stockOrder.paymentDetails.paymentStatus === '-' || 
+                  stockOrder.paymentDetails.paymentStatus === 'denied'
+                "
+            >
               <v-btn  
                 color="primary" depressed 
                 @click="confirmUploadDialog = true"
@@ -384,7 +408,8 @@ export default {
       //remove temp proof of payment if not uploaded
       if(
           this.stockOrder.paymentDetails.proofOfPayment &&
-          this.stockOrder.paymentDetails.paymentStatus === '-'
+          (this.stockOrder.paymentDetails.paymentStatus === '-' &&
+          this.stockOrder.paymentDetails.paymentStatus === 'denied')
       ) {
         
         this.loaderDialog = true;
