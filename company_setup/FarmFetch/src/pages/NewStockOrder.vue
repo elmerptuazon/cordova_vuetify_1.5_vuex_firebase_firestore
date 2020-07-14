@@ -343,10 +343,6 @@ export default {
         item.onHandQTY = variant.onHandQTY;
         item.reOrderLevel = variant.reOrderLevel;
         item.availableQTY = parseInt(item.onHandQTY) - parseInt(item.allocatedQTY);
-        item.weight = variant.weight;
-        item.price = variant.price;
-        item.resellerPrice = variant.resellerPrice;
-        item.isOutofStock = variant.isOutofStock;
         item.minimumOrder = variant.minimumOrder;
 
         if(!item.isOutofStock && item.availableQTY === 0) {
