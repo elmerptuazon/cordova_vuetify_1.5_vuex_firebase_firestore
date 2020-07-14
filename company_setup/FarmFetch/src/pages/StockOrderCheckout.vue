@@ -451,7 +451,8 @@ export default {
     inAppBrowserRef: null,
 
   }),
-  mounted() {
+  
+  async mounted() {
     this.cordovaBackButton(this.goBack);
     
     this.loaderDialogMessage = 'Please Wait...';
@@ -459,34 +460,53 @@ export default {
 
     this.checkoutHeight = window.innerHeight;
     this.checkoutWidth = window.innerWidth;
+    
+    let stockOrder;
+    try {
+      stockOrder = await this.$store.dispatch("stock_orders/GET"); 
+    } catch(error) {
+      console.log(error);
+      this.loaderDialogMessage = null;
+      this.loaderDialog = false;
+    }
+    
+    if(!stockOrder.success) {
+      this.loaderDialogMessage = null;
+      this.loaderDialog = false;
+      return;
+    }
 
-    this.$store
-      .dispatch("stock_orders/GET")
-      .then(res => {
-        console.log(res.data);
-        if (res.success) {
-          this.stockOrder = Object.assign({}, res.data);
-        }
-        
-      })
-      .catch(error => {
-        console.log(error);
-        this.loaderDialogMessage = null;
-        this.loaderDialog = false;
+    this.stockOrder = Object.assign({}, stockOrder.data);
+
+    let itemsToRemove = [];
+    for(const item of this.stockOrder.items) {
+      const variant = await this.$store.dispatch('variants/GET_VARIANT', {
+        sku: item.sku,
+        productId: item.productId
       });
 
-    this.$store
-      .dispatch('providers/GetFreeDeliveryCutOff')
-      .then(res => {
-        this.freeDeliveryCutOff = res.cutOffPrice;
-        this.loaderDialogMessage = null;
-        this.loaderDialog = false;
-      })
-      .catch(error => {
-        console.log(error);
-        this.loaderDialogMessage = null;
-        this.loaderDialog = false;
-      });
+      if(variant.isOutofStock) itemsToRemove.push(item);
+      else if(item.qty > variant.availableQTY) itemsToRemove.push(items);
+    }
+
+    for(const item of itemsToRemove) {
+      const index = this.stockOrder.items.findIndex(stockOrderItem => item.productId === stockOrderItem.productId);
+      if(index !== -1) {
+        this.stockOrder.items.splice(index, 1);
+      }
+    }
+
+    try {
+      const freeDelivery = await this.$store.dispatch('providers/GetFreeDeliveryCutOff');
+      this.freeDeliveryCutOff = freeDelivery.cutOffPrice;
+      this.loaderDialogMessage = null;
+      this.loaderDialog = false;
+
+    } catch(error) {
+      console.log(error);
+      this.loaderDialogMessage = null;
+      this.loaderDialog = false;
+    }
     
     //add event listener to exit browser dialog when the success or fail redirect URL are being loaded 
     window.addEventListener(
@@ -1144,7 +1164,7 @@ export default {
         0
       );
 
-      return weight > 0 ? weight : 1;
+      return weight > 0 ? weight : 1000;
     },
     discount() {
       let discount;
@@ -1224,7 +1244,7 @@ export default {
       let str = "";
 
       keys.forEach(key => {
-        str += `${key}:${attributes[key]}`;
+        str += `${key.toUpperCase()}: ${attributes[key]}\n`;
       });
 
       return str;

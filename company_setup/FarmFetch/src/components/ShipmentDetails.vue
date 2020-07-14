@@ -19,6 +19,10 @@
           <v-card-text>
             <v-layout align-center justify-space-around row wrap>
               <v-flex xs12>
+                <span class="body-1">Shipping / Pick-Up Date: </span>
+                <span class="body-2 font-weight-bold">{{ $moment(new Date(shipment.pickupDate)).format("DD-MMM-YYYY") }}</span>
+              </v-flex>
+              <v-flex xs12>
                 <v-data-table
                   hide-actions
                   :headers="headers"
@@ -118,7 +122,25 @@ export default {
           };
         }
         
+        for(const item of shipment.itemsToShip) {
+          let updatedVariant = {
+            allocatedQTY: FIRESTORE.FieldValue.increment(item.qtyToShip * -1),
+            onHandQTY: FIRESTORE.FieldValue.increment(item.qtyToShip * -1),
+          };
+
+          await this.$store.dispatch('variants/UPDATE_VARIANT', {
+            id: item.variantId,
+            updatedDetails: updatedVariant
+          });
+        }
+
         await this.$store.dispatch("shipment/UpdateShipment", updatedShipment);
+        await this.$store.dispatch("stock_orders/UPDATE_STOCK_ORDER", {
+          id: shipment.stockOrder.stockOrderId,
+          key: 'isQTYDeducted',
+          value: true
+        });
+        
         this.$refs.modal.show(
           "Success",
           "Shipment has been tagged as Received!"
