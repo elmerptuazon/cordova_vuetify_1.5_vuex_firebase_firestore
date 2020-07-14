@@ -36,6 +36,7 @@ const accounts = {
 		},
 		approvalSubscriber: null,
 		companyIcon: null,
+		removalSubscriber: null,
 	},
 	getters: {
 		user: state => state.user,
@@ -564,6 +565,8 @@ const accounts = {
 				dispatch('orders/LISTEN_TO_PROPOSED_DELIVERIES', { id: userData.uid }, { root: true });
 			}
 
+			dispatch('LISTEN_TO_ACCOUNT_REMOVAL');
+
 		},
 		async UPDATE_ACCOUNT({ commit }, payload) {
 			console.log(payload)
@@ -741,6 +744,9 @@ const accounts = {
 
 				//UNSUBSCRIBE TO ARTICLES
 				dispatch('articles/UNSUBSCRIBE_TO_ARTICLES', null, { root: true });
+				
+
+				dispatch('UNSUBSCRIBE_TO_ACCOUNT_REMOVAL');
 
 				return await AUTH.signOut();
 			} catch (error) {
@@ -886,7 +892,9 @@ const accounts = {
 
 		LISTEN_TO_APPROVAL({ state, commit, dispatch }) {
 			const uid = AUTH.currentUser.uid;
-			console.log('Listening to approvals')
+			console.log('Listening to approvals');
+
+			dispatch('LISTEN_TO_ACCOUNT_REMOVAL');
 
 			state.approvalSubscriber = COLLECTION.accounts.doc(uid).onSnapshot(function (doc) {
 				const data = doc.data();
@@ -914,6 +922,37 @@ const accounts = {
 
 				commit('UPDATE_USER_KEY', { key: 'status', value: data.status });
 			});
+		},
+
+		async LISTEN_TO_ACCOUNT_REMOVAL({state, rootGetters, dispatch }) {
+			const uid = AUTH.currentUser.uid;
+			const currentUserRef = await COLLECTION.accounts.doc(uid).get();
+			const agentId = currentUserRef.data().agentId;
+
+			console.log('listening to account removal...')
+			state.removalSubscriber = COLLECTION.accounts.where('agentId', '==', agentId).onSnapshot(async (snapshot) => {
+				let doc = snapshot.docChanges();
+
+				if(doc[0].type === 'removed') {
+					console.log('account has been removed!')
+					
+					const notif = {
+						title: 'Sorry',
+						text: `Your Branch Account has been removed. Please contact ${rootGetters['GET_COMPANY']} if you think this was done by mistake.`
+					};
+
+					await dispatch('SEND_PUSH_NOTIFICATION', notif); 
+					await dispatch('LOG_OUT');
+					router.push('/');
+
+				}
+			})
+		},
+
+		UNSUBSCRIBE_TO_ACCOUNT_REMOVAL({ state }) {
+			if(state.removalSubscriber) {
+				state.removalSubscriber();
+			}
 		},
 
 		async SEND_PUSH_NOTIFICATION({ state }, payload) {
