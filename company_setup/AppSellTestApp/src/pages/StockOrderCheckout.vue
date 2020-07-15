@@ -305,6 +305,10 @@
                   value="GrabPay"
                   :disabled="totalIsInMinimumPrice || totalIsInMaximumPrice"
                 ></v-radio>
+                <v-radio
+                  label="Bank Receipt / Payment Receipt"
+                  value="POP"
+                ></v-radio>
                 <div v-if="totalIsInMinimumPrice" class="mt-1">
                   <v-divider></v-divider>
                   <div class="mt-2 body-1 red--text font-italic font-weight-bold">
@@ -343,7 +347,7 @@
               :disabled="stockOrder.items.length < 1"
             >
               <v-icon left>check_circle</v-icon>
-              <span v-if="payment.paymentType === 'COD'">
+              <span v-if="payment.paymentType === 'COD' || payment.paymentType === 'POP'">
                 Submit Order
               </span>
               <span v-else>
@@ -828,6 +832,24 @@ export default {
             break;
           }
 
+          case "POP": {
+            this.$refs.finalizeOrder.close();
+            let paymentResult = {
+              amount: this.total,
+              paymentType: 'POP',
+              paymentStatus: '-',
+              proofOfPayment: null,
+            }
+
+            console.log(this.stockOrder);
+            //this flow will always result to success, any error should be thrown
+            //and handled in the catch statement
+
+            await this.submitOrder(paymentResult);
+
+            break;
+          }
+
           default: {
             this.$refs.modal.show(
               "Payment method error!",
@@ -993,6 +1015,10 @@ export default {
 
       } else if(this.payment.paymentType === 'COD') {
         this.stockOrder.paymentDetails = Object.assign({}, paymentResult);
+      
+      } else if(this.payment.paymentType === 'POP') {
+        this.stockOrder.paymentDetails = Object.assign({}, paymentResult);
+      
       }
 
       console.log(this.stockOrder);

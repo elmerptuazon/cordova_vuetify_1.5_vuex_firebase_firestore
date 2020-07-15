@@ -9,11 +9,27 @@ export default {
 	namespaced: true,
 	state: {
 		basket: 0,
-		subscriber: null
+		subscriber: null,
+		stockOrderList: []
+	},
+	getters: {
+		GET_NOTIFICATION_COUNT(state) {
+			const stockOrderWithNotif = state.stockOrderList.filter(stockOrder => {
+				return (
+					(stockOrder.paymentDetails.paymentStatus === 'denied' && stockorder.paymentDetails.paymentType === 'POP') || 
+					stockOrder.shipmentsToReceive > 0
+				)
+			});
+
+			return stockOrderWithNotif.length;
+		},
 	},
 	mutations: {
 		SET_BASKET_COUNT(state, payload) {
 			state.basket = payload;
+		},
+		SET_STOCK_ORDER_LIST(state, payload) {
+			state.stockOrderList = payload; 
 		}
 	},
 	actions: {
@@ -649,6 +665,24 @@ export default {
 
 							dispatch('accounts/SEND_PUSH_NOTIFICATION', notif, { root: true });
 						}
+
+						if(	
+							(change.paymentDetails.paymentStatus.toLowerCase() === 'denied' && change.paymentDetails.paymentType === 'POP') && 
+							!change.read
+						) {
+							const notif = {
+								title: 'Payment Status',
+								text: 'The payment from one of your Stock Orders has been DENIED! Open the app to re-confirm payment.',
+								redirectURL: {
+									name: 'ViewStockOrder',
+									params: {
+										id: change.id 
+									}
+								},
+							};
+
+							dispatch('accounts/SEND_PUSH_NOTIFICATION', notif, { root : true });
+						}
 					});
 
 				});
@@ -675,6 +709,53 @@ export default {
 				throw error
 			}
 			
+		},
+
+		async TEMP_UPLOAD_PROOF_OF_PAYMENT({ }, payload) {
+			try {
+				const { picture, stockOrderReference } = payload;
+				const uploadedPic = await STORAGE.ref('appsell')
+					.child('proof-of-payment')
+					.child(stockOrderReference)
+					.putString(picture, 'data_url');
+				
+				return await uploadedPic.ref.getDownloadURL();
+
+			} catch(error) {
+				throw error;
+			}
+		},
+
+		async REMOVE_PROOF_OF_PAYMENT({ }, stockOrderReference) {
+			try {
+
+				await STORAGE.ref('appsell')
+					.child('proof-of-payment')
+					.child(stockOrderReference)
+					.delete();
+				
+				return { success: true };
+
+			} catch(error) {
+				throw error;
+			}
+		},
+
+		async UPLOAD_PROOF_OF_PAYMENT({ }, payload) {
+			const { id, paymentDetails } = payload;
+
+			try {
+				paymentDetails.paymentStatus = 'pending';
+
+				await COLLECTION.stock_orders.doc(id).update({ 
+					isRead: false,
+					paymentDetails 
+				});
+
+				return paymentDetails;
+			} catch(error) {
+				throw error;
+			}
 		}
 	}
 }

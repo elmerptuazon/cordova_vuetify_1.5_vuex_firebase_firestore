@@ -46,8 +46,17 @@
             props.item.shipmentsToReceive > 0"
             >SCHEDULED FOR SHIPPING
           </span>
-          
           <span v-else>{{ props.item.status | uppercase }}</span>
+        </td>
+        <td class="text-xs-center">
+          <span v-if="
+              props.item.paymentDetails.paymentStatus === 'pending' && 
+              props.item.paymentDetails.paymentType === 'POP'
+            "
+          >
+            {{ 'proof of payment' | uppercase }}
+          </span>
+          <span v-else>{{ props.item.paymentDetails.paymentStatus | uppercase }}</span>
         </td>
         <td class="text-xs-center">
           {{ props.item.submittedAt | momentify("DD-MMM-YYYY") }}
@@ -89,15 +98,15 @@ export default {
         align: "center"
       },
       {
-        text: "Status",
+        text: "Shipping Status",
         value: "status",
         align: "center"
       },
-      // {
-      //   text: "Cost",
-      //   value: "total",
-      //   align: "center"
-      // }
+      {
+        text: "Payment Status",
+        value: "paymentDetails.paymentStatus",
+        align: "center"
+      },
       {
         text: "Date Submitted",
         value: "submittedAt",
