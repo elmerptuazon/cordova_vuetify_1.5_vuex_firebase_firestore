@@ -15,7 +15,7 @@ module.exports = merge(devEnv, {
   companyName: '"Rraw"',
   contactNumber: '"09123456789"',
   version: '"0.6.10"',
-  primaryColor: '"#0E1E38"',
+  primaryColor: '"#CCAFAF"',
   environment: '"test"',
   callbackURL: '"https://us-central1-appselltestapp.cloudfunctions.net/callback"'
 })
