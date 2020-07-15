@@ -30,8 +30,7 @@
               Status:
               <v-chip
                 :class="[
-                  stockOrder.status === 'pending' ? 'red darken-2' : '',
-                  isScheduledForShipping ? 'yellow darken-2' : 'green',
+                  stockOrder.status.toLowerCase() != 'pending' ? 'green' : 'red darken-2'
                 ]"
                 text-color="white"
               >
@@ -47,33 +46,56 @@
         </v-card-title>
         <v-divider></v-divider>
         <v-card-text>
-          <v-layout row align-start justify-start mt-2>
-            <v-flex xs12>
-              Status:
-              <v-chip
-                :class="[
-                  stockOrder.paymentDetails.paymentStatus.toLowerCase() === '-'
-                    ? 'red darken-2'
-                    : '',
-                  stockOrder.paymentDetails.paymentStatus.toLowerCase() === 'pending'
-                    ? 'yellow darken-2'
-                    : '',
-                  stockOrder.paymentDetails.paymentStatus.toLowerCase() === 'paid'
-                    ? 'green'
-                    : '',
-                  stockOrder.paymentDetails.paymentStatus.toLowerCase() === 'denied'
-                    ? 'red darken-2'
-                    : ''
-                ]"
-                text-color="white"
-              >
-                <span v-if="stockOrder.paymentDetails.paymentStatus === 'pending'">proof of payment</span>
-                <span v-else>{{ stockOrder.paymentDetails.paymentStatus }}</span>
-              </v-chip>
-            </v-flex>
-          </v-layout>
+          <div>
+            <span v-if="stockOrder.paymentDetails.paymentType === 'CC'"
+              >Type: Credit Card</span
+            >
+            <span v-else-if="stockOrder.paymentDetails.paymentType === 'GCash'"
+              >Type: GCash</span
+            >
+            <span v-else-if="stockOrder.paymentDetails.paymentType === 'GrabPay'"
+              >Type: Grab Pay</span
+            >
+            <span v-else-if="stockOrder.paymentDetails.paymentType === 'POP'"
+              >Type: Bank Receipt / Payment Receipt</span
+            >
+            <span v-else>Type: Cash on Delivery</span>
+          </div>
+          <div class="mt-3" v-if="stockOrder.paymentDetails.paymentType !== 'POP'">
+            Amount Paid:
+            {{ stockOrder.paymentDetails.amount | currency('&#8369;') }}
+          </div>
+          <div class="mt-3">
+            Status:
+            <v-chip
+              :class="[
+                stockOrder.paymentDetails.paymentStatus.toLowerCase() === '-'
+                  ? 'red darken-2'
+                  : '',
+                stockOrder.paymentDetails.paymentStatus.toLowerCase() === 'pending'
+                  ? 'yellow darken-2'
+                  : '',
+                stockOrder.paymentDetails.paymentStatus.toLowerCase() === 'paid'
+                  ? 'green'
+                  : '',
+                stockOrder.paymentDetails.paymentStatus.toLowerCase() === 'denied'
+                  ? 'red darken-2'
+                  : ''
+              ]"
+              text-color="white"
+            >
+              <span v-if="
+                stockOrder.paymentDetails.paymentStatus === 'pending' && 
+                stockOrder.paymentDetails.paymentType === 'POP'
+              "
+              >proof of payment</span>
+              <span v-else>{{ stockOrder.paymentDetails.paymentStatus }}</span>
+            </v-chip>
+          </div>
 
-          <v-layout row align-center justify-center wrap mt-4>
+          <v-layout row align-center justify-center wrap mt-4 
+            v-if="stockOrder.paymentDetails.paymentType === 'POP'"
+          >
             <v-avatar tile size="200">
               <v-img
                 v-if="stockOrder.paymentDetails.proofOfPayment"
@@ -122,7 +144,6 @@
               </v-btn>
             </v-avatar>
           </v-layout>
-
           <v-layout row align-center justify-center wrap mt-3>
             <v-flex xs10 class="text-xs-center" 
               v-if="
@@ -173,6 +194,7 @@
               </v-btn>
             </v-flex>
           </v-layout>
+
         </v-card-text>
         <v-divider></v-divider>
         <v-card-title>
@@ -190,10 +212,11 @@
             <span v-else>Provider: N/A</span>
           </div>
           <div>
-            <span v-if="stockOrder.logisticsDetails.isFreeShipping">Shipping Fee: FREE</span>
-            <span v-else-if="stockOrder.logisticsDetails"
-              >Shipping Fee: {{ stockOrder.logisticsDetails.shippingFee | currency("&#8369; ") }}</span
-            >
+            <span v-if="stockOrder.logisticsDetails">
+              Shipping Fee: {{ 
+                (stockOrder.logisticsDetails.resellersShippingFee || stockOrder.logisticsDetails.shippingFee) | currency('&#8369;') 
+              }}
+            </span>
             <span v-else>Shipping Fee: N/A</span>
           </div>
         </v-card-text>
@@ -244,18 +267,34 @@
           </td>
           <td class="caption text-xs-right border-bottom">{{ item.qty }}</td>
           <td class="caption text-xs-right border-bottom">
-            {{ (item.qty * item.resellerPrice) | currency("&#8369;") }}
+            {{ (item.qty * item.resellerPrice) | currency('&#8369;') }}
           </td>
         </tr>
         <tr>
           <td colspan="3"></td>
         </tr>
+        <!-- <tr>
+          <td class="caption text-xs-right" colspan="2">
+            Subtotal
+          </td>
+          <td class="caption text-xs-right">
+            {{ subTotal | currency("P") }}
+          </td>
+        </tr>
+        <tr>
+          <td class="caption text-xs-right" colspan="2">
+            Discount
+          </td>
+          <td class="caption text-xs-right">
+            <span v-if="discount">{{ discount }}%</span>
+          </td>
+        </tr> -->
         <tr>
           <td class="caption text-xs-right" colspan="2">
             Total
           </td>
           <td class="caption text-xs-right">
-            <strong>{{ total | currency("P") }}</strong>
+            <strong>{{ total | currency('&#8369;') }}</strong>
           </td>
         </tr>
       </tbody>
@@ -331,7 +370,6 @@ import BottomNav from "@/components/BottomNav";
 import BasketBadge from "@/components/BasketBadge";
 import ShipmentDetails from "@/components/ShipmentDetails";
 import Modal from "@/components/Modal";
-import placeholder from "@/assets/placeholder.png";
 
 export default {
   mixins: [date, mixins],
@@ -339,16 +377,16 @@ export default {
     search: null,
     loading: false,
     loaderDialog: false,
+
     stockOrder: {
       id: null,
       items: [],
       userId: null,
       createdAt: null,
-      status: 'pending',
       paymentDetails: {
         amount: '-',
         paymentStatus: '-',
-        paymentType: '-',
+        paymentType: 'COD',
         proofOfPayment: null
       },
       logisticsDetails: {
@@ -356,7 +394,8 @@ export default {
         logisticProvider: 'pick-up',
         shippingFee: 0
       },
-      status: 'pending'
+      status: '-',
+      shipmentsToReceive: 0
     },
 
     loaderDialogMessage: null,
@@ -386,7 +425,7 @@ export default {
           if (
             (!this.stockOrder.read &&
               this.stockOrder.status.toLowerCase() === "processing") ||
-            (!this.stockOrder.read && this.stockOrder.status.toLowerCase() === "cancelled")
+            (!this.stockOrder.read && this.stockOrder.status === "cancelled")
           ) {
             this.$store.dispatch("stock_orders/UPDATE_STOCK_ORDER", {
               id: this.stockOrder.id,
@@ -541,7 +580,7 @@ export default {
       if (this.discount) {
         return this.subTotal - (this.discount / 100) * this.subTotal;
       } else {
-        return this.subTotal + this.stockOrder.logisticsDetails.shippingFee;
+        return this.subTotal;
       }
     },
 

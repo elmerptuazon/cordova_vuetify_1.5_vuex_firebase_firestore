@@ -10,13 +10,16 @@ export default {
 	state: {
 		basket: 0,
 		subscriber: null,
-		stockOrderList: [],
+		stockOrderList: []
 	},
 	getters: {
 		GET_NOTIFICATION_COUNT(state) {
 			const stockOrderWithNotif = state.stockOrderList.filter(stockOrder => {
-				return stockOrder.paymentDetails.paymentStatus === 'denied' || stockOrder.shipmentsToReceive > 0;
-			}) ;
+				return (
+					(stockOrder.paymentDetails.paymentStatus === 'denied' && stockorder.paymentDetails.paymentType === 'POP') || 
+					stockOrder.shipmentsToReceive > 0
+				)
+			});
 
 			return stockOrderWithNotif.length;
 		},
@@ -159,6 +162,7 @@ export default {
 							const productData = productRef.data();
 
 							item.price = productData.price;
+							item.resellerPrice = productData.resellerPrice;
 							item.image = productData.downloadURL;
 							item.name = productData.name;
 						}
@@ -211,6 +215,7 @@ export default {
 							const productData = productRef.data();
 
 							item.price = productData.price;
+							item.resellerPrice = productData.resellerPrice;
 							item.image = productData.downloadURL;
 							item.name = productData.name;
 						}
@@ -615,13 +620,11 @@ export default {
 			}
 		},
 
-		LISTEN_TO_STOCK_ORDERS({ state, rootGetters, commit, dispatch }) {
+		LISTEN_TO_STOCK_ORDERS({ state, rootGetters, dispatch }) {
 
 			const user = AUTH.currentUser;
 
-			state.subscriber = COLLECTION.stock_orders
-				.where('userId', '==', user.uid)
-				.where('active', '==', false)
+			state.subscriber = COLLECTION.stock_orders.where('userId', '==', user.uid)
 				.onSnapshot((snapshot) => {
 
 					console.log('Listening to stock orders...');
@@ -634,8 +637,6 @@ export default {
 						return data;
 					});
 
-					commit('SET_STOCK_ORDER_LIST', changes);
-					
 					changes.forEach((change) => {
 
 						if ((!change.read && change.status === 'cancelled') || (!change.read && change.status === 'processing')) {
@@ -665,7 +666,10 @@ export default {
 							dispatch('accounts/SEND_PUSH_NOTIFICATION', notif, { root: true });
 						}
 
-						if(change.paymentDetails.paymentStatus.toLowerCase() === 'denied' && !change.read) {
+						if(	
+							(change.paymentDetails.paymentStatus.toLowerCase() === 'denied' && change.paymentDetails.paymentType === 'POP') && 
+							!change.read
+						) {
 							const notif = {
 								title: 'Payment Status',
 								text: 'The payment from one of your Stock Orders has been DENIED! Open the app to re-confirm payment.',
