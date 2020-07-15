@@ -39,6 +39,7 @@ async function copyCompanySetUp() {
             { title: 'Buffalo\'s Wings N Things', value: 'BuffaloWingsNThings' },
             { title: 'AppSell Franchise', value: 'AppSellFranchise' },
             { title: 'Matenara', value: 'Matenara' },
+            { title: 'Rraw', value: 'Rraw' },
             
         ],
         initial: 0
