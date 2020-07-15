@@ -41,7 +41,7 @@
                   :rules="basicRules"
                   append-icon="person_outline"
                   required
-                  :items="['Customer', 'Reseller']"
+                  :items="userType"
                   label="I am a..."
                   v-model="registerData.type"
                   single-line
@@ -601,6 +601,9 @@ export default {
     imgObj: {},
     referralFound: false,
     btnLoading: false,
+
+    userType: ['Reseller']
+    // userType: ['Customer', 'Reseller'];
 
   }),
   created() {

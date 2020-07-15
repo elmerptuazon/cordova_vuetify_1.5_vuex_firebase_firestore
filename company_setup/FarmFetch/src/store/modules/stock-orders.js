@@ -1,4 +1,4 @@
-import { DB, AUTH, STORAGE, COLLECTION } from '@/config/firebaseInit';
+import { DB, AUTH, STORAGE, COLLECTION, FIRESTORE } from '@/config/firebaseInit';
 
 function GenerateStockOrderNumber(resellerID) {
 	var refNumber = `SO-${BigInt(resellerID).toString(36).toUpperCase()}${BigInt(Date.now()).toString(36).toUpperCase()}`;
@@ -9,11 +9,24 @@ export default {
 	namespaced: true,
 	state: {
 		basket: 0,
-		subscriber: null
+		subscriber: null,
+		stockOrderList: [],
+	},
+	getters: {
+		GET_NOTIFICATION_COUNT(state) {
+			const stockOrderWithNotif = state.stockOrderList.filter(stockOrder => {
+				return stockOrder.paymentDetails.paymentStatus === 'denied' || stockOrder.shipmentsToReceive > 0;
+			}) ;
+
+			return stockOrderWithNotif.length;
+		},
 	},
 	mutations: {
 		SET_BASKET_COUNT(state, payload) {
 			state.basket = payload;
+		},
+		SET_STOCK_ORDER_LIST(state, payload) {
+			state.stockOrderList = payload; 
 		}
 	},
 	actions: {
@@ -53,6 +66,7 @@ export default {
 									unique += `_${key}:${product.attributes[key]}`;
 								}
 							});
+							
 							product.resellerPrice = productData.resellerPrice;
 							product.price = productData.price;
 							product.image = productData.downloadURL;
@@ -147,7 +161,6 @@ export default {
 							item.price = productData.price;
 							item.image = productData.downloadURL;
 							item.name = productData.name;
-
 						}
 
 					}
@@ -200,7 +213,6 @@ export default {
 							item.price = productData.price;
 							item.image = productData.downloadURL;
 							item.name = productData.name;
-
 						}
 
 					}
@@ -258,6 +270,9 @@ export default {
 					if (index !== -1) {
 
 						currentStockOrder.items[index].qty += payload.attributes.quantity;
+						currentStockOrder.items[index].variantId = payload.variant.id;
+						currentStockOrder.items[index].variantName = payload.variant.name;
+						currentStockOrder.items[index].sku = payload.variant.sku;
 
 					} else {
 
@@ -265,7 +280,10 @@ export default {
 							attributes: payload.attributes,
 							productId: payload.productId,
 							qty: payload.attributes.quantity,
-							unique: unique
+							unique: unique,
+							variantId: payload.variant.id,
+							variantName: payload.variant.name,
+							sku: payload.variant.sku,
 						}
 
 						currentStockOrder.items.push(item);
@@ -305,7 +323,10 @@ export default {
 						attributes: payload.attributes,
 						productId: payload.productId,
 						qty: payload.attributes.quantity,
-						unique: unique
+						unique: unique,
+						variantId: payload.variant.id,
+						variantName: payload.variant.name,
+						sku: payload.variant.sku,
 					});
 
 					commit('SET_BASKET_COUNT', 1);
@@ -349,7 +370,6 @@ export default {
 					if (index !== -1) {
 
 						currentStockOrder.items[index].qty = payload.qty;
-
 					}
 
 					await COLLECTION.stock_orders.doc(currentStockOrder.id).update({ items: currentStockOrder.items });
@@ -420,8 +440,14 @@ export default {
 
 		async SUBMIT({ commit }, stockOrder) {
 
+			for(let item of stockOrder.items) {
 
-			stockOrder.items = stockOrder.items.map((item) => {
+				await DB.collection('products').doc('details')
+				.collection('variants').doc(item.variantId)
+				.update({
+					allocatedQTY: FIRESTORE.FieldValue.increment(item.qty),
+				});
+
 				delete item.attributes.qty;
 				delete item.attributes.quantity;
 				delete item.name;
@@ -430,9 +456,7 @@ export default {
 				if(!item.hasOwnProperty('weight') || item.weight === undefined) {
 					item.weight = 0;
 				}
-				
-				return item;
-			});
+			}
 
 			commit('SET_BASKET_COUNT', 0);
 
@@ -447,8 +471,6 @@ export default {
 				isRead: stockOrder.isRead,
 			});
 
-
-
 			return {
 				success: true,
 				submittedAt
@@ -458,6 +480,13 @@ export default {
 		async SUBMIT_CALLBACK({ commit }, stockOrder) {
 
 			for (let product of stockOrder.items) {
+
+				await DB.collection('products').doc('details')
+				.collection('variants').doc(product.variantId)
+				.update({
+					allocatedQTY: FIRESTORE.FieldValue.increment(product.qty),
+				});
+
 
 				const productRef = await COLLECTION.products.doc(product.productId).get();
 
@@ -476,6 +505,11 @@ export default {
 				delete item.attributes.quantity;
 				delete item.name;
 				delete item.image;
+
+				if(!item.hasOwnProperty('weight') || item.weight === undefined) {
+					item.weight = 0;
+				}
+
 				return item;
 			});
 
@@ -581,11 +615,13 @@ export default {
 			}
 		},
 
-		LISTEN_TO_STOCK_ORDERS({ state, rootGetters }) {
+		LISTEN_TO_STOCK_ORDERS({ state, rootGetters, commit, dispatch }) {
 
 			const user = AUTH.currentUser;
 
-			state.subscriber = COLLECTION.stock_orders.where('userId', '==', user.uid)
+			state.subscriber = COLLECTION.stock_orders
+				.where('userId', '==', user.uid)
+				.where('active', '==', false)
 				.onSnapshot((snapshot) => {
 
 					console.log('Listening to stock orders...');
@@ -598,26 +634,50 @@ export default {
 						return data;
 					});
 
+					commit('SET_STOCK_ORDER_LIST', changes);
+					
 					changes.forEach((change) => {
 
 						if ((!change.read && change.status === 'cancelled') || (!change.read && change.status === 'processing')) {
 							console.log('Unopened stock order', change);
-							document.addEventListener('deviceready', function () {
+							let message;
+							let titleHeader;
 
-								let message;
+							if (change.status === 'processing') {
+								titleHeader = "Processing Stock Order";
+								message = `Thank you for your order!\nYour order ${change.stockOrderReference} is currently being processed!`;
+							} else if (change.status === 'cancelled') {
+								titleHeader = "Cancelled Stock Order";
+								message = `One of your orders was cancelled.\nPlease contact ${rootGetters["GET_COMPANY"]} if you have any questions.`;
+							}
 
-								if (change.status === 'processing') {
-									message = `Thank you for your order! \n your order is currently being processed!`;
-								} else if (change.status === 'cancelled') {
-									message = `One of your orders was cancelled \nplease contact ${rootGetters["GET_COMPANY"]} if you have any questions.`;
-								}
+							const notif = {
+								title: titleHeader,
+								text: message,
+								redirectURL: {
+									name: 'ViewStockOrder',
+									params: {
+										id: change.id 
+									}
+								},
+							};
 
-								cordova.plugins.notification.local.schedule({
-									title: 'Order Status',
-									text: message,
-									foreground: true
-								});
-							}, false);
+							dispatch('accounts/SEND_PUSH_NOTIFICATION', notif, { root: true });
+						}
+
+						if(change.paymentDetails.paymentStatus.toLowerCase() === 'denied' && !change.read) {
+							const notif = {
+								title: 'Payment Status',
+								text: 'The payment from one of your Stock Orders has been DENIED! Open the app to re-confirm payment.',
+								redirectURL: {
+									name: 'ViewStockOrder',
+									params: {
+										id: change.id 
+									}
+								},
+							};
+
+							dispatch('accounts/SEND_PUSH_NOTIFICATION', notif, { root : true });
 						}
 					});
 
@@ -645,6 +705,53 @@ export default {
 				throw error
 			}
 			
+		},
+
+		async TEMP_UPLOAD_PROOF_OF_PAYMENT({ }, payload) {
+			try {
+				const { picture, stockOrderReference } = payload;
+				const uploadedPic = await STORAGE.ref('appsell')
+					.child('proof-of-payment')
+					.child(stockOrderReference)
+					.putString(picture, 'data_url');
+				
+				return await uploadedPic.ref.getDownloadURL();
+
+			} catch(error) {
+				throw error;
+			}
+		},
+
+		async REMOVE_PROOF_OF_PAYMENT({ }, stockOrderReference) {
+			try {
+
+				await STORAGE.ref('appsell')
+					.child('proof-of-payment')
+					.child(stockOrderReference)
+					.delete();
+				
+				return { success: true };
+
+			} catch(error) {
+				throw error;
+			}
+		},
+
+		async UPLOAD_PROOF_OF_PAYMENT({ }, payload) {
+			const { id, paymentDetails } = payload;
+
+			try {
+				paymentDetails.paymentStatus = 'pending';
+
+				await COLLECTION.stock_orders.doc(id).update({ 
+					isRead: false,
+					paymentDetails 
+				});
+
+				return paymentDetails;
+			} catch(error) {
+				throw error;
+			}
 		}
 	}
 }

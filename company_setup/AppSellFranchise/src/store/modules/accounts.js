@@ -937,14 +937,40 @@ const accounts = {
 			})
 		},
 
-		SEND_PUSH_NOTIFICATION({ }, payload) {
+		async SEND_PUSH_NOTIFICATION({ state }, payload) {
+			try {
+				if(!state.companyIcon) {
+					const downloadURL = await STORAGE.ref('appsell').child('providers/company_logo.png').getDownloadURL();
+					state.companyIcon = downloadURL;
+				} 
+			} catch(error) {
+				console.log('send push notification error: ', error);
+				state.companyIcon = null;
+			}
+
 			document.addEventListener('deviceready', function () {
 				cordova.plugins.notification.local.schedule({
+					id: Date.now(),
 					title: payload.title,
 					text: payload.text,
 					foreground: true,
-					vibrate: true
+					vibrate: true,
+					wakeup: true,
+					data: {
+						redirectURL: payload.redirectURL
+					},
+					icon: state.companyIcon,
 				});
+
+				cordova.plugins.notification.local.on(`click`, (notification, eopts) => {
+					console.log('notif is triggered by @click');
+					console.log('from send push notif getDefaults(): ', cordova.plugins.notification.local.getDefaults());
+					console.log('from send push notif local.on.notification: ', notification);
+					console.log('from send push notif local.on.eopts: ', eopts);
+
+					router.push(notification.data.redirectURL);	
+				});
+
 			}, false);
 		},
 
