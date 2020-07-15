@@ -15,7 +15,7 @@ module.exports = merge(devEnv, {
   webAdminId: '"admin"',
   companyName: '"AppSellTestApp"',
   contactNumber: '"09123456789"',
-  version: '"0.6.15"',
+  version: '"0.6.16"',
   primaryColor: '"#0E1E38"',
   environment: '"test"',
   callbackURL: '"https://us-central1-appselltestapp.cloudfunctions.net/callback"'
