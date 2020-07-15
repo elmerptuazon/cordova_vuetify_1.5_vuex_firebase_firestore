@@ -11,12 +11,12 @@ module.exports = merge(devEnv, {
   authDomain: '"matenara-dev.firebaseapp.com"',
   messagingSenderId: '"127991740211"',
   measurementId: '"G-XV2JER7LNT"',
-  storageCode: '"AppSellTestApp"',
+  storageCode: '"Matenara"',
   webAdminId: '"admin"',
-  companyName: '"AppSellTestApp"',
+  companyName: '"Matenara"',
   contactNumber: '"09123456789"',
   version: '"0.6.10"',
   primaryColor: '"#215e3f"',
   environment: '"test"',
-  callbackURL: '"https://us-central1-appselltestapp.cloudfunctions.net/callback"'
+  callbackURL: '"https://us-central1-matenara-dev.cloudfunctions.net/callback"'
 })
