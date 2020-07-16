@@ -27,16 +27,12 @@
 
         <v-divider></v-divider>
 
-        <v-stepper-step :complete="stepperCounter === 3" step="3"
-          >Breakdown of Orders</v-stepper-step
+        <v-stepper-step :complete="stepperCounter > 3" step="3"
+          >Payment Options</v-stepper-step
         >
 
-        <!-- <v-stepper-step :complete="stepperCounter > 3" step="3"
-          >Payment Options</v-stepper-step
-        > -->
-
-        <!-- <v-divider></v-divider>
-        <v-stepper-step step="4">Submit Order</v-stepper-step> -->
+        <v-divider></v-divider>
+        <v-stepper-step step="4">Submit Order</v-stepper-step>
       </v-stepper-header>
 
       <v-stepper-items>
@@ -97,10 +93,20 @@
                   v-for="logistics in logisticsProvider"
                   :key="logistics.id"
                   min-width="275px"
-                  class="mt-2"
                 >
-                  <v-container>
-                    <v-layout row align-center justify-start mx-2>
+                  <v-card-title>
+                    <v-radio 
+                      :value="logistics.id" 
+                      :disabled="logistics.shippingFee === 'error'"
+                    ></v-radio>
+                    <span class="subheading">{{
+                      logistics.id.toUpperCase()
+                    }}</span>
+                    <span v-if="logistics.shippingFee === 'error'" class="font-weight-bold">(CANNOT BE SELECTED)</span>
+                  </v-card-title>
+                  <v-divider></v-divider>
+                  <v-card-text>
+                    <v-layout>
                       <v-flex xs5>
                         <v-img
                           :src="logistics.logoURL"
@@ -108,28 +114,17 @@
                           contain
                         ></v-img>
                       </v-flex>
-
-                      <v-flex xs5 offset-xs1>
-                        <div>
-                          <div class="subheading">{{ logistics.id.toUpperCase() }}</div>
-                          <div 
-                            v-if="subTotal >= freeDeliveryCutOff && 
-                              logistics.id !== 'pick-up'
-                            " 
-                            class="primary--text"
-                          > FREE SHIPPING</div>
-                          <div v-else-if="logistics.shippingFee === 'error'">ERROR</div>
-                          <div v-else>+ {{ logistics.shippingFee | currency('&#8369; ') }} </div>
-                        </div>
+                      <v-flex xs7>
+                        <v-card-title primary-title>
+                          <div>
+                            <div class="subheading">Shipping Fee:</div>
+                            <div v-if="logistics.shippingFee === 'error'">ERROR</div>
+                            <div v-else>+ {{ logistics.shippingFee | currency('&#8369; ') }} </div>
+                          </div>
+                        </v-card-title>
                       </v-flex>
-
-                      <v-flex xs1>
-                        <v-radio :value="logistics.id"></v-radio>
-                      </v-flex>
-
                     </v-layout>
-                  </v-container>
-                  <!-- <v-divider class="my-2 black"></v-divider> -->
+                  </v-card-text>
                 </v-card>
 
                 <v-layout align-center justify-end row px-6 mt-4>
@@ -208,62 +203,159 @@
                       {{ item.qty }}
                     </td>
                     <td class="caption text-xs-right border-bottom">
-                      {{ (item.qty * item.resellerPrice) | currency("P") }}
+                      {{ (item.qty * item.resellerPrice) | currency('&#8369;') }}
                     </td>
                   </tr>
+
                   <tr>
                     <td colspan="3"></td>
                   </tr>
+
                   <tr>
                     <td class="caption text-xs-right" colspan="2">
                       Subtotal
                     </td>
                     <td class="caption text-xs-right">
-                      {{ subTotal | currency("&#8369;") }}
+                      {{ subTotal | currency('&#8369;') }}
                     </td>
                   </tr>
+
                   <tr>
                     <td class="caption text-xs-right" colspan="2">
                       Shipping Fee
                     </td>
                     <td class="caption text-xs-right">
-                      <span 
-                        v-if="subTotal >= freeDeliveryCutOff" 
-                        class="primary--text"
-                      >FREE</span>
-                      <span v-else>{{ shippingFee | currency("&#8369;") }}</span>
+                      <span>{{ shippingFee | currency('&#8369;') }}</span>
                     </td>
                   </tr>
+
+                  <tr v-if="isDeliveryDiscounted">
+                    <td class="caption text-xs-right" colspan="2">
+                      Shipping Fee Discount
+                    </td>
+                    <td class="caption text-xs-right">
+                      <span v-if="deliveryDiscount.type === 'amount'"> 
+                        {{ deliveryDiscount.amount | currency('&#8369;') }}
+                      </span>
+                      <span v-else>
+                        {{ deliveryDiscount.amount + ' %' }}
+                      </span>
+                    </td>
+                  </tr>
+
+                  <tr v-if="isDeliveryDiscounted">
+                    <td class="caption text-xs-right" colspan="2">
+                      New Shipping Fee
+                    </td>
+                    <td class="caption text-xs-right">
+                      <span>{{ discountedShippingFee | currency('&#8369;') }}</span>
+                    </td>
+                  </tr>
+
                   <tr>
                     <td class="caption text-xs-right" colspan="2">
                       Total
                     </td>
                     <td class="caption text-xs-right">
-                      <strong>{{ total | currency("&#8369;") }}</strong>
+                      <strong>{{ total | currency('&#8369;') }}</strong>
                     </td>
                   </tr>
                 </tbody>
               </table>
             </v-container>
           </v-card>
-          <v-container class="px-3">
-            <div class="text-xs-center mt-3 mb-3">
-              <v-btn
-                @click="submitStockOrder"
-                depressed
-                large
-                color="primary"
-                class="white--text"
-                :disabled="stockOrder.items.length < 1"
-              >
-                <v-icon left>check_circle</v-icon>
-                <span>
-                  Submit Order
-                </span>
-              </v-btn>
-              <v-btn flat @click="stepperCounter = 2">Back</v-btn>
-            </div>
+          <v-container class="mt-4 px-3">
+            <v-layout align-center justify-end px-6 row>
+              <v-flex xs4 mr-2>
+                <v-btn flat @click="stepperCounter = 2">Back</v-btn>
+              </v-flex>
+              <v-flex xs4>
+                <v-btn color="primary" depressed @click="stepperCounter = 4">
+                  Continue
+                </v-btn>
+              </v-flex>
+            </v-layout>
           </v-container>
+        </v-stepper-content>
+
+        <v-stepper-content step="4">
+          <v-card class="mb-5">
+            <v-card-title>
+              <span class="body-2">Select Payment Option</span>
+            </v-card-title>
+            <v-divider></v-divider>
+            <v-container>
+              <v-radio-group v-model="payment.paymentType">
+                <v-radio
+                  label="Cash On Delivery (COD)/Upon pick-up"
+                  value="COD"
+                ></v-radio>
+                <v-radio
+                  label="Credit Card (Visa and Mastercard Only)"
+                  value="CC"
+                  :disabled="totalIsInMinimumPrice"
+                ></v-radio>
+                <v-radio
+                  label="GCash"
+                  value="GCash"
+                  :disabled="totalIsInMinimumPrice || totalIsInMaximumPrice"
+                ></v-radio>
+                <v-radio
+                  label="Grab Pay"
+                  value="GrabPay"
+                  :disabled="totalIsInMinimumPrice || totalIsInMaximumPrice"
+                ></v-radio>
+                <v-radio
+                  label="Bank Receipt / Payment Receipt"
+                  value="POP"
+                ></v-radio>
+                <div v-if="totalIsInMinimumPrice" class="mt-1">
+                  <v-divider></v-divider>
+                  <div class="mt-2 body-1 red--text font-italic font-weight-bold">
+                    Online payment is only available for stock order above {{ 100 | currency('&#8369;') }}
+                  </div>  
+                </div>
+                <div v-if="totalIsInMaximumPrice" class="mt-1">
+                  <v-divider></v-divider>
+                  <div class="mt-2 body-1 red--text font-italic font-weight-bold">
+                    E-Wallet payments are not available for stock order above {{ 100000 | currency('&#8369; ') }}
+                  </div>  
+                </div>
+                <v-divider v-if="payment.paymentType === 'CC'"></v-divider>
+                <creditCardForm
+                  class="mt-2"
+                  v-if="payment.paymentType === 'CC'"
+                  @cardDetails="SetCardDetails"
+                />
+                <v-divider v-if="payment.paymentType === 'GCash' || payment.paymentType === 'GrabPay'"></v-divider>
+                <GCashGrabPayForm
+                  :paymentType="payment.paymentType"
+                  class="mt-2"
+                  v-if="payment.paymentType === 'GCash' || payment.paymentType === 'GrabPay'"
+                  @accountDetails="SetAccountDetails"
+                />
+              </v-radio-group>
+            </v-container>
+          </v-card>
+          <div class="text-xs-center mt-3 mb-3">
+            <v-btn
+              @click="submitStockOrder"
+              depressed
+              large
+              color="primary"
+              class="white--text"
+              :disabled="stockOrder.items.length < 1"
+            >
+              <v-icon left>check_circle</v-icon>
+              <span v-if="payment.paymentType === 'COD' || payment.paymentType === 'POP'">
+                Submit Order
+              </span>
+              <span v-else>
+                Pay and Submit Order
+              </span>
+            </v-btn>
+            <v-btn flat @click="stepperCounter = 3">Back</v-btn>
+          </div>
         </v-stepper-content>
       </v-stepper-items>
     </v-stepper>
@@ -278,6 +370,40 @@
             class="mb-0"
           ></v-progress-linear>
         </v-card-text>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog
+      v-model="checkOutDialog"
+      persistent fullscreen
+    >
+      <v-card :height="checkoutHeight" :width="checkoutWidth">
+        <v-card-title class="primary">
+          <div v-if="payment.paymentType === 'CC'" 
+            class="white--text font-weight-bold title"
+            >Authorize Card Access
+          </div>
+          <div v-else 
+            class="white--text font-weight-bold title"
+            >Authorize Account Access
+          </div>
+          <v-spacer></v-spacer>
+          <v-icon v-if="payment.paymentType === 'CC'" medium color="white" @click.native="recheckPaymentStatus">close</v-icon>
+          <v-icon v-else medium color="white" @click.native="continueEWalletPayment">close</v-icon>
+        </v-card-title>
+        <v-container>
+          <iframe 
+            ref="checkOutFrame" :src="checkOutURL" 
+            :height="checkoutHeight" :width="checkoutWidth" 
+            frameborder="0" 
+          />
+        </v-container>
+        <v-divider></v-divider>
+        <v-card-actions class="white">
+          <v-spacer></v-spacer>
+          <v-btn v-if="payment.paymentType === 'CC'" color="primary" flat @click.native="recheckPaymentStatus">CLOSE</v-btn>
+          <v-btn v-else color="primary" flat @click.native="continueEWalletPayment">CLOSE</v-btn>
+        </v-card-actions>
       </v-card>
     </v-dialog>
 
@@ -296,6 +422,8 @@ import ConfirmationModal from "@/components/ConfirmationModal";
 import creditCardForm from "@/components/creditCardForm";
 import Modal from "@/components/Modal";
 import GCashGrabPayForm from "@/components/GCashGrabPayForm";
+import Regions from 'philippines/regions';
+import Provinces from 'philippines/provinces';
 
 export default {
   mixins: [mixins],
@@ -318,12 +446,23 @@ export default {
       accountDetails: null,
     },
 
-    userHasNoOrders: '',
-    freeDeliveryCutOff: 0.00,
+    deliveryDiscountList: [],
 
     logisticsID: "pick-up",
     loaderDialogMessage: null,
+    inAppBrowserRef: null,
     stepperCounter: 0,
+
+    checkOutDialog: false,
+    checkOutURL: null,
+    checkoutHeight: null,
+    checkoutWidth: null,
+
+    paymentIntent: {},
+    paymentResult: {},
+    createdSource: {},
+
+    inAppBrowserRef: null,
 
   }),
   
@@ -332,6 +471,9 @@ export default {
     
     this.loaderDialogMessage = 'Please Wait...';
     this.loaderDialog = true;
+
+    this.checkoutHeight = window.innerHeight;
+    this.checkoutWidth = window.innerWidth;
     
     let stockOrder;
     try {
@@ -369,8 +511,8 @@ export default {
     }
 
     try {
-      const freeDelivery = await this.$store.dispatch('providers/GetFreeDeliveryCutOff');
-      this.freeDeliveryCutOff = freeDelivery.cutOffPrice;
+      this.deliveryDiscountList = await this.$store.dispatch('providers/GetDeliveryDiscounts');
+      
       this.loaderDialogMessage = null;
       this.loaderDialog = false;
 
@@ -379,11 +521,49 @@ export default {
       this.loaderDialogMessage = null;
       this.loaderDialog = false;
     }
+    
+    //add event listener to exit browser dialog when the success or fail redirect URL are being loaded 
+    window.addEventListener(
+      'loadstart',
+      ev => {
+        console.log('URL is being loaded in the iframe', ev.url);
+        if(ev.url === 'https://appsell.ph/paymentSuccess') {
+          console.log('GCASH/Grab Pay has been successful!');
+        
+        } else if(ev.url === 'https://appsell.ph/paymentFail') {
+          console.log('Gcash/Grab Pay had failed!');
+        
+        } else {
+          console.log('URL being loaded: ', ev);
+        }
+      },
+      false
+    );
 
+    //an event listener for successful 3ds auth
+    window.addEventListener(
+      'message', 
+      ev => {
+        console.log('message was received from the iframe!', ev);
+        this.recheckPaymentStatus();    
+      },
+      false
+    );
+
+  },
+  beforeDestroy() {
+    if(this.inAppBrowserRef) {
+      this.inAppBrowserRef.removeEventListener('exit', ev => {console.log('exit event listener removed!')}, false);
+      this.inAppBrowserRef.removeEventListener('loadstart', ev => {console.log('loadstart event listener removed!')}, false);
+    }
   },
   methods: {
     goBack() {
       this.$router.go(-1);
+    },
+
+    closeInAppBrowser() {
+      this.inAppBrowserRef.close();
     },
 
     submitStockOrder() {
@@ -439,6 +619,96 @@ export default {
       }
 
     },
+
+    validateCardDetails() {
+      //validate card details
+      if (
+        !this.$cardFormat.validateCardNumber(
+          this.payment.cardDetails.cardNumber
+        )
+      ) {
+        this.loaderDialog = false;
+        this.loaderDialogMessage = null;
+        this.$refs.finalizeOrder.close();
+
+        this.$refs.modal.show(
+          "Card Details Error!",
+          "Please check your card number."
+        );
+        return false;
+      }
+      // validate card expiry
+      if (
+        !this.$cardFormat.validateCardExpiry(
+          this.payment.cardDetails.expiry
+        )
+      ) {
+        this.loaderDialog = false;
+        this.loaderDialogMessage = null;
+        this.$refs.finalizeOrder.close();
+
+        this.$refs.modal.show(
+          "Card Details Error!",
+          "Please check your card expiry."
+        );
+        return false;
+      }
+      // validate card CVC
+      if (!this.$cardFormat.validateCardCVC(this.payment.cardDetails.CVC)) {
+        this.loaderDialog = false;
+        this.loaderDialogMessage = null;
+        this.$refs.finalizeOrder.close();
+
+        this.$refs.modal.show(
+          "Card Details Error!",
+          "Please check your card CVC."
+        );
+        return false;
+      }
+
+      return true;
+    },
+
+    validateAccountDetails() {
+      if(!this.payment.accountDetails.name) {
+        this.loaderDialog = false;
+        this.loaderDialogMessage = null;
+        this.$refs.finalizeOrder.close();
+
+        this.$refs.modal.show(
+          "Account Details Error!",
+          "Please enter a valid fullname."
+        );
+
+        return false;
+      }
+      if(!this.payment.accountDetails.email) {
+        this.loaderDialog = false;
+        this.loaderDialogMessage = null;
+        this.$refs.finalizeOrder.close();
+
+        this.$refs.modal.show(
+          "Account Details Error!",
+          "Please enter a valid email."
+        );
+
+        return false;
+      }
+      if(!this.payment.accountDetails.phone) {
+        this.loaderDialog = false;
+        this.loaderDialogMessage = null;
+        this.$refs.finalizeOrder.close();
+
+        this.$refs.modal.show(
+          "Account Details Error!",
+          "Please enter a valid phone number."
+        );
+
+        return false;
+      }
+
+      return true;
+    },
     
     async finalizeOrder() {
       this.loaderDialog = true;
@@ -448,39 +718,145 @@ export default {
       try {
         let paymentResult = null;
 
-        this.stockOrder.paymentDetails = {
-          amount: Number(this.total),
-          paymentStatus: '-',
-          paymentType: 'payment receipt',
-          proofOfPayment: null,
-        };
-
+        this.payment.amount = this.total;
         this.stockOrder.logisticsDetails = {
           logisticProvider: this.logisticsID,
-          shippingFee: this.shippingFee
+          shippingFee: this.shippingFee, //this will show the original shipping fee to the dashboard
+          resellersShippingFee: this.shippingFee,
+          isDiscountedDelivery: false
         };
 
         //this a flag that tells the dashboard that this is a new order and hasnt been read by the brand company.
         this.stockOrder.isRead = false;
-        
-        //determine if this shipping is free
-        this.stockOrder.logisticsDetails.isFreeShipping = this.subTotal >= this.freeDeliveryCutOff;
+         
+        //if the stock order has delivery discount, show the original shipping fee to the company
+        if(this.isDeliveryDiscounted) {
+          this.stockOrder.logisticsDetails.resellersShippingFee = this.discountedShippingFee;
+          this.stockOrder.logisticsDetails.shippingFee = this.shippingFee;
+          this.stockOrder.logisticsDetails.isDiscountedDelivery = true;
+          this.stockOrder.logisticsDetails.discountType = this.deliveryDiscount.type;
+          this.stockOrder.logisticsDetails.discountAmount = this.deliveryDiscount.amount;
+        }
 
-        let result = await this.$store.dispatch(
-          "stock_orders/SUBMIT",
-          this.stockOrder
-        );
-        
-        this.loaderDialog = false;
-        this.loaderDialogMessage = null;
+        //check kung CC or COD
+        switch(this.payment.paymentType) {
+          
+          case "CC": {
+            this.$refs.finalizeOrder.close();
+            this.loaderDialogMessage = "Validating card details...";
+            
+            const isCardValid = await this.validateCardDetails();
+            if(!isCardValid) return;
 
-        this.$router.push({
-          name: "StockOrderCheckoutSuccess",
-          params: {
-            stockOrder: this.stockOrder,
-            submittedAt: result.submittedAt
+            let userDetails = {
+              name: `${user.lastName}, ${user.firstName} ${user.middleInitial}`,
+              email: user.email,
+              phone: user.contact,
+              address: user.address
+            };
+
+            //process payment
+            this.loaderDialogMessage = "Processing card details...";
+            paymentResult = await this.$store.dispatch(
+              "payment/PayOrderThruCreditCard",
+              {
+                payment: this.payment,
+                userDetails: userDetails,
+                stockOrder: this.stockOrder
+              }
+            );
+
+            console.log(paymentResult);
+            //if the card requires 3ds auth, show checkout_url to user
+            if(paymentResult.paymentStatus === 'awaiting_next_action') {
+              this.loaderDialogMessage = "Creating checkout link...";
+              
+              this.paymentIntent = {
+                id: paymentResult.transactionNumber,
+                client_key: paymentResult.client_key
+              };
+
+              this.paymentResult = Object.assign({}, paymentResult);
+
+              //open the webview for the URL returned
+              const url = paymentResult.checkout_url;
+              const target = "_blank";
+              const options = `location=no,clearcache=yes,hardwareback=no,footer=yes,closebuttoncaption=DONE,closebuttoncolor=#ffffff,footercolor=${process.env.primaryColor}`;
+              this.inAppBrowserRef = cordova.InAppBrowser.open(
+                url,
+                target,
+                options
+              );
+              this.inAppBrowserRef.addEventListener('exit', this.recheckPaymentStatus);
+              this.inAppBrowserRef.addEventListener('loadstart', ev => {
+                if(ev.url === 'https://appsell.ph/paymentSuccess') {
+                  this.closeInAppBrowser();
+                }
+              });
+
+            } else if (paymentResult.paymentStatus === 'succeeded') {
+              this.submitOrder(paymentResult);
+            }
+            
+            break;
           }
-        });
+
+          case "GCash": case "GrabPay": {
+            this.$refs.finalizeOrder.close();
+          
+            const isAccountValid = await this.validateAccountDetails();
+            if(!isAccountValid) return;
+
+            this.processEWalletPay();
+
+            break;
+          } 
+
+          case "COD": {
+            this.$refs.finalizeOrder.close();
+            paymentResult = await this.$store.dispatch(
+              "payment/ProcessCODOrder",
+              {
+                payment: this.payment
+              }
+            );
+
+            this.stockOrder.paymentDetails = paymentResult;
+
+            console.log(this.stockOrder);
+            //this flow will always result to success, any error should be thrown
+            //and handled in the catch statement
+
+            await this.submitOrder(paymentResult);
+
+            break;
+          }
+
+          case "POP": {
+            this.$refs.finalizeOrder.close();
+            let paymentResult = {
+              amount: this.total,
+              paymentType: 'POP',
+              paymentStatus: '-',
+              proofOfPayment: null,
+            }
+
+            console.log(this.stockOrder);
+            //this flow will always result to success, any error should be thrown
+            //and handled in the catch statement
+
+            await this.submitOrder(paymentResult);
+
+            break;
+          }
+
+          default: {
+            this.$refs.modal.show(
+              "Payment method error!",
+              "Please select a payment method."
+            );
+          }
+        }
 
       } catch (error) {
         //add catch for incorrect payment/credit cards.
@@ -489,11 +865,333 @@ export default {
         this.loaderDialogMessage = null;
         this.$refs.finalizeOrder.close();
 
-        let errorMessage = 'An error occured while submitting your order to the company.'; 
-        let errorHeader = 'Error!';
+        let errorMessage, errorHeader;
+
+        if(error.errors[0].code === "parameter_below_minimum") {
+          switch(error.errors[0].code) {
+            case "parameter_below_minimum": {
+              errorHeader = "Invalid Order Amount!";
+              errorMessage = "Your total stock order payment should be no less than PHP 100. Please try again later.";
+              break;
+            }
+
+            default: {
+              console.log('other error code: ', error.errors[0]);
+              break;
+            }
+          }
+        
+        } else {
+          switch (error.errors[0].sub_code) {
+            case "generic_decline": {
+              errorHeader = "Card Declined!";
+              errorMessage = "Your card has been declined, please contact your service provider.";
+              break;
+            }
+            
+            case "card_expired": {
+              errorHeader = "Card Expired!";
+              errorMessage = "Your card has expired, please contact your service provider.";
+              break;
+            } 
+
+            case "cvn_invalid": {
+              errorHeader = "Wrong CVC!";
+              errorMessage = "Wrong CVC, please re-enter your correct CVC.";
+              break;
+            } 
+
+            case "processor_unavailable": {
+              errorHeader = "Unavailable Processor!"
+              errorMessage = "Failed to process your card due to unavailable payment processor, please try again later.";
+              break;
+            } 
+
+            case "insufficient_funds": {
+              errorHeader = "Insufficient Funds!"
+              errorMessage = "Your card has insufficient funds, please contact your service provider.";
+              break;
+            }
+              
+            default: {
+              errorHeader = "Card Declined!"
+              errorMessage = "Your card has been declined, please contact your service provider."
+              break;
+            }
+
+          }
+        }
 
         this.$refs.modal.show(errorHeader, errorMessage);
       }
+    },
+
+    async recheckPaymentStatus() {
+      try {
+        this.checkOutDialog = false;
+
+        console.log('rechecking payment intent status...');
+        this.loaderDialogMessage = "Rechecking payment status...";
+
+        const response = await this.$store.dispatch('payment/checkPaymentStatus', {
+          id: this.paymentIntent.id,
+          client_key: this.paymentIntent.client_key
+        });
+
+        console.log('recheckPaymentStatus finished: ', response);
+
+        if(response.attributes.status === 'succeeded') {
+          this.loaderDialog = false;
+          this.loaderDialogMessage = null;
+          this.$refs.finalizeOrder.close();
+
+          this.$refs.modal.show(
+            "Payment Success!",
+            "Payment was recorded!"
+          );
+
+          this.submitOrder(this.paymentResult);
+        
+        } else if(response.attributes.status === 'awaiting_next_action') {
+          this.loaderDialog = false;
+          this.loaderDialogMessage = null;
+          this.$refs.finalizeOrder.close();
+          
+          this.$refs.modal.show(
+            "Payment Cancelled!",
+            "Please authenticate this payment transaction."
+          );
+
+        } else if(response.attributes.status === 'awaiting_payment_method') {
+          this.loaderDialog = false;
+          this.loaderDialogMessage = null;
+          this.$refs.finalizeOrder.close();
+
+          console.log(response.attributes.last_payment_error)
+          
+          this.$refs.modal.show(
+            "Payment Error!",
+            "Payment was not recorded!"
+          );
+        }
+
+        window.removeEventListener('message', ev=> {console.log('message event is removed.')}, false);
+      
+      } catch(error) {
+        console.log(error);
+        
+        this.loaderDialog = false;
+        this.loaderDialogMessage = null;
+        this.$refs.finalizeOrder.close();
+
+        this.$refs.modal.show(
+          "Error in Recheck Payment",
+          "Please try again later."
+        );
+
+        window.removeEventListener('message', ev=> {console.log('message event is removed.')}, false);
+      }
+      
+    },
+
+    async submitOrder(paymentResult) {
+      if(this.payment.paymentType === 'CC') {
+        this.stockOrder.paymentDetails = {
+          amount: (paymentResult.amount).toFixed(2),
+          paymentStatus: "Paid",
+          paymentType: "CC",
+          transactionNumber: paymentResult.transactionNumber,
+          paymentGateway: "Paymongo"
+        };
+      
+      } else if(this.payment.paymentType === 'GCash' || this.payment.paymentType === 'GrabPay') {
+        this.stockOrder.paymentDetails = {
+          amount: (paymentResult.amount).toFixed(2),
+          paymentStatus: "Paid",
+          paymentType: this.payment.paymentType,
+          transactionNumber: paymentResult.transactionNumber,
+          paymentGateway: "Paymongo"
+        };
+
+      } else if(this.payment.paymentType === 'COD') {
+        this.stockOrder.paymentDetails = Object.assign({}, paymentResult);
+      
+      } else if(this.payment.paymentType === 'POP') {
+        this.stockOrder.paymentDetails = Object.assign({}, paymentResult);
+      
+      }
+
+      console.log(this.stockOrder);
+      this.loaderDialogMessage = 'Submitting your order to the company...';
+
+      let result = await this.$store.dispatch(
+        "stock_orders/SUBMIT",
+        this.stockOrder
+      );
+      
+      this.loaderDialog = false;
+      this.loaderDialogMessage = null;
+
+      this.$router.push({
+        name: "StockOrderCheckoutSuccess",
+        params: {
+          stockOrder: this.stockOrder,
+          submittedAt: result.submittedAt
+        }
+      });
+    },
+
+    async processEWalletPay() {
+      this.loaderDialogMessage = `Processing ${this.payment.paymentType} account details...`
+      const { name, email, phone } = this.payment.accountDetails;
+
+      let userDetails = {
+        name, 
+        email,
+        phone,
+        address: this.userAddress
+      };
+      
+      this.loaderDialogMessage = `Creating payment source...`;
+
+      try {
+        this.createdSource = await this.$store.dispatch(
+          "payment/CreateEWalletSource",
+          {
+            payment: this.payment,
+            userDetails: userDetails,
+            stockOrder: this.stockOrder
+          }
+        );
+
+        const url = this.createdSource.attributes.redirect.checkout_url;
+        if(url) {
+          //open the webview for the URL returned
+          const url = this.createdSource.attributes.redirect.checkout_url;
+          const target = "_blank";
+          const options = `location=no,clearcache=yes,hardwareback=no,footer=yes,closebuttoncaption=DONE,closebuttoncolor=#ffffff,footercolor=${process.env.primaryColor}`;
+          this.inAppBrowserRef = cordova.InAppBrowser.open(
+            url,
+            target,
+            options
+          );
+
+          this.inAppBrowserRef.addEventListener('exit', this.continueEWalletPayment);
+          this.inAppBrowserRef.addEventListener('loadstart', ev => {
+            if(ev.url === 'https://appsell.ph/paymentSuccess') {
+              this.closeInAppBrowser();
+            }
+          });
+        }
+
+        this.loaderDialogMessage = `Waiting for your payment authorization...`;
+        // this.$store.dispatch('payment/ListenToPaymentStatus', {
+        //   stockOrderId: this.stockOrder.id,
+        //   source_id: this.createdSource.id
+        // });
+      
+      } catch(error) {
+        this.loaderDialog = false;
+        this.loaderDialogMessage = null;
+
+        console.log(error);
+        const errorObj = error.response.data;
+        let errorHeader, errorMessage;
+
+        if(errorObj.errors[0].code === 'parameter_below_minimum') {
+          errorHeader = "Invalid Order Amount!";
+          errorMessage = "Your total stock order price should not be less than PHP 100. Please try again later.";
+        
+        } else {
+          errorHeader = "Payment Failed!";
+          errorMessage = "An error occured while processing your payment. Please try again later";
+        }
+
+        this.$refs.modal.show(errorHeader, errorMessage);
+      }
+      
+    },
+
+    async continueEWalletPayment() {
+      this.checkOutURL = null;
+      this.checkOutDialog = false;
+      this.loaderDialogMessage = `Accepting your ${this.payment.paymentType} payment...`;
+
+      const { name, email, phone } = this.payment.accountDetails;
+      let userDetails = {
+        name, 
+        email,
+        phone,
+        address: this.userAddress
+      };
+
+      this.stockOrder.source_id = this.createdSource.id;
+
+      try {
+        const paymentResult = await this.$store.dispatch('payment/PayOrderThruEWallet', {
+          payment: this.payment,
+          userDetails: userDetails,
+          stockOrder: this.stockOrder
+        });
+
+        if(paymentResult.status === 'paid') {
+          this.loaderDialog = false;
+          this.loaderDialogMessage = null;
+
+          // delete paymentResult.accountDetails;
+          // delete paymentResult.cardDetails;
+          
+          this.loaderDialog = false;
+          this.loaderDialogMessage = null;
+
+          this.$refs.modal.show(
+            "Payment Success!",
+            "Payment was successfully received by the company!"
+          );
+
+          console.log('e-wallet payment success! ', paymentResult);
+
+          this.submitOrder(paymentResult);
+        
+        } else {
+          this.loaderDialog = false;
+          this.loaderDialogMessage = null;
+          this.$refs.modal.show(
+            "Payment not Successful!",
+            "You denied the payment. Please try again."
+          );
+
+          console.log('e-wallet payment error! ', paymentResult);
+        }
+      
+      } catch(error) {
+        const errorResponse = error.response.data.errors[0]
+        console.log('e-wallet payment error!', );
+        this.loaderDialog = false;
+        this.loaderDialogMessage = null;
+
+        if(errorResponse.code === 'resource_not_chargeable_state') {
+          this.$refs.modal.show(
+            "Payment Authorization Denied!",
+            "Payment was not successful due to denial of payment authorization. Please try again."
+          );
+        
+        } else {
+          this.$refs.modal.show(
+            "Payment not Successful!",
+            "Payment was not successful. Please try again later."
+          );
+        }
+      }
+      
+    },
+
+    SetCardDetails(card) {
+      this.payment.cardDetails = card;
+    },
+
+    SetAccountDetails(account) {
+      this.payment.accountDetails = account;
     },
   },
   computed: {
@@ -512,51 +1210,88 @@ export default {
 
       return weight > 0 ? weight : 1000;
     },
-    discount() {
-      let discount;
-      // if (this.subTotal >= 1500 && this.subTotal <= 2999) {
-      //   discount = 10;
-      // } else if (this.subTotal >= 3000 && this.subTotal <= 4999) {
-      //   discount = 15;
-      // } else if (this.subTotal >= 5000 && this.subTotal <= 9999) {
-      //   discount = 18;
-      // } else if (this.subTotal >= 10000 && this.subTotal <= 24999) {
-      //   discount = 20;
-      // } else {
-      //   discount = null;
-      // }
-      return discount;
-    },
 
     total() {
-      const isFreeDelivery = this.subTotal >= this.freeDeliveryCutOff;
+      if(this.isDeliveryDiscounted) {
+        return this.subTotal + this.discountedShippingFee;
 
-      if(this.discount && isFreeDelivery) { 
-        //dont include delivery free if stock order amount exceeds the freeDeliveryCutOff price quota
-        return (
-          this.subTotal -
-          (this.discount / 100) * this.subTotal
-        );
-
-      } else if(isFreeDelivery) {
-        return this.subTotal;
-
-      } else if (this.discount) {
-        return (
-          this.subTotal -
-          (this.discount / 100) * this.subTotal +
-          this.shippingFee
-        );
       } else {
         return this.subTotal + this.shippingFee;
       }
     },
+
     shippingFee() {
       const logisticsData = this.logisticsProvider.find(
         logistics => logistics.id === this.logisticsID
       );
 
-      return logisticsData.shippingFee;
+      return Number(logisticsData.shippingFee);
+    },
+
+    //this will find a delivery discount based on the reseller's location
+    deliveryDiscount() {
+      if(this.logisticsID === 'pick-up') {
+        return null;
+      }
+
+      const cityBasedDiscount = this.deliveryDiscountList.find(discount => {
+        return (
+          (discount.city === this.userAddress.citymun) &&
+          (discount.province === this.userAddress.province)
+        );
+      });
+
+      console.log("city discount", cityBasedDiscount)
+      if(cityBasedDiscount) return cityBasedDiscount;
+      
+      //if there is no city-based discount, then search for province-based disccount
+      const provinceBasedDiscount = this.deliveryDiscountList.find(discount => {
+        return (
+          (discount.province === this.userAddress.province) &&
+          (!discount.city || discount.city === null)
+        );
+      });
+
+      console.log("province discount", provinceBasedDiscount)
+      if(provinceBasedDiscount) return provinceBasedDiscount;
+
+      //if there are no province-base discount, then serach for region-based discount
+      const provinceDetails = Provinces.find(province => province.name === this.userAddress.province);
+      const regionOfProvince = Regions.find(region => region.key === provinceDetails.region);
+      const regionBasedDiscount = this.deliveryDiscountList.find(discount => {
+        return (
+          (discount.region === regionOfProvince.name) &&
+          (!discount.province || discount.province === null)
+        );
+      });
+      console.log("region discount", regionBasedDiscount)
+      if(regionBasedDiscount) return regionBasedDiscount;
+
+      return null;
+    },
+
+    isDeliveryDiscounted() {
+      if(!this.deliveryDiscount) return false;
+      
+      return this.subTotal >= this.deliveryDiscount.stockOrderPrice;
+    },
+
+    discountedShippingFee() {
+      //if the amount of the stock order doesnt reach the free delivery quota price from the retrieved delivery discount
+      //then this stock order is not eligeable for delivery discount 
+      if(!this.isDeliveryDiscounted) {
+        return this.shippingFee;
+      }
+
+      const { type, amount } = this.deliveryDiscount;
+      
+      let newShippingFee;
+      if(type === 'amount') 
+        newShippingFee = this.shippingFee - Number(amount);
+      else 
+        newShippingFee = this.shippingFee - ((Number(amount) / 100) * this.shippingFee);
+
+      return newShippingFee > 0 ? newShippingFee : 0;
     },
 
     totalIsInMinimumPrice() {
