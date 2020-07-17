@@ -91,6 +91,7 @@
           <!-- SRP: {{ product.price | currency("&#8369;") }} -->
         </p>
         <p class="product-name pt-0 mb-2">{{ product.name }}</p>
+        
         <div v-if="product.description">
           <p class="product-description" v-if="showMoreDescription">
             {{ product.description }}
@@ -106,7 +107,7 @@
         <v-btn
           v-if="user.type === 'Reseller'"
           @click="openItemDialog('Stock Order')"
-          round
+          round 
           depressed
           color="primary"
           dark
@@ -219,74 +220,83 @@
         <v-card-text class="pa-0">
           <v-container fluid>
             <v-form v-model="valid" ref="form" lazy-validation>
-              	<v-layout row wrap v-if="!product.attributes" mt-3>
-									<v-flex xs12>
-										<v-layout row wrap align-center justify-start>
-                      <v-flex xs8>
-                        <v-text-field
-                          :rules="numberRules"
-                          v-model="attribute.quantity"
-                          label="Quantity"
-                          type="number"
-                        ></v-text-field>
-                      </v-flex>
+              <v-layout row wrap align-center justify-start v-if="user.type === 'Reseller'"> 
+                <v-flex xs12 mt-2 v-if="!variant.hasOwnProperty('name') || attribLoading || !variant ">
+                  <div v-if="attribLoading">
+                    <v-progress-circular indeterminate color="primary"></v-progress-circular>
+                  </div>
+                  <div v-else-if="!product.attributes.length" class="font-italic caption pl-2">no variant details...</div>
+                  <div v-else class="font-italic caption pl-2">Please select a variant...</div>
+                </v-flex>
+                
+                <div v-else class="mt-2 pl-2">
+                  <v-flex xs12>
+                    <div :class="[ Number(variant.availableQTY) <= Number(variant.reOrderLevel) ? 'red--text' : '']">
+                      Available Stock: 
+                      <span class="font-weight-bold" v-if="variant.availableQTY"> {{ variant.availableQTY }} pcs.</span>
+                      <span class="font-weight-bold" v-else>OUT OF STOCK</span>
+                    </div>
+                  </v-flex>
+                  <v-flex xs12 mt-1>
+                    <div>
+                      Price: 
+                      <span class="font-weight-bold" v-if="variant.price"> {{ variant.price | currency("&#8369;") }}</span>
+                      <span class="font-weight-bold" v-else>N/A</span>
+                    </div>
+                  </v-flex>
+                  <v-flex xs12 mt-1>
+                    <div>
+                      Minimum Order: 
+                      <span class="font-weight-bold" v-if="variant.minimumOrder"> {{ variant.minimumOrder }} pcs.</span>
+                      <span class="font-weight-bold" v-else>N/A</span>
+                    </div>
+                  </v-flex>
+                </div>
+              </v-layout>
 
-                      <v-flex xs2 pa-2>
-                        <v-btn color="primary" icon 
-                          :disabled="attribute.quantity <= 0" 
-                          @click="attribute.quantity = (Number(attribute.quantity) - 1) || 0"
-                        >
-                          <v-icon>remove</v-icon>
-                        </v-btn>
-                      </v-flex>
+              <v-layout row wrap v-if="product.attributes.length" my-3>
+                <v-flex
+                  xs12
+                  v-for="(a, index) in product.attributes"
+                  :key="index"
+                >
+                  <v-select
+                    v-model="attribute[a.name.toLowerCase()]"
+                    :items="a.items"
+                    :label="a.name"
+                    item-text="name"
+                    item-value="name"
+                    :rules="basicRules"
+                    @change="fetchVariant"
+                    single-line required
+                    menu-props="bottom"
+                  ></v-select>
+                </v-flex>
+              </v-layout>
 
-                      <v-flex xs2 pa-2>
-                        <v-btn color="primary" icon 
-                          @click="attribute.quantity = (Number(attribute.quantity) + 1) || 0"
-                        >
-                          <v-icon>add</v-icon>
-                        </v-btn>
-                      </v-flex>
-                    </v-layout>
-									</v-flex>
-									<!-- <v-flex xs12>
-										<v-select :items="['50ml', '100ml', '150ml', '200ml']" required
-										:rules="basicRules" v-model="attribute.size" label="Size" single-line menu-props="bottom"></v-select>
-									</v-flex> 
-									<v-flex xs12>
-										<v-select
-										label="Color"
-										:items="['Red', 'Blue', 'Yellow', 'Green']"
-										:menu-props="{maxHeight:'auto'}"
-										v-model="attribute.color"
-										required
-										:rules="basicRules"
-										>
-										<template slot="item" slot-scope="data">
-											 <v-list-tile-action>
-												<v-icon :color="`${data.item.toLowerCase()}`">fiber_manual_record</v-icon>
-											</v-list-tile-action>
-											<v-list-tile-content>
-												<v-list-tile-title v-html="data.item"></v-list-tile-title>
-											</v-list-tile-content>
-										</template>
-									</v-select>
-								</v-flex> -->
-							</v-layout>
-
-              <v-layout v-else row wrap align-center justify-start mt-3>
+              <v-layout row wrap align-center justify-start mt-3 px-1> 
                 <v-flex xs8>
                   <v-text-field
                     :rules="numberRules"
-                    v-model="attribute.quantity"
+                    v-model.number="attribute.quantity"
                     label="Quantity"
                     type="number"
                   ></v-text-field>
                 </v-flex>
 
                 <v-flex xs2 pa-2>
-                  <v-btn color="primary" 
-                    icon :disabled="attribute.quantity <= 0" 
+                  <v-btn 
+                    v-if="user.type === 'Reseller'"
+                    color="primary" icon 
+                    :disabled="attribute.quantity <= 0 || Number(attribute.quantity) <= Number(variant.minimumOrder)"
+                    @click="attribute.quantity = (Number(attribute.quantity) - 1) || 0"
+                  >
+                    <v-icon>remove</v-icon>
+                  </v-btn>
+                  <v-btn 
+                    v-else 
+                    color="primary" icon 
+                    :disabled="attribute.quantity <= 0"
                     @click="attribute.quantity = (Number(attribute.quantity) - 1) || 0"
                   >
                     <v-icon>remove</v-icon>
@@ -294,62 +304,22 @@
                 </v-flex>
 
                 <v-flex xs2 pa-2>
-                  <v-btn color="primary" icon @click="attribute.quantity = (Number(attribute.quantity) + 1) || 0">
+                  <v-btn color="primary" icon v-if="user.type === 'Reseller'"
+                    @click="attribute.quantity = (Number(attribute.quantity) + 1) || 0"
+                    :disabled="attribute.quantity >= Number(variant.availableQTY)"
+                  >
+                    <v-icon>add</v-icon>
+                  </v-btn>
+
+                  <v-btn color="primary" icon v-else
+                    @click="attribute.quantity = (Number(attribute.quantity) + 1) || 0"
+                  >
                     <v-icon>add</v-icon>
                   </v-btn>
                 </v-flex>
               </v-layout>
-
-              <v-layout row wrap>
-                <v-flex
-                  xs12
-                  v-for="(a, index) in product.attributes"
-                  :key="index"
-                >
-                  <v-select
-                    v-if="a.name === 'Color'"
-                    label="Color"
-                    :items="a.items"
-                    :menu-props="{ maxHeight: 'auto' }"
-                    v-model="attribute.color"
-                    required
-                    :rules="basicRules"
-                  >
-                    <template slot="item" slot-scope="data">
-                      <!-- <v-list-tile-action>
-											<v-icon :color="`${data.item.toLowerCase()}`">fiber_manual_record</v-icon>
-										</v-list-tile-action> -->
-                      <v-list-tile-content>
-                        <v-list-tile-title
-                          v-html="data.item"
-                        ></v-list-tile-title>
-                      </v-list-tile-content>
-                    </template>
-                  </v-select>
-
-                  <v-text-field
-                    v-else-if="
-                      a.name === 'Quantity' && selectedButton === 'Inventory'
-                    "
-                    :rules="numberRules"
-                    :items="a.items"
-                    v-model="attribute[a.name.toLowerCase()]"
-                    :label="a.name"
-                  ></v-text-field>
-
-                  <v-select
-                    v-else
-                    :items="a.items"
-                    required
-                    :rules="basicRules"
-                    v-model="attribute[a.name.toLowerCase()]"
-                    :label="a.name"
-                    single-line
-                    menu-props="bottom"
-                  ></v-select>
-                </v-flex>
-              </v-layout>
             </v-form>
+
             <div>
               <div v-if="selectedButton === 'Customer'">
                 <v-btn
@@ -373,18 +343,14 @@
                   <v-icon left>add</v-icon> Add to Customer Cart
                 </v-btn>
               </div>
-              <!-- <div v-else-if="selectedButton === 'Inventory'">
-							<v-btn depressed class="pink white--text" block @click="addToInventory" :disabled="addToInventoryLoading" :loading="addToInventoryLoading">
-								<v-icon left>add</v-icon> Add to Personal Inventory
-							</v-btn>
-						</div> -->
+              
               <div v-else-if="selectedButton === 'Stock Order'">
                 <v-btn
                   depressed
                   class="primary white--text"
                   block
                   @click="addToStockOrder"
-                  :disabled="addToStockOrderLoading"
+                  :disabled="disableAddToCart"
                   :loading="addToStockOrderLoading"
                 >
                   <v-icon left>add</v-icon> Add to my Cart
@@ -426,7 +392,9 @@ export default {
   data: () => ({
     isLoading: false,
     message: null,
-    product: {},
+    product: {
+      attributes: [],
+    },
     basketConfirmationDialog: false,
     hideProductThumbnail: false,
     snackbar: false,
@@ -434,6 +402,7 @@ export default {
     attribute: {
       quantity: 0,
     },
+    attribLoading: false,
     addBasketToContactDialog: false,
     basketConfirmationDialogText: "Item Added to cart!",
     basicRules: [v => !!v || "Required"],
@@ -448,7 +417,40 @@ export default {
     addToStockOrderLoading: false,
     selectedInventoryItem: {},
     orderQTY: null,
+    variant: {},
   }),
+
+  async mounted() {
+    this.product = this.$route.params.product || {};
+
+    this.product = await this.$store.dispatch(
+      "products/GET_PRODUCT",
+      this.$route.params.id
+    );
+
+    if (this.product.attributes.length) {
+      const index = this.product.attributes.findIndex(attrib => attrib.name.toLowerCase() === 'quantity');
+      if(index != -1) this.product.attributes.splice(index, 1);
+      
+      this.product.attributes.forEach(attrib => {
+        this.attribute[attrib.name.toLowerCase()] = null;
+      });
+    
+    } else if(this.user.type === 'Reseller') {
+      //retreive the single variant of the current product being viewed
+      const variant = await this.$store.dispatch('variants/GET_VARIANT', {
+        sku: this.product.code,
+        productId: this.product.id
+      });
+      this.variant = Object.assign({}, variant);
+      this.attribute['quantity'] = this.variant.minimumOrder;
+      
+      console.log("product's single variant: ", this.variant);
+    }
+
+    this.cordovaBackButton(this.goBack);
+  },
+
   methods: {
     goBack() {
       this.$router.go(-1);
@@ -682,6 +684,42 @@ export default {
       image.src = url;
     },
 
+    async fetchVariant() {
+      this.attribLoading = true;
+      let variantName = '';
+      for(const [key, variant] of Object.entries(this.attribute)) {
+        
+        if(key.toLowerCase() === "quantity" || key.toLowerCase() === "qty") {
+          console.log('key that disqualifies: ', key);
+          continue;
+
+        } else {
+          console.log('key that qualified: ', key)
+          variantName += `${variant}`;
+        }
+        
+      }
+      
+      console.log('variant name generated: ', variantName);
+      const variant = await this.$store.dispatch('variants/GET_VARIANT', {
+        name: variantName,
+        productId: this.product.id
+      });
+      
+      this.variant = Object.assign({}, variant);
+      this.attribute['quantity'] = this.variant.minimumOrder;
+      
+      console.log('selected variant: ', this.variant)
+      
+      if(!this.variant || !this.variant.hasOwnProperty('sku')) {
+        this.snackbar = true;
+        this.snackbarMessage = "No variant associated...";
+      } 
+
+      this.attribLoading = false;
+      
+    },
+
     addToInventory() {
       // hack to remove quantity validation
 
@@ -736,7 +774,8 @@ export default {
       this.$store
         .dispatch("stock_orders/SAVE_ITEM_FROM_INVENTORY", {
           attributes: this.attribute,
-          productId: this.product.id
+          productId: this.product.id,
+          variant: this.variant,
         })
         .then(res => {
           console.log("ATTRIBUTES", this.attribute);
@@ -748,6 +787,7 @@ export default {
           );
         })
         .catch(error => {
+          this.snackbar = true;
           this.snackbarMessage = "An error occurred";
           console.log(error);
         })
@@ -757,41 +797,37 @@ export default {
           this.orderQTY = 0;
         });
     },
+
     cancelEdit() {
       this.editItemDialog = false;
       this.orderQTY = 0;
       this.attribute["quantity"] = 0;
-    }
+    },
   },
-  async mounted() {
-    this.product = this.$route.params.product || {};
-
-    if (!this.product.id) {
-      this.product = await this.$store.dispatch(
-        "products/GET_PRODUCT",
-        this.$route.params.id
-      );
-    }
-
-    if (this.product.attributes) {
-      const index = this.product.attributes.findIndex(attrib => attrib.name.toLowerCase() === 'quantity');
-      if(index != -1) this.product.attributes.splice(index, 1);
-      
-      this.product.attributes.forEach(attrib => {
-        this.attribute[attrib.name.toLowerCase()] = null;
-      });
-    }
-
-    this.cordovaBackButton(this.goBack);
+  
+  watch: {
+    
   },
+
   computed: {
     ...mapGetters({
       GET_PRODUCTS: "products/GET_PRODUCTS",
       GET_CURRENT_CATALOGUE: "GET_CURRENT_CATALOGUE",
+      variantList: "variants/GET_VARIANTS",
       user: "accounts/user"
     }),
     descriptionTemplate() {
       return this.description;
+    },
+    disableAddToCart() {
+      if(this.variant.isOutofStock) return true;
+      if(this.addToStockOrderLoading) return true;
+      if(Number(this.variant.availableQTY) === 0) return true;
+      if(Number(this.attribute.quantity) < Number(this.variant.minimumOrder)) return true;
+      if(Number(this.attribute.quantity) > Number(this.variant.availableQTY)) return true; 
+      if(Number(this.attribute.quantity) <= 0) return true;
+      
+      return false;
     }
   },
   filters: {
@@ -840,6 +876,10 @@ export default {
 .product-name {
   font-size: 23px;
   font-weight: 380;
+}
+.product-qty {
+  font-size: 18px;
+  font-weight: 400;
 }
 .product-description {
   text-align: justify;

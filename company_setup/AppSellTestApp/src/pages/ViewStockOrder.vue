@@ -30,7 +30,10 @@
               Status:
               <v-chip
                 :class="[
-                  stockOrder.status.toLowerCase() != 'pending' ? 'green' : 'red darken-2'
+                  stockOrder.status.toLowerCase() === 'pending' ? 'yellow darken-2' : '',
+                  stockOrder.status.toLowerCase() === 'cancelled' ? 'red darken-2' : '',
+                  stockOrder.status.toLowerCase() === 'shipped' ? 'green' : '',
+                  stockOrder.status.toLowerCase() === 'partially shipped' ? 'green' : ''
                 ]"
                 text-color="white"
               >

@@ -93,20 +93,10 @@
                   v-for="logistics in logisticsProvider"
                   :key="logistics.id"
                   min-width="275px"
+                  class="mt-2"
                 >
-                  <v-card-title>
-                    <v-radio 
-                      :value="logistics.id" 
-                      :disabled="logistics.shippingFee === 'error'"
-                    ></v-radio>
-                    <span class="subheading">{{
-                      logistics.id.toUpperCase()
-                    }}</span>
-                    <span v-if="logistics.shippingFee === 'error'" class="font-weight-bold">(CANNOT BE SELECTED)</span>
-                  </v-card-title>
-                  <v-divider></v-divider>
-                  <v-card-text>
-                    <v-layout>
+                  <v-container>
+                    <v-layout row align-center justify-start mx-2>
                       <v-flex xs5>
                         <v-img
                           :src="logistics.logoURL"
@@ -114,17 +104,30 @@
                           contain
                         ></v-img>
                       </v-flex>
-                      <v-flex xs7>
-                        <v-card-title primary-title>
-                          <div>
-                            <div class="subheading">Shipping Fee:</div>
-                            <div v-if="logistics.shippingFee === 'error'">ERROR</div>
-                            <div v-else>+ {{ logistics.shippingFee | currency('&#8369; ') }} </div>
+
+                      <v-flex xs5 offset-xs1>
+                        <div class="font-weight-bold subheading">
+                          {{ logistics.id.toUpperCase() }}
+                        </div>
+                        <div>
+                          <div v-if="logistics.id === 'pick-up'"></div>
+                          <div v-else>
+                            <span>
+                              + {{ logistics.shippingFee | currency("&#8369; ") }} 
+                            </span>
                           </div>
-                        </v-card-title>
+                        </div>
                       </v-flex>
+
+                      <v-flex xs1>
+                         <v-radio 
+                          :value="logistics.id" 
+                        ></v-radio>
+                      </v-flex>
+
                     </v-layout>
-                  </v-card-text>
+                  </v-container>
+                  <!-- <v-divider class="my-2 black"></v-divider> -->
                 </v-card>
 
                 <v-layout align-center justify-end row px-6 mt-4>

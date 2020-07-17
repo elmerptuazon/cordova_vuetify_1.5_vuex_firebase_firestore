@@ -9,6 +9,9 @@ import 'firebase/auth';
 import loader from '@/assets/img/spinner.gif';
 import malePlaceholder from '@/assets/img/male-default.jpg';
 import femalePlaceholder from '@/assets/img/female-default.jpg';
+
+import router from '@/router';
+
 const profPicStorageRef = STORAGE.ref('appsell').child('profile-pictures');
 
 function validateEmail(email) {
@@ -31,7 +34,9 @@ const accounts = {
 			calendarSync: true,
 			contactsSortBy: 'first'
 		},
-		approvalSubscriber: null
+		approvalSubscriber: null,
+		companyIcon: null,
+		removalSubscriber: null,
 	},
 	getters: {
 		user: state => state.user,
@@ -526,7 +531,8 @@ const accounts = {
 				if (userData.status === 'approved') {
 					dispatch('providers/ListenToPaymentProvider', null, { root: true })
 					dispatch('providers/ListenToLogisticsProvider', null, { root: true })
-					dispatch('articles/LISTEN_TO_ARTICLES', null, { root: true })
+					dispatch('articles/LISTEN_TO_ARTICLES', null, { root: true });
+					// dispatch('variants/LISTEN_TO_VARIANTS', null, { root: true });
 
 					if (state.settings.newOrders) {
 						// dispatch('orders/LISTEN_TO_ORDERS', { id: userData.uid }, { root: true });
@@ -558,6 +564,8 @@ const accounts = {
 			if (state.settings.deliverySchedules) {
 				dispatch('orders/LISTEN_TO_PROPOSED_DELIVERIES', { id: userData.uid }, { root: true });
 			}
+
+			dispatch('LISTEN_TO_ACCOUNT_REMOVAL');
 
 		},
 		async UPDATE_ACCOUNT({ commit }, payload) {
@@ -721,6 +729,7 @@ const accounts = {
 				if (user.type === 'Reseller' && user.status === 'approved') {
 					commit('providers/UnsubscribeToPaymentSubscriber', null, { root: true })
 					commit('providers/UnsubscribeToLogisticsSubscriber', null, { root: true })
+					// dispatch('variants/UNSUBSCRIBE_TO_VARIANTS', null, { root: true });
 				}
 				
 				// if (state.settings.newMessages) {
@@ -735,6 +744,9 @@ const accounts = {
 
 				//UNSUBSCRIBE TO ARTICLES
 				dispatch('articles/UNSUBSCRIBE_TO_ARTICLES', null, { root: true });
+				
+
+				dispatch('UNSUBSCRIBE_TO_ACCOUNT_REMOVAL');
 
 				return await AUTH.signOut();
 			} catch (error) {
@@ -880,7 +892,9 @@ const accounts = {
 
 		LISTEN_TO_APPROVAL({ state, commit, dispatch }) {
 			const uid = AUTH.currentUser.uid;
-			console.log('Listening to approvals')
+			console.log('Listening to approvals');
+
+			dispatch('LISTEN_TO_ACCOUNT_REMOVAL');
 
 			state.approvalSubscriber = COLLECTION.accounts.doc(uid).onSnapshot(function (doc) {
 				const data = doc.data();
@@ -890,6 +904,8 @@ const accounts = {
 				if (data.status === 'approved') {
 					notif.title = 'Congratulations!';
 					notif.text = 'Your distributor registration request has been approved!';
+					notif.redirectURL = '/more';
+
 					dispatch('RELOAD_USER_DATA', uid);
 					dispatch('SEND_PUSH_NOTIFICATION', notif);
 					console.log("Unsubscribing to approvals");
@@ -897,27 +913,82 @@ const accounts = {
 				} else if (data.status === 'denied') {
 					notif.title = 'Sorry';
 					notif.text = 'Your distributor registration request has been denied.';
+					notif.redirectURL = '/more';
+					
 					commit('UPDATE_USER_KEY', { key: 'remarks', value: data.remarks });
 					dispatch('RELOAD_USER_DATA', uid);
 					dispatch('SEND_PUSH_NOTIFICATION', notif);
 				}
 
-				// console.log('Approval listener:');
-				// console.log(title, text);
-
-
 				commit('UPDATE_USER_KEY', { key: 'status', value: data.status });
 			});
 		},
 
-		SEND_PUSH_NOTIFICATION({ }, payload) {
+		async LISTEN_TO_ACCOUNT_REMOVAL({state, rootGetters, dispatch }) {
+			const uid = AUTH.currentUser.uid;
+			const currentUserRef = await COLLECTION.accounts.doc(uid).get();
+			const agentId = currentUserRef.data().agentId;
+
+			console.log('listening to account removal...')
+			state.removalSubscriber = COLLECTION.accounts.where('agentId', '==', agentId).onSnapshot(async (snapshot) => {
+				let doc = snapshot.docChanges();
+
+				if(doc[0].type === 'removed') {
+					console.log('account has been removed!')
+					
+					const notif = {
+						title: 'Sorry',
+						text: `Your Branch Account has been removed. Please contact ${rootGetters['GET_COMPANY']} if you think this was done by mistake.`
+					};
+
+					await dispatch('SEND_PUSH_NOTIFICATION', notif); 
+					await dispatch('LOG_OUT');
+					router.push('/');
+
+				}
+			})
+		},
+
+		UNSUBSCRIBE_TO_ACCOUNT_REMOVAL({ state }) {
+			if(state.removalSubscriber) {
+				state.removalSubscriber();
+			}
+		},
+
+		async SEND_PUSH_NOTIFICATION({ state }, payload) {
+			try {
+				if(!state.companyIcon) {
+					const downloadURL = await STORAGE.ref('appsell').child('providers/company_logo.png').getDownloadURL();
+					state.companyIcon = downloadURL;
+				} 
+			} catch(error) {
+				console.log('send push notification error: ', error);
+				state.companyIcon = null;
+			}
+
 			document.addEventListener('deviceready', function () {
 				cordova.plugins.notification.local.schedule({
+					id: Date.now(),
 					title: payload.title,
 					text: payload.text,
 					foreground: true,
-					vibrate: true
+					vibrate: true,
+					wakeup: true,
+					data: {
+						redirectURL: payload.redirectURL
+					},
+					icon: state.companyIcon,
 				});
+
+				cordova.plugins.notification.local.on(`click`, (notification, eopts) => {
+					console.log('notif is triggered by @click');
+					console.log('from send push notif getDefaults(): ', cordova.plugins.notification.local.getDefaults());
+					console.log('from send push notif local.on.notification: ', notification);
+					console.log('from send push notif local.on.eopts: ', eopts);
+
+					router.push(notification.data.redirectURL);	
+				});
+
 			}, false);
 		},
 
@@ -946,6 +1017,10 @@ const accounts = {
 			if(!rootState.articles.subscriber) {
 				dispatch('articles/LISTEN_TO_ARTICLES', null, { root: true });
 			}
+
+			// if(!rootState.variants.subscriber) {
+			// 	dispatch('variants/LISTEN_TO_VARIANTS', null, { root: true });
+			// }
 
 			// if (state.settings.newMessages) {
 			// 	dispatch('conversations/LISTEN_TO_CONVERSATIONS', null, { root: true });

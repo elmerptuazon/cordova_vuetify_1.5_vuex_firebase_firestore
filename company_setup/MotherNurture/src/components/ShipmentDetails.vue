@@ -19,6 +19,10 @@
           <v-card-text>
             <v-layout align-center justify-space-around row wrap>
               <v-flex xs12>
+                <span class="body-1">Shipping / Pick-Up Date: </span>
+                <span class="body-2 font-weight-bold">{{ $moment(new Date(shipment.pickupDate)).format("DD-MMM-YYYY") }}</span>
+              </v-flex>
+              <v-flex xs12>
                 <v-data-table
                   hide-actions
                   :headers="headers"
@@ -73,7 +77,7 @@ import { mapState } from "vuex";
 import Modal from "@/components/Modal";
 import { FIRESTORE } from "@/config/firebaseInit";
 export default {
-  props: ["stockOrderId"],
+  props: ["stockOrderId", "stockOrder"],
   data: () => ({
     selectedItem: {},
     buttonLoading: false,
@@ -101,7 +105,6 @@ export default {
     async TagShipmentAsReceived(shipment) {
       this.buttonLoading = true;
       try {
-        const shipmentDecrement = FIRESTORE.FieldValue.increment(-1);
 
         let updatedShipment = {};
         updatedShipment.id = shipment.id;
@@ -110,17 +113,39 @@ export default {
           status: "Received",
           isAddedToInventory: false
         };
-        //update counter in stockOrder
-        updatedShipment.stockOrderId = shipment.stockOrder.stockOrderId;
-        updatedShipment.stockOrderUpdate = {
-          shipmentsToReceive: shipmentDecrement
-        };
+        
+        if(this.stockOrder.shipmentsToReceive > 0) {
+          //update counter in stockOrder
+          updatedShipment.stockOrderId = shipment.stockOrder.stockOrderId;
+          updatedShipment.stockOrderUpdate = {
+            shipmentsToReceive: FIRESTORE.FieldValue.increment(-1)
+          };
+        }
+        
+        for(const item of shipment.itemsToShip) {
+          let updatedVariant = {
+            allocatedQTY: FIRESTORE.FieldValue.increment(item.qtyToShip * -1),
+            onHandQTY: FIRESTORE.FieldValue.increment(item.qtyToShip * -1),
+          };
+
+          await this.$store.dispatch('variants/UPDATE_VARIANT', {
+            id: item.variantId,
+            updatedDetails: updatedVariant
+          });
+        }
 
         await this.$store.dispatch("shipment/UpdateShipment", updatedShipment);
+        await this.$store.dispatch("stock_orders/UPDATE_STOCK_ORDER", {
+          id: shipment.stockOrder.stockOrderId,
+          key: 'isQTYDeducted',
+          value: true
+        });
+        
         this.$refs.modal.show(
           "Success",
           "Shipment has been tagged as Received!"
         );
+
         this.buttonLoading = false;
       } catch (error) {
         console.log(error);
