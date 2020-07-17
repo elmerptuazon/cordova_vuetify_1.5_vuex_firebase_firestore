@@ -29,7 +29,10 @@
     <template slot="items" slot-scope="props">
       <tr
         @click="viewOrder(props.item)"
-        :class="[props.item.shipmentsToReceive > 0 ? 'green lighten-4' : '']"
+        :class="[
+          props.item.shipmentsToReceive > 0 ? 'green lighten-4' : '',
+          props.item.paymentDetails.paymentStatus === 'denied' ? 'red lighten-4' : '',
+        ]"
       >
         <td class="text-xs-center">
           <v-badge color="red" left overlap>
@@ -135,7 +138,9 @@ export default {
     }
   },
 
-  computed: {}
+  computed: {
+
+  }
 };
 </script>
 
