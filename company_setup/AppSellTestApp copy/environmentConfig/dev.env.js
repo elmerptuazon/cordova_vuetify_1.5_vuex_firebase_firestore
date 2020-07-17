@@ -3,20 +3,19 @@ var prodEnv = require('./prod.env')
 
 module.exports = merge(prodEnv, {
   NODE_ENV: '"development"',
-  apiKey: '"AIzaSyDAxQ8dvBH2CQNkvoFuklqVRV76KaRyKJ0"',
-  authDomain: '"appselltestapp.firebaseapp.com"',
-  databaseURL: '"https://appselltestapp.firebaseio.com"',
-  projectId: '"appselltestapp"',
-  storageBucket: '"appselltestapp.appspot.com"',
-  messagingSenderId: '"671506060709"',
-  appId: '"1:671506060709:web:7bcc28481ba6b94d12044c"',
-  measurementId: '"G-XV2JER7LNT"',
-  storageCode: '"AppSellTestApp"',
+  apiKey: '"AIzaSyByvdxHkznRrmeIDrUigzGEdrj3rPY4D1A"',
+  authDomain: '"babae-dev.firebaseapp.com"',
+  databaseURL: '"https://babae-dev.firebaseio.com"',
+  projectId: '"babae-dev"',
+  storageBucket: '"babae-dev.appspot.com"',
+  messagingSenderId: '"719726296321"',
+  appId: '"1:719726296321:web:18d79143ddd7577c1bef00"',
+  measurementId: '"G-2N45LLZM5L"',
+  storageCode: '"Babae-Dev"',
   webAdminId: '"admin"',
-  companyName: '"AppSellTestApp"',
-  contactNumber: '"09123456789"',
-  version: '"0.6.10"',
-  primaryColor: '"#0E1E38"',
+  companyName: '"Babae"',
+  version: '"0.6.8"',
+  primaryColor: '"#FF7F7F"',
   environment: '"test"',
-  callbackURL: '"https://us-central1-appselltestapp.cloudfunctions.net/callback"'
+  callbackURL: '"https://us-central1-babae-dev.cloudfunctions.net/callback"'
 })
