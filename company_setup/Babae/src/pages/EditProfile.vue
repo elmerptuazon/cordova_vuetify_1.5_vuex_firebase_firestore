@@ -33,7 +33,6 @@
                   v-if="user.downloadURL"
                   width="90"
                   :src="user.downloadURL"
-                  class="flipped"
                   alt="avatar"
                   contain
                 >
@@ -42,7 +41,6 @@
                   v-else
                   width="90"
                   :src="user.imageObj.src"
-                  class="flipped"
                   alt="avatar"
                   contain
                 ></v-img>
@@ -71,7 +69,6 @@
                 <v-img
                   width="90"
                   :src="user.proofOfId"
-                  class="flipped"
                   alt="avatar"
                   contain
                 >
@@ -202,6 +199,7 @@
               append-icon="email"
               label="Email address"
               v-model="placeHolderEmail"
+              type="email"
             ></v-text-field>
           </v-flex>
           <v-flex xs12>
@@ -495,6 +493,9 @@ export default {
     }
   },
   created() {
+    console.log("userData:", this.userData);
+    console.log("user:", this.user);
+
     this.userData = Object.assign({}, this.userData, this.user);
     console.log(this.userData);
     this.provinces = provinces;
@@ -505,7 +506,8 @@ export default {
       this.placeHolderEmail = this.userData.email;
     }
 
-    if (!this.userData.resellerData.hasPicture) {
+    if (!this.userData.hasOwnProperty("hasPicture") 
+        ||!this.userData.hasPicture) {
       this.userData.resellerData.downloadURL = MaleDefaultImage;
     }
     console.log(this.userData);
@@ -556,14 +558,21 @@ export default {
           }
         );
       } catch (error) {
+        let msg;
         if (error.code === "auth/requires-recent-login") {
           this.reAuthDialog = true;
+        
+        } else if(error.message === 'Contact number already exists.') {
+          msg = 'Contact number already exists, please try again.';
+        
         } else {
-          this.$refs.modal.show("Sorry", "Account update error", () => {
-            console.log(error.message);
-            this.viewProfile();
-          });
+          msg = 'Account update error, please try again.';
         }
+
+        this.$refs.modal.show("Sorry", msg, () => {
+          console.log(error.message);
+          this.viewProfile();
+        });
       }
 
       this.updateButtonLoading = false;

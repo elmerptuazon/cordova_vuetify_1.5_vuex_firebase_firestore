@@ -2,6 +2,7 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 
 import accounts from './modules/accounts';
+import articles from './modules/articles'
 import plugins from './modules/plugins';
 import catalogues from './modules/catalogues';
 import products from './modules/products';
@@ -19,6 +20,7 @@ import shipment from './modules/shipment';
 import logo from '@/assets/img/header_logo.jpg';
 import payment from './modules/payment';
 import providers from './modules/providers';
+import variants from './modules/variants';
 
 Vue.use(Vuex);
 
@@ -36,6 +38,7 @@ export default new Vuex.Store({
         companyLogo: logo,
         webAdminId: process.env.webAdminId,
         companyName: process.env.companyName,
+        contactNumber: process.env.contactNumber,
         version: process.env.version,
     },
     getters: {
@@ -53,7 +56,8 @@ export default new Vuex.Store({
         GET_SHOW_TOOLBAR_TITLES: state => state.showToolbarTitles,
         GET_LOGO: state => state.companyLogo,
         GET_VERSION: state => state.version,
-        GET_COMPANY: state => state.companyName
+        GET_COMPANY: state => state.companyName,
+        GET_CONTACT_NUMBER: state => state.contactNumber,
     },
     mutations: {
         SET_TOOLBAR_TITLE(state, payload) {
@@ -74,6 +78,7 @@ export default new Vuex.Store({
     },
     modules: {
         accounts,
+        articles,
         plugins,
         catalogues,
         products,
@@ -89,6 +94,7 @@ export default new Vuex.Store({
         conversations,
         shipment,
         payment,
-        providers
+        providers,
+        variants
     }
 })

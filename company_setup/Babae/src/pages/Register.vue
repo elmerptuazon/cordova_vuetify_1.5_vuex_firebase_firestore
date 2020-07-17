@@ -41,7 +41,7 @@
                   :rules="basicRules"
                   append-icon="person_outline"
                   required
-                  :items="['Customer', 'Reseller']"
+                  :items="userType"
                   label="I am a..."
                   v-model="registerData.type"
                   single-line
@@ -218,6 +218,7 @@
                   append-icon="email"
                   label="Email address*"
                   v-model="registerData.email"
+                  type="email"
                 ></v-text-field>
               </v-flex>
               <v-flex xs12>
@@ -601,6 +602,9 @@ export default {
     referralFound: false,
     btnLoading: false,
 
+    userType: ['Reseller']
+    // userType: ['Customer', 'Reseller'];
+
   }),
   created() {
     this.provinces = provinces;
@@ -682,6 +686,8 @@ export default {
       );
 
       if (registerData.email) {
+        registerData.email = registerData.email.toLowerCase();
+
         try {
           const response = await this.$store.dispatch(
             "accounts/CREATE_ACCOUNT",
@@ -727,7 +733,7 @@ export default {
 
       let res;
       try {
-        res = await this.$store.dispatch("accounts/FIND_RESELLER", { data: this.referralSearch });
+        res = await this.$store.dispatch("accounts/FIND_RESELLER", { data: this.referralSearch.toLowerCase() });
       }
       catch(error) {
         console.log(error);

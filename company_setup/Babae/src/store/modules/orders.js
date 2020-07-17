@@ -24,12 +24,15 @@ const orders = {
 	state: {
 		orders: [],
 		order: {},
+		customerOrders: [],
+		customerSubscriber: null,
 		subscriber: null,
 		proposed_subscriber: null
 	},
 	getters: {
 		GET_ORDERS: state => state.orders,
-		GET_ORDER: state => state.order
+		GET_ORDER: state => state.order,
+		GET_CUSTOMER_ORDERS: state => state.customerOrders,
 	},
 	mutations: {
 		SET_ORDERS(state, orders) {
@@ -37,6 +40,9 @@ const orders = {
 		},
 		SET_ORDER(state, order) {
 			state.order = Object.assign({}, order)
+		},
+		SET_CUSTOMER_ORDER(state, payload) {
+			state.customerOrders = payload;
 		},
 		UPDATE_ORDER(state, order) {
 			const i = state.orders.findIndex(o => o.orderNo == order.orderNo)
@@ -46,6 +52,7 @@ const orders = {
 				state.order = { ...updatedOrder }
 			}
 		}
+
 	},
 	actions: {
 		async GET_ORDERS({ commit }, payload) {
@@ -397,7 +404,7 @@ const orders = {
 				const resellerID = rootState.accounts.user.resellerId;
 				const agentID = await COLLECTION.accounts.doc(resellerID).get();
 				do {
-					const orderNo = generateOrderNumber(agentID.data().agentId)
+					const orderNo = await generateOrderNumber(agentID.data().agentId);
 					const doc = await COLLECTION.orders.doc(orderNo).get()
 					if (doc.exists) {
 						orderNumberExists = true;
@@ -416,10 +423,12 @@ const orders = {
 						}
 						if (rootState.accounts.user.type === 'Customer') {
 							orderDetails.resellerId = rootState.accounts.user.resellerId;
+
 						} else {
 							orderDetails.selfOrder = true;
 						}
 						orderDetails.read = false;
+						console.log('customer checkout: ', orderDetails);
 						await COLLECTION.orders.doc(orderNo).set(orderDetails);
 						orderDetails.orderNo = orderNo;
 					}
@@ -490,40 +499,116 @@ const orders = {
 				throw e;
 			}
 		},
-		LISTEN_TO_ORDERS({ commit, state }, data) {
+		
+		// LISTEN_TO_ORDERS({ commit, state }, data) {
 
-			state.subscriber = COLLECTION.orders.where('resellerId', '==', data.id)
-				.onSnapshot((snapshot) => {
+		// 	state.subscriber = COLLECTION.orders.where('resellerId', '==', data.id)
+		// 		.onSnapshot((snapshot) => {
 
-					console.log('Listening to orders...')
+		// 			console.log('Listening to orders...')
 
-					let changes = snapshot.docChanges().filter(c => c.type === 'added');
-					changes = changes.map((change) => {
-						const orderData = change.doc.data();
-						orderData.id = change.doc.id;
-						return orderData;
-					});
+		// 			let changes = snapshot.docChanges().filter(c => c.type === 'added');
+		// 			changes = changes.map((change) => {
+		// 				const orderData = change.doc.data();
+		// 				orderData.id = change.doc.id;
+		// 				return orderData;
+		// 			});
 
-					changes.forEach((change) => {
+		// 			changes.forEach((change) => {
 
-						if (change.offlineContact && change.hasOwnProperty('offlineContact')) {
-							return;
-						}
+		// 				if (change.offlineContact && change.hasOwnProperty('offlineContact')) {
+		// 					return;
+		// 				}
 
-						if (!change.read) {
-							console.log('Unopened order', change);
-							document.addEventListener('deviceready', function () {
-								cordova.plugins.notification.local.schedule({
-									title: 'New order received!',
-									text: `Order #${change.id} - Click to open app`,
-									foreground: true
-								});
-							}, false);
-						}
-					});
+		// 				if (!change.read) {
+		// 					console.log('Unopened order', change);
+		// 					document.addEventListener('deviceready', function () {
+		// 						cordova.plugins.notification.local.schedule({
+		// 							title: 'New order received!',
+		// 							text: `Order #${change.id} - Click to open app`,
+		// 							foreground: true
+		// 						});
+		// 					}, false);
+		// 				}
+		// 			});
+		// 		});
+		// },
+
+		LISTEN_TO_CUSTOMER_ORDERS({ state, commit, rootGetters, dispatch}, notificationSetting) {
+			const user = AUTH.currentUser;
+
+			state.customerOrders = [];
+			
+			state.customerSubscriber = COLLECTION.orders.where('resellerId', '==', user.uid)
+			.onSnapshot(async (snapshot) => {
+
+				console.log('listening to customer orders');
+
+				let changes = snapshot.docChanges();
+				// changes = changes.filter(doc => doc.type === 'added');
+
+				changes = changes.map((change) => {
+					const order = change.doc.data();
+					order.id = change.doc.id;
+					order.type = change.type;
+					return order;
 				});
+
+				for(let order of changes) {
+					//updating the offlineContact field will yield to alot of problems that might appear with the app
+					//so instead, we just mask the data of the online user as "offlineContact" as an easier fix
+					//and will also have less problems with other modules.
+					if (order.hasOwnProperty('offlineContact')) {
+						order.isOffline = true; //customer is an offline customer
+					}
+					else {
+						const customerData = await dispatch('accounts/GET_USER', order.uid, { root: true });
+
+						order.offlineContact = customerData;
+						order.offlineContact.imageObj = { loading: "./img/spinner.9ac168c.gif", src: customerData.downloadURL };
+						order.isOffline = false; //customer is an online customer
+					}
+					
+					if(order.type === 'added') {
+						state.customerOrders.push(order);
+
+						//notify the reseller that they have a new customer order
+						//notify only if the user enabled the new orders notification setting 
+						if(notificationSetting && !order.read) {
+							const notif = {
+								title: 'New Customer Order Received!',
+								text: `Order #${order.id}.\nClick this to open app`,
+								redirectURL: {
+									name: "PlacedOrder",
+									params: {
+										order: order,
+										query: {
+											fromOrders: true
+										}
+									}
+								},
+							};
+
+							dispatch('accounts/SEND_PUSH_NOTIFICATION', notif, { root: true });
+							
+						}
+						
+					
+					} else if(order.type === 'modified') {
+						const index = state.customerOrders.findIndex((customerOrder) => customerOrder.id === order.id);
+						if(index !== -1) {
+							state.customerOrders[index] = order;
+						}
+					}
+
+					delete order.type;
+					
+				}
+				
+			})
+
 		},
-		LISTEN_TO_PROPOSED_DELIVERIES({ commit, state, rootState }) {
+		LISTEN_TO_PROPOSED_DELIVERIES({ commit, state, rootState, dispatch }) {
 			const user = rootState.accounts.user;
 
 			console.log('Listening to delivery propositions');
@@ -535,18 +620,28 @@ const orders = {
 					.onSnapshot((snapshot) => {
 						snapshot.docChanges().forEach((change) => {
 							const docData = change.doc.data();
+							docData.orderNo = change.doc.id;
 							const docId = change.doc.id;
 
 							if (change.type === 'modified' || change.type === 'added') {
 								if (docData.proposed_delivery_schedule && !docData.delivery_schedule_status) {
 									console.log('Proposed delivery schedule received for order ' + docId);
-									document.addEventListener('deviceready', function () {
-										cordova.plugins.notification.local.schedule({
-											title: 'Proposed delivery schedule received for order ' + docId,
-											text: 'Click to open app',
-											foreground: true
-										});
-									}, false);
+									const notif = {
+										title: `Proposed delivery schedule received for order ${docId}`,
+										text: 'Delivery schedule has been\nproposed to you by your reseller.\nClick this to open the app',
+										redirectURL: {
+											name: 'Order',
+											params: {
+												orderData: docData,
+												orderNo: docData.orderNo,
+												from: 'basket'
+											}
+										},
+									};
+
+									state.order = Object.assign({}, docData);
+
+									dispatch('accounts/SEND_PUSH_NOTIFICATION', notif, { root : true });
 								}
 							}
 
@@ -557,9 +652,12 @@ const orders = {
 					.orders
 					.where('resellerId', '==', user.uid)
 					.onSnapshot((snapshot) => {
-						snapshot.docChanges().forEach((change) => {
+						snapshot.docChanges().forEach(async (change) => {
 							const docData = change.doc.data();
+							docData.id = change.doc.id;
 							const docId = change.doc.id;
+
+							docData.offlineContact = await dispatch('accounts/GET_USER', docData.uid, { root: true }); 
 
 							const status = docData.delivery_schedule_status;
 
@@ -567,43 +665,76 @@ const orders = {
 								if (status && status === 'accepted' && !docData.delivery_schedule_status_acknowledged) {
 									console.log(`Order ${docId} delivery proposal has been accepted`);
 									COLLECTION.orders.doc(docId).update({ delivery_schedule_status_acknowledged: true });
-									document.addEventListener('deviceready', function () {
-										cordova.plugins.notification.local.schedule({
-											title: `Order ${docId} delivery proposal has been accepted`,
-											text: 'Click to open app',
-											foreground: true
-										});
-									}, false);
+									const notif = {
+										title: `Approved delivery proposal!`,
+										text: `Delivery schedule proposal\nfor customer order ${docId} has been accepted.\nClick this to open the app`,
+										redirectURL: {
+											name: 'PlacedOrder',
+											params: {
+												order: docData
+											},
+											query: {
+												fromOrders: true
+											}
+										},
+									};
+									
+									dispatch('accounts/SEND_PUSH_NOTIFICATION', notif, { root : true });
+									
 								} else if (status && status === 'declined' && !docData.delivery_schedule_status_acknowledged) {
 									console.log(`Order ${docId} delivery proposal has been declined`);
-									document.addEventListener('deviceready', function () {
-										cordova.plugins.notification.local.schedule({
-											title: `Order ${docId} delivery proposal has been declined`,
-											text: 'Click to open app',
-											foreground: true
-										});
-									}, false);
+									const notif = {
+										title: `Declined delivery proposal!`,
+										text: `Delivery schedule proposal\nfor customer order ${docId} has been declined.\nClick this to open the app`,
+										redirectURL: {
+											name: 'PlacedOrder',
+											params: {
+												order: docData
+											},
+											query: {
+												fromOrders: true
+											}
+										},
+									};
+									
+									dispatch('accounts/SEND_PUSH_NOTIFICATION', notif, { root : true });
+									
 								}
 							} else if (change.type === 'added') {
 								if (status && status === 'accepted' && !docData.delivery_schedule_status_acknowledged) {
 									console.log(`Order ${docId} delivery proposal has been accepted`);
 									COLLECTION.orders.doc(docId).update({ delivery_schedule_status_acknowledged: true });
-									document.addEventListener('deviceready', function () {
-										cordova.plugins.notification.local.schedule({
-											title: `Order ${docId} delivery proposal has been accepted`,
-											text: 'Click to open app',
-											foreground: true
-										});
-									}, false);
+									const notif = {
+										title: `Approved delivery proposal!`,
+										text: `Delivery schedule proposal\nfor customer order ${docId} has been accepted.\nClick this to open the app`,
+										redirectURL: {
+											name: 'PlacedOrder',
+											params: {
+												order: docData
+											},
+											query: {
+												fromOrders: true
+											}
+										},
+									};
+									dispatch('accounts/SEND_PUSH_NOTIFICATION', notif, { root : true });
+
 								} else if (status && status === 'declined' && !docData.delivery_schedule_status_acknowledged) {
 									console.log(`Order ${docId} delivery proposal has been declined`);
-									document.addEventListener('deviceready', function () {
-										cordova.plugins.notification.local.schedule({
-											title: `Order ${docId} delivery proposal has been declined`,
-											text: 'Click to open app',
-											foreground: true
-										});
-									}, false);
+									const notif = {
+										title: `Declined delivery proposal!`,
+										text: `Delivery schedule proposal\nfor customer order ${docId} has been declined.\nClick this to open the app`,
+										redirectURL: {
+											name: 'PlacedOrder',
+											params: {
+												order: docData
+											},
+											query: {
+												fromOrders: true
+											}
+										},
+									};
+									dispatch('accounts/SEND_PUSH_NOTIFICATION', notif, { root : true });
 								}
 							}
 
@@ -627,6 +758,11 @@ const orders = {
 
 			if (state.proposed_subscriber) {
 				state.proposed_subscriber();
+			}
+		},
+		UNSUBSCRIBE_FROM_CUSTOMER_ORDERS({ dispatch, state }) {
+			if(state.customerSubscriber) {
+				state.customerSubscriber();
 			}
 		}
 	}
