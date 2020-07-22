@@ -7,7 +7,25 @@
       <Accounts />
     </v-toolbar>
 
-    <v-container>
+    <v-container v-if="inventoryDisabled">
+      <v-layout row align-center justify-center>
+        <v-flex xs10>
+          <div class="font-weight-bold">Coming soon...</div>
+        </v-flex>
+      </v-layout>
+
+      <v-dialog v-model="showDialog" persistent width="90vw">
+        <v-card>
+          <v-card-title class="primary white--text title font-weight-bold">Coming Soon!</v-card-title>
+          <v-card-text>Organizer page will be available soon. So watch out!</v-card-text>
+          <v-card-actions class="mt-3 px-3">
+            <v-btn color="primary" dark block @click="goBack">OK</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+    </v-container>
+    
+    <v-container v-else>
       <div class="mt-4"></div>
       <v-layout row wrap>
         <v-flex xs12>
@@ -72,13 +90,19 @@ import ContactsBadge from "@/components/ContactsBadge";
 
 export default {
   mixins: [mixins],
-  data: () => ({}),
+  data: () => ({
+    inventoryDisabled: true,
+    showDialog: false,
+
+  }),
   created() {
     this.cordovaBackButton(this.goBack);
+    this.showDialog = true;
   },
   methods: {
     goBack() {
-      this.$router.push({ name: "Tabs", params: { tab: "more" } });
+      // this.$router.push({ name: "Tabs", params: { tab: "more" } });
+      this.$router.go(-1);
     },
     goTo(page) {
       this.$router.push({ name: page });

@@ -154,7 +154,8 @@ export default {
 
     newCustomerOrders() {
       const newOrders = this.$store.getters['orders/GET_CUSTOMER_ORDERS'];
-      return newOrders.filter((customerOrder) => customerOrder.read === false).length;
+      const stockOrders = this.$store.getters['stock_orders/GET_NOTIFICATION_COUNT']
+      return newOrders.filter((customerOrder) => customerOrder.read === false).length + stockOrders;
     },
 
     newArticles() {

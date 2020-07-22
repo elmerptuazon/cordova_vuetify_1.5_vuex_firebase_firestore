@@ -182,6 +182,7 @@ export default {
           }
         });
       } else {
+        item.read = true;
         this.$router.push({
           name: 'PlacedOrder',
           params: {

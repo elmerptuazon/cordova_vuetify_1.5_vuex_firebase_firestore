@@ -29,7 +29,10 @@
     <template slot="items" slot-scope="props">
       <tr
         @click="viewOrder(props.item)"
-        :class="[props.item.shipmentsToReceive > 0 ? 'green lighten-4' : '']"
+        :class="[
+          props.item.shipmentsToReceive > 0 ? 'green lighten-4' : '',
+          props.item.paymentDetails.paymentStatus === 'denied' ? 'red lighten-4' : ''
+        ]"
       >
         <td class="text-xs-center">
           <v-badge color="red" left overlap>
@@ -40,13 +43,27 @@
           </v-badge>
         </td>
         <td class="text-xs-center">{{ props.item.stockOrderReference }}</td>
-        <td class="text-xs-center">{{ props.item.status | uppercase }}</td>
+        <td class="text-xs-center">
+          <span v-if="
+            (props.item.status.toLowerCase() === 'shipped' ||  props.item.status.toLowerCase() === 'partially shipped') && 
+            props.item.shipmentsToReceive > 0"
+            >SCHEDULED FOR SHIPPING
+          </span>
+          <span v-else>{{ props.item.status | uppercase }}</span>
+        </td>
+        <td class="text-xs-center">
+          <span v-if="
+              props.item.paymentDetails.paymentStatus === 'pending' && 
+              props.item.paymentDetails.paymentType === 'POP'
+            "
+          >
+            {{ 'proof of payment' | uppercase }}
+          </span>
+          <span v-else>{{ props.item.paymentDetails.paymentStatus | uppercase }}</span>
+        </td>
         <td class="text-xs-center">
           {{ props.item.submittedAt | momentify("DD-MMM-YYYY") }}
         </td>
-        <!-- <td class="text-xs-center">
-          {{ props.item.discountedTotal | currency("P") }}
-        </td> -->
       </tr>
     </template>
   </v-data-table>
@@ -66,7 +83,7 @@ export default {
 
   data: () => ({
     pagination: {
-      sortBy: "status",
+      sortBy: "submittedAt",
       descending: true,
       rowsPerPage: -1
     },
@@ -84,15 +101,15 @@ export default {
         align: "center"
       },
       {
-        text: "Status",
+        text: "Shipping Status",
         value: "status",
         align: "center"
       },
-      // {
-      //   text: "Cost",
-      //   value: "total",
-      //   align: "center"
-      // }
+      {
+        text: "Payment Status",
+        value: "paymentDetails.paymentStatus",
+        align: "center"
+      },
       {
         text: "Date Submitted",
         value: "submittedAt",

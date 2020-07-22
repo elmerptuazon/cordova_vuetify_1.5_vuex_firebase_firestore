@@ -29,7 +29,14 @@
     <template slot="items" slot-scope="props">
       <tr
         @click="viewOrder(props.item)"
-        :class="[props.item.shipmentsToReceive > 0 ? 'green lighten-4' : '']"
+        :class="[
+          props.item.shipmentsToReceive > 0 
+            ? 'green lighten-4' 
+            : '',
+          props.item.paymentDetails.paymentStatus === 'denied' 
+            ? 'red lighten-3' 
+            : '',
+        ]"
       >
         <td class="text-xs-center">
           <v-badge color="red" left overlap>
@@ -48,6 +55,10 @@
           </span>
           
           <span v-else>{{ props.item.status | uppercase }}</span>
+        </td>
+        <td class="text-xs-center">
+          <span v-if="props.item.paymentDetails.paymentStatus === 'pending'">{{ 'proof of payment' | uppercase }}</span>
+          <span v-else>{{ props.item.paymentDetails.paymentStatus | uppercase }}</span>
         </td>
         <td class="text-xs-center">
           {{ props.item.submittedAt | momentify("DD-MMM-YYYY") }}
@@ -89,15 +100,15 @@ export default {
         align: "center"
       },
       {
-        text: "Status",
+        text: "Shipment Status",
         value: "status",
         align: "center"
       },
-      // {
-      //   text: "Cost",
-      //   value: "total",
-      //   align: "center"
-      // }
+      {
+        text: "Payment Status",
+        value: "paymentDetails.paymentStatus",
+        align: "center"
+      },
       {
         text: "Date Submitted",
         value: "submittedAt",

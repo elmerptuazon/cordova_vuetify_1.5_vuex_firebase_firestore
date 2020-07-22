@@ -10,7 +10,7 @@ const providers = {
         logisticsProviderSubscriber: null
     },
     getters: {
-
+        GET_LOGISTICS_PROVIDER: state => state.logisticProvider,
     },
     mutations: {
 
@@ -104,24 +104,58 @@ const providers = {
 
 
             for (const logistics of state.logisticsProvider) {
-                if (logistics.id != 'pick-up') {
+                if (logistics.id === 'barapido') {
                     //get key
                     //run http call for different url to get quotations per company
-                    const res = await axios({
-                        method: 'get',
-                        url: process.env.barapidoShippingURL,
-                        params: {
-                            province: payload.toAddress.province,
-                            cityMun: payload.toAddress.citymun,
-                            itemWeight: payload.itemWeight / 1000
-                        }
+                    try {
+                        const res = await axios({
+                            method: 'get',
+                            url: process.env.barapidoShippingURL,
+                            params: {
+                                province: payload.toAddress.province,
+                                cityMun: payload.toAddress.citymun,
+                                itemWeight: payload.itemWeight / 1000
+                            }
+    
+                        });
 
-
-                    });
-                    logistics.shippingFee = res.data.deliveryFee
+                        logistics.shippingFee = res.data.deliveryFee;
+                    
+                    } catch(error) {
+                        logistics.shippingFee = 'error';
+                        error.logisticsID = logistics.id;
+                        throw error;
+                    }
                 }
             }
 
+        },
+
+        async GetFreeDeliveryCutOff() {
+            try {
+                const response = await DB.collection('providers').doc('settings').get();
+                return response.data();
+            }
+            catch(error) {
+                console.log(error);
+                throw error;
+            }
+        },
+
+        async GetDeliveryDiscounts() {
+            try {
+                const discountRef = await DB.collection('providers').doc('settings').collection('delivery_discount').get();
+                const discounts = discountRef.docs.map(discount => {
+                    const data = discount.data();
+                    data.id = discount.id;
+                    return data;
+                });
+                return discounts;
+
+            } catch(error) {
+                console.log(error)
+                throw error;
+            }
         }
 
 
