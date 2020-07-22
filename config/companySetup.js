@@ -38,6 +38,7 @@ async function copyCompanySetUp() {
             { title: 'Sip Avenue', value: 'SipAvenue' },
             { title: 'Buffalo\'s Wings N Things', value: 'BuffaloWingsNThings' },
             { title: 'AppSell Franchise', value: 'AppSellFranchise' },
+            { title: 'Cacao Culture Farms', value: 'CacaoCultureFarms' },
             { title: 'Matenara', value: 'Matenara' },
             { title: 'Rraw', value: 'Rraw' },
             
