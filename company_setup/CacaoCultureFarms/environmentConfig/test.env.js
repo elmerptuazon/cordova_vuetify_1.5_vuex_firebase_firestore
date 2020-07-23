@@ -13,10 +13,10 @@ module.exports = merge(devEnv, {
   measurementId: '"G-XV2JER7LNT"',
   storageCode: '"CacaoCultureFarmsTestApp"',
   webAdminId: '"admin"',
-  companyName: '"CacaoCultureFarmsTestApp"',
+  companyName: '"Company Name"',
   contactNumber: '"09123456789"',
   version: '"0.6.10"',
-  primaryColor: '"#b81212"',
+  primaryColor: '"#508fe6"',
   environment: '"test"',
   callbackURL: '"https://us-central1-appselltestapp.cloudfunctions.net/callback"'
 })
