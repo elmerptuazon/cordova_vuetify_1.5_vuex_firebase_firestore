@@ -251,6 +251,13 @@
                       <span class="font-weight-bold" v-else>N/A</span>
                     </div>
                   </v-flex>
+                  <v-flex xs12 mt-1>
+                    <div>
+                      Maximum Order: 
+                      <span class="font-weight-bold" v-if="variant.maximumOrder"> {{ variant.maximumOrder }} pcs.</span>
+                      <span class="font-weight-bold" v-else>N/A</span>
+                    </div>
+                  </v-flex>
                 </div>
               </v-layout>
 
@@ -306,7 +313,10 @@
                 <v-flex xs2 pa-2>
                   <v-btn color="primary" icon v-if="user.type === 'Reseller'"
                     @click="attribute.quantity = (Number(attribute.quantity) + 1) || 0"
-                    :disabled="attribute.quantity >= Number(variant.availableQTY)"
+                    :disabled="
+                      (attribute.quantity >= Number(variant.availableQTY)) ||
+                      (attribute.quantity >= Number(variant.maximumOrder))
+                    "
                   >
                     <v-icon>add</v-icon>
                   </v-btn>
@@ -824,6 +834,7 @@ export default {
       if(this.addToStockOrderLoading) return true;
       if(Number(this.variant.availableQTY) === 0) return true;
       if(Number(this.attribute.quantity) < Number(this.variant.minimumOrder)) return true;
+      if(Number(this.attribute.quantity) < Number(this.variant.maximumOrder)) return true;
       if(Number(this.attribute.quantity) > Number(this.variant.availableQTY)) return true; 
       if(Number(this.attribute.quantity) <= 0) return true;
       
