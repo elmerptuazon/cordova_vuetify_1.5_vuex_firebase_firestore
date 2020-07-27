@@ -236,7 +236,10 @@
             </v-flex>
             <v-flex xs2 pa-2>
                 <v-btn color="primary" icon 
-                  :disabled="selectedProduct.qty <= 0" 
+                  :disabled="
+                    (Number(selectedProduct.qty) <= 0) ||
+                    (Number(selectedProduct.qty) <= Number(selectedProduct.minimumOrder))
+                  " 
                   @click="selectedProduct.qty = (Number(selectedProduct.qty) - 1) || 0"
                 >
                   <v-icon>remove</v-icon>
@@ -244,7 +247,10 @@
             </v-flex>
             <v-flex xs2 pa-2>
                 <v-btn color="primary" icon 
-                  :disabled="selectedProduct.qty >= selectedProduct.availableQTY"
+                  :disabled="
+                    (Number(selectedProduct.qty) >= Number(selectedProduct.availableQTY)) ||
+                    (Number(selectedProduct.qty) >= Number(selectedProduct.maximumOrder))
+                  "
                   @click="selectedProduct.qty = (Number(selectedProduct.qty) + 1) || 0">
                   <v-icon>add</v-icon>
                 </v-btn>
@@ -345,6 +351,7 @@ export default {
         item.availableQTY = parseInt(item.onHandQTY) - parseInt(item.allocatedQTY);
         item.isOutofStock = variant.isOutofStock;
         item.minimumOrder = variant.minimumOrder;
+        item.maximumOrder = variant.maximumOrder;
 
         if(!item.isOutofStock && item.availableQTY === 0) {
           item.isOutofStock = true;
@@ -617,6 +624,7 @@ export default {
       if(this.saveProductButton) return true;
       // if(Number(this.selectedProduct.qty) < Number(this.selectedProduct.minimumOrder)) return true;
       if(Number(this.selectedProduct.qty) > Number(this.selectedProduct.availableQTY)) return true;
+      if(Number(this.selectedProduct.qty) > Number(this.selectedProduct.maximumOrder)) return true;
       if(Number(this.selectedProduct.qty) <= 0) return true;
 
       return false;
