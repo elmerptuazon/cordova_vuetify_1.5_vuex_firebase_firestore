@@ -212,9 +212,11 @@
                       {{ (item.qty * item.resellerPrice) | currency("P") }}
                     </td>
                   </tr>
+                  
                   <tr>
                     <td colspan="3"></td>
                   </tr>
+
                   <tr>
                     <td class="caption text-xs-right" colspan="2">
                       Subtotal
@@ -223,14 +225,7 @@
                       {{ subTotal | currency("P") }}
                     </td>
                   </tr>
-                  <!-- <tr>
-                    <td class="caption text-xs-right" colspan="2">
-                      Discount
-                    </td>
-                    <td class="caption text-xs-right">
-                      <span v-if="discount">{{ discount }}%</span>
-                    </td>
-                  </tr> -->
+                  
                   <tr>
                     <td class="caption text-xs-right" colspan="2">
                       Shipping Fee
@@ -243,6 +238,30 @@
                       <span v-else>{{ shippingFee | currency("P") }}</span>
                     </td>
                   </tr>
+
+                  <tr v-if="deliveryDiscount">
+                    <td class="caption text-xs-right" colspan="2">
+                      Shipping Fee Discount
+                    </td>
+                    <td class="caption text-xs-right">
+                      <span v-if="deliveryDiscount.type === 'amount'"> 
+                        {{ deliveryDiscount.amount | currency("P") }}
+                      </span>
+                      <span v-else>
+                        {{ deliveryDiscount.amount + ' %' }}
+                      </span>
+                    </td>
+                  </tr>
+
+                  <tr v-if="deliveryDiscount">
+                    <td class="caption text-xs-right" colspan="2">
+                      New Shipping Fee
+                    </td>
+                    <td class="caption text-xs-right">
+                      <span>{{ discountedShippingFee | currency("P") }}</span>
+                    </td>
+                  </tr>
+
                   <tr>
                     <td class="caption text-xs-right" colspan="2">
                       Total
@@ -364,6 +383,7 @@ export default {
     },
     userHasNoOrders: '',
     freeDeliveryCutOff: 0.00,
+    deliveryDiscountList: [],
 
     logisticsID: "pick-up",
     loaderDialogMessage: null,
@@ -418,6 +438,9 @@ export default {
     try {
       const freeDelivery = await this.$store.dispatch('providers/GetFreeDeliveryCutOff');
       this.freeDeliveryCutOff = freeDelivery.cutOffPrice;
+
+      this.deliveryDiscountList = await this.$store.dispatch('providers/GetDeliveryDiscounts');
+
       this.loaderDialogMessage = null;
       this.loaderDialog = false;
 
@@ -495,21 +518,26 @@ export default {
         this.payment.amount = this.total;
         this.stockOrder.logisticsDetails = {
           logisticProvider: this.logisticsID,
-          shippingFee: this.shippingFee
+          shippingFee: this.shippingFee, 
+          resellersShippingFee: this.shippingFee,
+          isFreeShipping: false
         };
 
         //this a flag that tells the dashboard that this is a new order and hasnt been read by the brand company.
         this.stockOrder.isRead = false;
         
-        
-        // if(this.userHasNoOrders) {
-        //   this.stockOrder.logisticsDetails.isFreeShipping = true;
-        //   user.hasNoOrders = false;
-        //   await this.$store.dispatch('accounts/UPDATE_ACCOUNT', user);
-        // }
-
+        //if sotck order price is greater than or equal to the free delivery cut-off price
+        //make shipping fee FREE, but show to the company the original shipping fee
         if(this.subTotal >= this.freeDeliveryCutOff) {
           this.stockOrder.logisticsDetails.isFreeShipping = true;
+          this.stockOrder.logisticsDetails.resellersShippingFee = 0.00;
+          this.stockOrder.logisticsDetails.shippingFee = this.shippingFee;
+        
+        //if the stock order has delivery discount, show the original shipping fee to the company
+        } else if(this.deliveryDiscount) {
+          this.stockOrder.logisticsDetails.resellersShippingFee = this.discountedShippingFee;
+          this.stockOrder.logisticsDetails.shippingFee = this.shippingFee;
+          this.stockOrder.logisticsDetails.isDiscountedDelivery = true;
         }
 
         //check kung CC or COD
@@ -704,57 +732,89 @@ export default {
         0
       );
     },
-    discount() {
-      let discount;
-      // if (this.subTotal >= 1500 && this.subTotal <= 2999) {
-      //   discount = 10;
-      // } else if (this.subTotal >= 3000 && this.subTotal <= 4999) {
-      //   discount = 15;
-      // } else if (this.subTotal >= 5000 && this.subTotal <= 9999) {
-      //   discount = 18;
-      // } else if (this.subTotal >= 10000 && this.subTotal <= 24999) {
-      //   discount = 20;
-      // } else {
-      //   discount = null;
-      // }
-      return discount;
-    },
 
     total() {
-      if(this.discount && (this.subTotal >= this.freeDeliveryCutOff)) { 
-        //dont include delivery free if stock order amount exceeds the freeDeliveryCutOff price quota
-        return (
-          this.subTotal -
-          (this.discount / 100) * this.subTotal
-        );
+      const isFreeDelivery = this.subTotal >= this.freeDeliveryCutOff;
 
-      } else if(this.subTotal >= this.freeDeliveryCutOff) {
+      if(isFreeDelivery) {
         return this.subTotal;
 
-      } else if (this.discount) {
-        return (
-          this.subTotal -
-          (this.discount / 100) * this.subTotal +
-          this.shippingFee
-        );
+      } else if (this.deliveryDiscount) {
+        return this.subTotal + this.discountedShippingFee;
+
       } else {
         return this.subTotal + this.shippingFee;
       }
     },
+
     shippingFee() {
       const logisticsData = this.logisticsProvider.find(
         logistics => logistics.id === this.logisticsID
       );
 
-      // if(this.userHasNoOrders) {
-      //   return 0.00; //if the reseller hasnt made any orders yet, then they are entitled for a free delivery
-      // }
+      return Number(logisticsData.shippingFee);
+    },
 
-      // if(this.subTotal >= this.freeDeliveryCutOff) {
-      //   return 0.00;
-      // }
+    deliveryDiscount() {
+      if(this.logisticsID === 'pick-up') {
+        return null;
 
-      return logisticsData.shippingFee;
+      } else if(this.subTotal >= this.freeDeliveryCutOff) {
+        return null;
+      }
+
+      const cityBasedDiscount = this.deliveryDiscountList.find(discount => {
+        return (
+          (discount.city === this.userAddress.citymun) &&
+          (discount.province === this.userAddress.province)
+        );
+      });
+
+      console.log("city discount", cityBasedDiscount)
+      if(cityBasedDiscount) return cityBasedDiscount;
+      
+      //if there is no city-based discount, then search for province-based disccount
+      const provinceBasedDiscount = this.deliveryDiscountList.find(discount => {
+        return (
+          (discount.province === this.userAddress.province) &&
+          (!discount.city || discount.city === null)
+        );
+      });
+
+      console.log("province discount", provinceBasedDiscount)
+      if(provinceBasedDiscount) return provinceBasedDiscount;
+
+      //if there are no province-base discount, then serach for region-based discount
+      const provinceDetails = Provinces.find(province => province.name === this.userAddress.province);
+      const regionOfProvince = Regions.find(region => region.key === provinceDetails.region);
+      const regionBasedDiscount = this.deliveryDiscountList.find(discount => {
+        return (
+          (discount.region === regionOfProvince.name) &&
+          (!discount.province || discount.province === null)
+        );
+      });
+      console.log("region discount", regionBasedDiscount)
+      if(regionBasedDiscount) return regionBasedDiscount;
+    },
+
+    discountedShippingFee() {
+      if(this.subTotal >= this.freeDeliveryCutOff) {
+        return this.shippingFee;
+      }
+
+      if(!this.deliveryDiscount) {
+        return this.shippingFee;
+      }
+
+      const { type, amount } = this.deliveryDiscount;
+      
+      let newShippingFee;
+      if(type === 'amount') 
+        newShippingFee = this.shippingFee - Number(amount);
+      else 
+        newShippingFee = this.shippingFee - ((Number(amount) / 100) * this.shippingFee);
+
+      return newShippingFee > 0 ? newShippingFee : 0;
     },
 
     userAddress() {
