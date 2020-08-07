@@ -324,7 +324,7 @@
                   <v-btn 
                     v-if="user.type === 'Reseller' && selectedButton === 'Stock Order'"
                     color="primary" icon 
-                    :disabled="attribute.quantity <= 0 || Number(attribute.quantity) <= Number(variant.minimumOrder)"
+                    :disabled="Number(attribute.quantity) <= 0 || Number(attribute.quantity) <= Number(variant.minimumOrder)"
                     @click="attribute.quantity = (Number(attribute.quantity) - 1) || 0"
                   >
                     <v-icon>remove</v-icon>
@@ -332,7 +332,7 @@
                   <v-btn 
                     v-else
                     color="primary" icon 
-                    :disabled="attribute.quantity <= 0"
+                    :disabled="Number(attribute.quantity) <= 0"
                     @click="attribute.quantity = (Number(attribute.quantity) - 1) || 0"
                   >
                     <v-icon>remove</v-icon>
@@ -343,8 +343,8 @@
                   <v-btn color="primary" icon v-if="user.type === 'Reseller' && selectedButton === 'Stock Order'"
                     @click="attribute.quantity = (Number(attribute.quantity) + 1) || 0"
                     :disabled="
-                      (attribute.quantity >= Number(variant.availableQTY)) ||
-                      (attribute.quantity >= Number(variant.maximumOrder))
+                      (Number(attribute.quantity) >= Number(variant.availableQTY)) ||
+                      (Number(attribute.quantity) >= Number(variant.maximumOrder))
                     "
                   >
                     <v-icon>add</v-icon>
@@ -863,7 +863,7 @@ export default {
       if(this.addToStockOrderLoading) return true;
       if(Number(this.variant.availableQTY) === 0) return true;
       if(Number(this.attribute.quantity) < Number(this.variant.minimumOrder)) return true;
-      if(Number(this.attribute.quantity) < Number(this.variant.maximumOrder)) return true;
+      if(Number(this.attribute.quantity) > Number(this.variant.maximumOrder)) return true;
       if(Number(this.attribute.quantity) > Number(this.variant.availableQTY)) return true; 
       if(Number(this.attribute.quantity) <= 0) return true;
       
