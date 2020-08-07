@@ -220,8 +220,18 @@
             <v-flex xs12>
               <div v-if="!selectedProduct.isOutofStock" 
                 :class="[ isLowInStocks(selectedProduct) ? 'subheading red--text' : 'subheading']">
-                Available Stock: 
-                <span class="font-weight-bold">{{ selectedProduct.availableQTY }} pcs.</span>
+                <div>
+                  Available Stock: 
+                  <span class="font-weight-bold">{{ selectedProduct.availableQTY }} pcs.</span>
+                </div>
+                <div>
+                  Minimum Order:
+                  <span class="font-weight-bold">{{ selectedProduct.minimumOrder }}</span>
+                </div>
+                <div>
+                  Maximum Order:
+                  <span class="font-weight-bold">{{ selectedProduct.maximumOrder }}</span>
+                </div>
               </div>
               <div v-else class="subheading red--text font-weight-bold">
                 OUT OF STOCK
@@ -622,7 +632,7 @@ export default {
   computed: {
     disableSaveButton() {
       if(this.saveProductButton) return true;
-      // if(Number(this.selectedProduct.qty) < Number(this.selectedProduct.minimumOrder)) return true;
+      if(Number(this.selectedProduct.qty) < Number(this.selectedProduct.minimumOrder)) return true;
       if(Number(this.selectedProduct.qty) > Number(this.selectedProduct.availableQTY)) return true;
       if(Number(this.selectedProduct.qty) > Number(this.selectedProduct.maximumOrder)) return true;
       if(Number(this.selectedProduct.qty) <= 0) return true;
