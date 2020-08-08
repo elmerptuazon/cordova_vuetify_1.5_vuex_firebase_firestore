@@ -12,7 +12,7 @@ module.exports = merge(devEnv, {
   messagingSenderId: '"1069219513340"',
   storageCode: '"AppSellFranchise"',
   webAdminId: '"admin"',
-  companyName: '"AppSell Franchise"',
+  companyName: '"AppSell Demo App"',
   contactNumber: '"09123456789"',
   version: '"0.6.10"',
   primaryColor: '"#d66807"',

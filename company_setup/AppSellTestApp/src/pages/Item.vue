@@ -220,7 +220,15 @@
         <v-card-text class="pa-0">
           <v-container fluid>
             <v-form v-model="valid" ref="form" lazy-validation>
-              <v-layout row wrap align-center justify-start v-if="user.type === 'Reseller'"> 
+              <v-layout row wrap align-center justify-start>
+                <v-flex xs12>
+                  <div class="subheading mb-2">
+                    Product: <span class="font-weight-bold">{{ product.name }}</span>
+                  </div>
+                </v-flex>
+              </v-layout>
+              
+              <v-layout row wrap align-center justify-start v-if="user.type === 'Reseller' && selectedButton === 'Stock Order'"> 
                 <v-flex xs12 mt-2 v-if="!variant.hasOwnProperty('name') || attribLoading || !variant ">
                   <div v-if="attribLoading">
                     <v-progress-circular indeterminate color="primary"></v-progress-circular>
@@ -251,27 +259,55 @@
                       <span class="font-weight-bold" v-else>N/A</span>
                     </div>
                   </v-flex>
+                  <v-flex xs12 mt-1>
+                    <div>
+                      Maximum Order: 
+                      <span class="font-weight-bold" v-if="variant.maximumOrder"> {{ variant.maximumOrder }} pcs.</span>
+                      <span class="font-weight-bold" v-else>N/A</span>
+                    </div>
+                  </v-flex>
                 </div>
               </v-layout>
 
               <v-layout row wrap v-if="product.attributes.length" my-3>
-                <v-flex
-                  xs12
-                  v-for="(a, index) in product.attributes"
-                  :key="index"
-                >
-                  <v-select
-                    v-model="attribute[a.name.toLowerCase()]"
-                    :items="a.items"
-                    :label="a.name"
-                    item-text="name"
-                    item-value="name"
-                    :rules="basicRules"
-                    @change="fetchVariant"
-                    single-line required
-                    menu-props="bottom"
-                  ></v-select>
-                </v-flex>
+                <span v-if="user.type === 'Reseller' && selectedButton === 'Stock Order'">
+                  <v-flex
+                    xs12
+                    v-for="(a, index) in product.attributes"
+                    :key="index"
+                  >
+                    <v-select
+                      v-model="attribute[a.name.toLowerCase()]"
+                      :items="a.items"
+                      :label="a.name"
+                      item-text="name"
+                      item-value="name"
+                      :rules="basicRules"
+                      @change="fetchVariant"
+                      single-line required
+                      menu-props="bottom"
+                    ></v-select>
+                  </v-flex>
+                </span>
+                
+                <span v-else>
+                  <v-flex
+                    xs12
+                    v-for="(a, index) in product.attributes"
+                    :key="index"
+                  >
+                    <v-select
+                      v-model="attribute[a.name.toLowerCase()]"
+                      :items="a.items"
+                      :label="a.name"
+                      item-text="name"
+                      item-value="name"
+                      :rules="basicRules"
+                      single-line required
+                      menu-props="bottom"
+                    ></v-select>
+                  </v-flex>
+                </span>
               </v-layout>
 
               <v-layout row wrap align-center justify-start mt-3 px-1> 
@@ -286,17 +322,17 @@
 
                 <v-flex xs2 pa-2>
                   <v-btn 
-                    v-if="user.type === 'Reseller'"
+                    v-if="user.type === 'Reseller' && selectedButton === 'Stock Order'"
                     color="primary" icon 
-                    :disabled="attribute.quantity <= 0 || Number(attribute.quantity) <= Number(variant.minimumOrder)"
+                    :disabled="Number(attribute.quantity) <= 0 || Number(attribute.quantity) <= Number(variant.minimumOrder)"
                     @click="attribute.quantity = (Number(attribute.quantity) - 1) || 0"
                   >
                     <v-icon>remove</v-icon>
                   </v-btn>
                   <v-btn 
-                    v-else 
+                    v-else
                     color="primary" icon 
-                    :disabled="attribute.quantity <= 0"
+                    :disabled="Number(attribute.quantity) <= 0"
                     @click="attribute.quantity = (Number(attribute.quantity) - 1) || 0"
                   >
                     <v-icon>remove</v-icon>
@@ -304,9 +340,12 @@
                 </v-flex>
 
                 <v-flex xs2 pa-2>
-                  <v-btn color="primary" icon v-if="user.type === 'Reseller'"
+                  <v-btn color="primary" icon v-if="user.type === 'Reseller' && selectedButton === 'Stock Order'"
                     @click="attribute.quantity = (Number(attribute.quantity) + 1) || 0"
-                    :disabled="attribute.quantity >= Number(variant.availableQTY)"
+                    :disabled="
+                      (Number(attribute.quantity) >= Number(variant.availableQTY)) ||
+                      (Number(attribute.quantity) >= Number(variant.maximumOrder))
+                    "
                   >
                     <v-icon>add</v-icon>
                   </v-btn>
@@ -824,6 +863,7 @@ export default {
       if(this.addToStockOrderLoading) return true;
       if(Number(this.variant.availableQTY) === 0) return true;
       if(Number(this.attribute.quantity) < Number(this.variant.minimumOrder)) return true;
+      if(Number(this.attribute.quantity) > Number(this.variant.maximumOrder)) return true;
       if(Number(this.attribute.quantity) > Number(this.variant.availableQTY)) return true; 
       if(Number(this.attribute.quantity) <= 0) return true;
       

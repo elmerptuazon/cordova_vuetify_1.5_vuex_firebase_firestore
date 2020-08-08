@@ -140,6 +140,22 @@ const providers = {
                 console.log(error);
                 throw error;
             }
+        },
+
+        async GetDeliveryDiscounts() {
+            try {
+                const discountRef = await DB.collection('providers').doc('settings').collection('delivery_discount').get();
+                const discounts = discountRef.docs.map(discount => {
+                    const data = discount.data();
+                    data.id = discount.id;
+                    return data;
+                });
+                return discounts;
+
+            } catch(error) {
+                console.log(error)
+                throw error;
+            }
         }
 
 

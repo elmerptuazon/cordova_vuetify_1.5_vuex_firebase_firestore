@@ -13,7 +13,6 @@ module.exports = {
   contactNumber: '"09123456789"',
   version: '"0.6.10"',
   primaryColor: '"#bfa893"',
-  // primaryColor: '"#d9bea7"',
   environment: '"live"',
-  callbackURL: '"https://us-central1-appselltestapp.cloudfunctions.net/callback/checkPaymentStatus"'
+  callbackURL: '"https://us-central1-farmfetchdev-7031c.cloudfunctions.net/callback/checkPaymentStatus"'
 }

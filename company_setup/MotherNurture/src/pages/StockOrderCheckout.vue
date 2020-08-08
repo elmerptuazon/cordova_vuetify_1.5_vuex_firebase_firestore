@@ -93,20 +93,10 @@
                   v-for="logistics in logisticsProvider"
                   :key="logistics.id"
                   min-width="275px"
+                  class="mt-2"
                 >
-                  <v-card-title>
-                    <v-radio 
-                      :value="logistics.id" 
-                      :disabled="logistics.shippingFee === 'error'"
-                    ></v-radio>
-                    <span class="subheading">{{
-                      logistics.id.toUpperCase()
-                    }}</span>
-                    <span v-if="logistics.shippingFee === 'error'" class="font-weight-bold">(CANNOT BE SELECTED)</span>
-                  </v-card-title>
-                  <v-divider></v-divider>
-                  <v-card-text>
-                    <v-layout>
+                  <v-container>
+                    <v-layout row align-center justify-start mx-2>
                       <v-flex xs5>
                         <v-img
                           :src="logistics.logoURL"
@@ -114,23 +104,30 @@
                           contain
                         ></v-img>
                       </v-flex>
-                      <v-flex xs7>
-                        <v-card-title primary-title>
-                          <div>
-                            <div class="subheading">Shipping Fee:</div>
-                            <div 
-                              v-if="subTotal >= freeDeliveryCutOff && 
-                                logistics.id !== 'pick-up'
-                              " 
-                              class="primary--text"
-                            > FREE SHIPPING</div>
-                            <div v-else-if="logistics.shippingFee === 'error'">ERROR</div>
-                            <div v-else>+ {{ logistics.shippingFee | currency('P ') }} </div>
+
+                      <v-flex xs5 offset-xs1>
+                        <div class="font-weight-bold subheading">
+                          {{ logistics.id.toUpperCase() }}
+                        </div>
+                        <div>
+                          <div v-if="logistics.id === 'pick-up'"></div>
+                          <div v-else>
+                            <span>
+                              + {{ logistics.shippingFee | currency("&#8369; ") }} 
+                            </span>
                           </div>
-                        </v-card-title>
+                        </div>
                       </v-flex>
+
+                      <v-flex xs1>
+                         <v-radio 
+                          :value="logistics.id" 
+                        ></v-radio>
+                      </v-flex>
+
                     </v-layout>
-                  </v-card-text>
+                  </v-container>
+                  <!-- <v-divider class="my-2 black"></v-divider> -->
                 </v-card>
 
                 <v-layout align-center justify-end row px-6 mt-4>
@@ -209,46 +206,61 @@
                       {{ item.qty }}
                     </td>
                     <td class="caption text-xs-right border-bottom">
-                      {{ (item.qty * item.resellerPrice) | currency("P") }}
+                      {{ (item.qty * item.resellerPrice) | currency('&#8369;') }}
                     </td>
                   </tr>
+
                   <tr>
                     <td colspan="3"></td>
                   </tr>
+
                   <tr>
                     <td class="caption text-xs-right" colspan="2">
                       Subtotal
                     </td>
                     <td class="caption text-xs-right">
-                      {{ subTotal | currency("P") }}
+                      {{ subTotal | currency('&#8369;') }}
                     </td>
                   </tr>
-                  <!-- <tr>
-                    <td class="caption text-xs-right" colspan="2">
-                      Discount
-                    </td>
-                    <td class="caption text-xs-right">
-                      <span v-if="discount">{{ discount }}%</span>
-                    </td>
-                  </tr> -->
+
                   <tr>
                     <td class="caption text-xs-right" colspan="2">
                       Shipping Fee
                     </td>
                     <td class="caption text-xs-right">
-                      <span 
-                        v-if="subTotal >= freeDeliveryCutOff" 
-                        class="primary--text"
-                      >FREE</span>
-                      <span v-else>{{ shippingFee | currency("P") }}</span>
+                      <span>{{ shippingFee | currency('&#8369;') }}</span>
                     </td>
                   </tr>
+
+                  <tr v-if="isDeliveryDiscounted">
+                    <td class="caption text-xs-right" colspan="2">
+                      Shipping Fee Discount
+                    </td>
+                    <td class="caption text-xs-right">
+                      <span v-if="deliveryDiscount.type === 'amount'"> 
+                        {{ deliveryDiscount.amount | currency('&#8369;') }}
+                      </span>
+                      <span v-else>
+                        {{ deliveryDiscount.amount + ' %' }}
+                      </span>
+                    </td>
+                  </tr>
+
+                  <tr v-if="isDeliveryDiscounted">
+                    <td class="caption text-xs-right" colspan="2">
+                      New Shipping Fee
+                    </td>
+                    <td class="caption text-xs-right">
+                      <span>{{ discountedShippingFee | currency('&#8369;') }}</span>
+                    </td>
+                  </tr>
+
                   <tr>
                     <td class="caption text-xs-right" colspan="2">
                       Total
                     </td>
                     <td class="caption text-xs-right">
-                      <strong>{{ total | currency("P") }}</strong>
+                      <strong>{{ total | currency('&#8369;') }}</strong>
                     </td>
                   </tr>
                 </tbody>
@@ -296,16 +308,20 @@
                   value="GrabPay"
                   :disabled="totalIsInMinimumPrice || totalIsInMaximumPrice"
                 ></v-radio>
+                <v-radio
+                  label="Bank Receipt / Payment Receipt"
+                  value="POP"
+                ></v-radio>
                 <div v-if="totalIsInMinimumPrice" class="mt-1">
                   <v-divider></v-divider>
                   <div class="mt-2 body-1 red--text font-italic font-weight-bold">
-                    Online payment is only available for stock order above {{ 100 | currency("PHP ")}}
+                    Online payment is only available for stock order above {{ 100 | currency('&#8369;') }}
                   </div>  
                 </div>
                 <div v-if="totalIsInMaximumPrice" class="mt-1">
                   <v-divider></v-divider>
                   <div class="mt-2 body-1 red--text font-italic font-weight-bold">
-                    E-Wallet payments are not available for stock order above {{ 100000 | currency("PHP ")}}
+                    E-Wallet payments are not available for stock order above {{ 100000 | currency('&#8369; ') }}
                   </div>  
                 </div>
                 <v-divider v-if="payment.paymentType === 'CC'"></v-divider>
@@ -334,7 +350,7 @@
               :disabled="stockOrder.items.length < 1"
             >
               <v-icon left>check_circle</v-icon>
-              <span v-if="payment.paymentType === 'COD'">
+              <span v-if="payment.paymentType === 'COD' || payment.paymentType === 'POP'">
                 Submit Order
               </span>
               <span v-else>
@@ -409,6 +425,8 @@ import ConfirmationModal from "@/components/ConfirmationModal";
 import creditCardForm from "@/components/creditCardForm";
 import Modal from "@/components/Modal";
 import GCashGrabPayForm from "@/components/GCashGrabPayForm";
+import Regions from 'philippines/regions';
+import Provinces from 'philippines/provinces';
 
 export default {
   mixins: [mixins],
@@ -431,8 +449,7 @@ export default {
       accountDetails: null,
     },
 
-    userHasNoOrders: '',
-    freeDeliveryCutOff: 0.00,
+    deliveryDiscountList: [],
 
     logisticsID: "pick-up",
     loaderDialogMessage: null,
@@ -451,7 +468,8 @@ export default {
     inAppBrowserRef: null,
 
   }),
-  mounted() {
+  
+  async mounted() {
     this.cordovaBackButton(this.goBack);
     
     this.loaderDialogMessage = 'Please Wait...';
@@ -459,34 +477,53 @@ export default {
 
     this.checkoutHeight = window.innerHeight;
     this.checkoutWidth = window.innerWidth;
+    
+    let stockOrder;
+    try {
+      stockOrder = await this.$store.dispatch("stock_orders/GET"); 
+    } catch(error) {
+      console.log(error);
+      this.loaderDialogMessage = null;
+      this.loaderDialog = false;
+    }
+    
+    if(!stockOrder.success) {
+      this.loaderDialogMessage = null;
+      this.loaderDialog = false;
+      return;
+    }
 
-    this.$store
-      .dispatch("stock_orders/GET")
-      .then(res => {
-        console.log(res.data);
-        if (res.success) {
-          this.stockOrder = Object.assign({}, res.data);
-        }
-        
-      })
-      .catch(error => {
-        console.log(error);
-        this.loaderDialogMessage = null;
-        this.loaderDialog = false;
+    this.stockOrder = Object.assign({}, stockOrder.data);
+
+    let itemsToRemove = [];
+    for(const item of this.stockOrder.items) {
+      const variant = await this.$store.dispatch('variants/GET_VARIANT', {
+        sku: item.sku,
+        productId: item.productId
       });
 
-    this.$store
-      .dispatch('providers/GetFreeDeliveryCutOff')
-      .then(res => {
-        this.freeDeliveryCutOff = res.cutOffPrice;
-        this.loaderDialogMessage = null;
-        this.loaderDialog = false;
-      })
-      .catch(error => {
-        console.log(error);
-        this.loaderDialogMessage = null;
-        this.loaderDialog = false;
-      });
+      if(variant.isOutofStock) itemsToRemove.push(item);
+      else if(item.qty > variant.availableQTY) itemsToRemove.push(items);
+    }
+
+    for(const item of itemsToRemove) {
+      const index = this.stockOrder.items.findIndex(stockOrderItem => item.productId === stockOrderItem.productId);
+      if(index !== -1) {
+        this.stockOrder.items.splice(index, 1);
+      }
+    }
+
+    try {
+      this.deliveryDiscountList = await this.$store.dispatch('providers/GetDeliveryDiscounts');
+      
+      this.loaderDialogMessage = null;
+      this.loaderDialog = false;
+
+    } catch(error) {
+      console.log(error);
+      this.loaderDialogMessage = null;
+      this.loaderDialog = false;
+    }
     
     //add event listener to exit browser dialog when the success or fail redirect URL are being loaded 
     window.addEventListener(
@@ -687,14 +724,22 @@ export default {
         this.payment.amount = this.total;
         this.stockOrder.logisticsDetails = {
           logisticProvider: this.logisticsID,
-          shippingFee: this.shippingFee
+          shippingFee: this.shippingFee, //this will show the original shipping fee to the dashboard
+          resellersShippingFee: this.shippingFee,
+          isDiscountedDelivery: false
         };
 
         //this a flag that tells the dashboard that this is a new order and hasnt been read by the brand company.
         this.stockOrder.isRead = false;
-        
-        //determine if this shipping is free
-        this.stockOrder.logisticsDetails.isFreeShipping = this.subTotal >= this.freeDeliveryCutOff;
+         
+        //if the stock order has delivery discount, show the original shipping fee to the company
+        if(this.isDeliveryDiscounted) {
+          this.stockOrder.logisticsDetails.resellersShippingFee = this.discountedShippingFee;
+          this.stockOrder.logisticsDetails.shippingFee = this.shippingFee;
+          this.stockOrder.logisticsDetails.isDiscountedDelivery = true;
+          this.stockOrder.logisticsDetails.discountType = this.deliveryDiscount.type;
+          this.stockOrder.logisticsDetails.discountAmount = this.deliveryDiscount.amount;
+        }
 
         //check kung CC or COD
         switch(this.payment.paymentType) {
@@ -780,6 +825,24 @@ export default {
             );
 
             this.stockOrder.paymentDetails = paymentResult;
+
+            console.log(this.stockOrder);
+            //this flow will always result to success, any error should be thrown
+            //and handled in the catch statement
+
+            await this.submitOrder(paymentResult);
+
+            break;
+          }
+
+          case "POP": {
+            this.$refs.finalizeOrder.close();
+            let paymentResult = {
+              amount: this.total,
+              paymentType: 'POP',
+              paymentStatus: '-',
+              proofOfPayment: null,
+            }
 
             console.log(this.stockOrder);
             //this flow will always result to success, any error should be thrown
@@ -955,6 +1018,10 @@ export default {
 
       } else if(this.payment.paymentType === 'COD') {
         this.stockOrder.paymentDetails = Object.assign({}, paymentResult);
+      
+      } else if(this.payment.paymentType === 'POP') {
+        this.stockOrder.paymentDetails = Object.assign({}, paymentResult);
+      
       }
 
       console.log(this.stockOrder);
@@ -1144,53 +1211,90 @@ export default {
         0
       );
 
-      return weight > 0 ? weight : 1;
-    },
-    discount() {
-      let discount;
-      // if (this.subTotal >= 1500 && this.subTotal <= 2999) {
-      //   discount = 10;
-      // } else if (this.subTotal >= 3000 && this.subTotal <= 4999) {
-      //   discount = 15;
-      // } else if (this.subTotal >= 5000 && this.subTotal <= 9999) {
-      //   discount = 18;
-      // } else if (this.subTotal >= 10000 && this.subTotal <= 24999) {
-      //   discount = 20;
-      // } else {
-      //   discount = null;
-      // }
-      return discount;
+      return weight > 0 ? weight : 1000;
     },
 
     total() {
-      const isFreeDelivery = this.subTotal >= this.freeDeliveryCutOff;
+      if(this.isDeliveryDiscounted) {
+        return this.subTotal + this.discountedShippingFee;
 
-      if(this.discount && isFreeDelivery) { 
-        //dont include delivery free if stock order amount exceeds the freeDeliveryCutOff price quota
-        return (
-          this.subTotal -
-          (this.discount / 100) * this.subTotal
-        );
-
-      } else if(isFreeDelivery) {
-        return this.subTotal;
-
-      } else if (this.discount) {
-        return (
-          this.subTotal -
-          (this.discount / 100) * this.subTotal +
-          this.shippingFee
-        );
       } else {
         return this.subTotal + this.shippingFee;
       }
     },
+
     shippingFee() {
       const logisticsData = this.logisticsProvider.find(
         logistics => logistics.id === this.logisticsID
       );
 
-      return logisticsData.shippingFee;
+      return Number(logisticsData.shippingFee);
+    },
+
+    //this will find a delivery discount based on the reseller's location
+    deliveryDiscount() {
+      if(this.logisticsID === 'pick-up') {
+        return null;
+      }
+
+      const cityBasedDiscount = this.deliveryDiscountList.find(discount => {
+        return (
+          (discount.city === this.userAddress.citymun) &&
+          (discount.province === this.userAddress.province)
+        );
+      });
+
+      console.log("city discount", cityBasedDiscount)
+      if(cityBasedDiscount) return cityBasedDiscount;
+      
+      //if there is no city-based discount, then search for province-based disccount
+      const provinceBasedDiscount = this.deliveryDiscountList.find(discount => {
+        return (
+          (discount.province === this.userAddress.province) &&
+          (!discount.city || discount.city === null)
+        );
+      });
+
+      console.log("province discount", provinceBasedDiscount)
+      if(provinceBasedDiscount) return provinceBasedDiscount;
+
+      //if there are no province-base discount, then serach for region-based discount
+      const provinceDetails = Provinces.find(province => province.name === this.userAddress.province);
+      const regionOfProvince = Regions.find(region => region.key === provinceDetails.region);
+      const regionBasedDiscount = this.deliveryDiscountList.find(discount => {
+        return (
+          (discount.region === regionOfProvince.name) &&
+          (!discount.province || discount.province === null)
+        );
+      });
+      console.log("region discount", regionBasedDiscount)
+      if(regionBasedDiscount) return regionBasedDiscount;
+
+      return null;
+    },
+
+    isDeliveryDiscounted() {
+      if(!this.deliveryDiscount) return false;
+      
+      return this.subTotal >= this.deliveryDiscount.stockOrderPrice;
+    },
+
+    discountedShippingFee() {
+      //if the amount of the stock order doesnt reach the free delivery quota price from the retrieved delivery discount
+      //then this stock order is not eligeable for delivery discount 
+      if(!this.isDeliveryDiscounted) {
+        return this.shippingFee;
+      }
+
+      const { type, amount } = this.deliveryDiscount;
+      
+      let newShippingFee;
+      if(type === 'amount') 
+        newShippingFee = this.shippingFee - Number(amount);
+      else 
+        newShippingFee = this.shippingFee - ((Number(amount) / 100) * this.shippingFee);
+
+      return newShippingFee > 0 ? newShippingFee : 0;
     },
 
     totalIsInMinimumPrice() {
@@ -1224,7 +1328,7 @@ export default {
       let str = "";
 
       keys.forEach(key => {
-        str += `${key}:${attributes[key]}`;
+        str += `${key.toUpperCase()}: ${attributes[key]}\n`;
       });
 
       return str;

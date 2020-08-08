@@ -477,7 +477,7 @@ const payment = {
                 delete payload.payment.cardDetails;
             }
 
-            payload.payment.paymentStatus = 'Pending';
+            payload.payment.paymentStatus = 'pending';
             return payload.payment;
 
         }
