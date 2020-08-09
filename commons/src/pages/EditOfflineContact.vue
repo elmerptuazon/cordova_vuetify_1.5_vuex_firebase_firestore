@@ -5,9 +5,7 @@
         <v-icon>arrow_back</v-icon>
       </v-btn>
 
-      <v-toolbar-title v-if="$store.state.showToolbarTitles"
-        >Edit Offline Contact</v-toolbar-title
-      >
+      <v-toolbar-title v-if="$store.state.showToolbarTitles">Edit Offline Contact</v-toolbar-title>
     </v-toolbar>
 
     <v-container fluid grid-list-lg>
@@ -22,11 +20,7 @@
             />
           </div>
           <v-avatar :tile="true" size="90px" class="grey lighten-4">
-            <img
-              :src="userData.displayPicture"
-              class="mt-2 elevation-1 flipped"
-              alt="avatar"
-            />
+            <img :src="userData.displayPicture" class="mt-2 elevation-1 flipped" alt="avatar" />
           </v-avatar>
         </div>
         <v-divider></v-divider>
@@ -40,10 +34,7 @@
             ></v-text-field>
           </v-flex>
           <v-flex xs12>
-            <v-text-field
-              label="Middle Name"
-              v-model="userData.middleInitial"
-            ></v-text-field>
+            <v-text-field label="Middle Name" v-model="userData.middleInitial"></v-text-field>
           </v-flex>
           <v-flex xs12>
             <v-text-field
@@ -57,17 +48,13 @@
             <v-text-field
               label="Birthday"
               append-icon="date_range"
+              readonly
               @click="openCalendar"
               v-model="userData.birthday"
             ></v-text-field>
           </v-flex>
           <v-flex xs12>
-            <v-radio-group
-              :rules="basicRules"
-              required
-              v-model="userData.gender"
-              row
-            >
+            <v-radio-group :rules="basicRules" required v-model="userData.gender" row>
               <v-radio label="Male" value="Male" color="primary"></v-radio>
               <v-radio label="Female" value="Female" color="pink"></v-radio>
             </v-radio-group>
@@ -77,7 +64,7 @@
               append-icon="mail"
               label="Email address"
               v-model="userData.email"
-			  type="email"
+              type="email"
             ></v-text-field>
           </v-flex>
           <v-flex xs12>
@@ -95,16 +82,12 @@
               depressed
               class="blue--text text--darken-2"
               @click="updateUser"
-            >
-              Save Changes
-            </v-btn>
+            >Save Changes</v-btn>
           </v-flex>
         </v-layout>
       </v-form>
     </v-container>
-    <v-snackbar bottom v-model="snackbar">
-      {{ snackbarMessage }}
-    </v-snackbar>
+    <v-snackbar bottom v-model="snackbar">{{ snackbarMessage }}</v-snackbar>
     <Dialog />
     <v-bottom-sheet full-width v-model="sheet">
       <v-list>
@@ -128,189 +111,217 @@
   </div>
 </template>
 
-
 <script>
-import {
-	mixins
-} from '@/mixins'
-import {
-	mapGetters
-} from 'vuex'
-const loader = require('./../../static/img/spinner.gif')
-const malePlaceholder = require('./../../static/img/male-default.jpg')
-const femalePlaceholder = require('./../../static/img/female-default.jpg')
-import {AUTH,COLLECTION} from '@/config/firebaseInit';
-import Modal from '@/components/Modal';
+import { mixins } from "@/mixins";
+import { mapGetters } from "vuex";
+const loader = require("./../../static/img/spinner.gif");
+const malePlaceholder = require("./../../static/img/male-default.jpg");
+const femalePlaceholder = require("./../../static/img/female-default.jpg");
+import { AUTH, COLLECTION } from "@/config/firebaseInit";
+import Modal from "@/components/Modal";
 
 export default {
-	components: {
-		Modal
-	},
-	data: () => ({
-		userData: {},
-		snackbar: false,
-		snackbarMessage: null,
-		valid: true,
-		sheet: false
-	}),
-	created() {
-		this.userData = Object.assign({}, this.$route.params.data)
-		const src = this.userData.gender === 'Male' ? malePlaceholder : femalePlaceholder
-		this.userData.imageObj = {
-			src,
-			loading: loader
-		}
-		// add profile picture if hasPicture prop is true
-		if (this.userData.hasPicture) {
-			this.userData.imageObj.src = this.userData.displayPicture
-		}
-		else
-		{
-			this.userData.displayPicture = src;
-		}
+  components: {
+    Modal,
+  },
+  data: () => ({
+    userData: {},
+    snackbar: false,
+    snackbarMessage: null,
+    valid: true,
+    sheet: false,
+  }),
+  created() {
+    this.userData = Object.assign({}, this.$route.params.data);
+    const src =
+      this.userData.gender === "Male" ? malePlaceholder : femalePlaceholder;
+    this.userData.imageObj = {
+      src,
+      loading: loader,
+    };
+    // add profile picture if hasPicture prop is true
+    if (this.userData.hasPicture) {
+      this.userData.imageObj.src = this.userData.displayPicture;
+    } else {
+      this.userData.displayPicture = src;
+    }
 
-		this.cordovaBackButton(this.backToContactView);
-	},
-	methods: {
-		backToContactView () {
-			this.$router.push({name: 'ViewContact', params: {user: this.userData, id: this.userData.id}})
-		},
-		
-		updateUser() {
-			if (this.$refs.form.validate()) {
-				this.Indicator().open()
-				this.userData.updatedAt = Date.now()
+    this.cordovaBackButton(this.backToContactView);
+  },
+  methods: {
+    backToContactView() {
+      this.$router.push({
+        name: "ViewContact",
+        params: { user: this.userData, id: this.userData.id },
+      });
+    },
 
-				this.userData.firstName = this.capitalizeFirstLetter(this.userData.firstName);
-				this.userData.lastName = this.capitalizeFirstLetter(this.userData.lastName);
-				this.userData.middleInitial = this.capitalizeFirstLetter(this.userData.middleInitial);
-				this.userData.email = this.userData.email.toLowerCase();
+    updateUser() {
+      if (this.$refs.form.validate()) {
+        this.Indicator().open();
+        this.userData.updatedAt = Date.now();
 
-				const errors = {};
-				const offlineContacts = JSON.parse(localStorage.getItem(`${AUTH.currentUser.uid}_offline_contacts`));
+        this.userData.firstName = this.capitalizeFirstLetter(
+          this.userData.firstName
+        );
+        this.userData.lastName = this.capitalizeFirstLetter(
+          this.userData.lastName
+        );
+        this.userData.middleInitial = this.capitalizeFirstLetter(
+          this.userData.middleInitial
+        );
+        this.userData.email = this.userData.email.toLowerCase();
 
-				if (this.userData.contact) {
-					const i = offlineContacts.findIndex((user) => user.contact === this.userData.contact);
+        const errors = {};
+        const offlineContacts = JSON.parse(
+          localStorage.getItem(`${AUTH.currentUser.uid}_offline_contacts`)
+        );
 
-					if (i >= 0 && offlineContacts[i].id !== this.userData.id) {
-						errors.contact = true;
-					}
-				}
+        if (this.userData.contact) {
+          const i = offlineContacts.findIndex(
+            (user) => user.contact === this.userData.contact
+          );
 
-				if (this.userData.email) {
-					const i = offlineContacts.findIndex((user) => user.email === this.userData.email);
+          if (i >= 0 && offlineContacts[i].id !== this.userData.id) {
+            errors.contact = true;
+          }
+        }
 
-					if (i >= 0 && offlineContacts[i].id !== this.userData.id) {
-						errors.email = true;
-					}
-				}
+        if (this.userData.email) {
+          const i = offlineContacts.findIndex(
+            (user) => user.email === this.userData.email
+          );
 
-				if (errors.contact && errors.email) {
-					this.Indicator().close();
-					this.$refs.modal.show('Error', 'Contact and Email address is being used by another contact');
-					return;
-				}
+          if (i >= 0 && offlineContacts[i].id !== this.userData.id) {
+            errors.email = true;
+          }
+        }
 
-				if (errors.email) {
-					this.Indicator().close();
-					this.$refs.modal.show('Error', 'Email address is being used by another contact');
-					return;
-				}
+        if (errors.contact && errors.email) {
+          this.Indicator().close();
+          this.$refs.modal.show(
+            "Error",
+            "Contact and Email address is being used by another contact"
+          );
+          return;
+        }
 
-				if (errors.contact) {
-					this.Indicator().close();
-					this.$refs.modal.show('Error', 'Contact number is being used by another contact');
-					return;
-				}
+        if (errors.email) {
+          this.Indicator().close();
+          this.$refs.modal.show(
+            "Error",
+            "Email address is being used by another contact"
+          );
+          return;
+        }
 
-				this.updateOfflineContact(this.userData)
-				.then((res) => {
-					this.Indicator().close();
-					this.$refs.modal.show('Success', 'Offline contact updated', () => {
-						this.$router.push({name: 'ViewContact', params: {user: this.userData, id: this.userData.id, viewOfflineContacts: true}})
-					});
-				});
-			}
-		},
+        if (errors.contact) {
+          this.Indicator().close();
+          this.$refs.modal.show(
+            "Error",
+            "Contact number is being used by another contact"
+          );
+          return;
+        }
 
-		takePicture(selected) {
-			this.$store.dispatch('plugins/TAKE_PHOTO', selected)
-			.then((res) => {
-				this.sheet = false
-				if (res) {
-					this.userData.displayPicture = res
-					this.userData.hasPicture = true
-					this.userData.imageObj.src = res
-					//this.updateUser()
-				} else {
-					this.userData.hasPicture = false
-				}
-			})
-			.catch((error) => {
-				this.sheet = false
-				alert(error)
-			})
-		},
+        this.updateOfflineContact(this.userData).then((res) => {
+          this.Indicator().close();
+          this.$refs.modal.show("Success", "Offline contact updated", () => {
+            this.$router.push({
+              name: "ViewContact",
+              params: {
+                user: this.userData,
+                id: this.userData.id,
+                viewOfflineContacts: true,
+              },
+            });
+          });
+        });
+      }
+    },
 
-		openCalendar() {
-			document.addEventListener('deviceready', () => {
-				const options = {
-					date: new Date(),
-					mode: 'date',
-					androidTheme: 3
-				}
-				datePicker.show(options, (date) => {
-					this.userData.birthday = this.$moment(date).format('MM/DD/YYYY')
-				}, (error) => {
-					console.log('cancelled', error)
-				})
-			}, false);
-		},
+    takePicture(selected) {
+      this.$store
+        .dispatch("plugins/TAKE_PHOTO", selected)
+        .then((res) => {
+          this.sheet = false;
+          if (res) {
+            this.userData.displayPicture = res;
+            this.userData.hasPicture = true;
+            this.userData.imageObj.src = res;
+            //this.updateUser()
+          } else {
+            this.userData.hasPicture = false;
+          }
+        })
+        .catch((error) => {
+          this.sheet = false;
+          alert(error);
+        });
+    },
 
-		updateOfflineContact (data) {
-			return new Promise((resolve) => {
-				const offlineContacts = JSON.parse(localStorage.getItem(`${AUTH.currentUser.uid}_offline_contacts`));
-				const i = offlineContacts.findIndex((user) => user.id === data.id);
+    openCalendar() {
+      const options = {
+        date: new Date(),
+        mode: "date",
+        android: {
+          theme: 3,
+        },
+        success: (newDate) => {
+          this.userData.birthday = this.$moment(newDate).format("MM/DD/YYYY");
+        },
+      };
 
-				if (i !== -1) {
-					offlineContacts[i] = data;
-				}
-				
-				
-				localStorage.setItem(`${AUTH.currentUser.uid}_offline_contacts`, JSON.stringify(offlineContacts));
+      cordova.plugins.DateTimePicker.show(options);
+    },
 
-				this.$store.dispatch('contacts/SYNC_OFFLINE_CUSTOMERS')
-				.then(() => resolve(offlineContacts))
-				
-				COLLECTION.orders.where('offlineContact.id', '==', data.id).get()
-				.then((querySnapshot) =>{
-					querySnapshot.forEach((doc) => {
-						var orderRef = COLLECTION.orders.doc(doc.id);
-						var offlineContacts= {
-							offlineContact: {}
-						}
-						delete data.basket;
-						offlineContacts.offlineContact = data
-						 orderRef.update(
-							offlineContacts
-						);
-					});
-				})
-			})
-		},
+    updateOfflineContact(data) {
+      return new Promise((resolve) => {
+        const offlineContacts = JSON.parse(
+          localStorage.getItem(`${AUTH.currentUser.uid}_offline_contacts`)
+        );
+        const i = offlineContacts.findIndex((user) => user.id === data.id);
 
-		capitalizeFirstLetter(string) {
-			if (!string) return string;
-			return string.replace(/\w\S*/g, function(txt){
-				return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-			});
-		}
-	},
-	mixins: [mixins]
-}
+        if (i !== -1) {
+          offlineContacts[i] = data;
+        }
 
+        localStorage.setItem(
+          `${AUTH.currentUser.uid}_offline_contacts`,
+          JSON.stringify(offlineContacts)
+        );
+
+        this.$store
+          .dispatch("contacts/SYNC_OFFLINE_CUSTOMERS")
+          .then(() => resolve(offlineContacts));
+
+        COLLECTION.orders
+          .where("offlineContact.id", "==", data.id)
+          .get()
+          .then((querySnapshot) => {
+            querySnapshot.forEach((doc) => {
+              var orderRef = COLLECTION.orders.doc(doc.id);
+              var offlineContacts = {
+                offlineContact: {},
+              };
+              delete data.basket;
+              offlineContacts.offlineContact = data;
+              orderRef.update(offlineContacts);
+            });
+          });
+      });
+    },
+
+    capitalizeFirstLetter(string) {
+      if (!string) return string;
+      return string.replace(/\w\S*/g, function (txt) {
+        return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+      });
+    },
+  },
+  mixins: [mixins],
+};
 </script>
-
 
 <style>
 .input-group.input-group--error label {
