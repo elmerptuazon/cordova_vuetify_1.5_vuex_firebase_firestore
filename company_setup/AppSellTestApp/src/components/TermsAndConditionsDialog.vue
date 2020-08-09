@@ -1434,3 +1434,10 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.smoothScroll {
+  overflow-y: scroll;
+  -webkit-overflow-scrolling: touch;
+}
+</style>

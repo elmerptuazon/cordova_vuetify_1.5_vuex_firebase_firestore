@@ -22,8 +22,7 @@
       <Accounts />
     </v-toolbar>
 
-    <v-container id="scroll-target" style="max-height: 85vh;" class="scroll-y" fluid>
-      
+    <v-container>
       <div class="text-xs-center mt-5" v-if="loading">
         <v-progress-circular
           :size="100"
@@ -32,11 +31,7 @@
           indeterminate
         ></v-progress-circular>
       </div>
-      <v-layout
-        v-scroll:#scroll-target="onScroll"
-        column
-        style="height: 85vh;"
-        >
+
       <v-list class="pa-0" v-show="!loading">
         <template
           v-for="i in filterBy(orderBy(items, 'updatedAt', -1), search)"
@@ -79,7 +74,6 @@
           </v-list-tile>
         </template>
       </v-list>
-      </v-layout>
     </v-container>
 
     <v-btn

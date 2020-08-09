@@ -37,8 +37,8 @@
       </div>
 
       <v-layout
-        row 
-        wrap 
+        row
+        wrap
         v-if="search"
       >
         <div

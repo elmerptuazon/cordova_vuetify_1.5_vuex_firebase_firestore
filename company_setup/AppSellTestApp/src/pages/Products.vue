@@ -17,7 +17,8 @@
 			<Accounts />
 		</v-toolbar>
 
-			<div class="text-xs-center mt-5" v-if="loader">
+    <v-container fluid>
+    	<div class="text-xs-center mt-5" v-if="loader">
 				<v-progress-circular :size="100" :width="5" color="primary" indeterminate></v-progress-circular>
 			</div>
 
@@ -63,9 +64,12 @@
 						<div>{{product.name}}</div>
 						<div style="font-weight: bold;">{{product.price | currency('P')}}</div>
 					</div>
-					
+
 				</v-card>
 			</masonry>
+    </v-container>
+
+
 	<BottomNav currentTab="categories" />
 </div>
 </template>
