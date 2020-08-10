@@ -19,8 +19,39 @@
 			
 			<div class="mt-5">
 				<div class="text-xs-center">
-					<div class="title">Select Customer</div>
+					<div class="headline">Select Customer</div>
 				</div>
+
+				<v-list v-if="offlineContactsWithBasket.length && !search" three-line class="mt-3 transparent">
+					<v-subheader
+						class="subheading primary lighten-2 white--text"
+						>With Items in Basket</v-subheader
+					>
+
+					<template v-for="c in orderBy(offlineContactsWithBasket, 'basket.items.length', -1)">
+						<v-list-tile avatar :key="c.id" @click="addToBasket(c)">
+							<v-list-tile-avatar>
+								<v-avatar>
+									<v-img
+										:src="c.imageObj"
+										:alt="c.firstName"
+										contain
+									></v-img>
+								</v-avatar>
+							</v-list-tile-avatar>
+							<v-list-tile-content>
+								<v-list-tile-title>{{ c.firstName }} {{ c.lastName || '' }}</v-list-tile-title>
+								<v-list-tile-sub-title>{{ c.contact || '' }}</v-list-tile-sub-title>
+								<v-list-tile-sub-title>
+									Items: <span class="font-weight-bold">{{ c.basket.items.length }}</span>
+								</v-list-tile-sub-title>
+							</v-list-tile-content>
+						</v-list-tile>
+					</template>
+				</v-list>
+
+				<v-divider class="my-3"></v-divider>
+
 				<v-list two-line class="transparent">
 					<!-- <v-list-tile @click="addToBasket('self')">
 						<v-list-tile-content>
@@ -32,7 +63,7 @@
 						<v-list-tile avatar v-else :key="c.id" @click="addToBasket(c)">
 							<v-list-tile-avatar>
 								<v-avatar>
-									<img v-lazy="c.imageObj" :alt="c.firstName" class="flipped">
+									<img v-lazy="c.imageObj" :alt="c.firstName">
 								</v-avatar>
 							</v-list-tile-avatar>
 							<v-list-tile-content>
@@ -130,6 +161,13 @@ export default {
 				return a
 			},[])
 			return contacts
+		},
+
+		offlineContactsWithBasket() {
+			if(!this.GET_OFFLINE_LIST.length) return [];
+
+			let customers = this.GET_OFFLINE_LIST.filter(contact => contact.hasOwnProperty('basket') && contact.basket.items.length > 0);
+			return customers.length ? customers : [];
 		}
 	},
 	watch: {
