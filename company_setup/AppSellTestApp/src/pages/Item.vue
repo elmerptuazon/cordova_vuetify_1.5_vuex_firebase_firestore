@@ -91,9 +91,10 @@
           <!-- SRP: {{ product.price | currency("&#8369;") }} -->
         </p>
         <p class="product-name pt-0 mb-2">{{ product.name }}</p>
+        <v-divider class="my-2"></v-divider>
         
-        <div v-if="product.description">
-          <p class="product-description" v-if="showMoreDescription">
+        <div v-if="product.description" class="mt-3 mb-3">
+          <!-- <p class="product-description" v-if="showMoreDescription">
             {{ product.description }}
             <a @click="showMoreDescription = false">Show less</a> or
             <a @click="copyText" class="pink--text">Copy text</a>
@@ -101,7 +102,9 @@
           <p class="product-description" v-else>
             {{ product.description | trunc }}
             <a @click="showMoreDescription = true">Show more</a>
-          </p>
+          </p> -->
+          <div class="trix-content" v-html="product.description"></div>
+          <v-divider class="my-3"></v-divider>
         </div>
 
         <v-btn
@@ -425,6 +428,7 @@ const placeholder = require("../../static/img/item-placeholder.png");
 import { AUTH } from "@/config/firebaseInit";
 import ConfirmationModal from "@/components/ConfirmationModal";
 import { Carousel, Slide } from "vue-carousel";
+import 'trix/dist/trix.css';
 
 export default {
   mixins: [mixins],
@@ -904,7 +908,7 @@ export default {
 </script>
 
 <style scoped>
-.img-responsive {
+  .img-responsive {
   height: 100%;
   width: 100%;
   max-width: 100%;
@@ -921,9 +925,12 @@ export default {
   font-size: 18px;
   font-weight: 400;
 }
+
 .product-description {
   text-align: justify;
 }
+
+.productDescription 
 .discount-img {
   position: absolute;
   top: 11%;
@@ -946,4 +953,6 @@ export default {
   background: transparent;
   text-align: center;
 }
+
 </style>
+
