@@ -365,6 +365,7 @@
                   v-if="user.type === 'Customer'"
                   block
                   depressed
+                  :disabled="Number(attribute.quantity) <= 0"
                   color="primary"
                   class="white--text"
                   @click="addToBasket"
@@ -375,6 +376,7 @@
                   v-else
                   block
                   depressed
+                  :disabled="Number(attribute.quantity) <= 0"
                   color="primary"
                   class="white--text"
                   @click="showBasketDialog"
@@ -450,7 +452,7 @@ export default {
     noticeDialog: false,
     currentSocial: null,
     editItemDialog: false,
-    selectedButton: null,
+    selectedButton: 'Customer',
     showMoreDescription: false,
     addToInventoryLoading: false,
     addToStockOrderLoading: false,
@@ -482,7 +484,6 @@ export default {
         productId: this.product.id
       });
       this.variant = Object.assign({}, variant);
-      this.attribute['quantity'] = this.variant.minimumOrder;
       
       console.log("product's single variant: ", this.variant);
     }
@@ -845,7 +846,9 @@ export default {
   },
   
   watch: {
-    
+    selectedButton(val) {
+      this.attribute['quantity'] = val === 'Stock Order' ? this.variant.minimumOrder : 0;
+    }
   },
 
   computed: {
