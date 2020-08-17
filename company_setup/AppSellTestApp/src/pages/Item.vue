@@ -928,15 +928,12 @@ export default {
       this.editItemDialog = false;
       this.orderQTY = 0;
       this.attribute["quantity"] = 0;
-<<<<<<< HEAD
-=======
     },
   },
   
   watch: {
     selectedButton(val) {
       this.attribute['quantity'] = val === 'Stock Order' ? this.variant.minimumOrder : 0;
->>>>>>> 6424682bbf038b7db9f06a5c49e2f3552a4ac0cf
     }
   },
 
