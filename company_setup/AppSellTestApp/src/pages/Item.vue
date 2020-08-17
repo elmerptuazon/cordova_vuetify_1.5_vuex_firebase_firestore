@@ -452,6 +452,7 @@
                   v-if="user.type === 'Customer'"
                   block
                   depressed
+                  :disabled="Number(attribute.quantity) <= 0"
                   color="primary"
                   class="white--text"
                   @click="addToBasket"
@@ -462,6 +463,7 @@
                   v-else
                   block
                   depressed
+                  :disabled="Number(attribute.quantity) <= 0"
                   color="primary"
                   class="white--text"
                   @click="showBasketDialog"
@@ -538,7 +540,7 @@ export default {
     noticeDialog: false,
     currentSocial: null,
     editItemDialog: false,
-    selectedButton: null,
+    selectedButton: 'Customer',
     showMoreDescription: false,
     addToInventoryLoading: false,
     addToStockOrderLoading: false,
@@ -926,6 +928,15 @@ export default {
       this.editItemDialog = false;
       this.orderQTY = 0;
       this.attribute["quantity"] = 0;
+<<<<<<< HEAD
+=======
+    },
+  },
+  
+  watch: {
+    selectedButton(val) {
+      this.attribute['quantity'] = val === 'Stock Order' ? this.variant.minimumOrder : 0;
+>>>>>>> 6424682bbf038b7db9f06a5c49e2f3552a4ac0cf
     }
   },
 

@@ -50,14 +50,9 @@
                 NAME
               </th>
               <th
-                class="border-bottom text-xs-right header-size grey--text text--darken-1"
+                class="border-bottom text-xs-left header-size grey--text text--darken-1"
               >
-                CLR
-              </th>
-              <th
-                class="border-bottom text-xs-right header-size grey--text text--darken-1"
-              >
-                SZ
+                VARIANT
               </th>
               <th
                 class="border-bottom text-xs-right header-size grey--text text--darken-1"
@@ -83,27 +78,24 @@
                 <v-layout row>
                   <v-flex xs4>
                     <v-avatar tile size="40px">
-                      <img
-                        v-lazy="item.product.imageObj"
+                      <v-img
+                        :src="item.product.downloadURL"
                         :alt="item.product.name"
                       />
                     </v-avatar>
                   </v-flex>
-                  <v-flex xs8 class="mt-2">
+                  <v-flex xs8 class="mt-1 pl-2">
                     <span v-html="item.product.name" class="caption"></span>
                   </v-flex>
                 </v-layout>
               </td>
-              <td class="text-xs-right border-bottom">
-                <v-icon
-                  class="body-1"
-                  :color="`${item.attribute.color.toLowerCase()}`"
-                  v-if="item.attribute.color"
-                  >fiber_manual_record</v-icon
-                >
-              </td>
-              <td class="caption text-xs-right border-bottom">
-                {{ item.attribute.size }}
+              <td class="caption text-xs-left border-bottom">
+                <div v-for="[key, value] in Object.entries(item.attribute)" :key="key">
+									<span v-if="key !== 'qty'">
+                    <div>{{ key.toUpperCase() }}:</div>
+									  <div class="font-weight-bold">{{ value }}</div>
+                  </span>
+								</div>
               </td>
               <td class="caption text-xs-right border-bottom">
                 {{ item.attribute.qty }}
@@ -113,7 +105,7 @@
               </td>
             </tr>
             <tr>
-              <td class="caption text-xs-right" colspan="4">
+              <td class="caption text-xs-right" colspan="3">
                 Subtotal
               </td>
               <td class="caption text-xs-right">
@@ -121,7 +113,7 @@
               </td>
             </tr>
             <tr>
-              <td class="caption text-xs-right" colspan="4">
+              <td class="caption text-xs-right" colspan="3">
                 Discount
               </td>
               <td class="caption text-xs-right">
@@ -137,7 +129,7 @@
               </td>
             </tr>
             <tr class="border-top">
-              <td class="caption text-xs-right" colspan="4">
+              <td class="caption text-xs-right" colspan="3">
                 Delivery charge
               </td>
               <td class="caption text-xs-right">
@@ -150,7 +142,7 @@
               </td>
             </tr>
             <tr class="border-top">
-              <td class="caption text-xs-right" colspan="4">
+              <td class="caption text-xs-right" colspan="3">
                 Total
               </td>
               <td class="caption text-xs-right">
@@ -158,7 +150,7 @@
               </td>
             </tr>
             <tr class="border-top">
-              <td class="caption text-xs-right" colspan="4">
+              <td class="caption text-xs-right" colspan="3">
                 Payment due
               </td>
               <td class="caption text-xs-right primary--text">
@@ -504,9 +496,9 @@ export default {
   padding: 8px;
 }
 
-.basket-table tr:hover {
-  /*background-color: #ddd;*/
-}
+/* .basket-table tr:hover {
+  background-color: #ddd;
+} */
 
 .basket-table td.border-bottom {
   border-bottom: 1px solid #ddd;

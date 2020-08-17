@@ -33,19 +33,14 @@
           <thead>
             <tr>
               <th
-                class="border-bottom text-xs-right header-size grey--text text--darken-1"
+                class="border-bottom text-xs-left header-size grey--text text--darken-1"
               >
                 NAME
               </th>
               <th
-                class="border-bottom text-xs-right header-size grey--text text--darken-1"
+                class="border-bottom text-xs-left header-size grey--text text--darken-1"
               >
-                CLR
-              </th>
-              <th
-                class="border-bottom text-xs-right header-size grey--text text--darken-1"
-              >
-                SZ
+                VARIANT
               </th>
               <th
                 class="border-bottom text-xs-right header-size grey--text text--darken-1"
@@ -74,24 +69,23 @@
                       <v-img
                         size="40"
                         contain
-                        :src="item.product.imageObj"
+                        :src="item.product.downloadURL"
                         :alt="item.product.name"
                       ></v-img>
                     </v-avatar>
                   </v-flex>
-                  <v-flex xs8 class="mt-2 text-xs-right">
+                  <v-flex xs8 class="mt-1 text-xs-left pl-2">
                     <span v-html="item.product.name" class="caption"></span>
                   </v-flex>
                 </v-layout>
               </td>
-              <td class="text-xs-right border-bottom">
-                <!-- <v-icon class="body-1" :color="`${item.attribute.color.toLowerCase()}`" v-if="item.attribute.color">fiber_manual_record</v-icon> -->
-                <span v-if="item.attribute.color">{{
-                  item.attribute.color
-                }}</span>
-              </td>
-              <td class="caption text-xs-right border-bottom">
-                {{ item.attribute.size }}
+              <td class="text-xs-left caption border-bottom">
+                <div v-for="[key, value] in Object.entries(item.attribute)" :key="key">
+									<span v-if="key !== 'qty'">
+                    <div>{{ key.toUpperCase() }}:</div>
+									  <div class="font-weight-bold">{{ value }}</div>
+                  </span>
+								</div>
               </td>
               <td class="caption text-xs-right border-bottom">
                 {{ item.attribute.qty }}
@@ -110,10 +104,8 @@
               <td></td>
               <td></td>
               <td></td>
-              <td></td>
             </tr>
             <tr>
-              <td></td>
               <td></td>
               <td></td>
               <td class="caption text-xs-right">
@@ -123,35 +115,6 @@
                 {{ GET_SUBTOTAL | currency("P") }}
               </td>
             </tr>
-            <!-- <tr>
-								<td></td>
-								<td></td>
-								<td></td>
-								<td class="caption text-xs-right">
-									Discount
-								</td>
-								<td class="caption text-xs-right">
-
-								</td>
-							</tr>
-							<tr>
-								<td></td>
-								<td></td>
-								<td class="border-bottom"></td>
-								<td class="border-bottom"></td>
-								<td class="border-bottom"></td>
-							</tr>
-							<tr>
-								<td></td>
-								<td></td>
-								<td></td>
-								<td class="caption text-xs-right">
-									Total
-								</td>
-								<td class="caption text-xs-right">
-									{{GET_SUBTOTAL | currency('P')}}
-								</td>
-							</tr> -->
           </tbody>
         </table>
         <div
@@ -183,124 +146,25 @@
         <v-card-text v-if="selected.product && selected.attribute">
           <div class="text-xs-center">
             <v-avatar tile size="70px">
-              <img
-                v-lazy="selected.product.imageObj"
+              <v-img
+                :src="selected.product.downloadURL"
                 :alt="selected.product.name"
+                contain
               />
             </v-avatar>
-            <div class="title">{{ selected.product.name }}</div>
+            <div class="title mt-2">{{ selected.product.name }}</div>
           </div>
           <v-container fluid>
-            <v-layout row wrap v-if="!selected.product.attributes">
-              <v-flex xs12>
-								<v-layout row align-center justify-start>
-                  <v-flex xs8>
-                    <v-text-field
-                      :rules="numberRules"
-                      v-model="attribute.qty"
-                      label="Quantity"
-                    ></v-text-field>
-                  </v-flex>
-
-                  <v-flex xs2 pa-2>
-                    <v-btn color="primary" icon :disabled="attribute.qty <= 0" @click="attribute.qty -= 1">
-                      <v-icon>remove</v-icon>
-                    </v-btn>
-                  </v-flex>
-
-                  <v-flex xs2 pa-2>
-                    <v-btn color="primary" icon @click="attribute.qty += 1">
-                      <v-icon>add</v-icon>
-                    </v-btn>
-                  </v-flex>
-								</v-layout>
-							</v-flex>
-              <!-- <v-flex xs12>
-                <v-select
-                  :items="['50ml', '100ml', '150ml', '200ml']"
-                  required
-                  :rules="basicRules"
-                  v-model="attribute.size"
-                  label="Size"
-                  single-line
-                  menu-props="bottom"
-                ></v-select>
-              </v-flex>
-              <v-flex xs12>
-                <v-select
-                  label="Color"
-                  :items="['Red', 'Blue', 'Yellow', 'Green']"
-                  max-height="auto"
-                  v-model="attribute.color"
-                  required
-                  :rules="basicRules"
-                >
-                  <template slot="item" slot-scope="data">
-                    <v-list-tile-action>
-                      <v-icon :color="`${data.item.toLowerCase()}`"
-                        >fiber_manual_record</v-icon
-                      >
-                    </v-list-tile-action>
-                    <v-list-tile-content>
-                      <v-list-tile-title v-html="data.item"></v-list-tile-title>
-                    </v-list-tile-content>
-                  </template>
-                </v-select>
-              </v-flex> -->
-            </v-layout>
-            <v-layout row wrap v-else>
-              <v-flex xs12>
-								<v-layout row align-center justify-start>
-                  <v-flex xs8>
-                    <v-text-field
-                      :rules="numberRules"
-                      v-model="attribute.qty"
-                      label="Quantity"
-                    ></v-text-field>
-                  </v-flex>
-
-                  <v-flex xs2 pa-2>
-                    <v-btn color="primary" icon :disabled="attribute.qty <= 0" @click="attribute.qty -= 1">
-                      <v-icon>remove</v-icon>
-                    </v-btn>
-                  </v-flex>
-
-                  <v-flex xs2 pa-2>
-                    <v-btn color="primary" icon @click="attribute.qty += 1">
-                      <v-icon>add</v-icon>
-                    </v-btn>
-                  </v-flex>
-								</v-layout>
-							</v-flex>
+            <v-layout row wrap v-if="selected.product.attributes">
               <v-flex
                 xs12
                 v-for="(a, index) in selected.product.attributes"
                 :key="index"
               >
                 <v-select
-                  v-if="a.name == 'Color'"
-                  label="Color"
                   :items="a.items"
-                  max-height="auto"
-                  v-model="attribute.color"
-                  required
-                  :rules="basicRules"
-                >
-                  <template slot="item" slot-scope="data">
-                    <v-list-tile-action>
-                      <v-icon :color="`${data.item.toLowerCase()}`"
-                        >fiber_manual_record</v-icon
-                      >
-                    </v-list-tile-action>
-                    <v-list-tile-content>
-                      <v-list-tile-title v-html="data.item"></v-list-tile-title>
-                    </v-list-tile-content>
-                  </template>
-                </v-select>
-
-                <v-select
-                  v-else
-                  :items="a.items"
+                  item-text="name"
+                  item-value="name"
                   required
                   :rules="basicRules"
                   v-model="attribute[a.name.toLowerCase()]"
@@ -310,9 +174,44 @@
                 ></v-select>
               </v-flex>
             </v-layout>
+
+            <v-layout row wrap>
+              <v-flex xs12>
+								<v-layout row align-center justify-start>
+                  <v-flex xs8>
+                    <v-text-field
+                      :rules="numberRules"
+                      v-model.number="attribute.qty"
+                      label="Quantity"
+                      type="number"
+                    ></v-text-field>
+                  </v-flex>
+
+                  <v-flex xs2 pa-2>
+                    <v-btn 
+                      color="primary" icon 
+                      :disabled="Number(attribute.qty) <= 0" 
+                      @click.native="attribute.qty = (Number(attribute.qty) - 1)">
+                      <v-icon>remove</v-icon>
+                    </v-btn>
+                  </v-flex>
+
+                  <v-flex xs2 pa-2>
+                    <v-btn 
+                      color="primary" icon 
+                      @click.native="attribute.qty = (Number(attribute.qty) + 1)">
+                      <v-icon>add</v-icon>
+                    </v-btn>
+                  </v-flex>
+								</v-layout>
+							</v-flex>
+            </v-layout>
           </v-container>
           <div>
-            <v-btn block depressed color="primary" @click="update"
+            <v-btn 
+              block depressed color="primary" 
+              :disabled="Number(attribute.qty) <= 0"
+              @click="update"
               >Update</v-btn
             >
           </div>
@@ -374,35 +273,37 @@ export default {
 			this.$store.dispatch('orders/PLACE_OFFLINE_ORDER', this.offlineUser)
 			.then((res) => {
 			
-			const offlineContacts = JSON.parse(localStorage.getItem(`${AUTH.currentUser.uid}_offline_contacts`))
-			const i = offlineContacts.findIndex((c) => c.id === this.offlineUser.id)
-			if (i >= 0) {
-				offlineContacts[i].basket = {
-				items: [],
-				orderStatus: 'Basket',
-				totalPrice: 0
-				}
-				localStorage.setItem(`${AUTH.currentUser.uid}_offline_contacts`, JSON.stringify(offlineContacts))
-			}
-			this.$router.push({
-				name: 'CheckoutSuccess',
-				params: {
-				orderDetails: res,
-				forOfflineContact: {
-					firstName: this.offlineUser.firstName,
-					middleName: this.offlineUser.middleName,
-					lastName: this.offlineUser.lastName
-				}
-				}
-			})
+        const offlineContacts = JSON.parse(localStorage.getItem(`${AUTH.currentUser.uid}_offline_contacts`))
+        const i = offlineContacts.findIndex((c) => c.id === this.offlineUser.id)
+        if (i >= 0) {
+          offlineContacts[i].basket = {
+            items: [],
+            orderStatus: 'Basket',
+            totalPrice: 0
+          }
+          localStorage.setItem(`${AUTH.currentUser.uid}_offline_contacts`, JSON.stringify(offlineContacts));
+          this.attribute = {
+            qty: 0
+          }
+        }
+        this.$router.push({
+          name: 'CheckoutSuccess',
+          params: {
+            orderDetails: res,
+            forOfflineContact: {
+              firstName: this.offlineUser.firstName,
+              middleName: this.offlineUser.middleName,
+              lastName: this.offlineUser.lastName
+            }
+          }
+        })
 			})
 		},
 		editItem (item, index) {
       this.currentIndex = index;
       this.$store.dispatch('products/GET_PRODUCT', item.product.id)
 			.then((res) => {
-		   		 // open dialog
-		   		 this.editItemDialog = true;
+		   		
 			   // store to localstorage so that we can reset values if cancelled
          //this.currentIndex = index;
 			   localStorage.setItem('selected_basket_item', JSON.stringify(item))
@@ -414,23 +315,24 @@ export default {
 			   	this.selected.product.attributes.forEach((attrib) => {
 			   		const attribName = attrib.name.toLowerCase();
 			   		if (attribName === 'quantity') {
-			   			this.attribute['qty'] = item.attribute['qty'];
+			   			this.attribute['qty'] = Number(item.attribute['qty']);
 			   		} else {
 			   			this.attribute[attribName] = item.attribute[attribName];
-			   		}
-			   	})
-			   } else {
-			   	this.attribute = {
-			   		qty: item.attribute.qty,
-			   		size: item.attribute.size,
-			   		color: item.attribute.color
-			   	}
-         }
+            }
+          });
+
+          this.attribute['qty'] = Number(item.attribute['qty']);
+			   }
+
+         this.attribute['qty'] = Number(item.attribute['qty']);
          
          const index = this.selected.product.attributes.findIndex((attrib) => attrib.name.toLowerCase() === 'quantity');
          if(index != -1) this.selected.product.attributes.splice(index, 1);
          
          console.log(this.attribute);
+
+        // open dialog
+        this.editItemDialog = true;
          
 			})
 		},
@@ -438,7 +340,10 @@ export default {
 			this.editItemDialog = false
 			const i = this.offlineUser.basket.items.findIndex((item, index) => index === this.currentIndex)
 			this.offlineUser.basket.items[i] = Object.assign({}, JSON.parse(localStorage.getItem('selected_basket_item')))
-			this.selected = {}
+      this.selected = {};
+      this.attribute = {
+        qty: 0
+      }
 		},
 		update () {
 			const offlineContacts = JSON.parse(localStorage.getItem(`${AUTH.currentUser.uid}_offline_contacts`));
@@ -453,8 +358,11 @@ export default {
 				this.selected = {};
 				this.editItemDialog = false;
 				this.notify('Item has been updated');
-				localStorage.removeItem('selected_basket_item');
-			}, 250);
+        localStorage.removeItem('selected_basket_item');
+        this.attribute = {
+          qty: 0
+        }
+			}, 150);
 		},
 		deleteItem () {
 			const offlineContacts = JSON.parse(localStorage.getItem(`${AUTH.currentUser.uid}_offline_contacts`))
@@ -467,8 +375,11 @@ export default {
 				this.selected = {}
 				this.editItemDialog = false
 				this.notify('Item has been removed')
-				localStorage.removeItem('selected_basket_item')
-			}, 250)
+        localStorage.removeItem('selected_basket_item');
+        this.attribute = {
+          qty: 0
+        }
+			}, 150)
 		}
 	},
 	watch: {
