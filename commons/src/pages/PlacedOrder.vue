@@ -545,7 +545,6 @@
               </div>
               <v-text-field
                 label="Date"
-                :type="calendarType"
                 v-model="schedule_delivery.date"
                 @click="openCalendar"
               ></v-text-field>
