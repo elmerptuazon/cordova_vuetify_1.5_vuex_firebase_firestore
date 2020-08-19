@@ -85,6 +85,12 @@
         </masonry>
       </v-layout>
 
+      <v-layout v-else-if="!GET_LIST.length" row align-center justify-center>
+        <v-flex xs4>
+          <div class="text-xs-center body-2 red--text">No catalogues yet...</div>
+        </v-flex>
+      </v-layout>
+
       <masonry v-else :cols="1" :gutter="8">
         <v-card
           class="mb-2"
@@ -108,6 +114,12 @@
                 indeterminate
                 color="grey lighten-5"
               ></v-progress-circular>
+            </v-layout>
+
+            <v-layout row fill-height align-end justify-start>
+              <div 
+                class="overlay-category-name title white--text" 
+              >{{ c.name }}</div>
             </v-layout>
           </v-img>
         </v-card>
@@ -141,7 +153,10 @@ export default {
     isLoading: false,
     snackbar: false,
     message: null,
-    loading: false
+    loading: false,
+
+    primaryColor: null,
+
     //searchedProducts: [],
   }),
   created() {
@@ -170,6 +185,8 @@ export default {
       .finally(() => {
         this.loading = false;
       });
+
+    this.primaryColor = process.env.primaryColor;
   },
   methods: {
     onRefresh() {
@@ -274,6 +291,15 @@ export default {
   display: inline-block;
   width: 100%;
   text-align: center;
+}
+
+.overlay-category-name{
+  position: absolute;
+  z-index: 2;
+  height: 30px;
+  width: 100%;
+  background-color: rgba(109, 109, 109, 0.7);
+  padding: 5px;
 }
 </style>
 
