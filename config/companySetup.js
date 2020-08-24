@@ -42,6 +42,7 @@ async function copyCompanySetUp() {
             { title: 'Matenara', value: 'Matenara' },
             { title: 'Rraw', value: 'Rraw' },
             { title: 'Kayumanggi Organic', value: 'KayumanggiOrganic' },
+            { title: 'Mayumi Organics', value: 'MayumiOrganics' },
             
         ],
         initial: 0
