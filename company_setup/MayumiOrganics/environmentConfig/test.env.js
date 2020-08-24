@@ -4,7 +4,7 @@ var devEnv = require('./dev.env')
 module.exports = merge(devEnv, {
   NODE_ENV: '"testing"',
   apiKey: '"AIzaSyD9nMyUgfTjIlBQ18m1CE10HRRJUhaUDn8"',
-  authDomain: "mayumiorganics-dev.firebaseapp.com",
+  authDomain: '"mayumiorganics-dev.firebaseapp.com"',
   databaseURL: '"https://mayumiorganics-dev.firebaseio.com"',
   projectId: '"mayumiorganics-dev"',
   storageBucket: '"mayumiorganics-dev.appspot.com"',
@@ -18,5 +18,5 @@ module.exports = merge(devEnv, {
   version: '"0.6.10"',
   primaryColor: '"#0d3632"',
   environment: '"test"',
-  callbackURL: '"https://us-central1-mayumiorganics.cloudfunctions.net/callback"'
+  callbackURL: '"https://us-central1-mayumiorganics-dev.cloudfunctions.net/callback"'
 })

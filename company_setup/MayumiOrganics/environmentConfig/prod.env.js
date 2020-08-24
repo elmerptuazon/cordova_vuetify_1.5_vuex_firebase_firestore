@@ -1,7 +1,7 @@
 module.exports = {
   NODE_ENV: '"production"',
   apiKey: '"AIzaSyD9nMyUgfTjIlBQ18m1CE10HRRJUhaUDn8"',
-  authDomain: "mayumiorganics-dev.firebaseapp.com",
+  authDomain: '"mayumiorganics-dev.firebaseapp.com"',
   databaseURL: '"https://mayumiorganics-dev.firebaseio.com"',
   projectId: '"mayumiorganics-dev"',
   storageBucket: '"mayumiorganics-dev.appspot.com"',
@@ -15,5 +15,5 @@ module.exports = {
   version: '"0.6.10"',
   primaryColor: '"#0d3632"',
   environment: '"live"',
-  callbackURL: '"https://us-central1-mayumiorganics.cloudfunctions.net/callback"'
+  callbackURL: '"https://us-central1-mayumiorganics-dev.cloudfunctions.net/callback"'
 }

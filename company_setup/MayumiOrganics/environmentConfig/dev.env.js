@@ -4,7 +4,7 @@ var prodEnv = require('./prod.env')
 module.exports = merge(prodEnv, {
   NODE_ENV: '"development"',
   apiKey: '"AIzaSyD9nMyUgfTjIlBQ18m1CE10HRRJUhaUDn8"',
-  authDomain: "mayumiorganics-dev.firebaseapp.com",
+  authDomain: '"mayumiorganics-dev.firebaseapp.com"',
   databaseURL: '"https://mayumiorganics-dev.firebaseio.com"',
   projectId: '"mayumiorganics-dev"',
   storageBucket: '"mayumiorganics-dev.appspot.com"',
@@ -18,5 +18,5 @@ module.exports = merge(prodEnv, {
   version: '"0.6.10"',
   primaryColor: '"#0d3632"',
   environment: '"test"',
-  callbackURL: '"https://us-central1-mayumiorganics.cloudfunctions.net/callback"'
+  callbackURL: '"https://us-central1-mayumiorganics-dev.cloudfunctions.net/callback"'
 })
