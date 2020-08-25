@@ -138,23 +138,25 @@
 				await this.$store.dispatch('conversations/LISTEN_TO_MESSAGES', conversationId);
 				await this.$store.dispatch('conversations/OPEN_UNREAD', conversationId);
 				// await this.listenToNewMessages(conversationId);
-				this.loading = false;
-				this.scrollDown();
 			} catch (error) {
 				console.log(error);
 				this.loading = false;
-				this.scrollDown();
-			}
+      }
 
+      this.scrollDown();
 		},
 
 		mounted () {
 			this.innerHeight = window.innerHeight;
-			this.height = window.innerHeight - 175;
+      this.height = window.innerHeight - 175;
+      this.finalHeight = this.height;
 
-			window.addEventListener('resize', function(event) {
+			window.addEventListener('resize', (event) => {
         this.calculateScreenSize(event);
       });
+
+      this.loading = false;
+      this.scrollDown();
 		},
 
 		watch: {
@@ -169,61 +171,33 @@
       },
 
       calculateScreenSize(event) {
+        console.log('resize triggered: ', event);
         if (!this.keyboardHeight) {
 					this.keyboardHeight = this.innerHeight - event.target.innerHeight;
 					console.log('kb height', this.keyboardHeight)
-				}
+        }
 
-				if (this.innerHeight > event.target.innerHeight) {
-					this.height = this.height - (this.keyboardHeight - 40);
-					console.log(this.height)
-				} else {
-					this.height = this.innerHeight - 175;
-					console.log(this.height)
+        if(cordova.platformId == 'android') {
+          if (this.innerHeight > event.target.innerHeight) {
+            this.height = this.finalHeight - (this.keyboardHeight - 55);
+            console.log(this.height)
+          } else {
+            this.height = this.innerHeight - 175;
+            console.log(this.height)
+          }
+
+        } else {
+          console.log('is keyboard open: ', Keyboard.isVisible);
+          if(!Keyboard.isVisible) {
+            this.height = this.finalHeight - (this.keyboardHeight - 55);
+
+          } else {
+            this.height = this.innerHeight - 175;
+          }
         }
 
         this.scrollDown();
       },
-
-			// listenToConversations (conversationId) {
-			// 	const user = this.$store.getters['accounts/user'];
-			// 	this.conversationsListener = DB.collection('conversations')
-			// 	.doc(conversationId)
-			// 	.onSnapshot(async (snapshot) => {
-			// 		await this.$store.dispatch('conversations/OPEN_UNREAD', conversationId);
-			// 	});
-			// },
-
-			// listenToNewMessages (conversationId) {
-			// 	// this.loading = true;
-			// 	const user = this.$store.getters['accounts/user'];
-
-			// 	this.messagesListener = DB.collection('messages')
-			// 	.where('conversationId', '==', conversationId)
-			// 	.onSnapshot((snapshot) => {
-
-			// 		// this.loading = false;
-
-			// 		snapshot.docChanges().forEach(async (change) => {
-
-			// 			const data = change.doc.data();
-			// 			data.id = change.doc.id;
-
-			// 			if (change.type === 'added') {
-			// 				if (data.sender === user.uid) {
-			// 					data.you = true;
-			// 				} else {
-			// 					data.you = false;
-			// 				}
-
-			// 				this.messages.push(data);
-			// 				this.scrollDown();
-			// 			}
-
-			// 		});
-
-			// 	});
-			// },
 
 			async sendMessage () {
 				if (!this.text) {
@@ -252,25 +226,18 @@
 			},
 
 			toggleNav (val) {
-				if (val) {
-					// blur
-					// this.height = this.height - this.keyboardHeight;
-
-					this.scrollDown();
-				} else {
+				if(!val) {
 					// focus
-					// this.height = this.height - this.keyboardHeight;
 
 					//mark convo as read when the user focused on the message text area
 					//especially when the user stays on this page
 					if(!this.currentConversation.opened[this.userId]) {
 						this.$store.dispatch('conversations/OPEN_UNREAD', this.conversationId);
 					}
-
-					this.scrollDown();
 				}
 
-				this.$refs.BottomNav.toggleNav(val);
+        this.$refs.BottomNav.toggleNav(val);
+        this.scrollDown();
 			},
 
 			openAttachment () {
@@ -314,8 +281,8 @@
 				setTimeout(() => {
 					const messagesWindow = document.getElementById('messages-container');
 					const totalHeight = messagesWindow.scrollHeight;
-					messagesWindow.scrollTo(0, totalHeight);
-				}, 250)
+          messagesWindow.scrollTo(0, totalHeight);
+				}, 1500)
 			},
 			onScroll (e) {
 			  this.offsetTop = e.target.scrollTop
@@ -327,8 +294,9 @@
 		},
 		computed: {
 			messages() {
+        const items = this.$store.getters['conversations/GET_MESSAGES_LIST'];
 				this.scrollDown();
-				return this.$store.getters['conversations/GET_MESSAGES_LIST'];
+				return items;
 			},
 			currentConversation() {
 				const convo = this.$store.getters['conversations/GET_CONVERSATION_LIST'];

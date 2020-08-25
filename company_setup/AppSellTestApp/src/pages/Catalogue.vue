@@ -10,7 +10,7 @@
         <v-icon>search</v-icon>
       </v-btn>
       <v-spacer></v-spacer>
-      <ContactsBadge/>
+      <ContactsBadge />
       <Accounts />
       <v-text-field
         label="Search products..."
@@ -36,11 +36,7 @@
         ></v-progress-circular>
       </div>
 
-      <v-layout
-        row
-        wrap
-        v-if="search"
-      >
+      <v-layout row wrap v-if="search">
         <div
           v-if="!searchedProducts.length"
           class="title grey--text lighten-2 text-xs-center"
@@ -89,7 +85,6 @@
         </masonry>
       </v-layout>
 
-
       <masonry v-else :cols="1" :gutter="8">
         <v-card
           class="mb-2"
@@ -116,9 +111,9 @@
             </v-layout>
 
             <v-layout row fill-height align-end justify-start>
-              <div
-                class="overlay-category-name title white--text"
-              >{{ c.name }}</div>
+              <div class="overlay-category-name title white--text">
+                {{ c.name }}
+              </div>
             </v-layout>
           </v-img>
         </v-card>
@@ -134,14 +129,13 @@
   </div>
 </template>
 
-
 <script>
 import { mapGetters } from "vuex";
 import { mapState } from "vuex";
 import { Spinner } from "mint-ui";
 import BasketBadge from "@/components/BasketBadge";
 import { mixins } from "@/mixins";
-import ContactsBadge from "@/components/ContactsBadge"
+import ContactsBadge from "@/components/ContactsBadge";
 
 export default {
   data: () => ({
@@ -152,7 +146,7 @@ export default {
     isLoading: false,
     snackbar: false,
     message: null,
-    loading: false,
+    loading: false
     //searchedProducts: [],
   }),
   created() {
@@ -233,7 +227,7 @@ export default {
         price: 24,
         created_at: Date.now
       });
-    },
+    }
   },
   computed: {
     ...mapGetters({
@@ -289,7 +283,7 @@ export default {
   text-align: center;
 }
 
-.overlay-category-name{
+.overlay-category-name {
   position: absolute;
   z-index: 2;
   height: 30px;
@@ -298,4 +292,3 @@ export default {
   padding: 5px;
 }
 </style>
-
