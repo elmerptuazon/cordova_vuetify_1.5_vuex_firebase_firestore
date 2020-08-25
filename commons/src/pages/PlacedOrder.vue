@@ -105,18 +105,15 @@
         <table class="basket-table">
           <thead>
             <tr>
-              <th class="border-bottom header-size grey--text text--darken-1">
+              <th
+                class="border-bottom text-xs-center header-size grey--text text--darken-1"
+              >
                 NAME
               </th>
               <th
-                class="border-bottom text-xs-right header-size grey--text text--darken-1"
+                class="border-bottom text-xs-left header-size grey--text text--darken-1"
               >
-                CLR
-              </th>
-              <th
-                class="border-bottom text-xs-right header-size grey--text text--darken-1"
-              >
-                SZ
+                VARIANT
               </th>
               <th
                 class="border-bottom text-xs-right header-size grey--text text--darken-1"
@@ -149,19 +146,21 @@
                       ></v-img>
                     </v-avatar>
                   </v-flex>
-                  <v-flex xs8 class="mt-2">
+                  <v-flex xs8 class="mt-1 pl-2">
                     <span v-html="item.product.name" class="caption"></span>
                   </v-flex>
                 </v-layout>
               </td>
-              <td class="text-xs-right border-bottom">
-                <!-- <v-icon class="body-1" :color="`${item.attribute.color.toLowerCase()}`" v-if="item.attribute.color">fiber_manual_record</v-icon> -->
-                <span v-if="item.attribute.color">{{
-                  item.attribute.color
-                }}</span>
-              </td>
-              <td class="caption text-xs-right border-bottom">
-                {{ item.attribute.size }}
+              <td class="caption text-xs-left border-bottom">
+                <div
+                  v-for="[key, value] in Object.entries(item.attribute)"
+                  :key="key"
+                >
+                  <span v-if="key !== 'qty'">
+                    <div>{{ key.toUpperCase() }}:</div>
+                    <div class="font-weight-bold">{{ value }}</div>
+                  </span>
+                </div>
               </td>
               <td class="caption text-xs-right border-bottom">
                 {{ item.attribute.qty }}
@@ -170,20 +169,22 @@
                 {{ (item.attribute.qty * item.product.price) | currency("P") }}
               </td>
             </tr>
+
             <tr>
-              <td colspan="5"></td>
+              <td colspan="4"></td>
             </tr>
+
             <tr>
-              <td class="caption text-xs-right" colspan="4">Subtotal</td>
+              <td class="caption text-xs-right" colspan="3">
+                Subtotal
+              </td>
               <td class="caption text-xs-right">
                 {{ order.total | currency("P") }}
               </td>
             </tr>
+
             <tr>
               <td>
-                <!-- <v-btn round depressed color="primary" @click="openSheet('discount')" style="height: 50%; font-size: 12px;">
-									<v-icon small>border_color</v-icon>&nbsp;Edit
-                </v-btn>-->
                 <v-btn
                   v-if="!order.ownOrder"
                   icon
@@ -195,17 +196,22 @@
                   <v-icon small>border_color</v-icon>
                 </v-btn>
               </td>
-              <td class="caption text-xs-right" colspan="3">Discount</td>
+              <td class="caption text-xs-right" colspan="2">
+                Discount
+              </td>
               <td class="caption text-xs-right">
                 <div v-if="order.discount">
-                  <span v-if="order.discount.type === 'peso'">{{
-                    order.discount.value | currency("P")
-                  }}</span>
-                  <span v-else>{{ order.discount.value }}%</span>
+                  <span v-if="order.discount.type === 'peso'">
+                    {{ order.discount.value | currency("P") }}
+                  </span>
+                  <span v-else> {{ order.discount.value }}% </span>
                 </div>
-                <div v-else>0</div>
+                <div v-else>
+                  0
+                </div>
               </td>
             </tr>
+
             <tr class="border-top">
               <td>
                 <v-btn
@@ -219,16 +225,22 @@
                   <v-icon small>border_color</v-icon>
                 </v-btn>
               </td>
-              <td class="caption text-xs-right" colspan="3">Delivery charge</td>
+              <td class="caption text-xs-right" colspan="2">
+                Delivery charge
+              </td>
               <td class="caption text-xs-right">
-                <span v-if="order.delivery_charge">{{
-                  order.delivery_charge | currency("P")
-                }}</span>
-                <span v-else>0.00</span>
+                <span v-if="order.delivery_charge">
+                  {{ order.delivery_charge | currency("P") }}
+                </span>
+                <span v-else>
+                  0.00
+                </span>
               </td>
             </tr>
             <tr class="border-top">
-              <td class="caption text-xs-right" colspan="4">Total</td>
+              <td class="caption text-xs-right" colspan="3">
+                Total
+              </td>
               <td class="caption text-xs-right">
                 {{ finalPrice | currency("P") }}
               </td>
@@ -246,11 +258,13 @@
                   <v-icon small>border_color</v-icon>
                 </v-btn>
               </td>
-              <td class="caption text-xs-right" colspan="3">Payment due</td>
+              <td class="caption text-xs-right" colspan="2">
+                Payment due
+              </td>
               <td class="caption text-xs-right primary--text">
-                <span v-if="order.payment_due_date">{{
-                  order.payment_due_date
-                }}</span>
+                <span v-if="order.payment_due_date">
+                  {{ order.payment_due_date }}
+                </span>
               </td>
             </tr>
           </tbody>
@@ -268,8 +282,7 @@
                     @ADD="paymentAddEvent"
                   />
                   <div v-else class="text-xs-center">
-                    Payments is empty
-                    <br />
+                    Payments is empty <br />
                     <v-btn
                       v-if="user.type === 'Reseller'"
                       small
@@ -300,8 +313,7 @@
                       order.delivery_schedule_status === 'accepted'
                   "
                   class="green--text text--darken-3"
-                >
-                  -
+                  >
                   <strong v-if="order.isOffline">Saved</strong>
                   <strong v-else>Accepted</strong>
                 </span>
@@ -311,9 +323,7 @@
                       order.delivery_schedule_status === 'declined'
                   "
                   class="red--text"
-                >
-                  -
-                  <strong>Declined</strong>
+                  >- <strong>Declined</strong>
                 </span>
               </div>
               <v-card>
@@ -374,8 +384,9 @@
             @click="markAsDelivered"
             :disabled="disableButton"
             :loading="disableButton"
-            >Mark as Delivered</v-btn
           >
+            Mark as Delivered
+          </v-btn>
         </div>
         <div v-if="order.status == 'delivered'" class="text-xs-center mt-2">
           <h3>
@@ -707,7 +718,7 @@ export default {
     document.addEventListener(
       "deviceready",
       () => {
-        this.calendarType = "text";
+        this.calendarType = "date";
       },
       false
     );
@@ -1255,9 +1266,9 @@ export default {
   padding: 8px;
 }
 
-.basket-table tr:hover {
-  /*background-color: #ddd;*/
-}
+/* .basket-table tr:hover {
+  background-color: #ddd;
+} */
 
 .basket-table td.border-bottom {
   border-bottom: 1px solid #ddd;

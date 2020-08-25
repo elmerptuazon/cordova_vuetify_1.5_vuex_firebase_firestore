@@ -12,7 +12,7 @@
         <v-icon>share</v-icon>
       </v-btn>
       <v-spacer></v-spacer>
-      <ContactsBadge/>
+      <ContactsBadge />
       <Accounts />
     </v-toolbar>
 
@@ -91,9 +91,10 @@
           <!-- SRP: {{ product.price | currency("&#8369;") }} -->
         </p>
         <p class="product-name pt-0 mb-2">{{ product.name }}</p>
-        
-        <div v-if="product.description">
-          <p class="product-description" v-if="showMoreDescription">
+        <v-divider class="my-2"></v-divider>
+
+        <div v-if="product.description" class="mt-3 mb-3">
+          <!-- <p class="product-description" v-if="showMoreDescription">
             {{ product.description }}
             <a @click="showMoreDescription = false">Show less</a> or
             <a @click="copyText" class="pink--text">Copy text</a>
@@ -101,13 +102,15 @@
           <p class="product-description" v-else>
             {{ product.description | trunc }}
             <a @click="showMoreDescription = true">Show more</a>
-          </p>
+          </p> -->
+          <div class="trix-content" v-html="product.description"></div>
+          <v-divider class="my-3"></v-divider>
         </div>
 
         <v-btn
           v-if="user.type === 'Reseller'"
           @click="openItemDialog('Stock Order')"
-          round 
+          round
           depressed
           color="primary"
           dark
@@ -130,7 +133,8 @@
           round
           block
           depressed
-          color="primary" dark
+          color="primary"
+          dark
           @click="openItemDialog('Customer')"
         >
           Add to my cart
@@ -223,46 +227,95 @@
               <v-layout row wrap align-center justify-start>
                 <v-flex xs12>
                   <div class="subheading mb-2">
-                    Product: <span class="font-weight-bold">{{ product.name }}</span>
+                    Product:
+                    <span class="font-weight-bold">{{ product.name }}</span>
                   </div>
                 </v-flex>
               </v-layout>
-              
-              <v-layout row wrap align-center justify-start v-if="user.type === 'Reseller' && selectedButton === 'Stock Order'"> 
-                <v-flex xs12 mt-2 v-if="!variant.hasOwnProperty('name') || attribLoading || !variant ">
+
+              <v-layout
+                row
+                wrap
+                align-center
+                justify-start
+                v-if="
+                  user.type === 'Reseller' && selectedButton === 'Stock Order'
+                "
+              >
+                <v-flex
+                  xs12
+                  mt-2
+                  v-if="
+                    !variant.hasOwnProperty('name') || attribLoading || !variant
+                  "
+                >
                   <div v-if="attribLoading">
-                    <v-progress-circular indeterminate color="primary"></v-progress-circular>
+                    <v-progress-circular
+                      indeterminate
+                      color="primary"
+                    ></v-progress-circular>
                   </div>
-                  <div v-else-if="!product.attributes.length" class="font-italic caption pl-2">no variant details...</div>
-                  <div v-else class="font-italic caption pl-2">Please select a variant...</div>
+                  <div
+                    v-else-if="!product.attributes.length"
+                    class="font-italic caption pl-2"
+                  >
+                    no variant details...
+                  </div>
+                  <div v-else class="font-italic caption pl-2">
+                    Please select a variant...
+                  </div>
                 </v-flex>
-                
+
                 <div v-else class="mt-2 pl-2">
                   <v-flex xs12>
-                    <div :class="[ Number(variant.availableQTY) <= Number(variant.reOrderLevel) ? 'red--text' : '']">
-                      Available Stock: 
-                      <span class="font-weight-bold" v-if="variant.availableQTY"> {{ variant.availableQTY }} pcs.</span>
+                    <div
+                      :class="[
+                        Number(variant.availableQTY) <=
+                        Number(variant.reOrderLevel)
+                          ? 'red--text'
+                          : ''
+                      ]"
+                    >
+                      Available Stock:
+                      <span
+                        class="font-weight-bold"
+                        v-if="variant.availableQTY"
+                      >
+                        {{ variant.availableQTY }} pcs.</span
+                      >
                       <span class="font-weight-bold" v-else>OUT OF STOCK</span>
                     </div>
                   </v-flex>
                   <v-flex xs12 mt-1>
                     <div>
-                      Price: 
-                      <span class="font-weight-bold" v-if="variant.price"> {{ variant.price | currency("&#8369;") }}</span>
+                      Price:
+                      <span class="font-weight-bold" v-if="variant.price">
+                        {{ variant.price | currency("&#8369;") }}</span
+                      >
                       <span class="font-weight-bold" v-else>N/A</span>
                     </div>
                   </v-flex>
                   <v-flex xs12 mt-1>
                     <div>
-                      Minimum Order: 
-                      <span class="font-weight-bold" v-if="variant.minimumOrder"> {{ variant.minimumOrder }} pcs.</span>
+                      Minimum Order:
+                      <span
+                        class="font-weight-bold"
+                        v-if="variant.minimumOrder"
+                      >
+                        {{ variant.minimumOrder }} pcs.</span
+                      >
                       <span class="font-weight-bold" v-else>N/A</span>
                     </div>
                   </v-flex>
                   <v-flex xs12 mt-1>
                     <div>
-                      Maximum Order: 
-                      <span class="font-weight-bold" v-if="variant.maximumOrder"> {{ variant.maximumOrder }} pcs.</span>
+                      Maximum Order:
+                      <span
+                        class="font-weight-bold"
+                        v-if="variant.maximumOrder"
+                      >
+                        {{ variant.maximumOrder }} pcs.</span
+                      >
                       <span class="font-weight-bold" v-else>N/A</span>
                     </div>
                   </v-flex>
@@ -270,7 +323,11 @@
               </v-layout>
 
               <v-layout row wrap v-if="product.attributes.length" my-3>
-                <span v-if="user.type === 'Reseller' && selectedButton === 'Stock Order'">
+                <span
+                  v-if="
+                    user.type === 'Reseller' && selectedButton === 'Stock Order'
+                  "
+                >
                   <v-flex
                     xs12
                     v-for="(a, index) in product.attributes"
@@ -284,12 +341,13 @@
                       item-value="name"
                       :rules="basicRules"
                       @change="fetchVariant"
-                      single-line required
+                      single-line
+                      required
                       menu-props="bottom"
                     ></v-select>
                   </v-flex>
                 </span>
-                
+
                 <span v-else>
                   <v-flex
                     xs12
@@ -303,14 +361,15 @@
                       item-text="name"
                       item-value="name"
                       :rules="basicRules"
-                      single-line required
+                      single-line
+                      required
                       menu-props="bottom"
                     ></v-select>
                   </v-flex>
                 </span>
               </v-layout>
 
-              <v-layout row wrap align-center justify-start mt-3 px-1> 
+              <v-layout row wrap align-center justify-start mt-3 px-1>
                 <v-flex xs8>
                   <v-text-field
                     :rules="numberRules"
@@ -321,37 +380,65 @@
                 </v-flex>
 
                 <v-flex xs2 pa-2>
-                  <v-btn 
-                    v-if="user.type === 'Reseller' && selectedButton === 'Stock Order'"
-                    color="primary" icon 
-                    :disabled="Number(attribute.quantity) <= 0 || Number(attribute.quantity) <= Number(variant.minimumOrder)"
-                    @click="attribute.quantity = (Number(attribute.quantity) - 1) || 0"
+                  <v-btn
+                    v-if="
+                      user.type === 'Reseller' &&
+                        selectedButton === 'Stock Order'
+                    "
+                    color="primary"
+                    icon
+                    :disabled="
+                      Number(attribute.quantity) <= 0 ||
+                        Number(attribute.quantity) <=
+                          Number(variant.minimumOrder)
+                    "
+                    @click="
+                      attribute.quantity = Number(attribute.quantity) - 1 || 0
+                    "
                   >
                     <v-icon>remove</v-icon>
                   </v-btn>
-                  <v-btn 
+                  <v-btn
                     v-else
-                    color="primary" icon 
+                    color="primary"
+                    icon
                     :disabled="Number(attribute.quantity) <= 0"
-                    @click="attribute.quantity = (Number(attribute.quantity) - 1) || 0"
+                    @click="
+                      attribute.quantity = Number(attribute.quantity) - 1 || 0
+                    "
                   >
                     <v-icon>remove</v-icon>
                   </v-btn>
                 </v-flex>
 
                 <v-flex xs2 pa-2>
-                  <v-btn color="primary" icon v-if="user.type === 'Reseller' && selectedButton === 'Stock Order'"
-                    @click="attribute.quantity = (Number(attribute.quantity) + 1) || 0"
+                  <v-btn
+                    color="primary"
+                    icon
+                    v-if="
+                      user.type === 'Reseller' &&
+                        selectedButton === 'Stock Order'
+                    "
+                    @click="
+                      attribute.quantity = Number(attribute.quantity) + 1 || 0
+                    "
                     :disabled="
-                      (Number(attribute.quantity) >= Number(variant.availableQTY)) ||
-                      (Number(attribute.quantity) >= Number(variant.maximumOrder))
+                      Number(attribute.quantity) >=
+                        Number(variant.availableQTY) ||
+                        Number(attribute.quantity) >=
+                          Number(variant.maximumOrder)
                     "
                   >
                     <v-icon>add</v-icon>
                   </v-btn>
 
-                  <v-btn color="primary" icon v-else
-                    @click="attribute.quantity = (Number(attribute.quantity) + 1) || 0"
+                  <v-btn
+                    color="primary"
+                    icon
+                    v-else
+                    @click="
+                      attribute.quantity = Number(attribute.quantity) + 1 || 0
+                    "
                   >
                     <v-icon>add</v-icon>
                   </v-btn>
@@ -365,6 +452,7 @@
                   v-if="user.type === 'Customer'"
                   block
                   depressed
+                  :disabled="Number(attribute.quantity) <= 0"
                   color="primary"
                   class="white--text"
                   @click="addToBasket"
@@ -375,6 +463,7 @@
                   v-else
                   block
                   depressed
+                  :disabled="Number(attribute.quantity) <= 0"
                   color="primary"
                   class="white--text"
                   @click="showBasketDialog"
@@ -382,7 +471,7 @@
                   <v-icon left>add</v-icon> Add to Customer Cart
                 </v-btn>
               </div>
-              
+
               <div v-else-if="selectedButton === 'Stock Order'">
                 <v-btn
                   depressed
@@ -425,6 +514,7 @@ const placeholder = require("../../static/img/item-placeholder.png");
 import { AUTH } from "@/config/firebaseInit";
 import ConfirmationModal from "@/components/ConfirmationModal";
 import { Carousel, Slide } from "vue-carousel";
+// import 'trix/dist/trix.css';
 
 export default {
   mixins: [mixins],
@@ -432,14 +522,14 @@ export default {
     isLoading: false,
     message: null,
     product: {
-      attributes: [],
+      attributes: []
     },
     basketConfirmationDialog: false,
     hideProductThumbnail: false,
     snackbar: false,
     snackbarMessage: null,
     attribute: {
-      quantity: 0,
+      quantity: 0
     },
     attribLoading: false,
     addBasketToContactDialog: false,
@@ -450,13 +540,13 @@ export default {
     noticeDialog: false,
     currentSocial: null,
     editItemDialog: false,
-    selectedButton: null,
+    selectedButton: 'Customer',
     showMoreDescription: false,
     addToInventoryLoading: false,
     addToStockOrderLoading: false,
     selectedInventoryItem: {},
     orderQTY: null,
-    variant: {},
+    variant: {}
   }),
 
   async mounted() {
@@ -468,22 +558,23 @@ export default {
     );
 
     if (this.product.attributes.length) {
-      const index = this.product.attributes.findIndex(attrib => attrib.name.toLowerCase() === 'quantity');
-      if(index != -1) this.product.attributes.splice(index, 1);
-      
+      const index = this.product.attributes.findIndex(
+        attrib => attrib.name.toLowerCase() === "quantity"
+      );
+      if (index != -1) this.product.attributes.splice(index, 1);
+
       this.product.attributes.forEach(attrib => {
         this.attribute[attrib.name.toLowerCase()] = null;
       });
-    
-    } else if(this.user.type === 'Reseller') {
+    } else if (this.user.type === "Reseller") {
       //retreive the single variant of the current product being viewed
-      const variant = await this.$store.dispatch('variants/GET_VARIANT', {
+      const variant = await this.$store.dispatch("variants/GET_VARIANT", {
         sku: this.product.code,
         productId: this.product.id
       });
       this.variant = Object.assign({}, variant);
-      this.attribute['quantity'] = this.variant.minimumOrder;
-      
+      this.attribute["quantity"] = this.variant.minimumOrder;
+
       console.log("product's single variant: ", this.variant);
     }
 
@@ -497,15 +588,13 @@ export default {
 
     quantityCounter(operation) {
       this.orderQTY = Number(this.orderQTY);
-      if(operation === '+') {
+      if (operation === "+") {
         this.orderQTY += 1;
         this.attribute["quantity"] = this.orderQTY;
-      }
-      else if(operation === '-') {
+      } else if (operation === "-") {
         this.orderQTY -= 1;
         this.attribute["quantity"] = this.orderQTY;
-      }
-      else this.attribute["quantity"] = this.orderQTY;
+      } else this.attribute["quantity"] = this.orderQTY;
     },
 
     openBasketConfirmationDialog(text = "Item Added to cart!") {
@@ -613,7 +702,9 @@ export default {
         );
 
         if (itemIndex !== -1) {
-          data.basket.items[itemIndex].attribute.qty += +Number(item.attribute.qty);
+          data.basket.items[itemIndex].attribute.qty += +Number(
+            item.attribute.qty
+          );
         } else {
           data.basket.items.push(item);
         }
@@ -725,38 +816,34 @@ export default {
 
     async fetchVariant() {
       this.attribLoading = true;
-      let variantName = '';
-      for(const [key, variant] of Object.entries(this.attribute)) {
-        
-        if(key.toLowerCase() === "quantity" || key.toLowerCase() === "qty") {
-          console.log('key that disqualifies: ', key);
+      let variantName = "";
+      for (const [key, variant] of Object.entries(this.attribute)) {
+        if (key.toLowerCase() === "quantity" || key.toLowerCase() === "qty") {
+          console.log("key that disqualifies: ", key);
           continue;
-
         } else {
-          console.log('key that qualified: ', key)
+          console.log("key that qualified: ", key);
           variantName += `${variant}`;
         }
-        
       }
-      
-      console.log('variant name generated: ', variantName);
-      const variant = await this.$store.dispatch('variants/GET_VARIANT', {
+
+      console.log("variant name generated: ", variantName);
+      const variant = await this.$store.dispatch("variants/GET_VARIANT", {
         name: variantName,
         productId: this.product.id
       });
-      
+
       this.variant = Object.assign({}, variant);
-      this.attribute['quantity'] = this.variant.minimumOrder;
-      
-      console.log('selected variant: ', this.variant)
-      
-      if(!this.variant || !this.variant.hasOwnProperty('sku')) {
+      this.attribute["quantity"] = this.variant.minimumOrder;
+
+      console.log("selected variant: ", this.variant);
+
+      if (!this.variant || !this.variant.hasOwnProperty("sku")) {
         this.snackbar = true;
         this.snackbarMessage = "No variant associated...";
-      } 
+      }
 
       this.attribLoading = false;
-      
     },
 
     addToInventory() {
@@ -814,7 +901,7 @@ export default {
         .dispatch("stock_orders/SAVE_ITEM_FROM_INVENTORY", {
           attributes: this.attribute,
           productId: this.product.id,
-          variant: this.variant,
+          variant: this.variant
         })
         .then(res => {
           console.log("ATTRIBUTES", this.attribute);
@@ -845,8 +932,12 @@ export default {
   },
   
   watch: {
-    
+    selectedButton(val) {
+      this.attribute['quantity'] = val === 'Stock Order' ? this.variant.minimumOrder : 0;
+    }
   },
+
+  watch: {},
 
   computed: {
     ...mapGetters({
@@ -859,14 +950,17 @@ export default {
       return this.description;
     },
     disableAddToCart() {
-      if(this.variant.isOutofStock) return true;
-      if(this.addToStockOrderLoading) return true;
-      if(Number(this.variant.availableQTY) === 0) return true;
-      if(Number(this.attribute.quantity) < Number(this.variant.minimumOrder)) return true;
-      if(Number(this.attribute.quantity) > Number(this.variant.maximumOrder)) return true;
-      if(Number(this.attribute.quantity) > Number(this.variant.availableQTY)) return true; 
-      if(Number(this.attribute.quantity) <= 0) return true;
-      
+      if (this.variant.isOutofStock) return true;
+      if (this.addToStockOrderLoading) return true;
+      if (Number(this.variant.availableQTY) === 0) return true;
+      if (Number(this.attribute.quantity) < Number(this.variant.minimumOrder))
+        return true;
+      if (Number(this.attribute.quantity) > Number(this.variant.maximumOrder))
+        return true;
+      if (Number(this.attribute.quantity) > Number(this.variant.availableQTY))
+        return true;
+      if (Number(this.attribute.quantity) <= 0) return true;
+
       return false;
     }
   },
@@ -903,7 +997,7 @@ export default {
 };
 </script>
 
-<style scoped>
+<style>
 .img-responsive {
   height: 100%;
   width: 100%;
@@ -921,10 +1015,12 @@ export default {
   font-size: 18px;
   font-weight: 400;
 }
+
 .product-description {
   text-align: justify;
 }
-.discount-img {
+
+.productDescription .discount-img {
   position: absolute;
   top: 11%;
 }
@@ -945,5 +1041,135 @@ export default {
   position: relative;
   background: transparent;
   text-align: center;
+}
+
+.trix-content {
+  line-height: 1.5;
+}
+
+.trix-content * {
+  box-sizing: border-box;
+}
+
+.trix-content h1 {
+  font-size: 1.2em;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.trix-content blockquote {
+  margin: 0 0 0 0.3em;
+  padding: 0 0 0 0.6em;
+  border-left: 0.3em solid #ccc;
+}
+
+.trix-content pre {
+  display: inline-block;
+  width: 100%;
+  vertical-align: top;
+  font-family: monospace;
+  font-size: 0.9em;
+  margin: 0;
+  padding: 0.5em;
+  white-space: pre;
+  background-color: #eee;
+  overflow-x: auto;
+}
+
+.trix-content ul,
+.trix-content ol,
+.trix-content li {
+  margin: 0;
+  padding: 0;
+}
+
+.trix-content ul li,
+.trix-content ol li,
+.trix-content li li {
+  margin-left: 1em;
+}
+
+.trix-content ul li::before,
+.trix-content ol li::before,
+.trix-content li li::before {
+  content: '● ';
+  color: inherit;
+}
+
+.trix-content img {
+  max-width: 100%;
+  height: auto;
+}
+
+.trix-content .attachment {
+  display: inline-block;
+  position: relative;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.trix-content .attachment a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.trix-content a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.trix-content .attachment a:hover,
+.trix-content .attachment a:visited:hover {
+  color: inherit;
+}
+
+.trix-content .attachment__caption {
+  padding: 0;
+  text-align: center;
+}
+
+.trix-content .attachment__caption .attachment__name+.attachment__size::before {
+  content: ' · ';
+}
+
+.trix-content .attachment--preview {
+  width: 100%;
+  text-align: center;
+}
+
+.trix-content .attachment--preview .attachment__caption {
+  color: #666;
+  font-size: 0.9em;
+  line-height: 1.2;
+}
+
+.trix-content .attachment--file {
+  color: #333;
+  line-height: 1;
+  margin: 0 2px 2px 0;
+  padding: 0.4em 1em;
+  border: 1px solid #bbb;
+  border-radius: 5px;
+}
+
+.trix-content .attachment-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  position: relative;
+  margin: 0;
+  padding: 0;
+}
+
+.trix-content .attachment-gallery .attachment {
+  flex: 1 0 33%;
+  padding: 0 0.5em;
+  max-width: 33%;
+}
+
+.trix-content .attachment-gallery.attachment-gallery--2 .attachment,
+.trix-content .attachment-gallery.attachment-gallery--4 .attachment {
+  flex-basis: 50%;
+  max-width: 50%;
 }
 </style>

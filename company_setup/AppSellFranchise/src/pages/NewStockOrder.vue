@@ -6,10 +6,7 @@
       </v-btn>
       <v-spacer v-if="$store.state.rightAlignToolbarIcons"></v-spacer>
       <!-- <BasketBadge tabName="msa" /> -->
-      <!-- <v-btn icon @click="confirmGenerate" v-show="stockOrder.items.length > 0">
-        <v-icon>refresh</v-icon>
-      </v-btn> -->
-      <v-btn icon @click="confirmClearBasket" v-show="stockOrder.items.length > 0">
+      <v-btn icon @click="confirmGenerate" v-show="stockOrder.items.length > 0">
         <v-icon>refresh</v-icon>
       </v-btn>
       <v-spacer></v-spacer>
@@ -118,11 +115,10 @@
           <span>Proceed to Checkout </span>
         </v-btn>
       </div>
-      <!-- <div v-else>
-				<v-btn @click="generateStockOrder" depressed large color="primary" class="white--text">
-					<span>Generate From Inventory</span>
-				</v-btn>
-			</div> -->
+      <div v-if="itemsWithLowQTY.length" class="mt-3 text-xs-center">
+        <v-icon @click="showWarning"
+        >help_outline</v-icon>
+      </div>
     </div>
 
     <v-divider class="mt-5" v-if="outOfStockItems.length"></v-divider>
@@ -172,14 +168,6 @@
               </v-layout>
             </td>
             <td class="caption text-xs-right border-bottom font-weight-bold">OUT OF STOCK</td>
-            <!-- <td class="caption text-xs-right border-bottom">{{ item.qty }}</td>
-            <td class="caption text-xs-right border-bottom">
-              {{ (item.qty * item.resellerPrice) | currency("P") }}
-              <br />
-              <a @click="editItem(item)">
-                <v-icon class="caption blue--text">border_color</v-icon> Edit</a
-              >
-            </td> -->
           </tr>
         </tbody>
       </table>
@@ -232,8 +220,18 @@
             <v-flex xs12>
               <div v-if="!selectedProduct.isOutofStock" 
                 :class="[ isLowInStocks(selectedProduct) ? 'subheading red--text' : 'subheading']">
-                Available Stock: 
-                <span class="font-weight-bold">{{ selectedProduct.availableQTY }} pcs.</span>
+                <div>
+                  Available Stock: 
+                  <span class="font-weight-bold">{{ selectedProduct.availableQTY }} pcs.</span>
+                </div>
+                <div>
+                  Minimum Order:
+                  <span class="font-weight-bold">{{ selectedProduct.minimumOrder }}</span>
+                </div>
+                <div>
+                  Maximum Order:
+                  <span class="font-weight-bold">{{ selectedProduct.maximumOrder }}</span>
+                </div>
               </div>
               <div v-else class="subheading red--text font-weight-bold">
                 OUT OF STOCK
@@ -248,7 +246,10 @@
             </v-flex>
             <v-flex xs2 pa-2>
                 <v-btn color="primary" icon 
-                  :disabled="selectedProduct.qty <= 0 || selectedProduct.qty <= Number(selectedProduct.minimumOrder)" 
+                  :disabled="
+                    (Number(selectedProduct.qty) <= 0) ||
+                    (Number(selectedProduct.qty) <= Number(selectedProduct.minimumOrder))
+                  " 
                   @click="selectedProduct.qty = (Number(selectedProduct.qty) - 1) || 0"
                 >
                   <v-icon>remove</v-icon>
@@ -256,7 +257,10 @@
             </v-flex>
             <v-flex xs2 pa-2>
                 <v-btn color="primary" icon 
-                  :disabled="selectedProduct.qty >= Number(selectedProduct.availableQTY)"
+                  :disabled="
+                    (Number(selectedProduct.qty) >= Number(selectedProduct.availableQTY)) ||
+                    (Number(selectedProduct.qty) >= Number(selectedProduct.maximumOrder))
+                  "
                   @click="selectedProduct.qty = (Number(selectedProduct.qty) + 1) || 0">
                   <v-icon>add</v-icon>
                 </v-btn>
@@ -278,15 +282,10 @@
 
     <v-snackbar bottom v-model="snackbar">{{ snackbarMessage }}</v-snackbar>
     <BottomNav />
-    <!-- <ConfirmationModal
-      ref="ConfirmationModal"
-      confirmText="Continue"
-      @confirmClicked="generateStockOrder"
-    /> -->
     <ConfirmationModal
       ref="ConfirmationModal"
       confirmText="Continue"
-      @confirmClicked="clearStockOrderList"
+      @confirmClicked="generateStockOrder"
     />
   </div>
 </template>
@@ -349,8 +348,7 @@ export default {
       this.stockOrder = Object.assign({}, response.data);
 
       for(let item of this.stockOrder.items) {
-
-        // const variant = this.variantList.find(variant => (variant.sku === item.sku) && (variant.productId === item.productId));
+        
         const variant = await this.$store.dispatch('variants/GET_VARIANT', {
           sku: item.sku,
           productId: item.productId
@@ -361,11 +359,9 @@ export default {
         item.onHandQTY = variant.onHandQTY;
         item.reOrderLevel = variant.reOrderLevel;
         item.availableQTY = parseInt(item.onHandQTY) - parseInt(item.allocatedQTY);
-        item.weight = variant.weight;
-        item.price = variant.price;
-        item.resellerPrice = variant.resellerPrice;
         item.isOutofStock = variant.isOutofStock;
         item.minimumOrder = variant.minimumOrder;
+        item.maximumOrder = variant.maximumOrder;
 
         if(!item.isOutofStock && item.availableQTY === 0) {
           item.isOutofStock = true;
@@ -402,41 +398,11 @@ export default {
       return product.availableQTY <= product.reOrderLevel;
     },
 
-    confirmClearBasket() {
+    confirmGenerate() {
       this.$refs.ConfirmationModal.show(
         "Confirm",
-        "Refreshing this page will remove all items you have manually added to this shopping cart, Do you wish to continue?"
+        "Refreshing this page will remove items you have manually added to this shopping cart, Do you wish to continue?"
       );
-    }, 
-
-    async clearStockOrderList() {
-      console.log('clearing stock order basket...');
-      this.$refs.ConfirmationModal.close();
-      this.loaderDialogMessage = 'Clearing your stock order basket...';
-      this.loader = true;
-      
-      try {
-        await this.$store.dispatch("stock_orders/DELETE_ALL_ITEMS", this.stockOrder.id);
-        this.stockOrder = {
-          id: null,
-          items: [],
-          userId: null,
-          createdAt: null
-        };
-        
-        this.loader = false;
-        this.loaderDialogMessage = null;
-        this.snackbarMessage = 'Success!';
-        this.snackbar = true;
-
-      } catch(error) {
-        console.log('error in clearStockOrderList: ', error);
-        this.loader = false;
-        this.loaderDialogMessage = null;
-        this.snackbarMessage = 'Error!';
-        this.snackbar = true;
-      }
-      
     },
 
     generateStockOrder() {
@@ -623,7 +589,7 @@ export default {
     },
 
     deleteProduct() {
-      console.log(1);
+      console.log('deleting product...');
       this.$store
         .dispatch("stock_orders/DELETE_ITEM", this.selectedProduct.unique)
         .then(res => {
@@ -646,7 +612,7 @@ export default {
           console.log(error);
         });
     },
-    ProceedToCheckout() {
+    async ProceedToCheckout() {
       //warn the user that there are items that has a quantity greater than the available quantity
       if(this.itemsWithLowQTY.length) {
         this.warningDialog = true;
@@ -660,18 +626,22 @@ export default {
       });
     }
   },
+  watch: {
+    
+  },
   computed: {
     disableSaveButton() {
       if(this.saveProductButton) return true;
       if(Number(this.selectedProduct.qty) < Number(this.selectedProduct.minimumOrder)) return true;
       if(Number(this.selectedProduct.qty) > Number(this.selectedProduct.availableQTY)) return true;
+      if(Number(this.selectedProduct.qty) > Number(this.selectedProduct.maximumOrder)) return true;
       if(Number(this.selectedProduct.qty) <= 0) return true;
 
       return false;
     },
 
     subTotal() {
-      console.log(this.stockOrder);
+      // console.log(this.stockOrder);
       return this.stockOrder.items.reduce(
         (a, b) => a + b.price * b.qty,
         0
@@ -737,7 +707,7 @@ export default {
       let str = "";
 
       keys.forEach(key => {
-        str += `${key.toUpperCase()}: ${attributes[key]}`;
+        str += `${key.toUpperCase()}: ${attributes[key]}\n`;
       });
 
       return str;

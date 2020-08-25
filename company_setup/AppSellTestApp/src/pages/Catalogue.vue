@@ -114,6 +114,12 @@
                 color="grey lighten-5"
               ></v-progress-circular>
             </v-layout>
+
+            <v-layout row fill-height align-end justify-start>
+              <div
+                class="overlay-category-name title white--text"
+              >{{ c.name }}</div>
+            </v-layout>
           </v-img>
         </v-card>
       </masonry>
@@ -175,6 +181,8 @@ export default {
       .finally(() => {
         this.loading = false;
       });
+
+    this.primaryColor = process.env.primaryColor;
   },
   methods: {
     onRefresh() {
@@ -279,6 +287,15 @@ export default {
   display: inline-block;
   width: 100%;
   text-align: center;
+}
+
+.overlay-category-name{
+  position: absolute;
+  z-index: 2;
+  height: 30px;
+  width: 100%;
+  background-color: rgba(109, 109, 109, 0.7);
+  padding: 5px;
 }
 </style>
 
