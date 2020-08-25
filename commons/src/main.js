@@ -6,6 +6,7 @@ import Vuetify from 'vuetify';
 
 import 'typeface-roboto';
 import 'material-design-icons-iconfont/dist/material-design-icons.css';
+// import 'trix/dist/trix.css';
 
 import 'vuetify/dist/vuetify.css';
 

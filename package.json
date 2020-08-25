@@ -59,6 +59,7 @@
     "prompt-confirm": "^2.0.4",
     "prompts": "^2.2.1",
     "skwas-cordova-plugin-datetimepicker": "^2.1.1",
+    "trix": "^1.2.4",
     "typeface-roboto": "0.0.54",
     "uuid": "^3.4.0",
     "vant": "^0.12.11",
