@@ -15,8 +15,8 @@
     "android-vm": "npm run build && cordova run android",
     "generate": "node config/dirfix.js",
     "generate-ios": "node config/dirfix_ios.js",
-    "generate-dev": "cross-env NODE_ENV=testing npm run generate",
-    "generate-dev-ios": "cross-env NODE_ENV=testing npm run generate-ios"
+    "generate-dev": "cross-env NODE_ENV=testing npm run generate && cordova build android",
+    "generate-dev-ios": "cross-env NODE_ENV=testing npm run generate && cordova build ios"
   },
   "dependencies": {
     "axios": "^0.19.0",
