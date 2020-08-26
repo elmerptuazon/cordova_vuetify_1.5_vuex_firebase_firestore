@@ -18,11 +18,11 @@
         <v-icon v-else>close</v-icon>
       </v-btn>
       <v-spacer></v-spacer>
-      <ContactsBadge/>
+      <ContactsBadge />
       <Accounts />
     </v-toolbar>
 
-    <v-container>
+    <v-container fluid>
       <div class="text-xs-center mt-5" v-if="loading">
         <v-progress-circular
           :size="100"
@@ -32,7 +32,7 @@
         ></v-progress-circular>
       </div>
 
-      <v-list class="pa-0" v-show="!loading">
+      <v-list class="pa-0 ma-0" v-else>
         <template
           v-for="i in filterBy(orderBy(items, 'updatedAt', -1), search)"
         >
@@ -100,7 +100,6 @@
   </div>
 </template>
 
-
 <script>
 import BasketBadge from "@/components/BasketBadge";
 import { mixins } from "@/mixins";
@@ -121,68 +120,19 @@ export default {
     loading: false,
     search: null,
     newMessageBtnLoading: false,
-    offsetTop: 0,
+    offsetTop: 0
   }),
-  mounted() {
-    // this.$refs.modal.show('Sorry', 'Feature not yet available.', () => {
-    // 	this.$router.go(-1);
-    // });
-  },
+  mounted() {},
   async created() {
     this.loading = true;
 
-    if(this.items.length) {
+    if (this.items.length) {
       this.conversationsLoaded = true;
     }
-    // try {
-    //   const conversations = await this.$store.dispatch(
-    //     "conversations/GET_CONVERSATIONS"
-    //   );
 
-    //   this.items = conversations;
-    //   this.conversationsLoaded = true;
-
-    //   console.log(this.items);
-    // } catch (error) {
-    //   console.log(error);
-    // }
     this.loading = false;
   },
   methods: {
-    // listenToConversations() {
-    //   const user = this.$store.getters["accounts/user"];
-
-    //   this.conversationsListener = COLLECTION.conversations
-    //     .where("users", "array-contains", user.uid)
-    //     .onSnapshot(snapshot => {
-    //       if (!this.conversationsLoaded) {
-    //         return;
-    //       }
-
-    //       snapshot.docChanges().forEach(async change => {
-    //         const data = change.doc.data();
-    //         data.id = change.doc.id;
-
-    //         if (change.type === "added") {
-    //           const userIndex = data.users.findIndex(u => u !== user.uid);
-    //           data.user = await this.$store.dispatch(
-    //             "accounts/GET_USER",
-    //             data.users[userIndex]
-    //           );
-    //           this.items.push(data);
-    //         } else if (change.type === "modified") {
-    //           const conversationIndex = this.items.findIndex(
-    //             c => c.id === data.id
-    //           );
-    //           if (conversationIndex !== -1) {
-    //             this.items[conversationIndex].updatedAt = data.updatedAt;
-    //             this.items[conversationIndex].opened = data.opened;
-    //           }
-    //         }
-    //       });
-    //     });
-    // },
-
     findConversation(conversationId) {
       const index = this.items.findIndex(item => item.id === conversationId);
       this.viewConversation(this.items[index]);
@@ -204,16 +154,16 @@ export default {
         this.newMessageBtnLoading = false;
       });
     },
-    onScroll (e) {
-		this.offsetTop = e.target.scrollTop
-		},
+    onScroll(e) {
+      this.offsetTop = e.target.scrollTop;
+    }
   },
   beforeDestroy() {
     // this.conversationsListener();
   },
   computed: {
     items() {
-      return this.$store.getters['conversations/GET_CONVERSATION_LIST'];
+      return this.$store.getters["conversations/GET_CONVERSATION_LIST"];
     },
     userPlaceholder(val) {
       return malePlaceholder;
