@@ -35,8 +35,7 @@
                   :src="user.downloadURL"
                   alt="avatar"
                   contain
-                >
-                </v-img>
+                ></v-img>
                 <v-img
                   v-else
                   width="90"
@@ -50,8 +49,7 @@
                   class="overlayImage"
                   width="30"
                   @click="sheet = true"
-                >
-                </v-img>
+                ></v-img>
               </v-avatar>
             </div>
             <br />
@@ -71,16 +69,14 @@
                   :src="user.proofOfId"
                   alt="avatar"
                   contain
-                >
-                </v-img>
+                ></v-img>
                 <v-img
                   contain
                   :src="require('./../../static/img/camera-icon.png')"
                   class="overlayImage"
                   width="30"
                   @click="proofOfIdSheet = true"
-                >
-                </v-img>
+                ></v-img>
               </v-avatar>
             </div>
             <br />
@@ -104,11 +100,11 @@
                   </v-list-tile-avatar>
                   <v-list-tile-content>
                     <v-list-tile-sub-title>Your Reseller</v-list-tile-sub-title>
-                    <v-list-tile-title class="grey--text text--darken-2"
-                      >{{ userData.resellerData.firstName }}
+                    <v-list-tile-title class="grey--text text--darken-2">
+                      {{ userData.resellerData.firstName }}
                       {{ userData.resellerData.middleInitial }}
-                      {{ userData.resellerData.lastName }}</v-list-tile-title
-                    >
+                      {{ userData.resellerData.lastName }}
+                    </v-list-tile-title>
                   </v-list-tile-content>
                   <v-list-tile-action>
                     <v-btn
@@ -146,7 +142,7 @@
                 })
               "
             >
-              <v-icon left>add</v-icon> Add your reseller
+              <v-icon left>add</v-icon>Add your reseller
             </v-btn>
           </v-flex>
           <v-flex xs12>
@@ -178,6 +174,7 @@
               label="Birthday"
               append-icon="date_range"
               required
+              readonly
               :rules="basicRules"
               @click="openCalendar"
               v-model="userData.birthday"
@@ -273,7 +270,7 @@
 					</v-flex>
 					<v-flex xs12>
 						<v-text-field label="Twitter URL/Username" v-model="userData.social.twitter"></v-text-field>
-					</v-flex> -->
+          </v-flex>-->
           <v-flex
             xs6
             v-if="
@@ -303,9 +300,8 @@
               @click="updateUser"
               :loading="updateButtonLoading"
               :disabled="updateButtonLoading"
+              >Save Changes</v-btn
             >
-              Save Changes
-            </v-btn>
           </v-flex>
           <v-flex xs12 v-if="userData.status === 'denied'">
             <v-btn
@@ -318,7 +314,7 @@
               :loading="updateButtonLoading"
               :disabled="updateButtonLoading"
             >
-              <v-icon left>check</v-icon> Save and Submit
+              <v-icon left>check</v-icon>Save and Submit
             </v-btn>
           </v-flex>
         </v-layout>
@@ -396,9 +392,7 @@
       </v-card>
     </v-dialog>
 
-    <v-snackbar bottom v-model="snackbar">
-      {{ snackbarMessage }}
-    </v-snackbar>
+    <v-snackbar bottom v-model="snackbar">{{ snackbarMessage }}</v-snackbar>
 
     <Dialog />
 
@@ -441,10 +435,6 @@
   </div>
 </template>
 
-
-
-
-
 <script>
 import { mixins } from "@/mixins";
 import { mapGetters } from "vuex";
@@ -484,7 +474,10 @@ export default {
     provinces: [],
     cities: [],
     barangays: [],
-    placeHolderEmail: null
+    placeHolderEmail: null,
+    modal: false,
+    menu: false,
+    date: null
   }),
   watch: {
     "userData.address.province"(val) {
@@ -506,8 +499,10 @@ export default {
       this.placeHolderEmail = this.userData.email;
     }
 
-    if (!this.userData.hasOwnProperty("hasPicture") 
-        ||!this.userData.hasPicture) {
+    if (
+      !this.userData.hasOwnProperty("hasPicture") ||
+      !this.userData.hasPicture
+    ) {
       this.userData.resellerData.downloadURL = MaleDefaultImage;
     }
     console.log(this.userData);
@@ -561,12 +556,10 @@ export default {
         let msg;
         if (error.code === "auth/requires-recent-login") {
           this.reAuthDialog = true;
-        
-        } else if(error.message === 'Contact number already exists.') {
-          msg = 'Contact number already exists, please try again.';
-        
+        } else if (error.message === "Contact number already exists.") {
+          msg = "Contact number already exists, please try again.";
         } else {
-          msg = 'Account update error, please try again.';
+          msg = "Account update error, please try again.";
         }
 
         this.$refs.modal.show("Sorry", msg, () => {
@@ -761,17 +754,15 @@ export default {
       const options = {
         date: new Date(),
         mode: "date",
-        androidTheme: 3
-      };
-      datePicker.show(
-        options,
-        date => {
-          this.userData.birthday = this.$moment(date).format("MM/DD/YYYY");
+        android: {
+          theme: 3
         },
-        error => {
-          console.log("cancelled", error);
+        success: newDate => {
+          this.userData.birthday = this.$moment(newDate).format("MM/DD/YYYY");
         }
-      );
+      };
+
+      cordova.plugins.DateTimePicker.show(options);
     },
 
     capitalizeFirstLetter(string) {
@@ -786,13 +777,13 @@ export default {
       user: "accounts/user"
     })
   },
+  watch: {},
   components: {
     Modal
   },
   mixins: [mixins]
 };
 </script>
-
 
 <style>
 .input-group.input-group--error label {

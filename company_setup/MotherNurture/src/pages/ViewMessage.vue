@@ -1,16 +1,16 @@
 <template>
 	<div>
-		
+
 		<v-toolbar app color="primary" dark :extended="extended">
 			<v-btn icon @click="goBack">
 				<v-icon>arrow_back</v-icon>
 			</v-btn>
-			<v-text-field 
-				v-model="search" 
-				label="Search messages..."  
-				v-if="extended" 
-				slot="extension" 
-				class="mx-3" 
+			<v-text-field
+				v-model="search"
+				label="Search messages..."
+				v-if="extended"
+				slot="extension"
+				class="mx-3"
 				flat solo-inverted clearable
 				prepend-icon="search"
 			></v-text-field>
@@ -24,27 +24,27 @@
 			<ContactsBadge/>
 			<Accounts />
 		</v-toolbar>
-		
+
 		<div class="text-xs-center mt-5" v-if="loading">
 			<v-progress-circular :size="100" :width="5" color="primary" indeterminate></v-progress-circular>
 		</div>
-		
-		<div id="messages-container" v-show="!loading" class="pa-2" :style="{ height: `${height}px` }">
-			<div 
-				v-for="m in filterBy(orderBy(messages, 'created'), search)" 
+
+		<div id="messages-container" v-show="!loading" class="scroll-y smoothScroll pa-2" :style="{ height: `${height}px` }">
+			<div
+				v-for="m in filterBy(orderBy(messages, 'created'), search)"
 				:key="m.id"
-				class="message-container" 
+				class="message-container"
 			>
-				<div 
-					v-if="m.attachment" 
-					style="width: 200px;" 
+				<div
+					v-if="m.attachment"
+					style="width: 200px;"
 					:class="[m.you ? 'you my-2' : 'not-you my-2']"
 				>
 					<v-img :src="m.url" contain max-width="200"></v-img>
 				</div>
-				<v-card 
-					flat class="message" 
-					:class="[m.you ? 'you primary white--text' : 'not-you grey lighten-2 grey--text text--darken-3']" 
+				<v-card
+					flat class="message"
+					:class="[m.you ? 'you primary white--text' : 'not-you grey lighten-2 grey--text text--darken-3']"
 					v-else
 				>
 					<v-card-text class="pa-2">
@@ -53,20 +53,20 @@
 				</v-card>
 			</div>
 		</div>
-		
+
 		<v-layout wrap>
 			<v-flex xs12>
 				<div class="px-2" v-show="!loading">
-					<v-textarea 
-						prepend-icon="insert_photo" 
-						@click:prepend="openAttachment" 
-						@focus="toggleNav(false)" 
-						@blur="toggleNav(true)" 
-						v-model="text" 
-						placeholder="Type a message..." 
+					<v-textarea
+						prepend-icon="insert_photo"
+						@click:prepend="openAttachment"
+						@focus="toggleNav(false)"
+						@blur="toggleNav(true)"
+						v-model="text"
+						placeholder="Type a message..."
 						outline single-line auto-grow
 						rows="1" row-height="1" full-width rounded
-						append-outer-icon="send" 
+						append-outer-icon="send"
 						@click:append-outer="sendMessage"
 						:loading="sendLoader"
 						id="text-message"
@@ -74,7 +74,7 @@
 				</div>
 			</v-flex>
 		</v-layout>
-		
+
 		<v-bottom-sheet full-width v-model="sheet">
 			<v-list>
 				<v-subheader>Add using</v-subheader>
@@ -92,10 +92,9 @@
 				</v-list-tile>
 			</v-list>
 		</v-bottom-sheet>
-		
 		<BottomNav currentTab="messages" ref="BottomNav" />
 		<Loader ref="loader" />
-		
+
 	</div>
 </template>
 
@@ -110,7 +109,7 @@
 	import femalePlaceholder from '@/assets/img/female-default.jpg';
 	import uuidv4 from 'uuid/v4';
 	import ContactsBadge from "@/components/ContactsBadge";
-	
+
 	export default {
 		data: () => ({
 			extended: false,
@@ -127,6 +126,7 @@
 			innerHeight: null,
 			sheet: false,
 			conversationId: '',
+			offsetTop: 0,
 		}),
 		async created () {
 			this.loading = true;
@@ -145,29 +145,16 @@
 				this.loading = false;
 				this.scrollDown();
 			}
-			
+
 		},
 
 		mounted () {
 			this.innerHeight = window.innerHeight;
 			this.height = window.innerHeight - 175;
-			
-			window.onresize = (event) => {
-				
-				if (!this.keyboardHeight) {
-					this.keyboardHeight = this.innerHeight - event.target.innerHeight;
-					console.log('kb height', this.keyboardHeight)
-				}
-				
-				if (this.innerHeight > event.target.innerHeight) {
-					this.height = this.height - (this.keyboardHeight - 40);
-					console.log(this.height)
-				} else {
-					this.height = this.innerHeight - 175;
-					console.log(this.height)
-				}
-				
-			}
+
+			window.addEventListener('resize', function(event) {
+        this.calculateScreenSize(event);
+      });
 		},
 
 		watch: {
@@ -179,8 +166,25 @@
 		methods: {
 			goBack () {
 				this.$router.push({ name: 'Messages' });
-			},
-			
+      },
+
+      calculateScreenSize(event) {
+        if (!this.keyboardHeight) {
+					this.keyboardHeight = this.innerHeight - event.target.innerHeight;
+					console.log('kb height', this.keyboardHeight)
+				}
+
+				if (this.innerHeight > event.target.innerHeight) {
+					this.height = this.height - (this.keyboardHeight - 40);
+					console.log(this.height)
+				} else {
+					this.height = this.innerHeight - 175;
+					console.log(this.height)
+        }
+
+        this.scrollDown();
+      },
+
 			// listenToConversations (conversationId) {
 			// 	const user = this.$store.getters['accounts/user'];
 			// 	this.conversationsListener = DB.collection('conversations')
@@ -189,48 +193,48 @@
 			// 		await this.$store.dispatch('conversations/OPEN_UNREAD', conversationId);
 			// 	});
 			// },
-			
+
 			// listenToNewMessages (conversationId) {
 			// 	// this.loading = true;
 			// 	const user = this.$store.getters['accounts/user'];
-				
+
 			// 	this.messagesListener = DB.collection('messages')
 			// 	.where('conversationId', '==', conversationId)
 			// 	.onSnapshot((snapshot) => {
-					
+
 			// 		// this.loading = false;
-					
+
 			// 		snapshot.docChanges().forEach(async (change) => {
-						
+
 			// 			const data = change.doc.data();
 			// 			data.id = change.doc.id;
-						
+
 			// 			if (change.type === 'added') {
 			// 				if (data.sender === user.uid) {
 			// 					data.you = true;
 			// 				} else {
 			// 					data.you = false;
 			// 				}
-							
+
 			// 				this.messages.push(data);
 			// 				this.scrollDown();
 			// 			}
-						
+
 			// 		});
-					
+
 			// 	});
 			// },
-			
+
 			async sendMessage () {
 				if (!this.text) {
 					return;
 				}
-				
+
 				this.sendLoader = true;
 
 				const text = this.text;
 				this.text = null;
-				
+
 				try {
 					const { conversationId, recipientId } = this.$route.params;
 					const response = await this.$store.dispatch('conversations/SEND_MESSAGE', {
@@ -238,41 +242,41 @@
 						text: text,
 						recipientId: recipientId
 					});
-					
+
 				} catch (error) {
 					console.log(error);
 				}
-				
+
 				this.sendLoader = false;
 				this.scrollDown();
 			},
-			
+
 			toggleNav (val) {
 				if (val) {
 					// blur
 					// this.height = this.height - this.keyboardHeight;
-					
+
 					this.scrollDown();
 				} else {
 					// focus
 					// this.height = this.height - this.keyboardHeight;
 
 					//mark convo as read when the user focused on the message text area
-					//especially when the user stays on this page 
+					//especially when the user stays on this page
 					if(!this.currentConversation.opened[this.userId]) {
 						this.$store.dispatch('conversations/OPEN_UNREAD', this.conversationId);
 					}
 
 					this.scrollDown();
 				}
-				
+
 				this.$refs.BottomNav.toggleNav(val);
 			},
-			
+
 			openAttachment () {
 				this.sheet = true;
 			},
-			
+
 			async attachment (selected) {
 				try {
 
@@ -302,17 +306,20 @@
 					this.$refs.modal.show('Sorry', 'An error occurred');
 					console.log(error);
 				}
-				
+
 				this.$refs.loader.loader = false;
 			},
-			
+
 			scrollDown () {
 				setTimeout(() => {
 					const messagesWindow = document.getElementById('messages-container');
 					const totalHeight = messagesWindow.scrollHeight;
 					messagesWindow.scrollTo(0, totalHeight);
 				}, 250)
-			}
+			},
+			onScroll (e) {
+			  this.offsetTop = e.target.scrollTop
+			},
 		},
 		beforeDestroy () {
 			// this.conversationsListener();
@@ -323,7 +330,7 @@
 				this.scrollDown();
 				return this.$store.getters['conversations/GET_MESSAGES_LIST'];
 			},
-			currentConversation() { 
+			currentConversation() {
 				const convo = this.$store.getters['conversations/GET_CONVERSATION_LIST'];
 				const index = convo.findIndex((convo) => convo.id === this.conversationId);
 				console.log('current convo', convo[index]);
@@ -346,29 +353,35 @@
 		},
 		mixins: [mixins]
 	}
-	
+
 </script>
 
 <style scoped>
+  .smoothScroll {
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
+  }
+
 	#messages-container {
 		overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
 	}
-	
+
 	.v-text-field--outline>.v-input__control>.v-input__slot {
 		border-radius: 35px;
 	}
-	
+
 	#text-container {
 		overflow: hidden;
-		/* position: fixed; */
+		position: fixed;
 		width: 100%;
 		height: 57px;
 	}
-	
+
 	.you {
 		float: right;
 	}
-	
+
 	.message-container:before,
 	.message-container:after {
 		content: " ";
@@ -377,11 +390,11 @@
 	.message-container:after {
 		clear: both;
 	}
-	
+
 	.not-you {
 		float: left;
 	}
-	
+
 	.message {
 		position: relative;
 		max-width: 250px;
@@ -391,12 +404,12 @@
 		white-space: pre-wrap;
 		margin-bottom: 10px;
 	}
-	
+
 	.strong-text {
 		font-weight: 900;
 	}
-	
-	.v-input__icon--append>.v-icon { 
+
+	.v-input__icon--append>.v-icon {
 		font-size: 35px;
 	}
 </style>
