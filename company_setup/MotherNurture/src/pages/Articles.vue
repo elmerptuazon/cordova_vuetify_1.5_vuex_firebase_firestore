@@ -5,9 +5,9 @@
             <v-btn icon @click="goBack">
                 <v-icon>arrow_back</v-icon>
             </v-btn>
-            
+
             <BasketBadge tabName="articles" />
-            
+
             <v-spacer></v-spacer>
             <ContactsBadge/>
             <Accounts />
@@ -27,7 +27,7 @@
                 </v-flex>
             </v-layout>
 
-            <v-layout 
+            <v-layout
                 v-if="loading"
                 align-center justify-center mt-3>
                 <v-progress-circular
@@ -37,10 +37,10 @@
                     size="150"
                 >
                     <div class="headline primary--text">Please Wait...</div>
-                </v-progress-circular>    
+                </v-progress-circular>
             </v-layout>
 
-            <v-layout 
+            <v-layout
                 v-else-if="!articles.length && search"
                 align-center justify-center>
                 <div class="text-xs-center font-weight-bold body-2 error--text">
@@ -48,7 +48,7 @@
                 </div>
             </v-layout>
 
-            <v-layout 
+            <v-layout
                 v-else-if="!articles.length"
                 align-center justify-center>
                 <div class="text-xs-center font-weight-bold body-2 error--text">
@@ -78,7 +78,7 @@
                 </template>
 
                 <template v-slot:item="props">
-                    <v-layout 
+                    <v-layout
                         align-start justify-end mt-4 px-2 pb-2 wrap row
                         @click="viewArticle(props.item)" v-ripple
                         :class="[ props.item.isRead === false ? 'grey lighten-3' : '' ]"
@@ -90,17 +90,17 @@
 
                         <v-flex :xs7="props.item.headerURL" :xs12="!props.item.headerURL" mt-2>
                             <div class="title font-weight-bold">{{ props.item.title }}</div>
-                            
+
                             <div class="body-1 primary--text mt-2">
                                 <v-icon small color="primary">schedule</v-icon>
                                 {{ calculateTime(props.item.publishDate) }}
                             </div>
-                            
+
                             <div class="body-1 grey--text mt-1">
-                                <v-icon small color="grey">visibility</v-icon> 
+                                <v-icon small color="grey">visibility</v-icon>
                                 {{ props.item.viewedBy.length }}
                             </div>
-                            
+
                             <div class="caption font-weight-thin mt-3"> {{ summarizeSource(props.item.source) | uppercase }}</div>
                         </v-flex>
                         <v-flex xs4 offset-xs1 v-if="props.item.headerURL">
@@ -157,7 +157,7 @@ export default {
     },
 
     data: () => ({
-        loading: false, 
+        loading: false,
         search: null,
         yLocation: 0,
 
@@ -197,8 +197,8 @@ export default {
         async viewArticle(article) {
             this.loading = true;
             const user = this.$store.getters["accounts/user"];
-            const isViewed = article.viewedBy.includes(user.uid); 
-            
+            const isViewed = article.viewedBy.includes(user.uid);
+
             if(!isViewed) {
                 console.log('updating viewedBy array...');
                 await this.$store.dispatch('articles/ADD_USER_TO_VIEWED_BY', {
@@ -253,7 +253,7 @@ export default {
 
         articles() {
             let articles = this.$store.getters['articles/GET_ARTICLES'];
-            
+
             return articles.map((article) => {
                 article.isRead = article.viewedBy.includes(this.user.uid) ? true : false;
                 return article;

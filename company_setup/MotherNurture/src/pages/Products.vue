@@ -17,9 +17,8 @@
 			<Accounts />
 		</v-toolbar>
 
-		<v-container fluid>
-
-			<div class="text-xs-center mt-5" v-if="loader">
+    <v-container fluid>
+    	<div class="text-xs-center mt-5" v-if="loader">
 				<v-progress-circular :size="100" :width="5" color="primary" indeterminate></v-progress-circular>
 			</div>
 
@@ -52,24 +51,40 @@
 			</div>
 		</div> -->
 
-			<masonry :cols="2" :gutter="8">
-				<v-card class="mb-2" v-for="product in filterBy(GET_PRODUCTS, search)" :key="product.id" @click="goToProduct(product)">
-					<div>
-						<v-img contain :src="product.downloadURL" :lazy-src="require('@/assets/placeholder.png')">
-							<v-layout slot="placeholder" fill-height align-center justify-center ma-0>
-								<v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular>
-							</v-layout>
-						</v-img>
-					</div>
-					<div class="card-title pa-2 grey--text text--darken-2">
-						<div>{{product.name}}</div>
-						<div style="font-weight: bold;">{{product.price | currency('P')}}</div>
-					</div>
-					
-				</v-card>
-			</masonry>
+		<masonry :cols="2" :gutter="8" v-if="!search">
+			<v-card class="mb-2" v-for="product in orderBy(GET_PRODUCTS, 'position')" :key="product.id" @click="goToProduct(product)">
+				<div>
+					<v-img contain :src="product.downloadURL" :lazy-src="require('@/assets/placeholder.png')">
+						<v-layout slot="placeholder" fill-height align-center justify-center ma-0>
+							<v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular>
+						</v-layout>
+					</v-img>
+				</div>
+				<div class="card-title pa-2 grey--text text--darken-2">
+					<div>{{product.name}}</div>
+					<div style="font-weight: bold;">{{product.price | currency('P')}}</div>
+				</div>
 
-	</v-container>
+			</v-card>
+		</masonry>
+
+		<masonry :cols="2" :gutter="8" v-else>
+			<v-card class="mb-2" v-for="product in filterBy(GET_PRODUCTS, search)" :key="product.id" @click="goToProduct(product)">
+				<div>
+					<v-img contain :src="product.downloadURL" :lazy-src="require('@/assets/placeholder.png')">
+						<v-layout slot="placeholder" fill-height align-center justify-center ma-0>
+							<v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular>
+						</v-layout>
+					</v-img>
+				</div>
+				<div class="card-title pa-2 grey--text text--darken-2">
+					<div>{{product.name}}</div>
+					<div style="font-weight: bold;">{{product.price | currency('P')}}</div>
+				</div>
+
+			</v-card>
+		</masonry>
+
 	<BottomNav currentTab="categories" />
 </div>
 </template>
@@ -94,7 +109,7 @@ export default {
 		catalogueName: null,
 		loader: false,
 		items: [],
-		noItemsMessage: false
+		noItemsMessage: false,
 	}),
 	watch: {
 		GET_PRODUCTS (val) {

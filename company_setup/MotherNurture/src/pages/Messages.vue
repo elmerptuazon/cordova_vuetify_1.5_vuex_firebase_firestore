@@ -22,7 +22,7 @@
       <Accounts />
     </v-toolbar>
 
-    <v-container class="pa-0">
+    <v-container>
       <div class="text-xs-center mt-5" v-if="loading">
         <v-progress-circular
           :size="100"
@@ -120,7 +120,8 @@ export default {
     messagesListener: null,
     loading: false,
     search: null,
-    newMessageBtnLoading: false
+    newMessageBtnLoading: false,
+    offsetTop: 0,
   }),
   mounted() {
     // this.$refs.modal.show('Sorry', 'Feature not yet available.', () => {
@@ -202,7 +203,10 @@ export default {
       this.$refs.NewMessageDialog.show(() => {
         this.newMessageBtnLoading = false;
       });
-    }
+    },
+    onScroll (e) {
+		this.offsetTop = e.target.scrollTop
+		},
   },
   beforeDestroy() {
     // this.conversationsListener();
