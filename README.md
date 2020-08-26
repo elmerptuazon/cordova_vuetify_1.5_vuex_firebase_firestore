@@ -42,6 +42,9 @@ npm run generate
 # create unsigned apk in dev connection - Select company you wish to generate
 npm run generate-dev
 
+# create iOS app and xcodeproject in dev connection - Select company you wish to generate
+npm run generate-dev-ios
+
 # create the released files
 cordova build android --release
 
