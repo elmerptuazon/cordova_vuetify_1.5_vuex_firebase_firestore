@@ -38,7 +38,7 @@ function executeCommand(cmd) {
     console.log('Directories and files of www fixed.');
 
     // const prompt = new Confirm('Generate apk file?');
-    const answer = await prompt.run();
+    // const answer = await prompt.run();
     const answer = true;
     if (answer) {
       console.log('Building apk. Please wait...');
