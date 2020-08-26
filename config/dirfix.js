@@ -39,13 +39,13 @@ function executeCommand(cmd) {
 
     // const prompt = new Confirm('Generate apk file?');
     // const answer = await prompt.run();
-    // const answer = true;
-    // if (answer) {
-    //   console.log('Building apk. Please wait...');
-    //   await executeCommand('cordova build android');
-    //   console.log('APK generated.');
-    //   //await executeCommand(String.raw`start platforms\android\app\build\outputs\apk\debug`);
-    // }
+    const answer = true;
+    if (answer) {
+      console.log('Building apk. Please wait...');
+      await executeCommand('cordova build android');
+      console.log('APK generated.');
+      //await executeCommand(String.raw`start platforms\android\app\build\outputs\apk\debug`);
+    }
   } catch (err) {
     console.error(err);
     throw err;
