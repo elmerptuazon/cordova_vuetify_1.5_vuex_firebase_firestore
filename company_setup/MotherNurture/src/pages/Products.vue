@@ -84,7 +84,7 @@
 
 			</v-card>
 		</masonry>
-
+	</v-container>
 	<BottomNav currentTab="categories" />
 </div>
 </template>
