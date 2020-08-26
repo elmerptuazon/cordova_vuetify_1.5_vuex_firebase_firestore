@@ -575,13 +575,22 @@ const orders = {
 						//notify the reseller that they have a new customer order
 						//notify only if the user enabled the new orders notification setting 
 						if(notificationSetting && !order.read) {
-							document.addEventListener('deviceready', function () {
-								cordova.plugins.notification.local.schedule({
-									title: 'New customer order received!',
-									text: `Order #${order.id} - Click to open app`,
-									foreground: true
-								});
-							}, false);
+							const notif = {
+								title: 'New Customer Order Received!',
+								text: `Order #${order.id}.\nClick this to open app`,
+								redirectURL: {
+									name: "PlacedOrder",
+									params: {
+										order: order,
+										query: {
+											fromOrders: true
+										}
+									}
+								},
+							};
+
+							dispatch('accounts/SEND_PUSH_NOTIFICATION', notif, { root: true });
+							
 						}
 						
 					
@@ -599,7 +608,7 @@ const orders = {
 			})
 
 		},
-		LISTEN_TO_PROPOSED_DELIVERIES({ commit, state, rootState }) {
+		LISTEN_TO_PROPOSED_DELIVERIES({ commit, state, rootState, dispatch }) {
 			const user = rootState.accounts.user;
 
 			console.log('Listening to delivery propositions');
@@ -611,18 +620,28 @@ const orders = {
 					.onSnapshot((snapshot) => {
 						snapshot.docChanges().forEach((change) => {
 							const docData = change.doc.data();
+							docData.orderNo = change.doc.id;
 							const docId = change.doc.id;
 
 							if (change.type === 'modified' || change.type === 'added') {
 								if (docData.proposed_delivery_schedule && !docData.delivery_schedule_status) {
 									console.log('Proposed delivery schedule received for order ' + docId);
-									document.addEventListener('deviceready', function () {
-										cordova.plugins.notification.local.schedule({
-											title: 'Proposed delivery schedule received for order ' + docId,
-											text: 'Click to open app',
-											foreground: true
-										});
-									}, false);
+									const notif = {
+										title: `Proposed delivery schedule received for order ${docId}`,
+										text: 'Delivery schedule has been\nproposed to you by your reseller.\nClick this to open the app',
+										redirectURL: {
+											name: 'Order',
+											params: {
+												orderData: docData,
+												orderNo: docData.orderNo,
+												from: 'basket'
+											}
+										},
+									};
+
+									state.order = Object.assign({}, docData);
+
+									dispatch('accounts/SEND_PUSH_NOTIFICATION', notif, { root : true });
 								}
 							}
 
@@ -633,9 +652,12 @@ const orders = {
 					.orders
 					.where('resellerId', '==', user.uid)
 					.onSnapshot((snapshot) => {
-						snapshot.docChanges().forEach((change) => {
+						snapshot.docChanges().forEach(async (change) => {
 							const docData = change.doc.data();
+							docData.id = change.doc.id;
 							const docId = change.doc.id;
+
+							docData.offlineContact = await dispatch('accounts/GET_USER', docData.uid, { root: true }); 
 
 							const status = docData.delivery_schedule_status;
 
@@ -643,43 +665,76 @@ const orders = {
 								if (status && status === 'accepted' && !docData.delivery_schedule_status_acknowledged) {
 									console.log(`Order ${docId} delivery proposal has been accepted`);
 									COLLECTION.orders.doc(docId).update({ delivery_schedule_status_acknowledged: true });
-									document.addEventListener('deviceready', function () {
-										cordova.plugins.notification.local.schedule({
-											title: `Order ${docId} delivery proposal has been accepted`,
-											text: 'Click to open app',
-											foreground: true
-										});
-									}, false);
+									const notif = {
+										title: `Approved delivery proposal!`,
+										text: `Delivery schedule proposal\nfor customer order ${docId} has been accepted.\nClick this to open the app`,
+										redirectURL: {
+											name: 'PlacedOrder',
+											params: {
+												order: docData
+											},
+											query: {
+												fromOrders: true
+											}
+										},
+									};
+									
+									dispatch('accounts/SEND_PUSH_NOTIFICATION', notif, { root : true });
+									
 								} else if (status && status === 'declined' && !docData.delivery_schedule_status_acknowledged) {
 									console.log(`Order ${docId} delivery proposal has been declined`);
-									document.addEventListener('deviceready', function () {
-										cordova.plugins.notification.local.schedule({
-											title: `Order ${docId} delivery proposal has been declined`,
-											text: 'Click to open app',
-											foreground: true
-										});
-									}, false);
+									const notif = {
+										title: `Declined delivery proposal!`,
+										text: `Delivery schedule proposal\nfor customer order ${docId} has been declined.\nClick this to open the app`,
+										redirectURL: {
+											name: 'PlacedOrder',
+											params: {
+												order: docData
+											},
+											query: {
+												fromOrders: true
+											}
+										},
+									};
+									
+									dispatch('accounts/SEND_PUSH_NOTIFICATION', notif, { root : true });
+									
 								}
 							} else if (change.type === 'added') {
 								if (status && status === 'accepted' && !docData.delivery_schedule_status_acknowledged) {
 									console.log(`Order ${docId} delivery proposal has been accepted`);
 									COLLECTION.orders.doc(docId).update({ delivery_schedule_status_acknowledged: true });
-									document.addEventListener('deviceready', function () {
-										cordova.plugins.notification.local.schedule({
-											title: `Order ${docId} delivery proposal has been accepted`,
-											text: 'Click to open app',
-											foreground: true
-										});
-									}, false);
+									const notif = {
+										title: `Approved delivery proposal!`,
+										text: `Delivery schedule proposal\nfor customer order ${docId} has been accepted.\nClick this to open the app`,
+										redirectURL: {
+											name: 'PlacedOrder',
+											params: {
+												order: docData
+											},
+											query: {
+												fromOrders: true
+											}
+										},
+									};
+									dispatch('accounts/SEND_PUSH_NOTIFICATION', notif, { root : true });
+
 								} else if (status && status === 'declined' && !docData.delivery_schedule_status_acknowledged) {
 									console.log(`Order ${docId} delivery proposal has been declined`);
-									document.addEventListener('deviceready', function () {
-										cordova.plugins.notification.local.schedule({
-											title: `Order ${docId} delivery proposal has been declined`,
-											text: 'Click to open app',
-											foreground: true
-										});
-									}, false);
+									const notif = {
+										title: `Declined delivery proposal!`,
+										text: `Delivery schedule proposal\nfor customer order ${docId} has been declined.\nClick this to open the app`,
+										redirectURL: {
+											name: 'PlacedOrder',
+											params: {
+												order: docData
+											},
+											query: {
+												fromOrders: true
+											}
+										},
+									};
+									dispatch('accounts/SEND_PUSH_NOTIFICATION', notif, { root : true });
 								}
 							}
 

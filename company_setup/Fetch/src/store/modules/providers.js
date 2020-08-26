@@ -104,7 +104,7 @@ const providers = {
 
 
             for (const logistics of state.logisticsProvider) {
-                if (logistics.id != 'pick-up') {
+                if (logistics.id === 'barapido') {
                     //get key
                     //run http call for different url to get quotations per company
                     try {
@@ -117,7 +117,6 @@ const providers = {
                                 itemWeight: payload.itemWeight / 1000
                             }
     
-    
                         });
 
                         logistics.shippingFee = res.data.deliveryFee;
@@ -127,8 +126,6 @@ const providers = {
                         error.logisticsID = logistics.id;
                         throw error;
                     }
-                    
-                    
                 }
             }
 
@@ -141,6 +138,22 @@ const providers = {
             }
             catch(error) {
                 console.log(error);
+                throw error;
+            }
+        },
+
+        async GetDeliveryDiscounts() {
+            try {
+                const discountRef = await DB.collection('providers').doc('settings').collection('delivery_discount').get();
+                const discounts = discountRef.docs.map(discount => {
+                    const data = discount.data();
+                    data.id = discount.id;
+                    return data;
+                });
+                return discounts;
+
+            } catch(error) {
+                console.log(error)
                 throw error;
             }
         }
