@@ -16,7 +16,7 @@
     <v-stepper v-model="stepperCounter">
       <v-stepper-header>
         <v-stepper-step :complete="stepperCounter > 1" step="1"
-          >Confirm Shipping Address and Payment Method</v-stepper-step
+          >Confirm Shipping Address</v-stepper-step
         >
 
         <v-divider></v-divider>
@@ -64,37 +64,6 @@
               </v-layout>
             </v-container>
 
-            <v-container mt-3>
-              <v-card class="mb-3">
-                <v-card-title>
-                  <span class="body-2">Select Payment Option</span>
-                </v-card-title>
-                <v-divider></v-divider>
-                <v-container>
-                  <v-radio-group v-model="paymentMethod">
-                    <v-radio
-                      label="Cash On Delivery (COD) / Upon pick-up"
-                      value="COD"
-                    ></v-radio>
-                    <v-radio
-                      label="Online Payment (Credit Card, E-Wallet)"
-                      value="OP"
-                    ></v-radio>
-                  </v-radio-group>
-                </v-container>
-              </v-card>
-              <v-layout mt-2 align-center justify-center wrap>
-                <v-flex xs12>
-                  <v-divider></v-divider>
-                </v-flex>
-                <v-flex xs12 v-if="!freeShipping">
-                  <div class="mt-2 body-1 red--text font-italic font-weight-bold">
-                    Additional charges apply for Cash-On-Delivery option.
-                  </div>
-                </v-flex>
-              </v-layout>
-            </v-container>
-
             <v-container>
               <v-layout align-center justify-center mt-3>
                 <v-flex xs3>
@@ -124,20 +93,10 @@
                   v-for="logistics in logisticsProvider"
                   :key="logistics.id"
                   min-width="275px"
+                  class="mt-2"
                 >
-                  <v-card-title>
-                    <v-radio 
-                      :value="logistics.id" 
-                      :disabled="logistics.shippingFee === 'error'"
-                    ></v-radio>
-                    <span class="subheading">{{
-                      logistics.id.toUpperCase()
-                    }}</span>
-                    <span v-if="logistics.shippingFee === 'error'" class="font-weight-bold">(CANNOT BE SELECTED)</span>
-                  </v-card-title>
-                  <v-divider></v-divider>
-                  <v-card-text>
-                    <v-layout>
+                  <v-container>
+                    <v-layout row align-center justify-start mx-2>
                       <v-flex xs5>
                         <v-img
                           :src="logistics.logoURL"
@@ -145,23 +104,30 @@
                           contain
                         ></v-img>
                       </v-flex>
-                      <v-flex xs7>
-                        <v-card-title primary-title>
-                          <div>
-                            <div class="subheading">Shipping Fee:</div>
-                            <div 
-                              v-if="subTotal >= freeDeliveryCutOff && 
-                                logistics.id !== 'pick-up'
-                              " 
-                              class="primary--text"
-                            > FREE SHIPPING</div>
-                            <div v-else-if="logistics.shippingFee === 'error'">ERROR</div>
-                            <div v-else>+ {{ logistics.shippingFee | currency('P ') }} </div>
+
+                      <v-flex xs5 offset-xs1>
+                        <div class="font-weight-bold subheading">
+                          {{ logistics.id.toUpperCase() }}
+                        </div>
+                        <div>
+                          <div v-if="logistics.id === 'pick-up'"></div>
+                          <div v-else>
+                            <span>
+                              + {{ logistics.shippingFee | currency("&#8369; ") }} 
+                            </span>
                           </div>
-                        </v-card-title>
+                        </div>
                       </v-flex>
+
+                      <v-flex xs1>
+                         <v-radio 
+                          :value="logistics.id" 
+                        ></v-radio>
+                      </v-flex>
+
                     </v-layout>
-                  </v-card-text>
+                  </v-container>
+                  <!-- <v-divider class="my-2 black"></v-divider> -->
                 </v-card>
 
                 <v-layout align-center justify-end row px-6 mt-4>
@@ -240,46 +206,61 @@
                       {{ item.qty }}
                     </td>
                     <td class="caption text-xs-right border-bottom">
-                      {{ (item.qty * item.resellerPrice) | currency("P") }}
+                      {{ (item.qty * item.resellerPrice) | currency('&#8369;') }}
                     </td>
                   </tr>
+
                   <tr>
                     <td colspan="3"></td>
                   </tr>
+
                   <tr>
                     <td class="caption text-xs-right" colspan="2">
                       Subtotal
                     </td>
                     <td class="caption text-xs-right">
-                      {{ subTotal | currency("P") }}
+                      {{ subTotal | currency('&#8369;') }}
                     </td>
                   </tr>
-                  <!-- <tr>
-                    <td class="caption text-xs-right" colspan="2">
-                      Discount
-                    </td>
-                    <td class="caption text-xs-right">
-                      <span v-if="discount">{{ discount }}%</span>
-                    </td>
-                  </tr> -->
+
                   <tr>
                     <td class="caption text-xs-right" colspan="2">
                       Shipping Fee
                     </td>
                     <td class="caption text-xs-right">
-                      <span 
-                        v-if="freeShipping" 
-                        class="primary--text"
-                      >FREE</span>
-                      <span v-else>{{ shippingFee | currency("P") }}</span>
+                      <span>{{ shippingFee | currency('&#8369;') }}</span>
                     </td>
                   </tr>
+
+                  <tr v-if="isDeliveryDiscounted">
+                    <td class="caption text-xs-right" colspan="2">
+                      Shipping Fee Discount
+                    </td>
+                    <td class="caption text-xs-right">
+                      <span v-if="deliveryDiscount.type === 'amount'"> 
+                        {{ deliveryDiscount.amount | currency('&#8369;') }}
+                      </span>
+                      <span v-else>
+                        {{ deliveryDiscount.amount + ' %' }}
+                      </span>
+                    </td>
+                  </tr>
+
+                  <tr v-if="isDeliveryDiscounted">
+                    <td class="caption text-xs-right" colspan="2">
+                      New Shipping Fee
+                    </td>
+                    <td class="caption text-xs-right">
+                      <span>{{ discountedShippingFee | currency('&#8369;') }}</span>
+                    </td>
+                  </tr>
+
                   <tr>
                     <td class="caption text-xs-right" colspan="2">
                       Total
                     </td>
                     <td class="caption text-xs-right">
-                      <strong>{{ total | currency("P") }}</strong>
+                      <strong>{{ total | currency('&#8369;') }}</strong>
                     </td>
                   </tr>
                 </tbody>
@@ -301,16 +282,17 @@
         </v-stepper-content>
 
         <v-stepper-content step="4">
-          <v-card class="mb-3">
+          <v-card class="mb-5">
             <v-card-title>
-              <span class="body-2">Select Payment Channel</span>
+              <span class="body-2">Select Payment Option</span>
             </v-card-title>
             <v-divider></v-divider>
             <v-container>
-              <v-radio-group 
-                v-if="paymentMethod === 'OP'" 
-                v-model="payment.paymentType"
-              >
+              <v-radio-group v-model="payment.paymentType">
+                <v-radio
+                  label="Cash On Delivery (COD)/Upon pick-up"
+                  value="COD"
+                ></v-radio>
                 <v-radio
                   label="Credit Card (Visa and Mastercard Only)"
                   value="CC"
@@ -326,16 +308,20 @@
                   value="GrabPay"
                   :disabled="totalIsInMinimumPrice || totalIsInMaximumPrice"
                 ></v-radio>
+                <v-radio
+                  label="Bank Receipt / Payment Receipt"
+                  value="POP"
+                ></v-radio>
                 <div v-if="totalIsInMinimumPrice" class="mt-1">
                   <v-divider></v-divider>
                   <div class="mt-2 body-1 red--text font-italic font-weight-bold">
-                    Online payment is only available for stock order above {{ 100 | currency("PHP ")}}
+                    Online payment is only available for stock order above {{ 100 | currency('&#8369;') }}
                   </div>  
                 </div>
                 <div v-if="totalIsInMaximumPrice" class="mt-1">
                   <v-divider></v-divider>
                   <div class="mt-2 body-1 red--text font-italic font-weight-bold">
-                    E-Wallet payments are not available for stock order above {{ 100000 | currency("PHP ")}}
+                    E-Wallet payments are not available for stock order above {{ 100000 | currency('&#8369; ') }}
                   </div>  
                 </div>
                 <v-divider v-if="payment.paymentType === 'CC'"></v-divider>
@@ -352,14 +338,6 @@
                   @accountDetails="SetAccountDetails"
                 />
               </v-radio-group>
-              <div
-                v-else-if="payment.paymentType === 'COD'" 
-                class="title primary--text font-weight-bold px-3 mt-1"
-              >
-                <span>
-                  Cash On Delivery (COD) / Upon pick-up
-                </span>
-              </div>
             </v-container>
           </v-card>
           <div class="text-xs-center mt-3 mb-3">
@@ -372,7 +350,7 @@
               :disabled="stockOrder.items.length < 1"
             >
               <v-icon left>check_circle</v-icon>
-              <span v-if="payment.paymentType === 'COD'">
+              <span v-if="payment.paymentType === 'COD' || payment.paymentType === 'POP'">
                 Submit Order
               </span>
               <span v-else>
@@ -398,6 +376,40 @@
       </v-card>
     </v-dialog>
 
+    <v-dialog
+      v-model="checkOutDialog"
+      persistent fullscreen
+    >
+      <v-card :height="checkoutHeight" :width="checkoutWidth">
+        <v-card-title class="primary">
+          <div v-if="payment.paymentType === 'CC'" 
+            class="white--text font-weight-bold title"
+            >Authorize Card Access
+          </div>
+          <div v-else 
+            class="white--text font-weight-bold title"
+            >Authorize Account Access
+          </div>
+          <v-spacer></v-spacer>
+          <v-icon v-if="payment.paymentType === 'CC'" medium color="white" @click.native="recheckPaymentStatus">close</v-icon>
+          <v-icon v-else medium color="white" @click.native="continueEWalletPayment">close</v-icon>
+        </v-card-title>
+        <v-container>
+          <iframe 
+            ref="checkOutFrame" :src="checkOutURL" 
+            :height="checkoutHeight" :width="checkoutWidth" 
+            frameborder="0" 
+          />
+        </v-container>
+        <v-divider></v-divider>
+        <v-card-actions class="white">
+          <v-spacer></v-spacer>
+          <v-btn v-if="payment.paymentType === 'CC'" color="primary" flat @click.native="recheckPaymentStatus">CLOSE</v-btn>
+          <v-btn v-else color="primary" flat @click.native="continueEWalletPayment">CLOSE</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <ConfirmationModal ref="finalizeOrder" @confirmClicked="finalizeOrder" />
     <Modal ref="modal" />
   </div>
@@ -413,6 +425,8 @@ import ConfirmationModal from "@/components/ConfirmationModal";
 import creditCardForm from "@/components/creditCardForm";
 import Modal from "@/components/Modal";
 import GCashGrabPayForm from "@/components/GCashGrabPayForm";
+import Regions from 'philippines/regions';
+import Provinces from 'philippines/provinces';
 
 export default {
   mixins: [mixins],
@@ -435,10 +449,7 @@ export default {
       accountDetails: null,
     },
 
-    paymentMethod: '',
-
-    userHasNoOrders: '',
-    freeDeliveryCutOff: 0.00,
+    deliveryDiscountList: [],
 
     logisticsID: "pick-up",
     loaderDialogMessage: null,
@@ -457,39 +468,90 @@ export default {
     inAppBrowserRef: null,
 
   }),
-  mounted() {
+  
+  async mounted() {
     this.cordovaBackButton(this.goBack);
     
     this.loaderDialogMessage = 'Please Wait...';
     this.loaderDialog = true;
 
-    this.$store
-      .dispatch("stock_orders/GET")
-      .then(res => {
-        console.log(res.data);
-        if (res.success) {
-          this.stockOrder = Object.assign({}, res.data);
-        }
-        
-      })
-      .catch(error => {
-        console.log(error);
-        this.loaderDialogMessage = null;
-        this.loaderDialog = false;
+    this.checkoutHeight = window.innerHeight;
+    this.checkoutWidth = window.innerWidth;
+    
+    let stockOrder;
+    try {
+      stockOrder = await this.$store.dispatch("stock_orders/GET"); 
+    } catch(error) {
+      console.log(error);
+      this.loaderDialogMessage = null;
+      this.loaderDialog = false;
+    }
+    
+    if(!stockOrder.success) {
+      this.loaderDialogMessage = null;
+      this.loaderDialog = false;
+      return;
+    }
+
+    this.stockOrder = Object.assign({}, stockOrder.data);
+
+    let itemsToRemove = [];
+    for(const item of this.stockOrder.items) {
+      const variant = await this.$store.dispatch('variants/GET_VARIANT', {
+        sku: item.sku,
+        productId: item.productId
       });
 
-    this.$store
-      .dispatch('providers/GetFreeDeliveryCutOff')
-      .then(res => {
-        this.freeDeliveryCutOff = res.cutOffPrice;
-        this.loaderDialogMessage = null;
-        this.loaderDialog = false;
-      })
-      .catch(error => {
-        console.log(error);
-        this.loaderDialogMessage = null;
-        this.loaderDialog = false;
-      });
+      if(variant.isOutofStock) itemsToRemove.push(item);
+      else if(item.qty > variant.availableQTY) itemsToRemove.push(items);
+    }
+
+    for(const item of itemsToRemove) {
+      const index = this.stockOrder.items.findIndex(stockOrderItem => item.productId === stockOrderItem.productId);
+      if(index !== -1) {
+        this.stockOrder.items.splice(index, 1);
+      }
+    }
+
+    try {
+      this.deliveryDiscountList = await this.$store.dispatch('providers/GetDeliveryDiscounts');
+      
+      this.loaderDialogMessage = null;
+      this.loaderDialog = false;
+
+    } catch(error) {
+      console.log(error);
+      this.loaderDialogMessage = null;
+      this.loaderDialog = false;
+    }
+    
+    //add event listener to exit browser dialog when the success or fail redirect URL are being loaded 
+    window.addEventListener(
+      'loadstart',
+      ev => {
+        console.log('URL is being loaded in the iframe', ev.url);
+        if(ev.url === 'https://appsell.ph/paymentSuccess') {
+          console.log('GCASH/Grab Pay has been successful!');
+        
+        } else if(ev.url === 'https://appsell.ph/paymentFail') {
+          console.log('Gcash/Grab Pay had failed!');
+        
+        } else {
+          console.log('URL being loaded: ', ev);
+        }
+      },
+      false
+    );
+
+    //an event listener for successful 3ds auth
+    window.addEventListener(
+      'message', 
+      ev => {
+        console.log('message was received from the iframe!', ev);
+        this.recheckPaymentStatus();    
+      },
+      false
+    );
 
   },
   beforeDestroy() {
@@ -518,25 +580,13 @@ export default {
     
     async startQuotations() {
       this.loaderDialog = true;
-      this.loaderDialogMessage = "Please wait...";
-
-      if(this.userAddress.province !== 'Metro Manila') {
-        this.loaderDialogMessage = null;
-        this.loaderDialog = false;
-
-        this.$refs.modal.show(
-          "Lalamove Unavailable!",
-          `Lalamove delivery is not available in your area.`
-        );
-      }
+      this.loaderDialogMessage = "Please wait";
 
       try {
         const user = this.$store.getters["accounts/user"];
         await this.$store.dispatch("providers/CalculateShipping", {
           itemWeight: this.totalWeight,
-          toAddress: user.address,
-          stockOrder: this.stockOrder,
-          paymentType: this.payment.paymentType
+          toAddress: user.address
         });
 
         this.loaderDialogMessage = null;
@@ -548,27 +598,29 @@ export default {
         console.log(error);
         this.loaderDialogMessage = null;
         this.loaderDialog = false;
-        
         this.stepperCounter = 2;
 
-        switch(error.logisticsID) {
-          case "lalamove": {
-            if(error.response.data.message === 'ERR_OUT_OF_SERVICE_AREA') {
-              this.$refs.modal.show(
-                "Lalamove Unavailble",
-                `Lalamove delivery is not available in your area.`
-              );
-            }
-            else {
-              this.$refs.modal.show(
-                "Getting Quotation Failed",
-                `An error happened. Please try again. (${error.response.data.message})`
-              );
-            }
-            break;
+        let msg;
+        
+        if(error.logisticsID === 'barapido') {
+          //print corresponding error messages of barapido api error
+          if(error.response.data === 'Error: itemWeight exceeds the weight limit.') {
+            msg = 'Weight of the Stock Order exceeds the weight delivery requirement';
+        
+          } else if(error.response.data === "Error: TypeError: Cannot read property '0' of undefined") {
+            msg = 'Weight of the Stock Order is invalid.'
+
+          } else {
+            msg = 'An error occured. Please try again...';
           }
         }
+
+        this.$refs.modal.show(
+          `${error.logisticsID} Delivery Quotation Error`,
+          msg
+        );
       }
+
     },
 
     validateCardDetails() {
@@ -672,18 +724,21 @@ export default {
         this.payment.amount = this.total;
         this.stockOrder.logisticsDetails = {
           logisticProvider: this.logisticsID,
-          shippingFee: this.shippingFee
+          shippingFee: this.shippingFee, //this will show the original shipping fee to the dashboard
+          resellersShippingFee: this.shippingFee,
+          isDiscountedDelivery: false
         };
 
-        //this is a flag that tells the dashboard that this is a new order and hasnt been read by the brand company.
+        //this a flag that tells the dashboard that this is a new order and hasnt been read by the brand company.
         this.stockOrder.isRead = false;
-        
-        //determine if this shipping is free
-        this.stockOrder.logisticsDetails.isFreeShipping = this.freeShipping;
-        
-        if(this.logisticsID === 'lalamove') {
-          const lalamoveQuotationBody = this.$store.getters['lalamove/GET_QUOTATION_BODY'];
-          this.stockOrder.logisticsDetails.quotationBody = Object.assign({}, lalamoveQuotationBody);
+         
+        //if the stock order has delivery discount, show the original shipping fee to the company
+        if(this.isDeliveryDiscounted) {
+          this.stockOrder.logisticsDetails.resellersShippingFee = this.discountedShippingFee;
+          this.stockOrder.logisticsDetails.shippingFee = this.shippingFee;
+          this.stockOrder.logisticsDetails.isDiscountedDelivery = true;
+          this.stockOrder.logisticsDetails.discountType = this.deliveryDiscount.type;
+          this.stockOrder.logisticsDetails.discountAmount = this.deliveryDiscount.amount;
         }
 
         //check kung CC or COD
@@ -770,6 +825,24 @@ export default {
             );
 
             this.stockOrder.paymentDetails = paymentResult;
+
+            console.log(this.stockOrder);
+            //this flow will always result to success, any error should be thrown
+            //and handled in the catch statement
+
+            await this.submitOrder(paymentResult);
+
+            break;
+          }
+
+          case "POP": {
+            this.$refs.finalizeOrder.close();
+            let paymentResult = {
+              amount: this.total,
+              paymentType: 'POP',
+              paymentStatus: '-',
+              proofOfPayment: null,
+            }
 
             console.log(this.stockOrder);
             //this flow will always result to success, any error should be thrown
@@ -900,8 +973,8 @@ export default {
           console.log(response.attributes.last_payment_error)
           
           this.$refs.modal.show(
-            "Payment Failed!",
-            "Payment transaction was marked failed. Please try again."
+            "Payment Error!",
+            "Payment was not recorded!"
           );
         }
 
@@ -945,6 +1018,10 @@ export default {
 
       } else if(this.payment.paymentType === 'COD') {
         this.stockOrder.paymentDetails = Object.assign({}, paymentResult);
+      
+      } else if(this.payment.paymentType === 'POP') {
+        this.stockOrder.paymentDetails = Object.assign({}, paymentResult);
+      
       }
 
       console.log(this.stockOrder);
@@ -1136,63 +1213,88 @@ export default {
 
       return weight > 0 ? weight : 1000;
     },
-    discount() {
-      let discount = 0;
-      // if (this.subTotal >= 1500 && this.subTotal <= 2999) {
-      //   discount = 10;
-      // } else if (this.subTotal >= 3000 && this.subTotal <= 4999) {
-      //   discount = 15;
-      // } else if (this.subTotal >= 5000 && this.subTotal <= 9999) {
-      //   discount = 18;
-      // } else if (this.subTotal >= 10000 && this.subTotal <= 24999) {
-      //   discount = 20;
-      // } else {
-      //   discount = null;
-      // }
-      return discount;
-    },
-    freeShipping() {
-      if(
-        this.userAddress.province.toLowerCase() === 'metro manila' 
-        && this.userAddress.citymun.toLowerCase() === 'makati'
-        && this.subTotal >= 10000
-      ) {
-        return true;
-      }
-      else if(
-        this.userAddress.province.toLowerCase() === 'metro manila' 
-        && this.userAddress.citymun.toLowerCase() !== 'makati'
-        && this.subTotal >= 15000
-      ) {
-        return true;
-      }
-      else {
-        return false;
-      }
-    },
-    total() {
-      const isFreeDelivery = this.freeShipping;
 
-      if(isFreeDelivery) {
-        return this.subTotal;
-      
-      } else if (this.discount && !isFreeDelivery) {
-        return (
-          this.subTotal -
-          (this.discount / 100) * this.subTotal +
-          this.shippingFee
-        );
+    total() {
+      if(this.isDeliveryDiscounted) {
+        return this.subTotal + this.discountedShippingFee;
 
       } else {
         return this.subTotal + this.shippingFee;
       }
     },
+
     shippingFee() {
       const logisticsData = this.logisticsProvider.find(
         logistics => logistics.id === this.logisticsID
       );
 
-      return logisticsData.shippingFee;
+      return Number(logisticsData.shippingFee);
+    },
+
+    //this will find a delivery discount based on the reseller's location
+    deliveryDiscount() {
+      if(this.logisticsID === 'pick-up') {
+        return null;
+      }
+
+      const cityBasedDiscount = this.deliveryDiscountList.find(discount => {
+        return (
+          (discount.city === this.userAddress.citymun) &&
+          (discount.province === this.userAddress.province)
+        );
+      });
+
+      console.log("city discount", cityBasedDiscount)
+      if(cityBasedDiscount) return cityBasedDiscount;
+      
+      //if there is no city-based discount, then search for province-based disccount
+      const provinceBasedDiscount = this.deliveryDiscountList.find(discount => {
+        return (
+          (discount.province === this.userAddress.province) &&
+          (!discount.city || discount.city === null)
+        );
+      });
+
+      console.log("province discount", provinceBasedDiscount)
+      if(provinceBasedDiscount) return provinceBasedDiscount;
+
+      //if there are no province-base discount, then serach for region-based discount
+      const provinceDetails = Provinces.find(province => province.name === this.userAddress.province);
+      const regionOfProvince = Regions.find(region => region.key === provinceDetails.region);
+      const regionBasedDiscount = this.deliveryDiscountList.find(discount => {
+        return (
+          (discount.region === regionOfProvince.name) &&
+          (!discount.province || discount.province === null)
+        );
+      });
+      console.log("region discount", regionBasedDiscount)
+      if(regionBasedDiscount) return regionBasedDiscount;
+
+      return null;
+    },
+
+    isDeliveryDiscounted() {
+      if(!this.deliveryDiscount) return false;
+      
+      return this.subTotal >= this.deliveryDiscount.stockOrderPrice;
+    },
+
+    discountedShippingFee() {
+      //if the amount of the stock order doesnt reach the free delivery quota price from the retrieved delivery discount
+      //then this stock order is not eligeable for delivery discount 
+      if(!this.isDeliveryDiscounted) {
+        return this.shippingFee;
+      }
+
+      const { type, amount } = this.deliveryDiscount;
+      
+      let newShippingFee;
+      if(type === 'amount') 
+        newShippingFee = this.shippingFee - Number(amount);
+      else 
+        newShippingFee = this.shippingFee - ((Number(amount) / 100) * this.shippingFee);
+
+      return newShippingFee > 0 ? newShippingFee : 0;
     },
 
     totalIsInMinimumPrice() {
@@ -1226,7 +1328,7 @@ export default {
       let str = "";
 
       keys.forEach(key => {
-        str += `${key}:${attributes[key]}`;
+        str += `${key.toUpperCase()}: ${attributes[key]}\n`;
       });
 
       return str;
@@ -1255,15 +1357,6 @@ export default {
           "Charging your card unsuccessful, please try again."
         );
         this.$store.commit("payment/SetPaymentOccured", null);
-      }
-    },
-
-    paymentMethod(val) {
-      if(val === 'COD') {
-        this.payment.paymentType = 'COD';
-      
-      } else {
-        this.payment.paymentType = 'CC';
       }
     }
 

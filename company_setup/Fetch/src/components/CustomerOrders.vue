@@ -139,17 +139,17 @@ export default {
       {
         text: 'Date Placed',
         value: 'created_at',
-        align: 'center'
+        align: 'left'
       },
       {
         text: 'Status',
         value: 'position',
-        align: 'center'
+        align: 'left'
       },
       {
         text: 'Cost',
         value: 'total',
-        align: 'center'
+        align: 'left'
       }
     ],
 
@@ -166,10 +166,6 @@ export default {
     async viewOrder(item) {
       console.log(item);
       this.loading = true;
-      await this.$store.dispatch('orders/UPDATE_ORDER', {
-        orderNo: item.id,
-        object: { read: true },
-      });
 
       if (item.status === 'On Cart' || item.status === 'on cart') {
         this.$router.push({
@@ -182,6 +178,12 @@ export default {
           }
         });
       } else {
+        await this.$store.dispatch('orders/UPDATE_ORDER', {
+          orderNo: item.id,
+          object: { read: true },
+        });
+
+        item.read = true;
         this.$router.push({
           name: 'PlacedOrder',
           params: {
