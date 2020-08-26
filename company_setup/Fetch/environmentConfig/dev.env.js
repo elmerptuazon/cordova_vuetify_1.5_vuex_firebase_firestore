@@ -15,7 +15,7 @@ module.exports = merge(prodEnv, {
   webAdminId: '"admin"',
   companyName: '"Fetch"',
   contactNumber: '"09123456789"',
-  version: '"0.6.9"',
+  version: '"0.6.20"',
   environment: '"test"',
   callbackURL: '"https://us-central1-fetch-dev-a1f39.cloudfunctions.net/callback/checkPaymentStatus"',
   lalamoveURL: '"https://sandbox-rest.lalamove.com"',

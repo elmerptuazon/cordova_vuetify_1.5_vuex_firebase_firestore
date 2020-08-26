@@ -14,7 +14,7 @@ module.exports = merge(devEnv, {
   storageCode: '"fetch"',
   webAdminId: '"admin"',
   companyName: '"Fetch"',
-  version: '"0.6.7"',
+  version: '"0.6.20"',
   environment: '"test"',
   callbackURL: '"https://us-central1-fetch-dev-a1f39.cloudfunctions.net/callback/checkPaymentStatus"'
 })
