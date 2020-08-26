@@ -51,7 +51,7 @@
               :disabled="buttonLoading"
               >TAG THIS SHIPMENT AS RECEIVED</v-btn
             >
-            <v-btn
+            <!--<v-btn
               v-else-if="
                 !shipment.isAddedToInventory && shipment.status === 'Received'
               "
@@ -63,7 +63,7 @@
             >
             <v-btn v-else class="primary" :disabled="true"
               >ITEM/s ALREADY IN THE INVENTORY</v-btn
-            >
+            >-->
           </v-card-actions>
         </v-card>
       </v-flex>
@@ -113,7 +113,7 @@ export default {
           status: "Received",
           isAddedToInventory: false
         };
-        
+
         if(this.stockOrder.shipmentsToReceive > 0) {
           //update counter in stockOrder
           updatedShipment.stockOrderId = shipment.stockOrder.stockOrderId;
@@ -121,7 +121,7 @@ export default {
             shipmentsToReceive: FIRESTORE.FieldValue.increment(-1)
           };
         }
-        
+
         for(const item of shipment.itemsToShip) {
           let updatedVariant = {
             allocatedQTY: FIRESTORE.FieldValue.increment(item.qtyToShip * -1),
@@ -140,7 +140,7 @@ export default {
           key: 'isQTYDeducted',
           value: true
         });
-        
+
         this.$refs.modal.show(
           "Success",
           "Shipment has been tagged as Received!"

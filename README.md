@@ -55,3 +55,18 @@ jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore everbilena-rele
 zipalign -v 4 app-release-unsigned.apk HelloWorld.apk
 
 For detailed explanation on how things work, checkout the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
+
+
+# If generating an iOS app for other clients
+# Generate the Android APK first for that client, then do the following below:
+cordova plugin save
+
+*revert all changes in package.json* (very important step)
+
+cordova platform rm ios
+cordova platform add ios
+
+#If the iOS app crashes when Camera is used, go to the <company name>-Info.plist, located at the platform/ios/<app name>
+# add the following tags after the "NSPhotoLibraryUsageDescription" string tag
+<key>NSCameraUsageDescription</key>
+<string>This app requires camera access to function properly.</string>

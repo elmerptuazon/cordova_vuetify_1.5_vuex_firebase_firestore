@@ -15,7 +15,7 @@ module.exports = merge(devEnv, {
   webAdminId: '"admin"',
   companyName: '"Mother Nurture"',
   contactNumber: '"09123456789"',
-  version: '"0.6.10"',
+  version: '"0.6.20"',
   primaryColor: '"#90b252"',
   environment: '"test"',
   callbackURL: '"https://us-central1-mother-nature-dev.cloudfunctions.net/callback"',

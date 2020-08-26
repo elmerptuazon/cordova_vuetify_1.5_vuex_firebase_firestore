@@ -540,7 +540,7 @@ export default {
     noticeDialog: false,
     currentSocial: null,
     editItemDialog: false,
-    selectedButton: 'Customer',
+    selectedButton: "Customer",
     showMoreDescription: false,
     addToInventoryLoading: false,
     addToStockOrderLoading: false,
@@ -605,6 +605,9 @@ export default {
         color: null
       };
       this.editItemDialog = false;
+      setTimeout(() => {
+        this.basketConfirmationDialog = false;
+      }, 2000);
     },
 
     openItemDialog(selected) {
@@ -928,12 +931,13 @@ export default {
       this.editItemDialog = false;
       this.orderQTY = 0;
       this.attribute["quantity"] = 0;
-    },
+    }
   },
-  
+
   watch: {
     selectedButton(val) {
-      this.attribute['quantity'] = val === 'Stock Order' ? this.variant.minimumOrder : 0;
+      this.attribute["quantity"] =
+        val === "Stock Order" ? this.variant.minimumOrder : 0;
     }
   },
 
@@ -1092,7 +1096,7 @@ export default {
 .trix-content ul li::before,
 .trix-content ol li::before,
 .trix-content li li::before {
-  content: '● ';
+  content: "● ";
   color: inherit;
 }
 
@@ -1129,8 +1133,11 @@ export default {
   text-align: center;
 }
 
-.trix-content .attachment__caption .attachment__name+.attachment__size::before {
-  content: ' · ';
+.trix-content
+  .attachment__caption
+  .attachment__name
+  + .attachment__size::before {
+  content: " · ";
 }
 
 .trix-content .attachment--preview {

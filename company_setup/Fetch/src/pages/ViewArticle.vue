@@ -4,9 +4,9 @@
             <v-btn icon @click="goBack">
                 <v-icon>arrow_back</v-icon>
             </v-btn>
-            
+
             <BasketBadge tabName="articles" />
-            
+
             <v-spacer></v-spacer>
             <ContactsBadge/>
             <Accounts />
@@ -17,17 +17,17 @@
                 <v-flex xs12>
                     <div class="text-xs-center font-italic red--text lighten-1">
                         Article should be shown in an in-app browser...
-                        <span class="font-weight-bold uppercase" @click="openBrowser">CLICK HERE</span> 
+                        <span class="font-weight-bold uppercase" @click="openBrowser">CLICK HERE</span>
                         to visit the link...
                     </div>
                 </v-flex>
             </v-layout >
         </v-container>
-        
+
         <v-container v-else>
             <v-layout align-center justify-center wrap v-if="article.headerURL">
                 <v-flex xs12>
-                    <v-img  
+                    <v-img
                         :aspect-ratio="16/9"
                         :src="article.headerURL"
                         :alt="article.title"
@@ -56,7 +56,7 @@
                     <div class="headline font-weight-bold text-xs-left">{{ article.title }}</div>
                     <div class="primary--text mt-3">
                         <v-icon small color="primary">schedule</v-icon>
-                        {{ calculateTime(article.publishDate)  }} 
+                        {{ calculateTime(article.publishDate)  }}
                         <span class="grey--text">| Views: {{ article.viewedBy.length }}</span>
                     </div>
                 </v-flex>
@@ -166,8 +166,8 @@ export default {
               url,
               target,
               options
-            );    
-            
+            );
+
             this.inAppBrowserRef.addEventListener('exit', this.goBack);
         },
 
