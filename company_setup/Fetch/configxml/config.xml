@@ -9,6 +9,12 @@
     <feature name="CDVWKWebViewEngine">
       <param name="ios-package" value="CDVWKWebViewEngine" />
     </feature>
+    <feature name="SocialSharing">
+      <param name="ios-package" value="SocialSharing" />
+    </feature>
+    <feature name="SocialSharing">
+      <param name="android-package" value="nl.xservices.plugins.SocialSharing" />
+    </feature>
     <preference name="CordovaWebViewEngine" value="CDVWKWebViewEngine" />
     <preference name="WKWebViewOnly" value="true" />
     <preference name="AllowBackForwardNavigationGestures" value="true" />
@@ -109,4 +115,5 @@
     <plugin name="skwas-cordova-plugin-datetimepicker" spec="^2.1.1" />
     <engine name="browser" spec="^5.0.3" />
     <engine name="android" spec="^7.1.4" />
+    <engine name="ios" spec="^5.1.1" />
 </widget>
