@@ -16,7 +16,8 @@
     "generate": "node config/dirfix.js",
     "generate-ios": "node config/dirfix_ios.js",
     "generate-dev": "cross-env NODE_ENV=testing npm run generate && cordova build android",
-    "generate-dev-ios": "cross-env NODE_ENV=testing npm run generate && cordova build ios"
+    "generate-dev-ios": "cross-env NODE_ENV=testing npm run generate && cordova build ios",
+    "generate-dev-both": "cross-env NODE_ENV=testing npm run generate && cordova build ios && cordova build android"
   },
   "dependencies": {
     "axios": "^0.19.0",
@@ -161,11 +162,7 @@
       "cordova-plugin-whitelist": {},
       "cordova-plugin-camera": {},
       "cordova-plugin-vibration": {},
-      "cordova-plugin-x-socialsharing": {
-        "ANDROID_SUPPORT_V4_VERSION": "24.1.1+",
-        "PHOTO_LIBRARY_ADD_USAGE_DESCRIPTION": "This app requires photo library access to function properly.",
-        "PHOTO_LIBRARY_USAGE_DESCRIPTION": "This app requires photo library access to function properly."
-      },
+      "cordova-plugin-x-socialsharing": {},
       "cordova-plugin-dialogs": {},
       "cordova-plugin-local-notification": {},
       "cordova-universal-links-plugin": {},
