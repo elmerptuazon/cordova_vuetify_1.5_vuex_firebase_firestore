@@ -94,12 +94,11 @@ window.addEventListener("orientationchange", function () {
 
 function forceExitApp() {
 	cordova.plugins.backgroundMode.moveToBackground();
-	navigator.app.exitApp();
 }
 
 document.addEventListener('deviceready', () => {
 	navigator.splashscreen.show();
-	
+
 	document.addEventListener('offline', () => {
 		navigator.notification.alert(
 			'Please connect to the internet to use this app.',
@@ -107,7 +106,7 @@ document.addEventListener('deviceready', () => {
 			"No internet connection!",
 			'Ok'
 		)
-	}, false);
+  }, false);
 
 }, false);
 
