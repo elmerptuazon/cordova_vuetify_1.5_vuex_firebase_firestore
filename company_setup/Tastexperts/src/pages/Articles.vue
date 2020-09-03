@@ -2,9 +2,9 @@
 <template>
     <div>
         <v-toolbar app color="primary" dark>
-            <v-btn icon @click="goBack">
+            <!-- <v-btn icon @click="goBack">
                 <v-icon>arrow_back</v-icon>
-            </v-btn>
+            </v-btn> -->
             
             <BasketBadge tabName="articles" />
             
