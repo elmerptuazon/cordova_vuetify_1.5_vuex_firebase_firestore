@@ -1,7 +1,7 @@
 import { DB, AUTH, STORAGE, COLLECTION, FIRESTORE } from '@/config/firebaseInit';
 
 function GenerateStockOrderNumber(resellerID) {
-	var refNumber = `SO-${BigInt(resellerID).toString(36).toUpperCase()}${BigInt(Date.now()).toString(36).toUpperCase()}`;
+	var refNumber = `SO-${Number(resellerID).toString(36).toUpperCase()}${Number(Date.now()).toString(36).toUpperCase()}`;
 	return refNumber;
 }
 
@@ -16,7 +16,7 @@ export default {
 		GET_NOTIFICATION_COUNT(state) {
 			const stockOrderWithNotif = state.stockOrderList.filter(stockOrder => {
 				return (
-					(stockOrder.paymentDetails.paymentStatus === 'denied' && stockorder.paymentDetails.paymentType === 'POP') || 
+					(stockOrder.paymentDetails.paymentStatus === 'denied' && stockorder.paymentDetails.paymentType === 'POP') ||
 					stockOrder.shipmentsToReceive > 0
 				)
 			});
@@ -29,7 +29,7 @@ export default {
 			state.basket = payload;
 		},
 		SET_STOCK_ORDER_LIST(state, payload) {
-			state.stockOrderList = payload; 
+			state.stockOrderList = payload;
 		}
 	},
 	actions: {
@@ -69,7 +69,7 @@ export default {
 									unique += `_${key}:${product.attributes[key]}`;
 								}
 							});
-							
+
 							product.resellerPrice = productData.resellerPrice;
 							product.price = productData.price;
 							product.image = productData.downloadURL;
@@ -311,7 +311,19 @@ export default {
 						items: [],
 						userId: userId,
 						createdAt: Date.now(),
-						stockOrderReference: GenerateStockOrderNumber(userDetails.agentId)
+            stockOrderReference: GenerateStockOrderNumber(userDetails.agentId),
+            paymentDetails: {
+              accountDetails: {},
+              amount: 0,
+              paymentStatus: 'pending',
+              paymentType: 'COD',
+            },
+            logisticsDetails: {
+              isDiscountedDelivery: false,
+              logisticProvider: 'pick-up',
+              resellerShippingFee: 0,
+              shippingFee: 0
+            },
 					}
 
 					const keys = Object.keys(payload.attributes).sort();
@@ -658,7 +670,7 @@ export default {
 								redirectURL: {
 									name: 'ViewStockOrder',
 									params: {
-										id: change.id 
+										id: change.id
 									}
 								},
 							};
@@ -666,8 +678,8 @@ export default {
 							dispatch('accounts/SEND_PUSH_NOTIFICATION', notif, { root: true });
 						}
 
-						if(	
-							(change.paymentDetails.paymentStatus.toLowerCase() === 'denied' && change.paymentDetails.paymentType === 'POP') && 
+						if(
+							(change.paymentDetails.paymentStatus.toLowerCase() === 'denied' && change.paymentDetails.paymentType === 'POP') &&
 							!change.read
 						) {
 							const notif = {
@@ -676,7 +688,7 @@ export default {
 								redirectURL: {
 									name: 'ViewStockOrder',
 									params: {
-										id: change.id 
+										id: change.id
 									}
 								},
 							};
@@ -708,7 +720,7 @@ export default {
 			} catch(error) {
 				throw error
 			}
-			
+
 		},
 
 		async TEMP_UPLOAD_PROOF_OF_PAYMENT({ }, payload) {
@@ -718,7 +730,7 @@ export default {
 					.child('proof-of-payment')
 					.child(stockOrderReference)
 					.putString(picture, 'data_url');
-				
+
 				return await uploadedPic.ref.getDownloadURL();
 
 			} catch(error) {
@@ -733,7 +745,7 @@ export default {
 					.child('proof-of-payment')
 					.child(stockOrderReference)
 					.delete();
-				
+
 				return { success: true };
 
 			} catch(error) {
@@ -747,9 +759,9 @@ export default {
 			try {
 				paymentDetails.paymentStatus = 'pending';
 
-				await COLLECTION.stock_orders.doc(id).update({ 
+				await COLLECTION.stock_orders.doc(id).update({
 					isRead: false,
-					paymentDetails 
+					paymentDetails
 				});
 
 				return paymentDetails;

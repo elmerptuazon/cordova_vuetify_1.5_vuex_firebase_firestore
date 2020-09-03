@@ -43,6 +43,7 @@ async function copyCompanySetUp() {
             { title: 'Rraw', value: 'Rraw' },
             { title: 'Kayumanggi Organic', value: 'KayumanggiOrganic' },
             { title: 'Tastexperts', value: 'Tastexperts' },
+            { title: 'Mayumi Organics', value: 'MayumiOrganics' },
             
         ],
         initial: 0

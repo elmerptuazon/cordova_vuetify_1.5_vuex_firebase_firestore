@@ -28,7 +28,7 @@
     <div v-else>
       <v-container fluid class="grey--text text--darken-2" grid-list-md>
         <div class="mb-2">
-          <v-container>
+          <v-container fluid>
             <div
               style="width: 200px; max-width: 200px; margin: 0 auto;"
               v-if="!product.photos"
@@ -64,10 +64,12 @@
               :loop="true"
               :paginationEnabled="false"
               :navigationEnabled="true"
+              :navigationPrevLabel="'<'"
+              :navigationNextLabel="'>'"
             >
               <slide v-for="(source, i) in product.photos" :key="i">
                 <!-- <v-img :src="source" width="100"></v-img> -->
-                <img :src="source" :alt="source" />
+                <v-img contain :src="source" :alt="source" />
               </slide>
             </carousel>
           </v-container>
@@ -93,7 +95,7 @@
         <p class="product-name pt-0 mb-2">{{ product.name }}</p>
         <v-divider class="my-2"></v-divider>
 
-        <div v-if="product.description" class="mt-3 mb-3">
+        <div v-if="product.description" class="mt-3 mb-5">
           <!-- <p class="product-description" v-if="showMoreDescription">
             {{ product.description }}
             <a @click="showMoreDescription = false">Show less</a> or
@@ -103,7 +105,11 @@
             {{ product.description | trunc }}
             <a @click="showMoreDescription = true">Show more</a>
           </p> -->
-          <div class="trix-content" v-html="product.description"></div>
+          <div ref="productDescription" class="trix-content" v-html="product.description"></div>
+          <v-divider class="my-3"></v-divider>
+          <div class="text-xs-right pink--text font-italics">
+            <a @click.prevent="copyText">Copy Text...</a>
+          </div>
           <v-divider class="my-3"></v-divider>
         </div>
 
@@ -568,12 +574,14 @@ export default {
       });
     } else if (this.user.type === "Reseller") {
       //retreive the single variant of the current product being viewed
+      this.attribLoading = true;
       const variant = await this.$store.dispatch("variants/GET_VARIANT", {
         sku: this.product.code,
         productId: this.product.id
       });
       this.variant = Object.assign({}, variant);
       this.attribute["quantity"] = this.variant.minimumOrder;
+      this.attribLoading = false;
 
       console.log("product's single variant: ", this.variant);
     }
@@ -739,19 +747,16 @@ export default {
       }
     },
     copyText() {
-      // const message = `${this.product.name}\n${this.product.price}\n\n${this.product.description}\nhttp://appsell.com/product?id=${this.product.id}`;
-      const message = `${this.product.name}\n${this.product.price}\n\n${this.product.description}`;
+      const description = this.$refs.productDescription.innerText;
+      const message = `${this.product.name}\n${'PHP' + this.product.price}\n\n${description}`;
       cordova.plugins.clipboard.copy(message);
-      this.snackbarMessage = "Content copied to clipboard";
+      this.snackbarMessage = "Product description was copied to clipboard";
       this.snackbar = true;
     },
-    shareProduct() {
-      // this.noticeDialog = false;
+    async shareProduct() {
 
-      // const message = `${this.product.name}\n${this.product.price}\n\n${this.product.description}\nhttp://appsell.com/product?id=${this.product.id}`;
-      const message = `${this.product.name}\n${this.product.price}\n\n${this.product.description}`;
       const options = {
-        message,
+        message: 'Product sharing through social media...',
         subject: `From AppSell: Product ${this.product.name}`,
         files: [], //c.toDataURL()
         url: `http://appsell.com/product?id=${this.product.id}`
@@ -769,6 +774,7 @@ export default {
         };
 
         const onError = error => {
+          console.log('failed launching social media sharing: ', error);
           this.snackbarMessage = "An error occurred";
           this.snackbar = true;
         };

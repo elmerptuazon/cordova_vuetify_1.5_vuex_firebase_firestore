@@ -13,7 +13,7 @@
       <Accounts />
     </v-toolbar>
 
-    <v-container>
+    <v-container fluid class="pa-0">
       <table class="basket-table" v-show="!loader">
         <thead>
           <tr>
@@ -54,7 +54,7 @@
                     <v-img :src="item.image" :alt="item.name" contain></v-img>
                   </v-avatar>
                 </v-flex>
-                <v-flex xs8 offset-xs1>
+                <v-flex xs8 offset-xs1 pl-1>
                   <span v-html="item.name" class="caption"></span>
                   <br />
                   <span class="caption">
