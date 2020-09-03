@@ -13,5 +13,5 @@ module.exports = {
   version: '"0.6.10"',
   primaryColor: '"#794F15"',
   environment: '"test"',
-  callbackURL: '"https://us-central1-tastexperts.cloudfunctions.net/callback/checkPaymentStatus"',
+  callbackURL: '"https://us-central1-tasteexperts-dev.cloudfunctions.net/callback/checkPaymentStatus"',
 }
