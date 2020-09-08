@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget android-versionCode="3" id="com.cordova.appsell-MyNatural" ios-CFBundleVersion="1" version="0.6.21" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget android-versionCode="3" id="com.appsell.MyNatural" ios-CFBundleVersion="1" version="0.6.21" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>My Natural</name>
     <description>My Natural test app</description>
     <author email="sorianorobertc@gmail.com" href="https://robertsoriano.com">
-      AppSell Team
+      AppSell Teams
     </author>
     <content src="index.html" />
     <feature name="CDVWKWebViewEngine">
@@ -55,7 +55,7 @@
         <preference name="SplashMaintainAspectRatio" value="true" />
         <preference name="SplashShowOnlyFirstTime" value="true" />
         <preference name="StatusBarOverlaysWebView" value="false" />
-        <preference name="StatusBarBackgroundColor" value="#0E1E38" />
+        <preference name="StatusBarBackgroundColor" value="#01903F" />
         <preference name="KeyboardResize" value="true" />
         <!-- <preference name="SplashScreenDelay" value="30000" /> -->
         <preference name="AutoHideSplashScreen" value="true" />
