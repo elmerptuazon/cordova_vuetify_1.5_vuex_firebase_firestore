@@ -2,8 +2,8 @@ import { DB, AUTH, COLLECTION } from '@/config/firebaseInit';
 import moment from 'moment';
 
 function generateOrderNumber(resellerID) {
-	var refNumber = (BigInt(resellerID).toString(36) + "-" + BigInt(Date.now()).toString(36)).toUpperCase();
-	return refNumber;
+  var refNumber = `${Number(resellerID).toString(36).toUpperCase()}${Number(Date.now()).toString(36).toUpperCase()}`;
+  return refNumber;
 }
 
 function realImgDimension(src) {
@@ -499,7 +499,7 @@ const orders = {
 				throw e;
 			}
 		},
-		
+
 		// LISTEN_TO_ORDERS({ commit, state }, data) {
 
 		// 	state.subscriber = COLLECTION.orders.where('resellerId', '==', data.id)
@@ -538,7 +538,7 @@ const orders = {
 			const user = AUTH.currentUser;
 
 			state.customerOrders = [];
-			
+
 			state.customerSubscriber = COLLECTION.orders.where('resellerId', '==', user.uid)
 			.onSnapshot(async (snapshot) => {
 
@@ -568,12 +568,12 @@ const orders = {
 						order.offlineContact.imageObj = { loading: "./img/spinner.9ac168c.gif", src: customerData.downloadURL };
 						order.isOffline = false; //customer is an online customer
 					}
-					
+
 					if(order.type === 'added') {
 						state.customerOrders.push(order);
 
 						//notify the reseller that they have a new customer order
-						//notify only if the user enabled the new orders notification setting 
+						//notify only if the user enabled the new orders notification setting
 						if(notificationSetting && !order.read) {
 							const notif = {
 								title: 'New Customer Order Received!',
@@ -590,10 +590,10 @@ const orders = {
 							};
 
 							dispatch('accounts/SEND_PUSH_NOTIFICATION', notif, { root: true });
-							
+
 						}
-						
-					
+
+
 					} else if(order.type === 'modified') {
 						const index = state.customerOrders.findIndex((customerOrder) => customerOrder.id === order.id);
 						if(index !== -1) {
@@ -602,9 +602,9 @@ const orders = {
 					}
 
 					delete order.type;
-					
+
 				}
-				
+
 			})
 
 		},
@@ -657,7 +657,7 @@ const orders = {
 							docData.id = change.doc.id;
 							const docId = change.doc.id;
 
-							docData.offlineContact = await dispatch('accounts/GET_USER', docData.uid, { root: true }); 
+							docData.offlineContact = await dispatch('accounts/GET_USER', docData.uid, { root: true });
 
 							const status = docData.delivery_schedule_status;
 
@@ -678,9 +678,9 @@ const orders = {
 											}
 										},
 									};
-									
+
 									dispatch('accounts/SEND_PUSH_NOTIFICATION', notif, { root : true });
-									
+
 								} else if (status && status === 'declined' && !docData.delivery_schedule_status_acknowledged) {
 									console.log(`Order ${docId} delivery proposal has been declined`);
 									const notif = {
@@ -696,9 +696,9 @@ const orders = {
 											}
 										},
 									};
-									
+
 									dispatch('accounts/SEND_PUSH_NOTIFICATION', notif, { root : true });
-									
+
 								}
 							} else if (change.type === 'added') {
 								if (status && status === 'accepted' && !docData.delivery_schedule_status_acknowledged) {
