@@ -1125,7 +1125,7 @@ export default {
 }
 
 .trix-content a {
-  color: inherit;
+  color: primary;
   text-decoration: underline;
 }
 

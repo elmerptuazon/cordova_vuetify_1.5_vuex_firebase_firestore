@@ -63,13 +63,15 @@
                 <v-flex xs12 mt-2><v-divider></v-divider></v-flex>
             </v-layout>
 
-            <v-layout align-center justify-start mt-4>
+            <!-- <v-layout align-center justify-start mt-4>
                 <v-flex xs12>
                     <p class="text-xs-left ">
                         {{ article.description }}
                     </p>
                 </v-flex>
-            </v-layout>
+            </v-layout> -->
+
+            <div ref="articleDescription" class="trix-content" v-html="article.description"></div>
 
             <v-layout align-center justify-start mt-5 wrap>
                 <v-flex xs12>
@@ -189,5 +191,136 @@ export default {
 </script>
 
 <style>
+.trix-content {
+  line-height: 1.5;
+}
 
+.trix-content * {
+  box-sizing: border-box;
+}
+
+.trix-content h1 {
+  font-size: 1.2em;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.trix-content blockquote {
+  margin: 0 0 0 0.3em;
+  padding: 0 0 0 0.6em;
+  border-left: 0.3em solid #ccc;
+}
+
+.trix-content pre {
+  display: inline-block;
+  width: 100%;
+  vertical-align: top;
+  font-family: monospace;
+  font-size: 0.9em;
+  margin: 0;
+  padding: 0.5em;
+  white-space: pre;
+  background-color: #eee;
+  overflow-x: auto;
+}
+
+.trix-content ul,
+.trix-content ol,
+.trix-content li {
+  margin: 0;
+  padding: 0;
+}
+
+.trix-content ul li,
+.trix-content ol li,
+.trix-content li li {
+  margin-left: 1em;
+}
+
+.trix-content ul li::before,
+.trix-content ol li::before,
+.trix-content li li::before {
+  content: "● ";
+  color: inherit;
+}
+
+.trix-content img {
+  max-width: 100%;
+  height: auto;
+}
+
+.trix-content .attachment {
+  display: inline-block;
+  position: relative;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.trix-content .attachment a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.trix-content a {
+  color: primary;
+  text-decoration: underline;
+}
+
+.trix-content .attachment a:hover,
+.trix-content .attachment a:visited:hover {
+  color: inherit;
+}
+
+.trix-content .attachment__caption {
+  padding: 0;
+  text-align: center;
+}
+
+.trix-content
+  .attachment__caption
+  .attachment__name
+  + .attachment__size::before {
+  content: " · ";
+}
+
+.trix-content .attachment--preview {
+  width: 100%;
+  text-align: center;
+}
+
+.trix-content .attachment--preview .attachment__caption {
+  color: #666;
+  font-size: 0.9em;
+  line-height: 1.2;
+}
+
+.trix-content .attachment--file {
+  color: #333;
+  line-height: 1;
+  margin: 0 2px 2px 0;
+  padding: 0.4em 1em;
+  border: 1px solid #bbb;
+  border-radius: 5px;
+}
+
+.trix-content .attachment-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  position: relative;
+  margin: 0;
+  padding: 0;
+}
+
+.trix-content .attachment-gallery .attachment {
+  flex: 1 0 33%;
+  padding: 0 0.5em;
+  max-width: 33%;
+}
+
+.trix-content .attachment-gallery.attachment-gallery--2 .attachment,
+.trix-content .attachment-gallery.attachment-gallery--4 .attachment {
+  flex-basis: 50%;
+  max-width: 50%;
+}
 </style>
