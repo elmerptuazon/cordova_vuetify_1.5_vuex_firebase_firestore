@@ -30,10 +30,14 @@
               Status:
               <v-chip
                 :class="[
-                  stockOrder.status.toLowerCase() === 'pending' ? 'yellow darken-2' : '',
-                  stockOrder.status.toLowerCase() === 'cancelled' ? 'red darken-2' : '',
-                  stockOrder.status.toLowerCase() === 'shipped' ? 'green' : '',
-                  stockOrder.status.toLowerCase() === 'partially shipped' ? 'green' : ''
+                  stockOrder.status === 'pending' || 
+                    stockOrder.status === 'cancelled' 
+                    ? 'red darken-2' 
+                    : stockOrder.status === 'processing' 
+                    ? 'orange darken-2' 
+                    : isScheduledForShipping 
+                    ? 'yellow darken-2' 
+                    : 'green',
                 ]"
                 text-color="white"
               >
@@ -72,23 +76,17 @@
             Status:
             <v-chip
               :class="[
-                stockOrder.paymentDetails.paymentStatus.toLowerCase() === '-'
+                stockOrder.paymentDetails.paymentStatus.toLowerCase() === '-' ||
+                  stockOrder.paymentDetails.paymentStatus.toLowerCase() === 'denied'
                   ? 'red darken-2'
-                  : '',
-                stockOrder.paymentDetails.paymentStatus.toLowerCase() === 'pending'
+                  : stockOrder.paymentDetails.paymentStatus.toLowerCase() === 'pending'
                   ? 'yellow darken-2'
-                  : '',
-                stockOrder.paymentDetails.paymentStatus.toLowerCase() === 'paid'
-                  ? 'green'
-                  : '',
-                stockOrder.paymentDetails.paymentStatus.toLowerCase() === 'denied'
-                  ? 'red darken-2'
-                  : ''
+                  : 'green'
               ]"
               text-color="white"
             >
               <span v-if="
-                stockOrder.paymentDetails.paymentStatus === 'pending' && 
+                stockOrder.paymentDetails.paymentStatus === 'pending' &&
                 stockOrder.paymentDetails.paymentType === 'POP'
               "
               >proof of payment</span>
@@ -96,7 +94,7 @@
             </v-chip>
           </div>
 
-          <v-layout row align-center justify-center wrap mt-4 
+          <v-layout row align-center justify-center wrap mt-4
             v-if="stockOrder.paymentDetails.paymentType === 'POP'"
           >
             <v-avatar tile size="200">
@@ -105,7 +103,7 @@
                 :src="stockOrder.paymentDetails.proofOfPayment"
                 :lazy-src="Placeholder"
                 max-height="250px"
-                max-width="250px" 
+                max-width="250px"
                 style="border: solid 1px;"
                 @click="enlargeImage"
               >
@@ -123,18 +121,18 @@
                 </v-layout>
               </v-img>
 
-              <v-img 
+              <v-img
                 v-else
-                :src="Placeholder" 
+                :src="Placeholder"
                 :lazy-src="Placeholder"
                 max-height="250px"
-                max-width="250px" 
+                max-width="250px"
                 style="border: solid 1px;"
               ></v-img>
 
               <v-btn
                 v-if="
-                  stockOrder.paymentDetails.paymentStatus === '-' || 
+                  stockOrder.paymentDetails.paymentStatus === '-' ||
                   stockOrder.paymentDetails.paymentStatus === 'denied'
                 "
                 class="overlayImage"
@@ -148,31 +146,31 @@
             </v-avatar>
           </v-layout>
           <v-layout row align-center justify-center wrap mt-3>
-            <v-flex xs10 class="text-xs-center" 
+            <v-flex xs10 class="text-xs-center"
               v-if="
                   stockOrder.paymentDetails.proofOfPayment ||
-                  stockOrder.paymentDetails.paymentStatus === '-' || 
+                  stockOrder.paymentDetails.paymentStatus === '-' ||
                   stockOrder.paymentDetails.paymentStatus === 'denied'
                 "
             >
-              <v-btn 
-                outline 
-                color="black" 
+              <v-btn
+                outline
+                color="black"
                 @click="enlargeImage"
                 :disabled="!stockOrder.paymentDetails.proofOfPayment"
               >
                 VIEW IMAGE
               </v-btn>
             </v-flex>
-            <v-flex 
-              xs10 class="text-xs-center" 
+            <v-flex
+              xs10 class="text-xs-center"
               v-if="
-                  stockOrder.paymentDetails.paymentStatus === '-' || 
+                  stockOrder.paymentDetails.paymentStatus === '-' ||
                   stockOrder.paymentDetails.paymentStatus === 'denied'
                 "
             >
-              <v-btn  
-                color="red" outline 
+              <v-btn
+                color="red" outline
                 @click="removeProofOfPayment"
                 :loading="uploadLoading"
                 :disabled="!stockOrder.paymentDetails.proofOfPayment"
@@ -180,15 +178,15 @@
                 Remove Proof of Payment
               </v-btn>
             </v-flex>
-            <v-flex 
-              xs10 class="text-xs-center" 
+            <v-flex
+              xs10 class="text-xs-center"
               v-if="
-                  stockOrder.paymentDetails.paymentStatus === '-' || 
+                  stockOrder.paymentDetails.paymentStatus === '-' ||
                   stockOrder.paymentDetails.paymentStatus === 'denied'
                 "
             >
-              <v-btn  
-                color="primary" depressed 
+              <v-btn
+                color="primary" depressed
                 @click="confirmUploadDialog = true"
                 :loading="uploadLoading"
                 :disabled="!stockOrder.paymentDetails.proofOfPayment"
@@ -216,8 +214,8 @@
           </div>
           <div>
             <span v-if="stockOrder.logisticsDetails">
-              Shipping Fee: {{ 
-                (stockOrder.logisticsDetails.resellersShippingFee || stockOrder.logisticsDetails.shippingFee) | currency('&#8369;') 
+              Shipping Fee: {{
+                (stockOrder.logisticsDetails.resellersShippingFee || stockOrder.logisticsDetails.shippingFee) | currency('&#8369;')
               }}
             </span>
             <span v-else>Shipping Fee: N/A</span>
@@ -404,7 +402,7 @@ export default {
     loaderDialogMessage: null,
     sheet: false,
     uploadLoading: false,
-    
+
     inAppBrowser: null,
     enlargeDialog: false,
     Placeholder: require("@/assets/placeholder.png"),
@@ -454,10 +452,10 @@ export default {
           (this.stockOrder.paymentDetails.paymentStatus === '-' &&
           this.stockOrder.paymentDetails.paymentStatus === 'denied')
       ) {
-        
+
         this.loaderDialog = true;
         this.loaderDialogMessage = "Please wait...";
-        
+
         await this.$store.dispatch('stock_orders/REMOVE_PROOF_OF_PAYMENT', this.stockOrder.stockOrderReference);
         this.stockOrder.paymentDetails.proofOfPayment = null;
 
@@ -482,7 +480,7 @@ export default {
         target,
         options
       );
-    }, 
+    },
 
     async takePicture(selected) {
       try {
@@ -502,7 +500,7 @@ export default {
         });
 
         this.stockOrder.paymentDetails.proofOfPayment = downloadURL;
-        
+
         this.loaderDialog = false;
         this.loaderDialogMessage = null;
 
@@ -513,7 +511,7 @@ export default {
         this.$refs.modal.show("Sorry", "An error occurred");
         console.log(error);
       }
-      
+
     },
 
     async removeProofOfPayment() {
@@ -540,10 +538,10 @@ export default {
         const response = await this.$store.dispatch('stock_orders/UPLOAD_PROOF_OF_PAYMENT', {
           id: this.stockOrder.id,
           paymentDetails: this.stockOrder.paymentDetails
-        }); 
+        });
 
         this.stockOrder.paymentDetails = Object.assign({}, response);
-        
+
         this.uploadLoading = false;
         this.$refs.modal.show("Success!", "Your proof of payment has been uploaded!");
 

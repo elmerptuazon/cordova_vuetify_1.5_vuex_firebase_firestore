@@ -1,6 +1,6 @@
 <template>
-  <v-container>
-    <v-layout align-center justify-center row fill-height>
+  <v-container fluid class="pa-1">
+    <v-layout align-center justify-center row>
       <v-flex xs12>
         <p class="body-2">Credit Card Number:</p>
         <v-text-field
@@ -13,7 +13,7 @@
         </v-text-field>
       </v-flex>
     </v-layout>
-    <v-layout align-center justify-center row fill-height>
+    <v-layout align-center justify-center row>
       <v-flex xs7>
         <p class="body-2">Expiry:</p>
         <v-text-field

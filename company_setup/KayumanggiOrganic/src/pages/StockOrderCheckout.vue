@@ -13,357 +13,377 @@
       <Accounts />
     </v-toolbar>
 
-    <v-stepper v-model="stepperCounter">
-      <v-stepper-header>
-        <v-stepper-step :complete="stepperCounter > 1" step="1"
-          >Confirm Shipping Address</v-stepper-step
-        >
+    <v-container fluid>
+      <v-stepper v-model="stepperCounter">
+        <v-stepper-header>
+          <v-stepper-step :complete="stepperCounter > 1" step="1"
+            >Confirm Shipping Address</v-stepper-step
+          >
 
-        <v-divider></v-divider>
+          <v-divider></v-divider>
 
-        <v-stepper-step :complete="stepperCounter > 2" step="2"
-          >Shipment Options</v-stepper-step
-        >
+          <v-stepper-step :complete="stepperCounter > 2" step="2"
+            >Shipment Options</v-stepper-step
+          >
 
-        <v-divider></v-divider>
+          <v-divider></v-divider>
 
-        <v-stepper-step :complete="stepperCounter > 3" step="3"
-          >Payment Options</v-stepper-step
-        >
+          <v-stepper-step :complete="stepperCounter > 3" step="3"
+            >Payment Options</v-stepper-step
+          >
 
-        <v-divider></v-divider>
-        <v-stepper-step step="4">Submit Order</v-stepper-step>
-      </v-stepper-header>
+          <v-divider></v-divider>
+          <v-stepper-step step="4">Submit Order</v-stepper-step>
+        </v-stepper-header>
 
-      <v-stepper-items>
-        <v-stepper-content step="1">
-          <v-card flat>
-            <v-card-title>
-              <span class="body-2">Confirm Shipping Address</span>
-            </v-card-title>
-            <v-divider></v-divider>
-            <v-container>
-              <v-layout align-center justify-center wrap>
-                <v-flex xs12>
-                  <div class="caption">The stock order will be delivered in this address:</div>
-                </v-flex>
+        <v-stepper-items>
+          <v-stepper-content step="1">
+            <v-card flat>
+              <v-container fluid class="pa-0">
+                <span class="subheading text-xs-left font-weight-bold">Confirm Shipping Address</span>
+              </v-container>
+              <v-divider class="my-2"></v-divider>
+              <v-container fluid class="pa-0">
+                <v-layout align-center justify-center wrap>
+                  <v-flex xs12>
+                    <div class="body-1">The stock order will be delivered in this address:</div>
+                  </v-flex>
 
-                <v-flex xs12 mt-3>
-                  <div class="primary--text headline font-weight-bold">
-                    {{ userAddress.house }}, {{ userAddress.streetName }}, {{ userAddress.barangay }}, {{ userAddress.citymun }},
-                    {{ userAddress.province }}, {{ userAddress.zipCode }}
-                  </div>
-                </v-flex>
+                  <v-flex xs12 mt-3>
+                    <div class="primary--text headline font-weight-bold">
+                      {{ userAddress.house }}, {{ userAddress.streetName }}, {{ userAddress.barangay }}, {{ userAddress.citymun }},
+                      {{ userAddress.province }}, {{ userAddress.zipCode }}
+                    </div>
+                  </v-flex>
 
-                <v-flex xs12 mt-3>
-                  <div class="font-italic caption">
-                    To change this shipping address, kindly go to your profile page and change your address.
-                    or <b class="body-1 primary--text font-weight-bold" @click="$router.push({name: 'EditProfile'})">CLICK HERE</b> to go to Edit Profile Page.
-                  </div>
-                </v-flex>
-              </v-layout>
-            </v-container>
+                  <v-flex xs12 mt-3>
+                    <div class="font-italic caption">
+                      To change this shipping address, kindly go to your profile page and change your address.
+                      or <b class="body-1 primary--text font-weight-bold" @click="$router.push({name: 'EditProfile'})">CLICK HERE</b> to go to Edit Profile Page.
+                    </div>
+                  </v-flex>
+                </v-layout>
 
-            <v-container>
-              <v-layout align-center justify-center mt-3>
-                <v-flex xs3>
-                  <v-btn flat color="black" @click="goBack">
-                    CANCEL
-                  </v-btn>
-                </v-flex>
-                <v-flex xs3 offset-xs1>
-                  <v-btn color="primary" depressed @click="startQuotations">
-                    Continue
-                  </v-btn>
-                </v-flex>
-              </v-layout>
-            </v-container>
-          </v-card>
-        </v-stepper-content>
-
-        <v-stepper-content step="2">
-          <v-card class="mb-2" flat>
-            <v-card-title>
-              <span class="body-2">Select shipping option</span>
-            </v-card-title>
-            <v-divider></v-divider>
-            <v-container>
-              <v-radio-group v-model="logisticsID">
-                <v-card
-                  v-for="logistics in logisticsProvider"
-                  :key="logistics.id"
-                  min-width="275px"
-                  class="mt-2"
-                >
-                  <v-container>
-                    <v-layout row align-center justify-start mx-2>
-                      <v-flex xs5>
-                        <v-img
-                          :src="logistics.logoURL"
-                          height="125px"
-                          contain
-                        ></v-img>
-                      </v-flex>
-
-                      <v-flex xs5 offset-xs1>
-                        <div class="font-weight-bold subheading">
-                          {{ logistics.id.toUpperCase() }}
-                        </div>
-                        <div>
-                          <div v-if="logistics.id === 'pick-up'"></div>
-                          <div v-else>
-                            <span>
-                              + {{ logistics.shippingFee | currency("&#8369; ") }} 
-                            </span>
-                          </div>
-                        </div>
-                      </v-flex>
-
-                      <v-flex xs1>
-                         <v-radio 
-                          :value="logistics.id" 
-                        ></v-radio>
-                      </v-flex>
-
-                    </v-layout>
-                  </v-container>
-                  <!-- <v-divider class="my-2 black"></v-divider> -->
-                </v-card>
-
-                <v-layout align-center justify-end row px-6 mt-4>
-                  <v-flex xs4 mr-2>
-                    <v-btn color="black" flat @click="stepperCounter = 1">
-                      BACK
+                <v-layout row wrap align-center justify-center mt-4>
+                  <v-flex xs12>
+                    <v-btn block color="primary" depressed @click="startQuotations">
+                      Continue
+                      <v-icon class="ml-2" dark>arrow_forward</v-icon>
                     </v-btn>
                   </v-flex>
-                  <v-flex xs4>
-                    <v-btn color="primary" depressed @click="stepperCounter = 3">
-                      Continue
+                  <v-flex xs12 mt-2>
+                    <v-btn block outline color="black" @click="goBack">
+                      CANCEL
                     </v-btn>
                   </v-flex>
                 </v-layout>
-              </v-radio-group>
-            </v-container>
-          </v-card>
-        </v-stepper-content>
+              </v-container>
+            </v-card>
+          </v-stepper-content>
 
-        <v-stepper-content step="3">
-          <v-card>
-            <v-card-title>
-              <span class="body-2">Breakdown of Orders</span>
-            </v-card-title>
-            <v-divider></v-divider>
-            <v-container>
-               <table class="basket-table">
-                <thead>
-                  <tr>
-                    <th
-                      class="border-bottom header-size grey--text text--darken-1"
+          <v-stepper-content step="2">
+            <v-card class="mb-2" flat>
+              <v-container fluid class="pa-0">
+                <span class="subheading text-xs-left font-weight-bold">Select Shipping Option</span>
+              </v-container>
+              <v-divider class="mt-2"></v-divider>
+              <v-container fluid class="pa-1" style="width: 100%;">
+                <v-layout row align-center justify-center>
+                  <v-flex xs12>
+                    <v-radio-group v-model="logisticsID" column>
+                      <template v-slot:label>
+                        <v-layout row wrap align-center justify-start>
+                          <v-flex xs12 mt-2
+                            v-for="logistics in logisticsProvider"
+                            :key="logistics.id"
+                          >
+                            <v-card
+                              style="width: 100%"
+                              class="elavation-4 mt-2"
+                              @click="logisticsID = logistics.id"
+                            >
+                              <v-container>
+                                <v-layout row align-center justify-center>
+                                  <v-flex xs5>
+                                    <v-img
+                                      :src="logistics.logoURL"
+                                      height="125px"
+                                      contain
+                                    ></v-img>
+                                  </v-flex>
+
+                                  <v-flex xs6 pl-3>
+                                    <div class="font-weight-bold subheading">
+                                      {{ logistics.id.toUpperCase() }}
+                                    </div>
+                                    <div>
+                                      <div v-if="logistics.id === 'pick-up'"></div>
+                                      <div v-else>
+                                        <span>
+                                          + {{ logistics.shippingFee | currency("&#8369; ") }}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </v-flex>
+
+                                  <v-flex xs1>
+                                    <v-radio
+                                      :value="logistics.id"
+                                    ></v-radio>
+                                  </v-flex>
+                                </v-layout>
+                              </v-container>
+                            </v-card>
+                          </v-flex>
+                        </v-layout>
+                      </template>
+                    </v-radio-group>
+                  </v-flex>
+                </v-layout>
+              </v-container>
+
+              <v-container fluid class="pa-0 mt-2">
+                <v-layout row wrap align-center justify-center>
+                  <v-flex xs12>
+                    <v-btn block color="primary" depressed @click="stepperCounter = 3">
+                      Continue
+                      <v-icon class="ml-2" dark>arrow_forward</v-icon>
+                    </v-btn>
+                  </v-flex>
+                  <v-flex xs12 mt-2>
+                    <v-btn block color="black" outline @click="stepperCounter = 1">
+                      BACK
+                    </v-btn>
+                  </v-flex>
+                </v-layout>
+              </v-container>
+            </v-card>
+          </v-stepper-content>
+
+          <v-stepper-content step="3">
+            <v-card flat>
+              <v-container fluid class="pa-0">
+                <span class="subheading text-xs-left font-weight-bold">Breakdown of Orders</span>
+              </v-container>
+              <v-divider class="my-2"></v-divider>
+              <v-container fluid class="pa-0 mt-2">
+                <table class="basket-table">
+                  <thead>
+                    <tr>
+                      <th
+                        class="border-bottom header-size grey--text text--darken-1"
+                      >
+                        NAME
+                      </th>
+                      <th
+                        class="border-bottom text-xs-right header-size grey--text text--darken-1"
+                      >
+                        QTY
+                      </th>
+                      <th
+                        class="border-bottom text-xs-right header-size grey--text text--darken-1"
+                      >
+                        COST
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr
+                      v-for="(item, i) in filterBy(
+                        orderBy(stockOrder.items, 'created_at', -1),
+                        search
+                      )"
+                      :key="i"
                     >
-                      NAME
-                    </th>
-                    <th
-                      class="border-bottom text-xs-right header-size grey--text text--darken-1"
-                    >
-                      QTY
-                    </th>
-                    <th
-                      class="border-bottom text-xs-right header-size grey--text text--darken-1"
-                    >
-                      COST
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr
-                    v-for="(item, i) in filterBy(
-                      orderBy(stockOrder.items, 'created_at', -1),
-                      search
-                    )"
-                    :key="i"
-                  >
-                    <td class="border-bottom">
-                      <v-layout row>
-                        <v-flex xs4>
-                          <v-avatar tile size="40px">
-                            <v-img
-                              :src="item.image"
-                              :alt="item.name"
-                              class="elevation-1"
-                            ></v-img>
-                          </v-avatar>
-                        </v-flex>
-                        <v-flex xs8>
-                          <span v-html="item.name" class="caption"></span>
-                          <br />
-                          <span class="caption">
-                            {{ item.attributes | joinAttributes }}
-                          </span>
-                        </v-flex>
-                      </v-layout>
-                    </td>
-                    <td class="caption text-xs-right border-bottom">
-                      {{ item.qty }}
-                    </td>
-                    <td class="caption text-xs-right border-bottom">
-                      {{ (item.qty * item.resellerPrice) | currency('&#8369;') }}
-                    </td>
-                  </tr>
+                      <td class="border-bottom">
+                        <v-layout row>
+                          <v-flex xs4>
+                            <v-avatar tile size="40px">
+                              <v-img
+                                :src="item.image"
+                                :alt="item.name"
+                                class="elevation-1"
+                              ></v-img>
+                            </v-avatar>
+                          </v-flex>
+                          <v-flex xs8 pl-1>
+                            <span v-html="item.name" class="caption"></span>
+                            <br />
+                            <span class="caption font-weight-bold">
+                              {{ item.attributes | joinAttributes }}
+                            </span>
+                          </v-flex>
+                        </v-layout>
+                      </td>
+                      <td class="caption text-xs-right border-bottom">
+                        {{ item.qty }}
+                      </td>
+                      <td class="caption text-xs-right border-bottom">
+                        {{ (item.qty * item.resellerPrice) | currency('&#8369;') }}
+                      </td>
+                    </tr>
 
-                  <tr>
-                    <td colspan="3"></td>
-                  </tr>
+                    <tr>
+                      <td colspan="3"></td>
+                    </tr>
 
-                  <tr>
-                    <td class="caption text-xs-right" colspan="2">
-                      Subtotal
-                    </td>
-                    <td class="caption text-xs-right">
-                      {{ subTotal | currency('&#8369;') }}
-                    </td>
-                  </tr>
+                    <tr>
+                      <td class="caption text-xs-right" colspan="2">
+                        Subtotal
+                      </td>
+                      <td class="caption text-xs-right">
+                        {{ subTotal | currency('&#8369;') }}
+                      </td>
+                    </tr>
 
-                  <tr>
-                    <td class="caption text-xs-right" colspan="2">
-                      Shipping Fee
-                    </td>
-                    <td class="caption text-xs-right">
-                      <span>{{ shippingFee | currency('&#8369;') }}</span>
-                    </td>
-                  </tr>
+                    <tr>
+                      <td class="caption text-xs-right" colspan="2">
+                        Shipping Fee
+                      </td>
+                      <td class="caption text-xs-right">
+                        <span>{{ shippingFee | currency('&#8369;') }}</span>
+                      </td>
+                    </tr>
 
-                  <tr v-if="isDeliveryDiscounted">
-                    <td class="caption text-xs-right" colspan="2">
-                      Shipping Fee Discount
-                    </td>
-                    <td class="caption text-xs-right">
-                      <span v-if="deliveryDiscount.type === 'amount'"> 
-                        {{ deliveryDiscount.amount | currency('&#8369;') }}
-                      </span>
-                      <span v-else>
-                        {{ deliveryDiscount.amount + ' %' }}
-                      </span>
-                    </td>
-                  </tr>
+                    <tr v-if="isDeliveryDiscounted">
+                      <td class="caption text-xs-right" colspan="2">
+                        Shipping Fee Discount
+                      </td>
+                      <td class="caption text-xs-right">
+                        <span v-if="deliveryDiscount.type === 'amount'">
+                          {{ deliveryDiscount.amount | currency('&#8369;') }}
+                        </span>
+                        <span v-else>
+                          {{ deliveryDiscount.amount + ' %' }}
+                        </span>
+                      </td>
+                    </tr>
 
-                  <tr v-if="isDeliveryDiscounted">
-                    <td class="caption text-xs-right" colspan="2">
-                      New Shipping Fee
-                    </td>
-                    <td class="caption text-xs-right">
-                      <span>{{ discountedShippingFee | currency('&#8369;') }}</span>
-                    </td>
-                  </tr>
+                    <tr v-if="isDeliveryDiscounted">
+                      <td class="caption text-xs-right" colspan="2">
+                        New Shipping Fee
+                      </td>
+                      <td class="caption text-xs-right">
+                        <span>{{ discountedShippingFee | currency('&#8369;') }}</span>
+                      </td>
+                    </tr>
 
-                  <tr>
-                    <td class="caption text-xs-right" colspan="2">
-                      Total
-                    </td>
-                    <td class="caption text-xs-right">
-                      <strong>{{ total | currency('&#8369;') }}</strong>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </v-container>
-          </v-card>
-          <v-container class="mt-4 px-3">
-            <v-layout align-center justify-end px-6 row>
-              <v-flex xs4 mr-2>
-                <v-btn flat @click="stepperCounter = 2">Back</v-btn>
-              </v-flex>
-              <v-flex xs4>
-                <v-btn color="primary" depressed @click="stepperCounter = 4">
-                  Continue
+                    <tr>
+                      <td class="caption text-xs-right" colspan="2">
+                        Total
+                      </td>
+                      <td class="caption text-xs-right">
+                        <strong>{{ total | currency('&#8369;') }}</strong>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <v-layout row wrap align-center justify-center mt-4>
+                  <v-flex xs12>
+                    <v-btn block color="primary" depressed @click="stepperCounter = 4">
+                      Continue
+                      <v-icon class="ml-2" dark>arrow_forward</v-icon>
+                    </v-btn>
+                  </v-flex>
+                  <v-flex xs12 mt-1>
+                    <v-btn block outline @click="stepperCounter = 2">Back</v-btn>
+                  </v-flex>
+                </v-layout>
+              </v-container>
+            </v-card>
+          </v-stepper-content>
+
+          <v-stepper-content step="4">
+            <v-container fluid class="pa-1">
+              <v-card flat>
+                <v-container fluid class="pa-0">
+                  <span class="subheading text-xs-left font-weight-bold">Select Payment Option</span>
+                </v-container>
+                <v-divider class="my-2"></v-divider>
+                <v-container fluid class="pa-1 mt-2">
+                  <v-radio-group v-model="payment.paymentType">
+                    <v-radio
+                      label="Cash On Delivery (COD)/Upon pick-up"
+                      value="COD"
+                    ></v-radio>
+                    <v-radio
+                      label="Credit Card / Debit Card (Visa and Mastercard Only)"
+                      value="CC"
+                      :disabled="totalIsInMinimumPrice"
+                    ></v-radio>
+                    <v-radio
+                      label="GCash"
+                      value="GCash"
+                      :disabled="totalIsInMinimumPrice || totalIsInMaximumPrice"
+                    ></v-radio>
+                    <v-radio
+                      label="Grab Pay"
+                      value="GrabPay"
+                      :disabled="totalIsInMinimumPrice || totalIsInMaximumPrice"
+                    ></v-radio>
+                    <v-radio
+                      label="Bank Receipt / Payment Receipt"
+                      value="POP"
+                    ></v-radio>
+                    <div v-if="totalIsInMinimumPrice" class="mt-1">
+                      <v-divider class="my-2 black" ></v-divider>
+                      <div class="mt-1 body-1 red--text font-italic font-weight-bold">
+                        Online payment is only available for stock order above {{ 100 | currency('&#8369;') }}
+                      </div>
+                    </div>
+                    <div v-if="totalIsInMaximumPrice" class="mt-1">
+                      <v-divider class="my-2 black" ></v-divider>
+                      <div class="mt-1 body-1 red--text font-italic font-weight-bold">
+                        E-Wallet payments are not available for stock order above {{ 100000 | currency('&#8369; ') }}
+                      </div>
+                    </div>
+                    <v-divider class="my-2 black" v-if="payment.paymentType === 'CC'"></v-divider>
+                    <creditCardForm
+                      class="mt-2"
+                      v-if="payment.paymentType === 'CC'"
+                      @cardDetails="SetCardDetails"
+                    />
+                    <v-divider class="my-2 black"  v-if="payment.paymentType === 'GCash' || payment.paymentType === 'GrabPay'"></v-divider>
+                    <GCashGrabPayForm
+                      :paymentType="payment.paymentType"
+                      class="mt-2"
+                      v-if="payment.paymentType === 'GCash' || payment.paymentType === 'GrabPay'"
+                      @accountDetails="SetAccountDetails"
+                    />
+                  </v-radio-group>
+                </v-container>
+              </v-card>
+
+              <div class="text-xs-center">
+                <v-btn
+                  @click="submitStockOrder"
+                  depressed
+                  large block
+                  color="primary"
+                  class="white--text"
+                  :disabled="stockOrder.items.length < 1"
+                >
+                  <v-icon left>check_circle</v-icon>
+                  <span v-if="payment.paymentType === 'COD' || payment.paymentType === 'POP'">
+                    Submit Order
+                  </span>
+                  <span v-else>
+                    Pay and Submit Order
+                  </span>
                 </v-btn>
-              </v-flex>
-            </v-layout>
-          </v-container>
-        </v-stepper-content>
-
-        <v-stepper-content step="4">
-          <v-card class="mb-5">
-            <v-card-title>
-              <span class="body-2">Select Payment Option</span>
-            </v-card-title>
-            <v-divider></v-divider>
-            <v-container>
-              <v-radio-group v-model="payment.paymentType">
-                <v-radio
-                  label="Cash On Delivery (COD)/Upon pick-up"
-                  value="COD"
-                ></v-radio>
-                <v-radio
-                  label="Credit Card (Visa and Mastercard Only)"
-                  value="CC"
-                  :disabled="totalIsInMinimumPrice"
-                ></v-radio>
-                <v-radio
-                  label="GCash"
-                  value="GCash"
-                  :disabled="totalIsInMinimumPrice || totalIsInMaximumPrice"
-                ></v-radio>
-                <v-radio
-                  label="Grab Pay"
-                  value="GrabPay"
-                  :disabled="totalIsInMinimumPrice || totalIsInMaximumPrice"
-                ></v-radio>
-                <v-radio
-                  label="Bank Receipt / Payment Receipt"
-                  value="POP"
-                ></v-radio>
-                <div v-if="totalIsInMinimumPrice" class="mt-1">
-                  <v-divider></v-divider>
-                  <div class="mt-2 body-1 red--text font-italic font-weight-bold">
-                    Online payment is only available for stock order above {{ 100 | currency('&#8369;') }}
-                  </div>  
-                </div>
-                <div v-if="totalIsInMaximumPrice" class="mt-1">
-                  <v-divider></v-divider>
-                  <div class="mt-2 body-1 red--text font-italic font-weight-bold">
-                    E-Wallet payments are not available for stock order above {{ 100000 | currency('&#8369; ') }}
-                  </div>  
-                </div>
-                <v-divider v-if="payment.paymentType === 'CC'"></v-divider>
-                <creditCardForm
-                  class="mt-2"
-                  v-if="payment.paymentType === 'CC'"
-                  @cardDetails="SetCardDetails"
-                />
-                <v-divider v-if="payment.paymentType === 'GCash' || payment.paymentType === 'GrabPay'"></v-divider>
-                <GCashGrabPayForm
-                  :paymentType="payment.paymentType"
-                  class="mt-2"
-                  v-if="payment.paymentType === 'GCash' || payment.paymentType === 'GrabPay'"
-                  @accountDetails="SetAccountDetails"
-                />
-              </v-radio-group>
+                <v-btn
+                  block outline class="mt-3"
+                  @click="stepperCounter = 3"
+                >Back</v-btn>
+              </div>
             </v-container>
-          </v-card>
-          <div class="text-xs-center mt-3 mb-3">
-            <v-btn
-              @click="submitStockOrder"
-              depressed
-              large
-              color="primary"
-              class="white--text"
-              :disabled="stockOrder.items.length < 1"
-            >
-              <v-icon left>check_circle</v-icon>
-              <span v-if="payment.paymentType === 'COD' || payment.paymentType === 'POP'">
-                Submit Order
-              </span>
-              <span v-else>
-                Pay and Submit Order
-              </span>
-            </v-btn>
-            <v-btn flat @click="stepperCounter = 3">Back</v-btn>
-          </div>
-        </v-stepper-content>
-      </v-stepper-items>
-    </v-stepper>
+          </v-stepper-content>
+        </v-stepper-items>
+      </v-stepper>
+    </v-container>
 
-    <v-dialog v-model="loaderDialog" hide-overlay persistent width="300">
+    <v-dialog v-model="loaderDialog" persistent width="300">
       <v-card color="primary" dark>
         <v-card-text>
           {{ loaderDialogMessage }}
@@ -382,11 +402,11 @@
     >
       <v-card :height="checkoutHeight" :width="checkoutWidth">
         <v-card-title class="primary">
-          <div v-if="payment.paymentType === 'CC'" 
+          <div v-if="payment.paymentType === 'CC'"
             class="white--text font-weight-bold title"
             >Authorize Card Access
           </div>
-          <div v-else 
+          <div v-else
             class="white--text font-weight-bold title"
             >Authorize Account Access
           </div>
@@ -395,10 +415,10 @@
           <v-icon v-else medium color="white" @click.native="continueEWalletPayment">close</v-icon>
         </v-card-title>
         <v-container>
-          <iframe 
-            ref="checkOutFrame" :src="checkOutURL" 
-            :height="checkoutHeight" :width="checkoutWidth" 
-            frameborder="0" 
+          <iframe
+            ref="checkOutFrame" :src="checkOutURL"
+            :height="checkoutHeight" :width="checkoutWidth"
+            frameborder="0"
           />
         </v-container>
         <v-divider></v-divider>
@@ -441,7 +461,7 @@ export default {
       userId: null,
       createdAt: null
     },
-    
+
     payment: {
       paymentType: "COD",
       amount: null,
@@ -468,25 +488,25 @@ export default {
     inAppBrowserRef: null,
 
   }),
-  
+
   async mounted() {
     this.cordovaBackButton(this.goBack);
-    
+
     this.loaderDialogMessage = 'Please Wait...';
     this.loaderDialog = true;
 
     this.checkoutHeight = window.innerHeight;
     this.checkoutWidth = window.innerWidth;
-    
+
     let stockOrder;
     try {
-      stockOrder = await this.$store.dispatch("stock_orders/GET"); 
+      stockOrder = await this.$store.dispatch("stock_orders/GET");
     } catch(error) {
       console.log(error);
       this.loaderDialogMessage = null;
       this.loaderDialog = false;
     }
-    
+
     if(!stockOrder.success) {
       this.loaderDialogMessage = null;
       this.loaderDialog = false;
@@ -515,7 +535,7 @@ export default {
 
     try {
       this.deliveryDiscountList = await this.$store.dispatch('providers/GetDeliveryDiscounts');
-      
+
       this.loaderDialogMessage = null;
       this.loaderDialog = false;
 
@@ -524,18 +544,18 @@ export default {
       this.loaderDialogMessage = null;
       this.loaderDialog = false;
     }
-    
-    //add event listener to exit browser dialog when the success or fail redirect URL are being loaded 
+
+    //add event listener to exit browser dialog when the success or fail redirect URL are being loaded
     window.addEventListener(
       'loadstart',
       ev => {
         console.log('URL is being loaded in the iframe', ev.url);
         if(ev.url === 'https://appsell.ph/paymentSuccess') {
           console.log('GCASH/Grab Pay has been successful!');
-        
+
         } else if(ev.url === 'https://appsell.ph/paymentFail') {
           console.log('Gcash/Grab Pay had failed!');
-        
+
         } else {
           console.log('URL being loaded: ', ev);
         }
@@ -545,10 +565,10 @@ export default {
 
     //an event listener for successful 3ds auth
     window.addEventListener(
-      'message', 
+      'message',
       ev => {
         console.log('message was received from the iframe!', ev);
-        this.recheckPaymentStatus();    
+        this.recheckPaymentStatus();
       },
       false
     );
@@ -577,10 +597,10 @@ export default {
           "?"
       );
     },
-    
+
     async startQuotations() {
+      this.loaderDialogMessage = "Please wait...";
       this.loaderDialog = true;
-      this.loaderDialogMessage = "Please wait";
 
       try {
         const user = this.$store.getters["accounts/user"];
@@ -589,24 +609,25 @@ export default {
           toAddress: user.address
         });
 
-        this.loaderDialogMessage = null;
         this.loaderDialog = false;
+        this.loaderDialogMessage = null;
+
         console.log('logistics provider:', this.logisticsProvider);
         this.stepperCounter = 2;
-      
+
       } catch(error) {
         console.log(error);
-        this.loaderDialogMessage = null;
         this.loaderDialog = false;
+        this.loaderDialogMessage = null;
         this.stepperCounter = 2;
 
         let msg;
-        
+
         if(error.logisticsID === 'barapido') {
           //print corresponding error messages of barapido api error
           if(error.response.data === 'Error: itemWeight exceeds the weight limit.') {
             msg = 'Weight of the Stock Order exceeds the weight delivery requirement';
-        
+
           } else if(error.response.data === "Error: TypeError: Cannot read property '0' of undefined") {
             msg = 'Weight of the Stock Order is invalid.'
 
@@ -712,7 +733,7 @@ export default {
 
       return true;
     },
-    
+
     async finalizeOrder() {
       this.loaderDialog = true;
       this.loaderDialogMessage = "Submitting orders...";
@@ -731,7 +752,7 @@ export default {
 
         //this a flag that tells the dashboard that this is a new order and hasnt been read by the brand company.
         this.stockOrder.isRead = false;
-         
+
         //if the stock order has delivery discount, show the original shipping fee to the company
         if(this.isDeliveryDiscounted) {
           this.stockOrder.logisticsDetails.resellersShippingFee = this.discountedShippingFee;
@@ -743,11 +764,11 @@ export default {
 
         //check kung CC or COD
         switch(this.payment.paymentType) {
-          
+
           case "CC": {
             this.$refs.finalizeOrder.close();
             this.loaderDialogMessage = "Validating card details...";
-            
+
             const isCardValid = await this.validateCardDetails();
             if(!isCardValid) return;
 
@@ -773,7 +794,7 @@ export default {
             //if the card requires 3ds auth, show checkout_url to user
             if(paymentResult.paymentStatus === 'awaiting_next_action') {
               this.loaderDialogMessage = "Creating checkout link...";
-              
+
               this.paymentIntent = {
                 id: paymentResult.transactionNumber,
                 client_key: paymentResult.client_key
@@ -800,20 +821,20 @@ export default {
             } else if (paymentResult.paymentStatus === 'succeeded') {
               this.submitOrder(paymentResult);
             }
-            
+
             break;
           }
 
           case "GCash": case "GrabPay": {
             this.$refs.finalizeOrder.close();
-          
+
             const isAccountValid = await this.validateAccountDetails();
             if(!isAccountValid) return;
 
             this.processEWalletPay();
 
             break;
-          } 
+          }
 
           case "COD": {
             this.$refs.finalizeOrder.close();
@@ -883,7 +904,7 @@ export default {
               break;
             }
           }
-        
+
         } else {
           switch (error.errors[0].sub_code) {
             case "generic_decline": {
@@ -891,31 +912,31 @@ export default {
               errorMessage = "Your card has been declined, please contact your service provider.";
               break;
             }
-            
+
             case "card_expired": {
               errorHeader = "Card Expired!";
               errorMessage = "Your card has expired, please contact your service provider.";
               break;
-            } 
+            }
 
             case "cvn_invalid": {
               errorHeader = "Wrong CVC!";
               errorMessage = "Wrong CVC, please re-enter your correct CVC.";
               break;
-            } 
+            }
 
             case "processor_unavailable": {
               errorHeader = "Unavailable Processor!"
               errorMessage = "Failed to process your card due to unavailable payment processor, please try again later.";
               break;
-            } 
+            }
 
             case "insufficient_funds": {
               errorHeader = "Insufficient Funds!"
               errorMessage = "Your card has insufficient funds, please contact your service provider.";
               break;
             }
-              
+
             default: {
               errorHeader = "Card Declined!"
               errorMessage = "Your card has been declined, please contact your service provider."
@@ -954,12 +975,12 @@ export default {
           );
 
           this.submitOrder(this.paymentResult);
-        
+
         } else if(response.attributes.status === 'awaiting_next_action') {
           this.loaderDialog = false;
           this.loaderDialogMessage = null;
           this.$refs.finalizeOrder.close();
-          
+
           this.$refs.modal.show(
             "Payment Cancelled!",
             "Please authenticate this payment transaction."
@@ -971,7 +992,7 @@ export default {
           this.$refs.finalizeOrder.close();
 
           console.log(response.attributes.last_payment_error)
-          
+
           this.$refs.modal.show(
             "Payment Error!",
             "Payment was not recorded!"
@@ -979,10 +1000,10 @@ export default {
         }
 
         window.removeEventListener('message', ev=> {console.log('message event is removed.')}, false);
-      
+
       } catch(error) {
         console.log(error);
-        
+
         this.loaderDialog = false;
         this.loaderDialogMessage = null;
         this.$refs.finalizeOrder.close();
@@ -994,7 +1015,7 @@ export default {
 
         window.removeEventListener('message', ev=> {console.log('message event is removed.')}, false);
       }
-      
+
     },
 
     async submitOrder(paymentResult) {
@@ -1006,7 +1027,7 @@ export default {
           transactionNumber: paymentResult.transactionNumber,
           paymentGateway: "Paymongo"
         };
-      
+
       } else if(this.payment.paymentType === 'GCash' || this.payment.paymentType === 'GrabPay') {
         this.stockOrder.paymentDetails = {
           amount: (paymentResult.amount).toFixed(2),
@@ -1018,10 +1039,10 @@ export default {
 
       } else if(this.payment.paymentType === 'COD') {
         this.stockOrder.paymentDetails = Object.assign({}, paymentResult);
-      
+
       } else if(this.payment.paymentType === 'POP') {
         this.stockOrder.paymentDetails = Object.assign({}, paymentResult);
-      
+
       }
 
       console.log(this.stockOrder);
@@ -1031,7 +1052,7 @@ export default {
         "stock_orders/SUBMIT",
         this.stockOrder
       );
-      
+
       this.loaderDialog = false;
       this.loaderDialogMessage = null;
 
@@ -1049,12 +1070,12 @@ export default {
       const { name, email, phone } = this.payment.accountDetails;
 
       let userDetails = {
-        name, 
+        name,
         email,
         phone,
         address: this.userAddress
       };
-      
+
       this.loaderDialogMessage = `Creating payment source...`;
 
       try {
@@ -1092,7 +1113,7 @@ export default {
         //   stockOrderId: this.stockOrder.id,
         //   source_id: this.createdSource.id
         // });
-      
+
       } catch(error) {
         this.loaderDialog = false;
         this.loaderDialogMessage = null;
@@ -1104,7 +1125,7 @@ export default {
         if(errorObj.errors[0].code === 'parameter_below_minimum') {
           errorHeader = "Invalid Order Amount!";
           errorMessage = "Your total stock order price should not be less than PHP 100. Please try again later.";
-        
+
         } else {
           errorHeader = "Payment Failed!";
           errorMessage = "An error occured while processing your payment. Please try again later";
@@ -1112,7 +1133,7 @@ export default {
 
         this.$refs.modal.show(errorHeader, errorMessage);
       }
-      
+
     },
 
     async continueEWalletPayment() {
@@ -1122,7 +1143,7 @@ export default {
 
       const { name, email, phone } = this.payment.accountDetails;
       let userDetails = {
-        name, 
+        name,
         email,
         phone,
         address: this.userAddress
@@ -1143,7 +1164,7 @@ export default {
 
           // delete paymentResult.accountDetails;
           // delete paymentResult.cardDetails;
-          
+
           this.loaderDialog = false;
           this.loaderDialogMessage = null;
 
@@ -1155,7 +1176,7 @@ export default {
           console.log('e-wallet payment success! ', paymentResult);
 
           this.submitOrder(paymentResult);
-        
+
         } else {
           this.loaderDialog = false;
           this.loaderDialogMessage = null;
@@ -1166,7 +1187,7 @@ export default {
 
           console.log('e-wallet payment error! ', paymentResult);
         }
-      
+
       } catch(error) {
         const errorResponse = error.response.data.errors[0]
         console.log('e-wallet payment error!', );
@@ -1178,7 +1199,7 @@ export default {
             "Payment Authorization Denied!",
             "Payment was not successful due to denial of payment authorization. Please try again."
           );
-        
+
         } else {
           this.$refs.modal.show(
             "Payment not Successful!",
@@ -1186,7 +1207,7 @@ export default {
           );
         }
       }
-      
+
     },
 
     SetCardDetails(card) {
@@ -1246,7 +1267,7 @@ export default {
 
       console.log("city discount", cityBasedDiscount)
       if(cityBasedDiscount) return cityBasedDiscount;
-      
+
       //if there is no city-based discount, then search for province-based disccount
       const provinceBasedDiscount = this.deliveryDiscountList.find(discount => {
         return (
@@ -1275,30 +1296,30 @@ export default {
 
     isDeliveryDiscounted() {
       if(!this.deliveryDiscount) return false;
-      
+
       return this.subTotal >= this.deliveryDiscount.stockOrderPrice;
     },
 
     discountedShippingFee() {
       //if the amount of the stock order doesnt reach the free delivery quota price from the retrieved delivery discount
-      //then this stock order is not eligeable for delivery discount 
+      //then this stock order is not eligeable for delivery discount
       if(!this.isDeliveryDiscounted) {
         return this.shippingFee;
       }
 
       const { type, amount } = this.deliveryDiscount;
-      
+
       let newShippingFee;
-      if(type === 'amount') 
+      if(type === 'amount')
         newShippingFee = this.shippingFee - Number(amount);
-      else 
+      else
         newShippingFee = this.shippingFee - ((Number(amount) / 100) * this.shippingFee);
 
       return newShippingFee > 0 ? newShippingFee : 0;
     },
 
     totalIsInMinimumPrice() {
-      return this.total < 100 ? true : false; 
+      return this.total < 100 ? true : false;
     },
 
     totalIsInMaximumPrice() {
