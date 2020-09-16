@@ -1,10 +1,7 @@
 <template>
   <v-container fluid>
     <div class="text-xs-center" style="margin:0 auto; width:250px;">
-      <v-avatar size="250px" tile>
-        <v-img :src="require('@/assets/img/header_logo.png')" contain></v-img>
-      </v-avatar>
-      
+      <v-img :src="require('@/assets/img/header_logo.png')" contain></v-img>
     </div>
     <v-form v-model="valid" ref="form" lazy-validation @submit.prevent="submit">
       <v-layout column style="margin-top: 6%;">
@@ -75,10 +72,10 @@ export default {
   methods: {
     submit() {
       // this.$refs.form.validate()
-
+      window.Keyboard.hide();
       if (this.email && this.password) {
         this.email = this.email.toLowerCase();
-        
+
         this.loginBtnLoading = true;
 
         this.$store
@@ -158,10 +155,8 @@ export default {
 };
 </script>
 
-
 <style scoped>
 .input-group.input-group--error label {
   animation: none !important;
 }
 </style>
-
