@@ -65,7 +65,7 @@
                     </v-btn>
                   </v-flex>
                   <v-flex xs12 mt-2>
-                    <v-btn flat block color="black" @click="goBack">
+                    <v-btn block outline color="black" @click="goBack">
                       CANCEL
                     </v-btn>
                   </v-flex>
@@ -144,7 +144,7 @@
                     </v-btn>
                   </v-flex>
                   <v-flex xs12>
-                    <v-btn flat block color="black" @click="stepperCounter = 1">
+                    <v-btn block outline color="black" @click="stepperCounter = 1">
                       BACK
                     </v-btn>
                   </v-flex>
@@ -250,27 +250,25 @@
                 </table>
               </v-container>
             </v-card>
-            <v-container class="mt-4 px-3">
-              <div class="text-xs-center mt-3 mb-3">
-                <v-btn
-                  @click="submitStockOrder"
-                  depressed
-                  large
-                  color="primary"
-                  class="white--text"
-                  :disabled="stockOrder.items.length < 1"
-                >
-                  <v-icon left>check_circle</v-icon>
-                  <span>
-                    Submit Order
-                  </span>
-                </v-btn>
-                <v-btn
-                  flat block class="mt-3"
-                  @click="stepperCounter -= 1"
-                >Back</v-btn>
-                </div>
-            </v-container>
+            <div class="text-xs-center">
+              <v-btn
+                @click="submitStockOrder"
+                depressed
+                large block
+                color="primary"
+                class="white--text"
+                :disabled="stockOrder.items.length < 1"
+              >
+                <v-icon left>check_circle</v-icon>
+                <span>
+                  Submit Order
+                </span>
+              </v-btn>
+              <v-btn
+                block outline class="mt-3"
+                @click="stepperCounter = 2"
+              >Back</v-btn>
+            </div>
           </v-stepper-content>
         </v-stepper-items>
       </v-stepper>
