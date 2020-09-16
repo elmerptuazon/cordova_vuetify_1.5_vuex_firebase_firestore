@@ -31,12 +31,20 @@
       <div class="text-xs-center">
         <div class="title mt-2">Customers</div>
 
-        <v-btn-toggle class="mt-1" v-model="contactType">
-          <v-btn flat value="Online">
-            Online
+        <v-btn-toggle class="mt-3" v-model="contactType">
+          <v-btn 
+            flat 
+            :dark="contactType === 'Online'" 
+            :class="[ contactType === 'Online' ? 'primary white--text' : '']" 
+            value="Online"
+          >Online
           </v-btn>
-          <v-btn flat value="Offline">
-            Offline
+          <v-btn 
+            flat
+            :dark="contactType === 'Offline'" 
+            :class="[ contactType === 'Offline' ? 'primary white--text' : '']" 
+            value="Offline"
+          >Offline
           </v-btn>
         </v-btn-toggle>
       </div>
@@ -82,7 +90,6 @@
                   <v-img
                     :src="c.imageObj"
                     :alt="c.firstName"
-                    class="flipped"
                     contain
                   ></v-img>
                 </v-avatar>
@@ -102,7 +109,7 @@
           </template>
         </v-list>
       </div>
-      <div class="mt-2" v-else-if="contactType === 'Offline'">
+      <div class="mt-3" v-else-if="contactType === 'Offline'">
         <v-layout
           row
           v-if="!offlineContacts.length"
@@ -115,7 +122,49 @@
           </v-flex>
         </v-layout>
 
-        <v-list v-else two-line class="transparent">
+        <v-list v-if="offlineContactsWithBasket.length && !search" three-line class="transparent">
+          <v-subheader
+            class="subheading primary lighten-2 white--text"
+            >With Items in Basket</v-subheader
+          >
+
+          <template v-for="c in orderBy(offlineContactsWithBasket, 'basket.items.length', -1)">
+            <v-list-tile avatar :key="c.id" @click="viewContact(c)">
+              <v-list-tile-avatar>
+                <v-avatar size="50px" tile>
+                  <v-img
+                    :src="c.imageObj"
+                    :alt="c.firstName"
+                    contain
+                  ></v-img>
+                </v-avatar>
+              </v-list-tile-avatar>
+              <v-list-tile-content>
+                <v-list-tile-title v-if="settings.contactsSortBy === 'first'"
+                  >{{ c.firstName }} {{ c.lastName || "" }}</v-list-tile-title
+                >
+                <v-list-tile-title v-else
+                  >{{ c.lastName || "" }}, {{ c.firstName }}</v-list-tile-title
+                >
+                <v-list-tile-sub-title>{{
+                  c.contact || ""
+                }}</v-list-tile-sub-title>
+                <v-list-tile-sub-title>
+                  Items: <span class="font-weight-bold">{{ c.basket.items.length }}</span>
+                </v-list-tile-sub-title>
+              </v-list-tile-content>
+              <!-- <v-list-tile-action>
+                <v-list-tile-action-text class="body-1">
+                  Items: <span class="font-weight-bold">{{ c.basket.items.length }}</span>
+                </v-list-tile-action-text>
+              </v-list-tile-action> -->
+            </v-list-tile>
+          </template>
+        </v-list>
+
+        <v-divider class="my-3"></v-divider>
+
+        <v-list v-if="offlineContacts.length" two-line class="transparent">
           <template
             v-for="c in filterBy(
               offlineContacts,
@@ -137,7 +186,6 @@
                   <v-img
                     :src="c.imageObj"
                     :alt="c.firstName"
-                    class="flipped"
                     contain
                   ></v-img>
                 </v-avatar>
@@ -175,7 +223,7 @@ export default {
   data: () => ({
     extended: false,
     search: "",
-    contactType: "Online",
+    contactType: "Offline",
     spinner: false,
     onlineContactLoader: false,
     offlineContacts: []
@@ -194,6 +242,8 @@ export default {
       this.onlineContactLoader = false;
       this.spinner = false;
     });
+
+    this.GET_OFFLINE_LIST();
 
     this.cordovaBackButton(this.backToMore);
   },
@@ -289,6 +339,7 @@ export default {
 
       Promise.all(promises).then(response => {
         this.offlineContacts = response;
+        console.log('offline contacts: ', response);
       });
     }
   },
@@ -296,7 +347,13 @@ export default {
     ...mapGetters({
       GET_ONLINE_LIST: "contacts/GET_ONLINE_LIST_WITH_ALPHABETS",
       settings: "accounts/settings"
-    })
+    }),
+    offlineContactsWithBasket() {
+      if(!this.offlineContacts.length) return [];
+
+      let customers = this.offlineContacts.filter(contact => contact.hasOwnProperty('basket') && contact.basket.items.length > 0);
+      return customers.length ? customers : [];
+    }
   },
   watch: {
     contactType(newVal, oldVal) {
