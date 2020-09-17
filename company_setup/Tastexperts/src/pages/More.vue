@@ -3,7 +3,7 @@
     <v-toolbar app color="primary" dark>
       <BasketBadge />
       <v-spacer></v-spacer>
-      <ContactsBadge/>
+      <ContactsBadge />
       <Accounts />
     </v-toolbar>
 
@@ -133,7 +133,8 @@
       <v-alert border="right" outline color="info" value="true" elevation="2">
         Hello! Your Reseller application is currently pending for review.<br /><br />
         Check back to this page to see if your application has been approved, or
-        you can contact the {{ $store.getters["GET_COMPANY"] }} Team at {{ $store.getters["GET_CONTACT_NUMBER"] }}.
+        you can contact the {{ $store.getters["GET_COMPANY"] }} Team at
+        {{ $store.getters["GET_CONTACT_NUMBER"] }}.
       </v-alert>
     </div>
 
@@ -184,8 +185,10 @@
       </v-list-tile>
     </v-list>
 
-    <TermsAndConditionsDialog ref="TermsAndConditionsDialog" />
-    <DataPolicy ref="DataPolicy" />
+    <v-container fluid class="scroll-y smoothScroll">
+      <TermsAndConditionsDialog ref="TermsAndConditionsDialog" />
+      <DataPolicy ref="DataPolicy" />
+    </v-container>
 
     <BottomNav currentTab="more" />
     <Modal ref="modal" />
@@ -267,8 +270,6 @@
     </div>
   </div>
 </template>
-
-
 
 <script>
 import { mapGetters } from "vuex";

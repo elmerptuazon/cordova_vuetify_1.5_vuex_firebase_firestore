@@ -18,11 +18,11 @@
         <v-icon v-else>close</v-icon>
       </v-btn>
       <v-spacer></v-spacer>
-      <ContactsBadge/>
+      <ContactsBadge />
       <Accounts />
     </v-toolbar>
 
-    <v-container class="pa-0">
+    <v-container fluid>
       <div class="text-xs-center mt-5" v-if="loading">
         <v-progress-circular
           :size="100"
@@ -32,7 +32,7 @@
         ></v-progress-circular>
       </div>
 
-      <v-list class="pa-0" v-show="!loading">
+      <v-list class="pa-0 ma-0" v-else>
         <template
           v-for="i in filterBy(orderBy(items, 'updatedAt', -1), search)"
         >
@@ -100,7 +100,6 @@
   </div>
 </template>
 
-
 <script>
 import BasketBadge from "@/components/BasketBadge";
 import { mixins } from "@/mixins";
@@ -120,7 +119,8 @@ export default {
     messagesListener: null,
     loading: false,
     search: null,
-    newMessageBtnLoading: false
+    newMessageBtnLoading: false,
+    offsetTop: 0
   }),
   mounted() {
     // this.$refs.modal.show('Sorry', 'Feature not yet available.', () => {
@@ -130,7 +130,7 @@ export default {
   async created() {
     this.loading = true;
 
-    if(this.items.length) {
+    if (this.items.length) {
       this.conversationsLoaded = true;
     }
     // try {
@@ -145,6 +145,7 @@ export default {
     // } catch (error) {
     //   console.log(error);
     // }
+
     this.loading = false;
   },
   methods: {
@@ -202,6 +203,9 @@ export default {
       this.$refs.NewMessageDialog.show(() => {
         this.newMessageBtnLoading = false;
       });
+    },
+    onScroll(e) {
+      this.offsetTop = e.target.scrollTop;
     }
   },
   beforeDestroy() {
@@ -209,7 +213,7 @@ export default {
   },
   computed: {
     items() {
-      return this.$store.getters['conversations/GET_CONVERSATION_LIST'];
+      return this.$store.getters["conversations/GET_CONVERSATION_LIST"];
     },
     userPlaceholder(val) {
       return malePlaceholder;
