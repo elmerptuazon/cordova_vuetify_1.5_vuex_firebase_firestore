@@ -105,7 +105,7 @@
 
         <div class="text-xs-center mt-3 px-5 mt-4">
           <v-btn block @click="goToOrder" depressed large color="grey" dark
-            >View My {{ $store.getters["GET_COMPANY"] }} Order</v-btn
+            >View Stock Order</v-btn
           >
           <v-btn
             block

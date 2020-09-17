@@ -1,71 +1,75 @@
 <template>
-  <v-data-table
-    :headers="headers"
-    :items="items"
-    hide-actions
-    disable-initial-sort
-    :pagination.sync="pagination"
-    :loading="loading"
-    :search="search"
-  >
-    <template slot="headers" slot-scope="props">
-      <tr>
-        <th
-          v-for="header in props.headers"
-          :key="header.text"
+  <v-container class="pa-0 pt-2 ma-0" grid-list-xs fluid>
+
+    <v-data-table
+      :headers="headers"
+      :items="items"
+      hide-actions
+      disable-initial-sort
+      :pagination.sync="pagination"
+      :loading="loading"
+      :search="search"
+    >
+      <template slot="headers" slot-scope="props">
+        <tr>
+          <th
+            v-for="header in props.headers"
+            :key="header.text"
+            :class="[
+              'column sortable',
+              pagination.descending ? 'desc' : 'asc',
+              header.value === pagination.sortBy ? 'active' : ''
+            ]"
+            @click="changeSort(header.value)"
+            style="padding: 0;"
+          >
+            <v-icon small>arrow_upward</v-icon>
+            {{ header.text }}
+          </th>
+        </tr>
+      </template>
+      <template slot="items" slot-scope="props">
+        <tr
+          @click="viewOrder(props.item)"
           :class="[
-            'column sortable',
-            pagination.descending ? 'desc' : 'asc',
-            header.value === pagination.sortBy ? 'active' : ''
+            props.item.shipmentsToReceive > 0 ? 'green lighten-4' : '',
+            props.item.paymentDetails.paymentStatus === 'denied' ? 'red lighten-4' : ''
           ]"
-          @click="changeSort(header.value)"
-          style="padding: 0;"
         >
-          <v-icon small>arrow_upward</v-icon>
-          {{ header.text }}
-        </th>
-      </tr>
-    </template>
-    <template slot="items" slot-scope="props">
-      <tr
-        @click="viewOrder(props.item)"
-        :class="[
-          props.item.shipmentsToReceive > 0 
-            ? 'green lighten-4' 
-            : '',
-          props.item.paymentDetails.paymentStatus === 'denied' 
-            ? 'red lighten-3' 
-            : '',
-        ]"
-      >
-        <td class="text-xs-center">
-          <v-badge color="red" left overlap>
-            <span slot="badge" v-if="props.item.shipmentsToReceive > 0">
-              {{ props.item.shipmentsToReceive }}
+          <td class="text-xs-center">
+            <v-badge color="red" left overlap>
+              <span slot="badge" v-if="props.item.shipmentsToReceive > 0">
+                {{ props.item.shipmentsToReceive }}
+              </span>
+              <v-icon color="grey lighten-1">shopping_cart</v-icon>
+            </v-badge>
+          </td>
+          <td class="text-xs-center">{{ props.item.stockOrderReference }}</td>
+          <td class="text-xs-center">
+            <span v-if="
+              (props.item.status.toLowerCase() === 'shipped' ||  props.item.status.toLowerCase() === 'partially shipped') &&
+              props.item.shipmentsToReceive > 0"
+              >SCHEDULED FOR SHIPPING
             </span>
-            <v-icon color="grey lighten-1">shopping_cart</v-icon>
-          </v-badge>
-        </td>
-        <td class="text-xs-center">{{ props.item.stockOrderReference }}</td>
-        <td class="text-xs-center">
-          <span v-if="
-            (props.item.status.toLowerCase() === 'shipped' ||  props.item.status.toLowerCase() === 'partially shipped') && 
-            props.item.shipmentsToReceive > 0"
-            >SCHEDULED FOR SHIPPING
-          </span>
-          
-          <span v-else>{{ props.item.status | uppercase }}</span>
-        </td>
-        <td class="text-xs-center">
-          <span v-if="props.item.paymentDetails.paymentStatus === 'pending'">{{ 'proof of payment' | uppercase }}</span>
-          <span v-else>{{ props.item.paymentDetails.paymentStatus | uppercase }}</span>
-        </td>
-        <td class="text-xs-center">
-          {{ props.item.submittedAt | momentify("DD-MMM-YYYY") }}
-        </td>
-      </tr>
-    </template>
-  </v-data-table>
+            <span v-else>{{ props.item.status | uppercase }}</span>
+          </td>
+          <td class="text-xs-center">
+            <span v-if="
+                props.item.paymentDetails.paymentStatus === 'pending' &&
+                props.item.paymentDetails.paymentType === 'POP'
+              "
+            >
+              {{ 'proof of payment' | uppercase }}
+            </span>
+            <span v-else>{{ props.item.paymentDetails.paymentStatus | uppercase }}</span>
+          </td>
+          <td class="text-xs-center">
+            {{ props.item.submittedAt | momentify("DD-MMM-YYYY") }}
+          </td>
+        </tr>
+      </template>
+    </v-data-table>
+  </v-container>
 </template>
 
 <script>
@@ -100,7 +104,7 @@ export default {
         align: "center"
       },
       {
-        text: "Shipment Status",
+        text: "Shipping Status",
         value: "status",
         align: "center"
       },
@@ -114,7 +118,8 @@ export default {
         value: "submittedAt",
         align: "center"
       }
-    ]
+    ],
+    offsetTop: 0,
   }),
 
   methods: {
@@ -134,7 +139,10 @@ export default {
         this.pagination.sortBy = column;
         this.pagination.descending = false;
       }
-    }
+    },
+    onScroll (e) {
+		this.offsetTop = e.target.scrollTop
+		},
   },
 
   computed: {}
