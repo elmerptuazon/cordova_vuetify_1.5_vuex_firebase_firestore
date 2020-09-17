@@ -30,8 +30,14 @@
               Status:
               <v-chip
                 :class="[
-                  stockOrder.status === 'pending' ? 'red darken-2' : '',
-                  isScheduledForShipping ? 'yellow darken-2' : 'green',
+                  stockOrder.status === 'pending' || 
+                    stockOrder.status === 'cancelled' 
+                    ? 'red darken-2' 
+                    : stockOrder.status === 'processing' 
+                    ? 'orange darken-2' 
+                    : isScheduledForShipping 
+                    ? 'yellow darken-2' 
+                    : 'green',
                 ]"
                 text-color="white"
               >
@@ -52,18 +58,12 @@
               Status:
               <v-chip
                 :class="[
-                  stockOrder.paymentDetails.paymentStatus.toLowerCase() === '-'
+                  stockOrder.paymentDetails.paymentStatus.toLowerCase() === '-' ||
+                    stockOrder.paymentDetails.paymentStatus.toLowerCase() === 'cancelled'
                     ? 'red darken-2'
-                    : '',
-                  stockOrder.paymentDetails.paymentStatus.toLowerCase() === 'pending'
+                    : stockOrder.paymentDetails.paymentStatus.toLowerCase() === 'pending'
                     ? 'yellow darken-2'
-                    : '',
-                  stockOrder.paymentDetails.paymentStatus.toLowerCase() === 'paid'
-                    ? 'green'
-                    : '',
-                  stockOrder.paymentDetails.paymentStatus.toLowerCase() === 'denied'
-                    ? 'red darken-2'
-                    : ''
+                    : 'green'
                 ]"
                 text-color="white"
               >

@@ -72,10 +72,10 @@ export default {
   methods: {
     submit() {
       // this.$refs.form.validate()
-
+      window.Keyboard.hide();
       if (this.email && this.password) {
         this.email = this.email.toLowerCase();
-        
+
         this.loginBtnLoading = true;
 
         this.$store
@@ -155,10 +155,8 @@ export default {
 };
 </script>
 
-
 <style scoped>
 .input-group.input-group--error label {
   animation: none !important;
 }
 </style>
-

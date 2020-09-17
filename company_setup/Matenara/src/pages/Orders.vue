@@ -52,7 +52,7 @@
 
     <div
       v-if="tab === 'tab1'"
-      class="tab-content white"
+      class="scroll-y smoothScroll tab-content white"
       :style="{ height: height + 'px' }"
     >
       <div class="py-2">
@@ -63,7 +63,7 @@
 
     <div
       v-else-if="tab === 'tab2'"
-      class="tab-content white"
+      class="scroll-y smoothScroll tab-content white"
       :style="{ height: height + 'px' }"
     >
       <div class="py-2">
@@ -234,7 +234,7 @@ export default {
     }),
     customerOrders() {
       const basket = this.getOrdersFromOfflineContacts();
-      const orders = this.$store.getters['orders/GET_CUSTOMER_ORDERS']; 
+      const orders = this.$store.getters['orders/GET_CUSTOMER_ORDERS'];
       return [...orders, ...basket];
     },
     showBadge() {
@@ -271,6 +271,11 @@ export default {
 </script>
 
 <style scoped>
+.smoothScroll{
+  overflow-y: scroll;
+  -webkit-overflow-scrolling: touch;
+}
+
 .tab-content {
   width: 100%;
   position: fixed;

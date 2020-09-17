@@ -2,29 +2,19 @@
   <v-container fluid grid-list-md class="pa-4">
     <v-stepper v-model="frame">
       <v-stepper-header>
-        <v-stepper-step :complete="frame > 1" step="1"
-          >Personal Information</v-stepper-step
-        >
+        <v-stepper-step :complete="frame > 1" step="1">Personal Information</v-stepper-step>
         <v-divider></v-divider>
 
-        <v-stepper-step :complete="frame > 2" step="2"
-          >Home Address</v-stepper-step
-        >
+        <v-stepper-step :complete="frame > 2" step="2">Home Address</v-stepper-step>
         <v-divider></v-divider>
 
-         <v-stepper-step :complete="frame > 3" step="3"
-          >Account Details</v-stepper-step
-        >
+        <v-stepper-step :complete="frame > 3" step="3">Account Details</v-stepper-step>
         <v-divider></v-divider>
 
-        <v-stepper-step :complete="frame > 4" step="4"
-          >Referral / Reseller Details</v-stepper-step
-        >
+        <v-stepper-step :complete="frame > 4" step="4">Referral / Reseller Details</v-stepper-step>
         <v-divider></v-divider>
 
-        <v-stepper-step step="5"
-          >Upload Profile Pic and Proof of ID</v-stepper-step
-        >
+        <v-stepper-step step="5">Upload Profile Pic and Proof of ID</v-stepper-step>
       </v-stepper-header>
 
       <v-stepper-items>
@@ -32,9 +22,7 @@
           <v-form ref="form1" lazy-validation @submit.prevent="proceed(1)">
             <v-layout row wrap>
               <v-flex xs12>
-                <div class="font-weight-bold text-center">
-                  Personal Information
-                </div>
+                <div class="font-weight-bold text-center">Personal Information</div>
               </v-flex>
               <v-flex xs12>
                 <v-select
@@ -77,24 +65,16 @@
                   label="Birthday*"
                   append-icon="date_range"
                   required
+                  readonly
                   :rules="basicRules"
-                  @focus="openCalendar"
+                  @click="openCalendar"
                   v-model="registerData.birthday"
                 ></v-text-field>
               </v-flex>
               <v-flex xs12>
-                <v-radio-group
-                  :rules="basicRules"
-                  required
-                  v-model="registerData.gender"
-                  row
-                >
+                <v-radio-group :rules="basicRules" required v-model="registerData.gender" row>
                   <v-radio label="Male" value="Male" color="primary"></v-radio>
-                  <v-radio
-                    label="Female"
-                    value="Female"
-                    color="primary"
-                  ></v-radio>
+                  <v-radio label="Female" value="Female" color="primary"></v-radio>
                 </v-radio-group>
               </v-flex>
               <v-flex xs12>
@@ -120,10 +100,7 @@
                 <div class="font-weight-bold text-center">Home Address</div>
               </v-flex>
               <v-flex xs12>
-                <v-text-field
-                  label="House Number"
-                  v-model="registerData.address.house"
-                ></v-text-field>
+                <v-text-field label="House Number" v-model="registerData.address.house"></v-text-field>
               </v-flex>
               <v-flex xs12>
                 <v-text-field
@@ -185,11 +162,7 @@
         </v-stepper-content>
 
         <v-stepper-content step="3">
-          <v-form
-            ref="form4"
-            lazy-validation
-            @submit.prevent="confirmationDialog = true"
-          >
+          <v-form ref="form4" lazy-validation @submit.prevent="confirmationDialog = true">
             <v-layout row wrap>
               <v-flex xs12>
                 <div class="font-weight-bold text-center">Account Details</div>
@@ -248,14 +221,16 @@
                     <a
                       @click.stop="$refs.TermsAndConditionsDialog.show"
                       class="blue--text text--darken-2"
-                      ><strong>Terms</strong></a
                     >
+                      <strong>Terms</strong>
+                    </a>
                     and
                     <a
                       @click.stop="$refs.DataPolicy.show"
                       class="blue--text text--darken-2"
-                      ><strong>Data Privacy Policies</strong></a
                     >
+                      <strong>Data Privacy Policies</strong>
+                    </a>
                   </div>
                 </v-checkbox>
               </v-flex>
@@ -282,10 +257,13 @@
         <v-stepper-content step="4">
           <v-layout row wrap>
             <v-flex xs12>
-              <div class="font-weight-bold text-center" v-if="registerData.type === 'Reseller'">Referred By</div>
+              <div
+                class="font-weight-bold text-center"
+                v-if="registerData.type === 'Reseller'"
+              >Referred By</div>
               <div class="font-weight-bold text-center" v-else>Reseller Details</div>
             </v-flex>
-            
+
             <v-flex xs12 mt-3>
               <v-text-field
                 clearable
@@ -296,18 +274,21 @@
             </v-flex>
 
             <v-flex xs12 mt-3>
-              <p v-if="registerData.type === 'Reseller'" class="grey--text text--darken-2 mt-4 subheading text-xs-center">
+              <p
+                v-if="registerData.type === 'Reseller'"
+                class="grey--text text--darken-2 mt-4 subheading text-xs-center"
+              >
                 {{
-                  `${referralBy.firstName ||
-                    "Your"} ${referralBy.middleInitial ||
-                    ""} ${referralBy.lastName || "Referrer"}`
+                `${referralBy.firstName ||
+                "Your"} ${referralBy.middleInitial ||
+                ""} ${referralBy.lastName || "Referrer"}`
                 }}
               </p>
               <p v-else class="grey--text text--darken-2 mt-4 subheading text-xs-center">
                 {{
-                  `${referralBy.firstName ||
-                    "Your"} ${referralBy.middleInitial ||
-                    ""} ${referralBy.lastName || "Reseller"}`
+                `${referralBy.firstName ||
+                "Your"} ${referralBy.middleInitial ||
+                ""} ${referralBy.lastName || "Reseller"}`
                 }}
               </p>
               <div class="text-xs-center">
@@ -317,7 +298,7 @@
               </div>
             </v-flex>
           </v-layout>
-          
+
           <v-layout row wrap mt-2 mb-4 align-center>
             <v-btn
               depressed
@@ -327,9 +308,9 @@
               :disabled="btnLoading || !referralSearch"
               block
               v-show="!referralFound"
-              >
-                <span v-if="registerData.type === 'Reseller'">Find Your Referrer</span>
-                <span v-else>Find your Reseller</span>
+            >
+              <span v-if="registerData.type === 'Reseller'">Find Your Referrer</span>
+              <span v-else>Find your Reseller</span>
             </v-btn>
             <v-btn
               depressed
@@ -339,10 +320,10 @@
               @click="confirmReferral"
               :loading="btnLoading"
               :disabled="btnLoading"
-              >
-                <span v-if="registerData.type === 'Reseller'">Confirm Your Referrer</span>
-                <span v-else>Confirm your Reseller</span>
-                <v-icon right>arrow_forward</v-icon>
+            >
+              <span v-if="registerData.type === 'Reseller'">Confirm Your Referrer</span>
+              <span v-else>Confirm your Reseller</span>
+              <v-icon right>arrow_forward</v-icon>
             </v-btn>
           </v-layout>
 
@@ -363,18 +344,11 @@
               <div
                 v-if="registerData.type == 'Reseller'"
                 class="font-weight-bold text-center"
-              >
-                Upload Profile Pic and Proof of ID
-              </div>
-              <div v-else class="font-weight-bold text-center">
-                Upload Profile Pic
-              </div>
+              >Upload Profile Pic and Proof of ID</div>
+              <div v-else class="font-weight-bold text-center">Upload Profile Pic</div>
             </v-flex>
             <div class="text-xs-center" v-if="registerData.displayPicture">
-              <v-img
-                :src="registerData.displayPicture"
-                alt="display_picture"
-              ></v-img>
+              <v-img :src="registerData.displayPicture" alt="display_picture"></v-img>
             </div>
             <v-bottom-sheet full-width v-model="sheet">
               <v-btn
@@ -386,9 +360,7 @@
                 slot="activator"
                 type="button"
               >
-                <div v-if="!registerData.displayPicture">
-                  Add Profile Picture
-                </div>
+                <div v-if="!registerData.displayPicture">Add Profile Picture</div>
                 <div v-else>Change Profile Picture</div>
               </v-btn>
               <v-list>
@@ -415,25 +387,14 @@
               despressed
               block
               @click="registerData.displayPicture = null"
-              >Remove Profile Picture</v-btn
-            >
+            >Remove Profile Picture</v-btn>
 
             <div v-if="registerData.type == 'Reseller'">
               <div class="text-xs-center" v-if="registerData.proofOfId">
-                <v-img
-                  :src="registerData.proofOfId"
-                  alt="proof_picture"
-                ></v-img>
+                <v-img :src="registerData.proofOfId" alt="proof_picture"></v-img>
               </div>
               <v-bottom-sheet full-width v-model="proofPictureSheet">
-                <v-btn
-                  color="grey darken-1"
-                  dark
-                  depressed
-                  block
-                  large
-                  slot="activator"
-                >
+                <v-btn color="grey darken-1" dark depressed block large slot="activator">
                   <div v-if="!registerData.proofOfId">Add Proof of ID</div>
                   <div v-else>Change Proof of ID</div>
                 </v-btn>
@@ -461,8 +422,7 @@
                 despressed
                 block
                 @click="!registerData.proofOfId"
-                >Remove Proof of ID</v-btn
-              >
+              >Remove Proof of ID</v-btn>
             </div>
             <br />
           </div>
@@ -485,20 +445,12 @@
 
     <v-dialog v-model="confirmationDialog" persistent>
       <v-card>
-        <v-card-title class="subheading font-weight-bold primary white--text"
-          >SUBMIT ACCOUNT DETAILS</v-card-title
-        >
-        <v-card-text>
-          You are about to submit your account details, are you sure about it?
-        </v-card-text>
+        <v-card-title class="subheading font-weight-bold primary white--text">SUBMIT ACCOUNT DETAILS</v-card-title>
+        <v-card-text>You are about to submit your account details, are you sure about it?</v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn block outline @click.native="confirmationDialog = false"
-            >Cancel</v-btn
-          >
-          <v-btn block color="primary" dark depressed @click.native="submitInfo"
-            >Submit</v-btn
-          >
+          <v-btn block outline @click.native="confirmationDialog = false">Cancel</v-btn>
+          <v-btn block color="primary" dark depressed @click.native="submitInfo">Submit</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -528,7 +480,7 @@
           <v-icon left>check</v-icon> Submit
         </v-btn>
       </div>
-    </v-form> -->
+    </v-form>-->
 
     <Dialog />
     <TrialMessage ref="trial" />
@@ -537,8 +489,6 @@
     <DataPolicy ref="DataPolicy" />
   </v-container>
 </template>
-
-
 
 <script>
 import { mixins } from "@/mixins";
@@ -553,7 +503,7 @@ export default {
     TrialMessage,
     Modal,
     TermsAndConditionsDialog,
-    DataPolicy
+    DataPolicy,
   },
   data: () => ({
     sheet: false,
@@ -580,13 +530,13 @@ export default {
         streetName: null,
         province: null,
         citymun: null,
-        zipCode: null
+        zipCode: null,
       },
       social: {
         facebook: null,
         instagram: null,
-        twitter: null
-      }
+        twitter: null,
+      },
     },
     birthdayMenu: false,
     pickerValue: null,
@@ -602,9 +552,8 @@ export default {
     referralFound: false,
     btnLoading: false,
 
-    userType: ['Reseller']
+    userType: ["Reseller"],
     // userType: ['Customer', 'Reseller'];
-
   }),
   created() {
     this.provinces = provinces;
@@ -670,10 +619,10 @@ export default {
       this.registerData.displayPicture = null;
       this.registerData.proofOfId = null;
 
-      if(this.registerData.type === "Reseller") {
+      if (this.registerData.type === "Reseller") {
         this.registerData.referredById = null;
       }
-      
+
       const registerData = JSON.parse(JSON.stringify(this.registerData));
       registerData.createdAt = Date.now();
 
@@ -733,9 +682,10 @@ export default {
 
       let res;
       try {
-        res = await this.$store.dispatch("accounts/FIND_RESELLER", { data: this.referralSearch.toLowerCase() });
-      }
-      catch(error) {
+        res = await this.$store.dispatch("accounts/FIND_RESELLER", {
+          data: this.referralSearch.toLowerCase(),
+        });
+      } catch (error) {
         console.log(error);
         this.Indicator().close();
         this.$refs.modal.show(
@@ -746,7 +696,7 @@ export default {
       }
 
       console.log(res);
-      if(!res.empty) {
+      if (!res.empty) {
         this.Indicator().close();
         this.referralFound = true;
         const reseller = res.data;
@@ -759,12 +709,10 @@ export default {
         this.referralBy.email = reseller.email;
         this.referralBy.customers = reseller.customers;
 
-        this.imgObj.src =
-          reseller.downloadURL || MaleDefaultImage;
-        
+        this.imgObj.src = reseller.downloadURL || MaleDefaultImage;
+
         console.log(this.imgObj);
-      }
-      else {
+      } else {
         this.Indicator().close();
         this.referralFound = false;
         this.$refs.modal.show(
@@ -774,7 +722,7 @@ export default {
       }
     },
     async confirmReferral() {
-      if(this.registerData.type === 'Reseller') {
+      if (this.registerData.type === "Reseller") {
         this.Indicator().open();
 
         this.registerData.referredById = this.referralBy.uid;
@@ -785,13 +733,12 @@ export default {
             referrersEmail: this.referralBy.email,
             uid: this.registerData.uid,
           });
-        }
-        catch(error) {
+        } catch (error) {
           console.log(error);
           this.Indicator().close();
           this.$refs.modal.show(
             "Confirm Referral error",
-            "Unexpected error occurred. Please try again.",
+            "Unexpected error occurred. Please try again."
           );
           return;
         }
@@ -799,37 +746,35 @@ export default {
         this.Indicator().close();
         this.$refs.modal.show(
           "Success!",
-          "Your referral was added successfully!",
+          "Your referral was added successfully!"
         );
         this.frame++;
-      }
-      else {
+      } else {
         delete this.registerData.referralBy;
         const payload = {
           customers: this.referralBy.customers,
           customerId: this.registerData.uid,
           resellerId: this.referralBy.uid,
-          resellerData: this.referralBy
+          resellerData: this.referralBy,
         };
 
         this.Indicator().open();
 
         try {
-          await this.$store.dispatch("accounts/ADD_CUSTOMER_TO_RESELLER", payload);
+          await this.$store.dispatch(
+            "accounts/ADD_CUSTOMER_TO_RESELLER",
+            payload
+          );
 
           this.Indicator().close();
-          this.$refs.modal.show(
-            "Success",
-            "Your reseller has been updated.",
-          );
+          this.$refs.modal.show("Success", "Your reseller has been updated.");
           this.frame++;
-        }
-        catch(error) {
+        } catch (error) {
           console.log(error);
           this.Indicator().close();
           this.$refs.modal.show(
             "Confirm reseller error",
-            "Unexpected error occurred. Please try again.",
+            "Unexpected error occurred. Please try again."
           );
         }
       }
@@ -978,7 +923,7 @@ export default {
     startObserversAndProceed(registerData, response) {
       this.$store.dispatch("accounts/START_OBSERVERS", registerData);
       this.$store.dispatch("orders/LISTEN_TO_PROPOSED_DELIVERIES", {
-        id: response.uid
+        id: response.uid,
       });
 
       this.$store.dispatch("catalogues/LISTEN_TO_NEW_CATALOGUES");
@@ -989,8 +934,8 @@ export default {
           params: {
             response,
             userType: this.registerData.type,
-            registerData: this.registerData
-          }
+            registerData: this.registerData,
+          },
         });
         this.$store.commit("SET_SHOW_TOOLBAR", true);
       } else {
@@ -1000,8 +945,8 @@ export default {
           params: {
             response,
             userType: this.registerData.type,
-            registerData: this.registerData
-          }
+            registerData: this.registerData,
+          },
         });
         this.$store.commit("SET_SHOW_TOOLBAR", false);
       }
@@ -1041,24 +986,23 @@ export default {
       const options = {
         date: new Date(),
         mode: "date",
-        androidTheme: 3
+        android: {
+          theme: 3,
+        },
+        success: (newDate) => {
+          this.registerData.birthday = this.$moment(newDate).format(
+            "MM/DD/YYYY"
+          );
+        },
       };
 
-      datePicker.show(
-        options,
-        date => {
-          this.registerData.birthday = this.$moment(date).format("MM/DD/YYYY");
-        },
-        error => {
-          console.log("cancelled", error);
-        }
-      );
+      cordova.plugins.DateTimePicker.show(options);
     },
 
     disableBack() {
       document.addEventListener(
         "backbutton",
-        e => {
+        (e) => {
           e.preventDefault();
         },
         false
@@ -1068,7 +1012,7 @@ export default {
     enableBack() {
       document.addEventListener(
         "backbutton",
-        e => {
+        (e) => {
           e.preventDefault();
           this.$router.go(-1);
         },
@@ -1078,25 +1022,24 @@ export default {
 
     capitalizeFirstLetter(string) {
       if (!string) return string;
-      return string.replace(/\w\S*/g, function(txt) {
+      return string.replace(/\w\S*/g, function (txt) {
         return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
       });
-    }
+    },
   },
   mixins: [mixins],
   watch: {
     "registerData.address.province"(val) {
-      this.cities = provinces.filter(p => p.name === val)[0].cities;
+      this.cities = provinces.filter((p) => p.name === val)[0].cities;
     },
     "registerData.type"() {
       this.$refs.form1.resetValidation();
       this.$refs.form2.resetValidation();
       this.$refs.form3.resetValidation();
-    }
-  }
+    },
+  },
 };
 </script>
-
 
 <style>
 .m-top30 {
@@ -1117,4 +1060,3 @@ image[lazy="loading"] {
   display: inline-flex !important;
 }
 </style>
-

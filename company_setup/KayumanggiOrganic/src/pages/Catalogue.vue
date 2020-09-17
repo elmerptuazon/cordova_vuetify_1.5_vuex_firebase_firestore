@@ -10,7 +10,7 @@
         <v-icon>search</v-icon>
       </v-btn>
       <v-spacer></v-spacer>
-      <ContactsBadge/>
+      <ContactsBadge />
       <Accounts />
       <v-text-field
         label="Search products..."
@@ -109,6 +109,12 @@
                 color="grey lighten-5"
               ></v-progress-circular>
             </v-layout>
+
+            <v-layout row fill-height align-end justify-start>
+              <div class="overlay-category-name title white--text">
+                {{ c.name }}
+              </div>
+            </v-layout>
           </v-img>
         </v-card>
       </masonry>
@@ -123,14 +129,13 @@
   </div>
 </template>
 
-
 <script>
 import { mapGetters } from "vuex";
 import { mapState } from "vuex";
 import { Spinner } from "mint-ui";
 import BasketBadge from "@/components/BasketBadge";
 import { mixins } from "@/mixins";
-import ContactsBadge from "@/components/ContactsBadge"
+import ContactsBadge from "@/components/ContactsBadge";
 
 export default {
   data: () => ({
@@ -170,6 +175,8 @@ export default {
       .finally(() => {
         this.loading = false;
       });
+
+    this.primaryColor = process.env.primaryColor;
   },
   methods: {
     onRefresh() {
@@ -275,5 +282,13 @@ export default {
   width: 100%;
   text-align: center;
 }
-</style>
 
+.overlay-category-name {
+  position: absolute;
+  z-index: 2;
+  height: 30px;
+  width: 100%;
+  background-color: rgba(109, 109, 109, 0.7);
+  padding: 5px;
+}
+</style>

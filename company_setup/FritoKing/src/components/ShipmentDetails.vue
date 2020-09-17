@@ -14,12 +14,12 @@
       >
         <v-card class="mt-2" color="white">
           <v-card-title class="subheading">
-            Shipment Tracking Number: <span class="font-weight-bold">{{ shipment.trackingNumber }}</span>
+            Shipment Tracking Number: {{ shipment.trackingNumber }}
           </v-card-title>
           <v-card-text>
             <v-layout align-center justify-space-around row wrap>
               <v-flex xs12>
-                <span class="body-1">Shipping Date: </span>
+                <span class="body-1">Shipping / Pick-Up Date: </span>
                 <span class="body-2 font-weight-bold">{{ $moment(new Date(shipment.pickupDate)).format("DD-MMM-YYYY") }}</span>
               </v-flex>
               <v-flex xs12>
@@ -49,9 +49,8 @@
               @click="TagShipmentAsReceived(shipment)"
               :loading="buttonLoading"
               :disabled="buttonLoading"
-              >TAG THIS SHIPMENT AS RECEIVED</v-btn
-            >
-            <!-- <v-btn
+              >TAG THIS SHIPMENT AS RECEIVED</v-btn>
+            <!--<v-btn
               v-else-if="
                 !shipment.isAddedToInventory && shipment.status === 'Received'
               "
@@ -63,7 +62,7 @@
             >
             <v-btn v-else class="primary" :disabled="true"
               >ITEM/s ALREADY IN THE INVENTORY</v-btn
-            > -->
+            >-->
           </v-card-actions>
         </v-card>
       </v-flex>
@@ -76,10 +75,7 @@
 import { mapState } from "vuex";
 import Modal from "@/components/Modal";
 import { FIRESTORE } from "@/config/firebaseInit";
-import { mixins } from '@/mixins';
-
 export default {
-  mixins: [mixins],
   props: ["stockOrderId", "stockOrder"],
   data: () => ({
     selectedItem: {},
@@ -116,7 +112,7 @@ export default {
           status: "Received",
           isAddedToInventory: false
         };
-        
+
         if(this.stockOrder.shipmentsToReceive > 0) {
           //update counter in stockOrder
           updatedShipment.stockOrderId = shipment.stockOrder.stockOrderId;
@@ -124,7 +120,7 @@ export default {
             shipmentsToReceive: FIRESTORE.FieldValue.increment(-1)
           };
         }
-        
+
         for(const item of shipment.itemsToShip) {
           let updatedVariant = {
             allocatedQTY: FIRESTORE.FieldValue.increment(item.qtyToShip * -1),
@@ -143,7 +139,7 @@ export default {
           key: 'isQTYDeducted',
           value: true
         });
-        
+
         this.$refs.modal.show(
           "Success",
           "Shipment has been tagged as Received!"
