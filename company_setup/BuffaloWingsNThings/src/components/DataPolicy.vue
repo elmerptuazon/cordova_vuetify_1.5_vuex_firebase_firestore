@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="scroll-y smoothScroll">
     <v-dialog
       v-model="dialog"
       fullscreen
@@ -382,6 +382,11 @@ export default {
 };
 </script>
 <style  scoped>
+.smoothScroll {
+  overflow-y: scroll;
+  -webkit-overflow-scrolling: touch;
+}
+
 p.p1 {
   margin: 0px 0px 0px 0px;
   text-align: center;

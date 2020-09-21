@@ -6,134 +6,15 @@
       </v-btn>
       <v-spacer v-if="$store.state.rightAlignToolbarIcons"></v-spacer>
       <!-- <BasketBadge tabName="msa" /> -->
-      <!-- <v-btn icon @click="confirmGenerate" v-show="stockOrder.items.length > 0">
-        <v-icon>refresh</v-icon>
-      </v-btn> -->
-      <v-btn icon @click="confirmClearBasket" v-show="stockOrder.items.length > 0">
+      <v-btn icon @click="confirmGenerate" v-show="stockOrder.items.length > 0">
         <v-icon>refresh</v-icon>
       </v-btn>
       <v-spacer></v-spacer>
       <Accounts />
     </v-toolbar>
 
-    <table class="basket-table" v-show="!loader">
-      <thead>
-        <tr>
-          <th class="border-bottom header-size grey--text text--darken-1">
-            NAME
-          </th>
-          <th
-            class="border-bottom text-xs-right header-size grey--text text--darken-1"
-          >
-            QTY
-          </th>
-          <th
-            class="border-bottom text-xs-right header-size grey--text text--darken-1"
-            @click="showQTYDescription"
-          >
-            QTY Available
-          </th>
-          <th
-            class="border-bottom text-xs-right header-size grey--text text--darken-1"
-          >
-            COST
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr
-          v-for="(item, i) in filterBy(
-            orderBy(stockOrder.items, 'created_at', -1),
-            search
-          )"
-          :key="i"
-          :class="[ item.qty > item.availableQTY ? 'red lighten-4' : '']"
-        >
-          <td class="border-bottom">
-            <v-layout row>
-              <v-flex xs3>
-                <v-avatar tile size="35px">
-                  <v-img :src="item.image" :alt="item.name" contain></v-img>
-                </v-avatar>
-              </v-flex>
-              <v-flex xs8 offset-xs1>
-                <span v-html="item.name" class="caption"></span>
-                <br />
-                <span class="caption">
-                  {{ item.attributes | joinAttributes }}
-                </span>
-              </v-flex>
-            </v-layout>
-          </td>
-          <td class="caption text-xs-right border-bottom">{{ item.qty }}</td>
-          <td class="caption text-xs-right border-bottom">{{ item.availableQTY }}</td>
-          <td class="caption text-xs-right border-bottom">
-            {{ (item.qty * item.price) | currency("P") }}
-            <br />
-            <a @click="editItem(item)">
-              <v-icon class="caption blue--text">border_color</v-icon> Edit</a
-            >
-          </td>
-        </tr>
-        <tr>
-          <td colspan="4" class="text-xs-right">
-            <v-btn
-              small
-              color="primary"
-              depressed
-              @click="$router.push({ name: 'Catalogue' })"
-              >Add new item</v-btn
-            >
-          </td>
-        </tr>
-        <tr>
-          <td class="caption text-xs-right" colspan="3">
-            Total
-          </td>
-          <td class="caption text-xs-right">
-            <strong>{{ total | currency("P") }}</strong>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-    <div class="text-xs-center mt-5" v-show="loader">
-      <v-progress-circular
-        :size="100"
-        :width="5"
-        color="primary"
-        indeterminate
-      ></v-progress-circular>
-    </div>
-
-    <div class="text-xs-center mt-3 mb-3" v-show="!loader">
-      <div v-if="stockOrder.items.length > 0">
-        <v-btn
-          @click="ProceedToCheckout"
-          depressed
-          large
-          color="primary"
-          class="white--text"
-          :disabled="stockOrder.items.length <= 0 || itemsWithLowQTY.length > 0"
-        >
-          <span>Proceed to Checkout </span>
-        </v-btn>
-      </div>
-      <!-- <div v-else>
-				<v-btn @click="generateStockOrder" depressed large color="primary" class="white--text">
-					<span>Generate From Inventory</span>
-				</v-btn>
-			</div> -->
-    </div>
-
-    <v-divider class="mt-5" v-if="outOfStockItems.length"></v-divider>
-
-    <div class="mt-2 px-2" v-if="outOfStockItems.length">
-      <v-layout align-center justify-start row wrap>
-        <v-flex xs10>
-          <div class="text-xs-left font-weight-bold">Items that are <span class="font-weight-bold red--text">OUT OF STOCK</span></div>
-        </v-flex>
-      </v-layout>
-      <table class="basket-table mt-2" v-show="!loader">
+    <v-container fluid class="pa-0">
+      <table class="basket-table" v-show="!loader">
         <thead>
           <tr>
             <th class="border-bottom header-size grey--text text--darken-1">
@@ -142,27 +23,38 @@
             <th
               class="border-bottom text-xs-right header-size grey--text text--darken-1"
             >
-              
+              QTY
+            </th>
+            <th
+              class="border-bottom text-xs-right header-size grey--text text--darken-1"
+              @click="showQTYDescription"
+            >
+              QTY Available
+            </th>
+            <th
+              class="border-bottom text-xs-right header-size grey--text text--darken-1"
+            >
+              COST
             </th>
           </tr>
         </thead>
         <tbody>
           <tr
             v-for="(item, i) in filterBy(
-              orderBy(outOfStockItems, 'created_at', -1),
+              orderBy(stockOrder.items, 'created_at', -1),
               search
             )"
             :key="i"
-            class="red lighten-3"
+            :class="[ item.qty > item.availableQTY ? 'red lighten-4' : '']"
           >
             <td class="border-bottom">
               <v-layout row>
-                <v-flex xs4>
+                <v-flex xs3>
                   <v-avatar tile size="35px">
                     <v-img :src="item.image" :alt="item.name" contain></v-img>
                   </v-avatar>
                 </v-flex>
-                <v-flex xs8>
+                <v-flex xs8 offset-xs1 pl-1>
                   <span v-html="item.name" class="caption"></span>
                   <br />
                   <span class="caption">
@@ -171,19 +63,117 @@
                 </v-flex>
               </v-layout>
             </td>
-            <td class="caption text-xs-right border-bottom font-weight-bold">OUT OF STOCK</td>
-            <!-- <td class="caption text-xs-right border-bottom">{{ item.qty }}</td>
+            <td class="caption text-xs-right border-bottom">{{ item.qty }}</td>
+            <td class="caption text-xs-right border-bottom">{{ item.availableQTY }}</td>
             <td class="caption text-xs-right border-bottom">
               {{ (item.qty * item.resellerPrice) | currency("P") }}
               <br />
               <a @click="editItem(item)">
                 <v-icon class="caption blue--text">border_color</v-icon> Edit</a
               >
-            </td> -->
+            </td>
+          </tr>
+          <tr>
+            <td colspan="4" class="text-xs-right">
+              <v-btn
+                small
+                color="primary"
+                depressed
+                @click="$router.push({ name: 'Catalogue' })"
+                >Add new item</v-btn
+              >
+            </td>
+          </tr>
+          <tr>
+            <td class="caption text-xs-right" colspan="3">
+              Total
+            </td>
+            <td class="caption text-xs-right">
+              <strong>{{ total | currency("P") }}</strong>
+            </td>
           </tr>
         </tbody>
       </table>
-    </div>
+      <div class="text-xs-center mt-5" v-show="loader">
+        <v-progress-circular
+          :size="100"
+          :width="5"
+          color="primary"
+          indeterminate
+        ></v-progress-circular>
+      </div>
+
+      <div class="text-xs-center mt-3 mb-3" v-show="!loader">
+        <div v-if="stockOrder.items.length > 0">
+          <v-btn
+            @click="ProceedToCheckout"
+            depressed
+            large
+            color="primary"
+            class="white--text"
+            :disabled="stockOrder.items.length <= 0 || itemsWithLowQTY.length > 0"
+          >
+            <span>Proceed to Checkout </span>
+          </v-btn>
+        </div>
+        <div v-if="itemsWithLowQTY.length" class="mt-3 text-xs-center">
+          <v-icon @click="showWarning"
+          >help_outline</v-icon>
+        </div>
+      </div>
+
+      <v-divider class="mt-5" v-if="outOfStockItems.length"></v-divider>
+
+      <div class="mt-2 px-2" v-if="outOfStockItems.length">
+        <v-layout align-center justify-start row wrap>
+          <v-flex xs10>
+            <div class="text-xs-left font-weight-bold">Items that are <span class="font-weight-bold red--text">OUT OF STOCK</span></div>
+          </v-flex>
+        </v-layout>
+        <table class="basket-table mt-2" v-show="!loader">
+          <thead>
+            <tr>
+              <th class="border-bottom header-size grey--text text--darken-1">
+                NAME
+              </th>
+              <th
+                class="border-bottom text-xs-right header-size grey--text text--darken-1"
+              >
+
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="(item, i) in filterBy(
+                orderBy(outOfStockItems, 'created_at', -1),
+                search
+              )"
+              :key="i"
+              class="red lighten-3"
+            >
+              <td class="border-bottom">
+                <v-layout row>
+                  <v-flex xs4>
+                    <v-avatar tile size="35px">
+                      <v-img :src="item.image" :alt="item.name" contain></v-img>
+                    </v-avatar>
+                  </v-flex>
+                  <v-flex xs8>
+                    <span v-html="item.name" class="caption"></span>
+                    <br />
+                    <span class="caption">
+                      {{ item.attributes | joinAttributes }}
+                    </span>
+                  </v-flex>
+                </v-layout>
+              </td>
+              <td class="caption text-xs-right border-bottom font-weight-bold">OUT OF STOCK</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </v-container>
 
     <v-dialog v-model="loaderDialog" hide-overlay persistent width="300">
       <v-card color="primary" dark>
@@ -230,10 +220,20 @@
           </div>
           <v-layout row wrap align-center justify-start mt-3>
             <v-flex xs12>
-              <div v-if="!selectedProduct.isOutofStock" 
+              <div v-if="!selectedProduct.isOutofStock"
                 :class="[ isLowInStocks(selectedProduct) ? 'subheading red--text' : 'subheading']">
-                Available Stock: 
-                <span class="font-weight-bold">{{ selectedProduct.availableQTY }} pcs.</span>
+                <div>
+                  Available Stock:
+                  <span class="font-weight-bold">{{ selectedProduct.availableQTY }} pcs.</span>
+                </div>
+                <div>
+                  Minimum Order:
+                  <span class="font-weight-bold">{{ selectedProduct.minimumOrder }}</span>
+                </div>
+                <div>
+                  Maximum Order:
+                  <span class="font-weight-bold">{{ selectedProduct.maximumOrder }}</span>
+                </div>
               </div>
               <div v-else class="subheading red--text font-weight-bold">
                 OUT OF STOCK
@@ -247,16 +247,22 @@
             ></v-text-field>
             </v-flex>
             <v-flex xs2 pa-2>
-                <v-btn color="primary" icon 
-                  :disabled="selectedProduct.qty <= 0 || selectedProduct.qty <= Number(selectedProduct.minimumOrder)" 
+                <v-btn color="primary" icon
+                  :disabled="
+                    (Number(selectedProduct.qty) <= 0) ||
+                    (Number(selectedProduct.qty) <= Number(selectedProduct.minimumOrder))
+                  "
                   @click="selectedProduct.qty = (Number(selectedProduct.qty) - 1) || 0"
                 >
                   <v-icon>remove</v-icon>
                 </v-btn>
             </v-flex>
             <v-flex xs2 pa-2>
-                <v-btn color="primary" icon 
-                  :disabled="selectedProduct.qty >= Number(selectedProduct.availableQTY)"
+                <v-btn color="primary" icon
+                  :disabled="
+                    (Number(selectedProduct.qty) >= Number(selectedProduct.availableQTY)) ||
+                    (Number(selectedProduct.qty) >= Number(selectedProduct.maximumOrder))
+                  "
                   @click="selectedProduct.qty = (Number(selectedProduct.qty) + 1) || 0">
                   <v-icon>add</v-icon>
                 </v-btn>
@@ -278,15 +284,10 @@
 
     <v-snackbar bottom v-model="snackbar">{{ snackbarMessage }}</v-snackbar>
     <BottomNav />
-    <!-- <ConfirmationModal
-      ref="ConfirmationModal"
-      confirmText="Continue"
-      @confirmClicked="generateStockOrder"
-    /> -->
     <ConfirmationModal
       ref="ConfirmationModal"
       confirmText="Continue"
-      @confirmClicked="clearStockOrderList"
+      @confirmClicked="generateStockOrder"
     />
   </div>
 </template>
@@ -350,7 +351,6 @@ export default {
 
       for(let item of this.stockOrder.items) {
 
-        // const variant = this.variantList.find(variant => (variant.sku === item.sku) && (variant.productId === item.productId));
         const variant = await this.$store.dispatch('variants/GET_VARIANT', {
           sku: item.sku,
           productId: item.productId
@@ -361,11 +361,9 @@ export default {
         item.onHandQTY = variant.onHandQTY;
         item.reOrderLevel = variant.reOrderLevel;
         item.availableQTY = parseInt(item.onHandQTY) - parseInt(item.allocatedQTY);
-        item.weight = variant.weight;
-        item.price = variant.price;
-        item.resellerPrice = variant.resellerPrice;
         item.isOutofStock = variant.isOutofStock;
         item.minimumOrder = variant.minimumOrder;
+        item.maximumOrder = variant.maximumOrder;
 
         if(!item.isOutofStock && item.availableQTY === 0) {
           item.isOutofStock = true;
@@ -390,11 +388,11 @@ export default {
     showQTYDescription() {
       this.warningDialog = true;
       this.warningDialogMessage = `This is the available quantity of the product in ${this.$store.getters["GET_COMPANY"]}'s warehouse.`
-    },  
+    },
 
     showWarning() {
       this.warningDialog = true;
-      this.warningDialogMessage = "There are items in your order that has a quantity greater than the available quantity in the warehouse. " + 
+      this.warningDialogMessage = "There are items in your order that has a quantity greater than the available quantity in the warehouse. " +
       "Please edit the quantity of the item, or remove it.";
     },
 
@@ -402,41 +400,11 @@ export default {
       return product.availableQTY <= product.reOrderLevel;
     },
 
-    confirmClearBasket() {
+    confirmGenerate() {
       this.$refs.ConfirmationModal.show(
         "Confirm",
-        "Refreshing this page will remove all items you have manually added to this shopping cart, Do you wish to continue?"
+        "Refreshing this page will remove items you have manually added to this shopping cart, Do you wish to continue?"
       );
-    }, 
-
-    async clearStockOrderList() {
-      console.log('clearing stock order basket...');
-      this.$refs.ConfirmationModal.close();
-      this.loaderDialogMessage = 'Clearing your stock order basket...';
-      this.loader = true;
-      
-      try {
-        await this.$store.dispatch("stock_orders/DELETE_ALL_ITEMS", this.stockOrder.id);
-        this.stockOrder = {
-          id: null,
-          items: [],
-          userId: null,
-          createdAt: null
-        };
-        
-        this.loader = false;
-        this.loaderDialogMessage = null;
-        this.snackbarMessage = 'Success!';
-        this.snackbar = true;
-
-      } catch(error) {
-        console.log('error in clearStockOrderList: ', error);
-        this.loader = false;
-        this.loaderDialogMessage = null;
-        this.snackbarMessage = 'Error!';
-        this.snackbar = true;
-      }
-      
     },
 
     generateStockOrder() {
@@ -563,7 +531,7 @@ export default {
                   item.variantId = variant.id;
                 }
               });
-              
+
               this.$store
                 .dispatch("stock_orders/SAVE", obj)
                 .then(res => {
@@ -623,7 +591,7 @@ export default {
     },
 
     deleteProduct() {
-      console.log(1);
+      console.log('deleting product...');
       this.$store
         .dispatch("stock_orders/DELETE_ITEM", this.selectedProduct.unique)
         .then(res => {
@@ -646,11 +614,11 @@ export default {
           console.log(error);
         });
     },
-    ProceedToCheckout() {
+    async ProceedToCheckout() {
       //warn the user that there are items that has a quantity greater than the available quantity
       if(this.itemsWithLowQTY.length) {
         this.warningDialog = true;
-        this.warningDialogMessage = "There are items in your order that has a quantity greater than the available quantity in the warehouse. " + 
+        this.warningDialogMessage = "There are items in your order that has a quantity greater than the available quantity in the warehouse. " +
         "Please edit the quantity of the item, or remove it.";
         return;
       }
@@ -660,18 +628,22 @@ export default {
       });
     }
   },
+  watch: {
+
+  },
   computed: {
     disableSaveButton() {
       if(this.saveProductButton) return true;
       if(Number(this.selectedProduct.qty) < Number(this.selectedProduct.minimumOrder)) return true;
       if(Number(this.selectedProduct.qty) > Number(this.selectedProduct.availableQTY)) return true;
+      if(Number(this.selectedProduct.qty) > Number(this.selectedProduct.maximumOrder)) return true;
       if(Number(this.selectedProduct.qty) <= 0) return true;
 
       return false;
     },
 
     subTotal() {
-      console.log(this.stockOrder);
+      // console.log(this.stockOrder);
       return this.stockOrder.items.reduce(
         (a, b) => a + b.price * b.qty,
         0
@@ -715,7 +687,7 @@ export default {
       for(let invalidItem of outOfStockItems) {
         const index = items.findIndex(item => item.productId === invalidItem.productId);
         if(index !== -1) {
-          this.stockOrder.items.splice(index, 1);  
+          this.stockOrder.items.splice(index, 1);
         }
       }
 
@@ -737,7 +709,7 @@ export default {
       let str = "";
 
       keys.forEach(key => {
-        str += `${key.toUpperCase()}: ${attributes[key]}`;
+        str += `${key.toUpperCase()}: ${attributes[key]}\n`;
       });
 
       return str;
