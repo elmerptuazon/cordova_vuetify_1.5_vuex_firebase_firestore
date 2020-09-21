@@ -12,7 +12,7 @@ module.exports = {
   webAdminId: '"admin"',
   companyName: '"Matenara"',
   contactNumber: '"09123456789"',
-  version: '"0.6.10"',
+  version: '"0.6.21"',
   primaryColor: '"#215e3f"',
   environment: '"live"',
   callbackURL: '"https://us-central1-matenara-dev.cloudfunctions.net/callback"'

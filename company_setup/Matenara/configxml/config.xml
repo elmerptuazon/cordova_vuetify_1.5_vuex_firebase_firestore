@@ -1,12 +1,25 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget android-versionCode="3" id="io.cordova.appsell_Matenara" ios-CFBundleVersion="1" version="0.6.10" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <name>Matenara Test App</name>
+<widget android-versionCode="3" id="com.appsell.Matenara" ios-CFBundleVersion="1" version="0.6.21" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>Matenara</name>
     <description>Matenara test app</description>
     <author email="sorianorobertc@gmail.com" href="https://robertsoriano.com">
       AppSell Team
     </author>
     <content src="index.html" />
+    <feature name="CDVWKWebViewEngine">
+      <param name="ios-package" value="CDVWKWebViewEngine" />
+    </feature>
+    <feature name="SocialSharing">
+      <param name="ios-package" value="SocialSharing" />
+    </feature>
+    <feature name="SocialSharing">
+      <param name="android-package" value="nl.xservices.plugins.SocialSharing" />
+    </feature>
+    <preference name="CordovaWebViewEngine" value="CDVWKWebViewEngine" />
+    <preference name="WKWebViewOnly" value="true" />
+    <preference name="AllowBackForwardNavigationGestures" value="true" />
     <preference name="DisallowOverscroll" value="true" />
+    <preference name="ScrollEnabled" value="true" />
     <access origin="*" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
@@ -41,6 +54,9 @@
         <allow-intent href="itms-apps:*" />
         <preference name="SplashMaintainAspectRatio" value="true" />
         <preference name="SplashShowOnlyFirstTime" value="true" />
+        <preference name="StatusBarOverlaysWebView" value="false" />
+        <preference name="StatusBarBackgroundColor" value="#215e3f" />
+        <preference name="KeyboardResize" value="true" />
         <!-- <preference name="SplashScreenDelay" value="30000" /> -->
         <preference name="AutoHideSplashScreen" value="true" />
        <!-- iOS 8.0+ -->
@@ -48,7 +64,7 @@
         <icon src="res/icon/ios/icon-App-60x60@3x.png" width="180" height="180" />
         <!-- iOS 7.0+ -->
         <!-- iPhone / iPod Touch  -->
-        <!-- <icon src="res/icon/ios/icon-App-60x60@1x.png" width="60" height="60" /> -->
+        <icon src="res/icon/ios/icon-App-60x60@1x.png" width="60" height="60" />
         <icon src="res/icon/ios/icon-App-60x60@2x.png" width="120" height="120" />
         <!-- iPad -->
         <icon src="res/icon/ios/icon-App-76x76@1x.png" width="76" height="76" />
@@ -58,20 +74,20 @@
         <icon src="res/icon/ios/icon-App-40x40@2x.png" width="80" height="80" />
         <!-- iOS 6.1 -->
         <!-- iPhone / iPod Touch -->
-        <!-- <icon src="res/icon/ios/icon.png" width="57" height="57" />
-        <icon src="res/icon/ios/icon@2x.png" width="114" height="114" /> -->
+        <icon src="res/icon/ios/icon.png" width="57" height="57" />
+        <icon src="res/icon/ios/icon@2x.png" width="114" height="114" />
         <!-- iPad -->
-        <!-- <icon src="res/icon/ios/icon-App-72.png" width="72" height="72" />
-        <icon src="res/icon/ios/icon-App-72@2x.png" width="144" height="144" /> -->
+        <icon src="res/icon/ios/icon-App-72.png" width="72" height="72" />
+        <icon src="res/icon/ios/icon-App-72@2x.png" width="144" height="144" />
         <!-- iPad Pro -->
-        <!-- <icon src="res/icon/ios/icon-App-167.png" width="167" height="167" /> -->
+        <icon src="res/icon/ios/icon-App-167.png" width="167" height="167" />
         <!-- iPhone Spotlight and Settings Icon -->
         <icon src="res/icon/ios/icon-App-29x29@1x.png" width="29" height="29" />
         <icon src="res/icon/ios/icon-App-29x29@2x.png" width="58" height="58" />
         <icon src="res/icon/ios/icon-App-29x29@3x.png" width="87" height="87" />
         <!-- iPad Spotlight and Settings Icon -->
-        <!-- <icon src="res/icon/ios/icon-App-50.png" width="50" height="50" />
-        <icon src="res/icon/ios/icon-App-50@2x.png" width="100" height="100" /> -->
+        <icon src="res/icon/ios/icon-App-50.png" width="50" height="50" />
+        <icon src="res/icon/ios/icon-App-50@2x.png" width="100" height="100" />
         <!-- iPad Pro -->
         <icon src="res/icon/ios/icon-App-83.5x83.5@2x.png" width="167" height="167" />
         <splash src="res/screen/ios/Default@2x~universal~anyany.png" />
@@ -84,7 +100,6 @@
     <plugin name="cordova-plugin-device" spec="^2.0.1" />
     <plugin name="cordova-plugin-whitelist" spec="^1.3.3" />
     <plugin name="cordova-plugin-camera" spec="^4.0.2" />
-    <plugin name="cordova-plugin-datepicker" spec="^0.9.3" />
     <plugin name="cordova-plugin-vibration" spec="^3.0.1" />
     <plugin name="cordova-plugin-x-socialsharing" spec="~5.4.0" />
     <plugin name="cordova-plugin-dialogs" spec="^2.0.1" />
@@ -97,6 +112,8 @@
     <plugin name="cordova-plugin-ionic-keyboard" spec="2.1.3" />
     <plugin name="cordova-android-support-gradle-release" spec="^1.4.7" />
     <plugin name="cordova-plugin-splashscreen" spec="^5.0.2" />
+    <plugin name="skwas-cordova-plugin-datetimepicker" spec="^2.1.1" />
     <engine name="browser" spec="^5.0.3" />
     <engine name="android" spec="^7.1.4" />
+    <engine name="ios" spec="^5.1.1" />
 </widget>
