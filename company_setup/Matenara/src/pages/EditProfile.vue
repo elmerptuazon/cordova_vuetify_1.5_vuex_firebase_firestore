@@ -439,7 +439,7 @@
 <script>
 import { mixins } from "@/mixins";
 import { mapGetters } from "vuex";
-import Provinces from "@/assets/provinces.json";
+import provinces from "@/assets/provinces.json";
 import Modal from "@/components/Modal";
 import MaleDefaultImage from "@/assets/img/male-default.jpg";
 export default {
