@@ -113,6 +113,7 @@
                 <v-autocomplete
                   :rules="basicRules"
                   :items="provinces"
+                  @change="populateCities"
                   item-value="name"
                   label="Province*"
                   item-text="name"
@@ -122,9 +123,9 @@
               <v-flex xs12>
                 <v-autocomplete
                   :rules="basicRules"
+                  :items="cities"
                   v-if="registerData.address.province"
                   item-value="name"
-                  :items="cities"
                   label="City/Municipality*"
                   item-text="name"
                   v-model="registerData.address.citymun"
@@ -541,7 +542,7 @@ export default {
     birthdayMenu: false,
     pickerValue: null,
     provinces: [],
-    // cities: [],
+    cities: [],
     barangays: [],
     submitBtnDisabled: false,
     agree: false,
@@ -1026,13 +1027,16 @@ export default {
         return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
       });
     },
+
+    populateCities() {
+      const val = this.registerData.address.province;
+      if(this.registerData.address.citymun) this.registerData.address.citymun = null;
+      this.cities = provinces.filter(p => p.name === val)[0].cities;
+    }
   },
   mixins: [mixins],
   computed: {
-    cities() {
-      const val = this.registerData.address.province;
-      return provinces.filter(p => p.name === val)[0].cities;
-    }
+
   },
   watch: {
     // "registerData.address.province"(val) {
