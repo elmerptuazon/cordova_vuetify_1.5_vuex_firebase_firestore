@@ -130,7 +130,7 @@
           </v-flex>
           <v-flex xs12 v-else>
             <v-btn
-              v-if="!userData.resellerData"
+              v-if="!userData.referredBy"
               block
               color="primary"
               depressed
@@ -453,9 +453,11 @@ export default {
       gender: null,
       email: null,
       contact: null,
-      password: null,
-      confirmPassword: null,
+      downloadURL: null,
       displayPicture: null,
+      referredBy: {
+        downloadURL: null
+      },
       address: {
         house: null,
         streetName: null,
@@ -509,7 +511,8 @@ export default {
     console.log("user:", this.user);
 
     this.userData = Object.assign({}, this.userData, this.user);
-    console.log(this.userData);
+    console.log('new userData: ', this.userData);
+
     this.provinces = provinces;
     const val = this.userData.address.province;
     this.cities = provinces.filter(p => p.name === val)[0].cities;
@@ -521,8 +524,9 @@ export default {
     }
 
     if (
-      !this.userData.hasOwnProperty("hasPicture") ||
-      !this.userData.hasPicture
+      (!this.userData.hasOwnProperty("hasPicture") ||
+      !this.userData.hasPicture)
+      && this.userData.type === 'Customer'
     ) {
       this.userData.resellerData.downloadURL = MaleDefaultImage;
     }
