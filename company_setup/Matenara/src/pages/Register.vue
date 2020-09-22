@@ -541,7 +541,7 @@ export default {
     birthdayMenu: false,
     pickerValue: null,
     provinces: [],
-    cities: [],
+    // cities: [],
     barangays: [],
     submitBtnDisabled: false,
     agree: false,
@@ -1028,11 +1028,18 @@ export default {
     },
   },
   mixins: [mixins],
+  computed: {
+    cities() {
+      const val = this.registerData.address.province;
+      return provinces.filter(p => p.name === val)[0].cities;
+    }
+  },
   watch: {
-    "registerData.address.province"(val) {
-      this.cities = provinces.filter((p) => p.name === val)[0].cities;
-    },
-    "registerData.type"() {
+    // "registerData.address.province"(val) {
+    //   this.cities = provinces.filter((p) => p.name === val)[0].cities;
+    // },
+    "registerData.type"(val) {
+      if(!val) return;
       this.$refs.form1.resetValidation();
       this.$refs.form2.resetValidation();
       this.$refs.form3.resetValidation();
