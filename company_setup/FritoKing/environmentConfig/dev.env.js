@@ -14,7 +14,7 @@ module.exports = merge(prodEnv, {
   webAdminId: '"admin"',
   companyName: '"Frito King"',
   contactNumber: '"09123456789"',
-  version: '"0.6.10"',
+  version: '"0.6.21"',
   primaryColor: '"#c11515"',
   environment: '"test"',
   callbackURL: '"https://us-central1-fritoking-dev.cloudfunctions.net/callback/checkPaymentStatus"',
