@@ -14,7 +14,7 @@ module.exports = merge(prodEnv, {
   webAdminId: '"admin"',
   companyName: '"Buffalo\'s Wings N Things"',
   contactNumber: '"09123456789"',
-  version: '"0.6.10"',
+  version: '"0.6.21"',
   primaryColor: '"#0099ff"',
   environment: '"test"',
   callbackURL: '"https://us-central1-buffalowings-dev.cloudfunctions.net/callback/checkPaymentStatus"',
