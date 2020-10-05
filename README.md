@@ -4,6 +4,15 @@
 
 ## Build Setup
 
+Version:
+node 12.16.3
+gradle 6.6.1(install manually via zip)
+android sdk 28(might need to change manually under platforms)
+
+Requirements:
+create gradle.properties under platforms android
+
+
 ``` bash
 # install dependencies
 npm install
