@@ -12,7 +12,6 @@ android sdk 28(might need to change manually under platforms)
 Requirements:
 create gradle.properties under platforms android
 
-
 ``` bash
 # install dependencies
 npm install
